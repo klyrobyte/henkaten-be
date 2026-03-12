@@ -17,6 +17,8 @@ class User extends Authenticatable
         'username',
         'password',
         'role',
+        'factory',
+        'shift',
     ];
 
     protected $hidden = [
@@ -42,6 +44,17 @@ class User extends Authenticatable
     public function isAdmin(): bool
     {
         return $this->role === 'admin';
+    }
+
+    /**
+     * Cek apakah user boleh mengakses factory+shift tertentu.
+     * Admin selalu bisa akses semua. Non-admin hanya factory+shift miliknya.
+     */
+    public function canAccessFactory(string $factory, string $shift): bool
+    {
+        if ($this->isAdmin()) return true;
+        if (!$this->factory || !$this->shift) return true; // belum di-assign, tidak dibatasi
+        return $this->factory === $factory && $this->shift === $shift;
     }
 
     public function isSupervisor(): bool

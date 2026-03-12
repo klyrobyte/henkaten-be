@@ -24,18 +24,27 @@ class UserController extends Controller
             'username' => 'required|string|max:50|unique:users,username|alpha_dash',
             'password' => 'required|string|min:6|confirmed',
             'role'     => ['required', Rule::in(['admin', 'tl', 'gl', 'pengawas', 'tv'])],
+            'factory'  => ['nullable', 'string', Rule::requiredIf(fn() => in_array($request->role, ['tl', 'gl', 'pengawas']))],
+            'shift'    => ['nullable', Rule::in(['A', 'B']), Rule::requiredIf(fn() => in_array($request->role, ['tl', 'gl', 'pengawas']))],
         ], [
             'username.unique'     => 'Username sudah digunakan.',
             'username.alpha_dash' => 'Username hanya boleh huruf, angka, dash, dan underscore.',
             'password.min'        => 'Password minimal 6 karakter.',
             'password.confirmed'  => 'Konfirmasi password tidak cocok.',
+            'factory.required'    => 'Factory wajib diisi untuk role ini.',
+            'shift.required'      => 'Shift wajib diisi untuk role ini.',
         ]);
+
+        // Admin dan TV tidak perlu factory/shift
+        $restrictedRoles = ['tl', 'gl', 'pengawas'];
 
         User::create([
             'name'     => $request->name,
             'username' => $request->username,
             'password' => Hash::make($request->password),
             'role'     => $request->role,
+            'factory'  => in_array($request->role, $restrictedRoles) ? $request->factory : null,
+            'shift'    => in_array($request->role, $restrictedRoles) ? $request->shift    : null,
         ]);
 
         return response()->json(['ok' => true, 'message' => '✅ User berhasil ditambahkan.']);
@@ -49,11 +58,15 @@ class UserController extends Controller
             'username' => ['required','string','max:50','alpha_dash', Rule::unique('users','username')->ignore($user->id)],
             'role'     => ['required', Rule::in(['admin', 'tl', 'gl', 'pengawas', 'tv'])],
             'password' => 'nullable|string|min:6|confirmed',
+            'factory'  => ['nullable', 'string', Rule::requiredIf(fn() => in_array($request->role, ['tl', 'gl', 'pengawas']))],
+            'shift'    => ['nullable', Rule::in(['A', 'B']), Rule::requiredIf(fn() => in_array($request->role, ['tl', 'gl', 'pengawas']))],
         ], [
             'username.unique'     => 'Username sudah digunakan.',
             'username.alpha_dash' => 'Username hanya boleh huruf, angka, dash, dan underscore.',
             'password.min'        => 'Password minimal 6 karakter.',
             'password.confirmed'  => 'Konfirmasi password tidak cocok.',
+            'factory.required'    => 'Factory wajib diisi untuk role ini.',
+            'shift.required'      => 'Shift wajib diisi untuk role ini.',
         ]);
 
         // Cegah mengubah role satu-satunya admin
@@ -64,10 +77,14 @@ class UserController extends Controller
             }
         }
 
+        $restrictedRoles = ['tl', 'gl', 'pengawas'];
+
         $data = [
             'name'     => $request->name,
             'username' => $request->username,
             'role'     => $request->role,
+            'factory'  => in_array($request->role, $restrictedRoles) ? $request->factory : null,
+            'shift'    => in_array($request->role, $restrictedRoles) ? $request->shift    : null,
         ];
 
         if ($request->filled('password')) {
@@ -100,6 +117,6 @@ class UserController extends Controller
 
     public function show(User $user)
     {
-        return response()->json($user->only(['id', 'name', 'username', 'role', 'created_at']));
+        return response()->json($user->only(['id', 'name', 'username', 'role', 'factory', 'shift', 'created_at']));
     }
 }

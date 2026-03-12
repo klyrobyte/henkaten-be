@@ -136,28 +136,28 @@
             <div class="ri-dot" style="background:#e74c3c"></div>
             <div>
                 <div class="ri-name" style="color:#e74c3c">Admin</div>
-                <div class="ri-desc">Full access + kelola user</div>
+                <div class="ri-desc">Full access + kelola user. Akses ke semua factory &amp; shift.</div>
             </div>
         </div>
         <div class="role-info-card" style="border-color:#c5cae9;background:#eef1fa">
             <div class="ri-dot" style="background:#1f3c88"></div>
             <div>
                 <div class="ri-name" style="color:#1f3c88">Team Leader (TL)</div>
-                <div class="ri-desc">Full access, tanpa user management</div>
+                <div class="ri-desc">Akses hanya ke factory &amp; shift yang di-assign.</div>
             </div>
         </div>
         <div class="role-info-card" style="border-color:#c8e6c9;background:#f1f8e9">
             <div class="ri-dot" style="background:#2e7d32"></div>
             <div>
                 <div class="ri-name" style="color:#2e7d32">Group Leader (GL)</div>
-                <div class="ri-desc">Full access, tanpa user management</div>
+                <div class="ri-desc">Akses hanya ke factory &amp; shift yang di-assign.</div>
             </div>
         </div>
         <div class="role-info-card" style="border-color:#ffe0b2;background:#fff8ec">
             <div class="ri-dot" style="background:#f39c12"></div>
             <div>
                 <div class="ri-name" style="color:#f39c12">Pengawas</div>
-                <div class="ri-desc">Full access, tanpa user management</div>
+                <div class="ri-desc">Akses hanya ke factory &amp; shift yang di-assign.</div>
             </div>
         </div>
     </div>
@@ -179,6 +179,7 @@
                 <tr>
                     <th>Nama / Username</th>
                     <th>Role</th>
+                    <th>Factory / Shift</th>
                     <th>Dibuat</th>
                     <th style="text-align:right">Aksi</th>
                 </tr>
@@ -213,19 +214,29 @@
                             {{ $roleLabels[$u->role] ?? $u->role }}
                         </span>
                     </td>
+                    <td style="font-size:11px;color:#555;font-family:'Roboto Condensed',sans-serif">
+                        @if($u->factory && $u->shift)
+                            <strong>{{ $u->factory }}</strong><br>
+                            <span style="color:#888">Shift {{ $u->shift }}</span>
+                        @else
+                            <span style="color:#ccc">—</span>
+                        @endif
+                    </td>
                     <td style="font-size:11px;color:#aaa;font-family:'Roboto Condensed',sans-serif">
                         {{ $u->created_at?->format('d M Y') ?? '—' }}
                     </td>
                     <td style="text-align:right;white-space:nowrap">
                         <button class="um-action-btn um-btn-edit"
-                                onclick="openUserModal({{ $u->id }}, '{{ addslashes($u->name) }}', '{{ $u->username }}', '{{ $u->role }}')">
+                                onclick="openUserModal({{ $u->id }}, '{{ addslashes($u->name) }}', '{{ $u->username }}', '{{ $u->role }}', '{{ $u->factory ?? '' }}', '{{ $u->shift ?? '' }}')"
+                        >
                             ✏️ Edit
                         </button>
                         @if($isSelf)
                             <button class="um-action-btn um-btn-self" disabled title="Tidak bisa hapus akun sendiri">🚫</button>
                         @else
                             <button class="um-action-btn um-btn-del"
-                                    onclick="deleteUser({{ $u->id }}, '{{ addslashes($u->name) }}')">
+                                    onclick="deleteUser({{ $u->id }}, '{{ addslashes($u->name) }}')"
+                            >
                                 🗑️
                             </button>
                         @endif
@@ -233,7 +244,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="4" style="text-align:center;padding:24px;color:#aaa;font-size:12px">
+                    <td colspan="5" style="text-align:center;padding:24px;color:#aaa;font-size:12px">
                         Belum ada user.
                     </td>
                 </tr>
@@ -265,13 +276,30 @@
                 </div>
                 <div class="um-field">
                     <label>Role *</label>
-                    <select id="umRole">
+                    <select id="umRole" onchange="toggleFactoryShiftFields()">
                         <option value="">— Pilih Role —</option>
                         <option value="admin">🔴 Admin (Full + User Mgmt)</option>
                         <option value="tl">🔵 Team Leader (TL)</option>
                         <option value="gl">🟢 Group Leader (GL)</option>
                         <option value="pengawas">🟡 Pengawas</option>
-                                    <option value="tv">📺 TV Only</option>
+                        <option value="tv">📺 TV Only</option>
+                    </select>
+                </div>
+                {{-- Factory + Shift: hanya muncul untuk TL / GL / Pengawas --}}
+                <div class="um-field" id="umFactoryWrap" style="display:none">
+                    <label>Factory *</label>
+                    <select id="umFactory">
+                        <option value="">— Pilih Factory —</option>
+                        <option value="Factory 2">Factory 2</option>
+                        <option value="Factory 3 &amp; 4">Factory 3 &amp; 4</option>
+                    </select>
+                </div>
+                <div class="um-field" id="umShiftWrap" style="display:none">
+                    <label>Shift *</label>
+                    <select id="umShift">
+                        <option value="">— Pilih Shift —</option>
+                        <option value="A">Shift A</option>
+                        <option value="B">Shift B</option>
                     </select>
                 </div>
                 <div class="um-field">
@@ -296,7 +324,16 @@
 const CSRF = '{{ csrf_token() }}';
 let _umEditId = null;
 
-function openUserModal(id = null, name = '', username = '', role = '') {
+const RESTRICTED_ROLES = ['tl', 'gl', 'pengawas'];
+
+function toggleFactoryShiftFields() {
+    const role = document.getElementById('umRole').value;
+    const needsScope = RESTRICTED_ROLES.includes(role);
+    document.getElementById('umFactoryWrap').style.display = needsScope ? '' : 'none';
+    document.getElementById('umShiftWrap').style.display   = needsScope ? '' : 'none';
+}
+
+function openUserModal(id = null, name = '', username = '', role = '', factory = '', shift = '') {
     _umEditId = id;
     const isEdit = !!id;
 
@@ -305,12 +342,15 @@ function openUserModal(id = null, name = '', username = '', role = '') {
     document.getElementById('umName').value         = name;
     document.getElementById('umUsername').value     = username;
     document.getElementById('umRole').value         = role;
+    document.getElementById('umFactory').value      = factory;
+    document.getElementById('umShift').value        = shift;
     document.getElementById('umPassword').value     = '';
     document.getElementById('umPasswordConfirm').value = '';
     document.getElementById('umPwHint').textContent = isEdit
         ? 'Kosongkan jika tidak ingin mengubah password.'
         : 'Minimal 6 karakter.';
 
+    toggleFactoryShiftFields();
     openSheet('userModal');
     setTimeout(() => document.getElementById('umName').focus(), 200);
 }
@@ -320,12 +360,16 @@ async function saveUser() {
     const name     = document.getElementById('umName').value.trim();
     const username = document.getElementById('umUsername').value.trim();
     const role     = document.getElementById('umRole').value;
+    const factory  = document.getElementById('umFactory').value;
+    const shift    = document.getElementById('umShift').value;
     const password = document.getElementById('umPassword').value;
     const confirm  = document.getElementById('umPasswordConfirm').value;
 
     if (!name)     { showToast('Nama tidak boleh kosong.', 'error'); return; }
     if (!username) { showToast('Username tidak boleh kosong.', 'error'); return; }
     if (!role)     { showToast('Pilih role terlebih dahulu.', 'error'); return; }
+    if (RESTRICTED_ROLES.includes(role) && !factory) { showToast('Pilih factory untuk role ini.', 'error'); return; }
+    if (RESTRICTED_ROLES.includes(role) && !shift)   { showToast('Pilih shift untuk role ini.', 'error'); return; }
     if (!id && !password)         { showToast('Password wajib diisi.', 'error'); return; }
     if (password && password.length < 6) { showToast('Password minimal 6 karakter.', 'error'); return; }
     if (password && password !== confirm) { showToast('Konfirmasi password tidak cocok.', 'error'); return; }
@@ -337,6 +381,7 @@ async function saveUser() {
         const url    = id ? `/admin/users/${id}` : '/admin/users';
         const method = id ? 'PUT' : 'POST';
         const body   = { name, username, role };
+        if (RESTRICTED_ROLES.includes(role)) { body.factory = factory; body.shift = shift; }
         if (password) { body.password = password; body.password_confirmation = confirm; }
 
         const res  = await fetch(url, {

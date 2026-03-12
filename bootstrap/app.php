@@ -13,12 +13,15 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         // Alias untuk dipakai manual di route tertentu
         $middleware->alias([
-            'role'        => \App\Http\Middleware\RoleMiddleware::class,
-            'tv.restrict' => \App\Http\Middleware\TvRestrictMiddleware::class,
+            'role'          => \App\Http\Middleware\RoleMiddleware::class,
+            'tv.restrict'   => \App\Http\Middleware\TvRestrictMiddleware::class,
+            'factory.shift' => \App\Http\Middleware\FactoryShiftMiddleware::class,
         ]);
 
         // Append ke semua web request — intercept role tv sebelum sampai controller
         $middleware->appendToGroup('web', \App\Http\Middleware\TvRestrictMiddleware::class);
+        // Terapkan pembatasan factory+shift untuk TL/GL/Pengawas
+        $middleware->appendToGroup('web', \App\Http\Middleware\FactoryShiftMiddleware::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
