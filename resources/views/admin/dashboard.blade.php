@@ -562,10 +562,12 @@
 
 <div class="machines-wrap">
     @php
-        $absenIds = \App\Models\AbsenceRecord::where([
+        $absenRecords = \App\Models\AbsenceRecord::where([
             'tanggal' => $tanggal, 'factory' => $factory,
             'shift'   => $shift,   'status'  => 'absen',
-        ])->pluck('member_id')->toArray();
+        ])->get()->keyBy('member_id');
+        $absenIds     = $absenRecords->keys()->toArray();
+        $absenReasons = $absenRecords->map(fn($r) => $r->reason)->toArray();
 
         try {
             $replacements = \App\Models\AssignmentReplacement::where([
@@ -731,7 +733,16 @@
                                             {{ $m->nama }}
                                         </div>
                                         @if($isAbsen)
-                                            <span class="mc-member-tag tag-absen">Absen</span>
+                                            @php
+                                                $absenReason = strtolower($absenReasons[$m->id] ?? '');
+                                                $absenLabel  = match(true) {
+                                                    str_contains($absenReason, 'sakit') => 'SAKIT',
+                                                    str_contains($absenReason, 'izin') || str_contains($absenReason, 'ijin') => 'IZIN',
+                                                    str_contains($absenReason, 'cuti') => 'CUTI',
+                                                    default => 'Absen',
+                                                };
+                                            @endphp
+                                            <span class="mc-member-tag tag-absen">{{ $absenLabel }}</span>
                                         @elseif($isDipinjam)
                                             <span class="mc-member-tag tag-dipinjam">Tugas Lain</span>
                                             <div class="mi-dipinjam-dest" title="Bertugas di: {{ $destMachine }}">
@@ -1061,7 +1072,9 @@ async function syncCards() {
                     item.classList.add('mi-absen'); item.classList.remove('mi-dipinjam');
                     av?.classList.replace('av-ok','av-absen');
                     if(img) img.style.filter='grayscale(.5) brightness(.8)';
-                    if(tag){ tag.className='mc-member-tag tag-absen'; tag.textContent='Absen'; }
+                    if(tag){ tag.className='mc-member-tag tag-absen';
+                        const r=(absData[mid]?.reason||'').toLowerCase();
+                        tag.textContent=r.includes('sakit')?'SAKIT':r.includes('izin')||r.includes('ijin')?'IZIN':r.includes('cuti')?'CUTI':'Absen'; }
                     item.querySelector('.mi-dipinjam-dest')?.remove();
                 } else if (isDipinjam) {
                     const dest = replData.find(r=>r.member_id===mid)?.target_machine||'';
