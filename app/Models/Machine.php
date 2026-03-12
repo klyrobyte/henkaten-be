@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Storage;
 
 class Machine extends Model
 {
@@ -14,6 +13,6 @@ class Machine extends Model
      */
     public function getPhotoUrlAttribute(): ?string
     {
-        return $this->photo ? Storage::url($this->photo) : null;
+        return $this->photo ? asset('storage/' . $this->photo) : null;
     }
 }

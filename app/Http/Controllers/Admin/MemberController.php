@@ -74,7 +74,7 @@ class MemberController extends Controller
         $data = $this->validateMember($request);
 
         if ($request->hasFile('photo')) {
-            $data['photo'] = $request->file('photo')->store('members', 'public');
+            $data['photo'] = $request->file('photo')->store('members', 'public_dir');
         } elseif ($request->filled('photo_base64')) {
             $data['photo'] = $this->storeBase64Photo($request->photo_base64);
         }
@@ -97,9 +97,9 @@ class MemberController extends Controller
 
         if ($request->hasFile('photo')) {
             if ($member->photo && !str_starts_with($member->photo, 'data:')) {
-                Storage::disk('public')->delete($member->photo);
+                Storage::disk('public_dir')->delete($member->photo);
             }
-            $data['photo'] = $request->file('photo')->store('members', 'public');
+            $data['photo'] = $request->file('photo')->store('members', 'public_dir');
         } elseif ($request->filled('photo_base64')) {
             $data['photo'] = $this->storeBase64Photo($request->photo_base64);
         }
@@ -119,7 +119,7 @@ class MemberController extends Controller
     public function destroy(Member $member)
     {
         if ($member->photo && !str_starts_with($member->photo, 'data:')) {
-            Storage::disk('public')->delete($member->photo);
+            Storage::disk('public_dir')->delete($member->photo);
         }
         $member->delete();
 
@@ -137,7 +137,7 @@ class MemberController extends Controller
     {
         Member::all()->each(function ($m) {
             if ($m->photo && !str_starts_with($m->photo, 'data:')) {
-                Storage::disk('public')->delete($m->photo);
+                Storage::disk('public_dir')->delete($m->photo);
             }
             $m->delete();
         });
@@ -284,7 +284,7 @@ class MemberController extends Controller
         $ext  = explode('/', explode(';', $base64)[0])[1];
         $data = base64_decode(explode(',', $base64)[1]);
         $path = 'members/' . uniqid() . '.' . $ext;
-        Storage::disk('public')->put($path, $data);
+        Storage::disk('public_dir')->put($path, $data);
         return $path;
     }
 }

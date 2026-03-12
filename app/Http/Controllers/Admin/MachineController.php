@@ -43,16 +43,16 @@ class MachineController extends Controller
             'name'    => $request->machine_name,
         ]);
 
-        if ($machine->photo && Storage::disk('public')->exists($machine->photo)) {
-            Storage::disk('public')->delete($machine->photo);
+        if ($machine->photo && Storage::disk('public_dir')->exists($machine->photo)) {
+            Storage::disk('public_dir')->delete($machine->photo);
         }
 
-        $path = $request->file('photo')->store('machines', 'public');
+        $path = $request->file('photo')->store('machines', 'public_dir');
         $machine->update(['photo' => $path]);
 
         return response()->json([
             'ok'        => true,
-            'photo_url' => Storage::url($path),
+            'photo_url' => asset('storage/' . $path),
         ]);
     }
 
@@ -72,8 +72,8 @@ class MachineController extends Controller
             'name'    => $request->machine_name,
         ])->first();
 
-        if ($machine?->photo && Storage::disk('public')->exists($machine->photo)) {
-            Storage::disk('public')->delete($machine->photo);
+        if ($machine?->photo && Storage::disk('public_dir')->exists($machine->photo)) {
+            Storage::disk('public_dir')->delete($machine->photo);
             $machine->update(['photo' => null]);
         }
 
