@@ -48,8 +48,17 @@ class AbsenceController extends Controller
     public function index(Request $request)
     {
         $tanggal = $request->get('tanggal', today()->toDateString());
-        $factory = $this->normalizeFactory($request->get('factory', 'Factory 2'));
-        $shift   = $request->get('shift', 'A');
+
+        // Jika user bukan admin dan punya factory+shift yang di-assign,
+        // paksa gunakan nilai tersebut (abaikan query-string).
+        $user = auth()->user();
+        if ($user->role !== 'admin' && $user->factory && $user->shift) {
+            $factory = $user->factory;
+            $shift   = $user->shift;
+        } else {
+            $factory = $this->normalizeFactory($request->get('factory', 'Factory 2'));
+            $shift   = $request->get('shift', 'A');
+        }
 
         $members = $this->membersFor($factory, $shift);
 

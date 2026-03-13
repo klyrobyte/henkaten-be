@@ -12,20 +12,36 @@
                 <input type="date" name="tanggal" value="{{ $tanggal }}"
                        onchange="document.getElementById('filterForm').submit()">
             </div>
-            <div class="field-group" style="flex:1;min-width:100px">
-                <label>Factory</label>
-                <select name="factory" onchange="document.getElementById('filterForm').submit()">
-                    <option value="Factory 2"         {{ $factory === 'Factory 2'     ? 'selected' : '' }}>Factory 2</option>
-                    <option value="Factory 3 &amp; 4" {{ $factory === 'Factory 3 & 4' ? 'selected' : '' }}>Factory 3 &amp; 4</option>
-                </select>
-            </div>
-            <div class="field-group" style="flex:1;min-width:90px">
-                <label>Shift</label>
-                <select name="shift" onchange="document.getElementById('filterForm').submit()">
-                    <option value="A" {{ $shift === 'A' ? 'selected' : '' }}>Shift A</option>
-                    <option value="B" {{ $shift === 'B' ? 'selected' : '' }}>Shift B</option>
-                </select>
-            </div>
+            @if(auth()->user()->role === 'admin')
+                {{-- Admin: bisa ganti factory & shift --}}
+                <div class="field-group" style="flex:1;min-width:100px">
+                    <label>Factory</label>
+                    <select name="factory" onchange="document.getElementById('filterForm').submit()">
+                        <option value="Factory 2"         {{ $factory === 'Factory 2'     ? 'selected' : '' }}>Factory 2</option>
+                        <option value="Factory 3 &amp; 4" {{ $factory === 'Factory 3 & 4' ? 'selected' : '' }}>Factory 3 &amp; 4</option>
+                    </select>
+                </div>
+                <div class="field-group" style="flex:1;min-width:90px">
+                    <label>Shift</label>
+                    <select name="shift" onchange="document.getElementById('filterForm').submit()">
+                        <option value="A" {{ $shift === 'A' ? 'selected' : '' }}>Shift A</option>
+                        <option value="B" {{ $shift === 'B' ? 'selected' : '' }}>Shift B</option>
+                    </select>
+                </div>
+            @else
+                {{-- Non-admin: factory & shift terkunci sesuai akun --}}
+                <input type="hidden" name="factory" value="{{ $factory }}">
+                <input type="hidden" name="shift"   value="{{ $shift }}">
+                <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+                    <span style="background:linear-gradient(135deg,#1f3c88,#2c4a9e);color:#fff;font-family:'Roboto Condensed',sans-serif;font-weight:800;font-size:12px;padding:5px 14px;border-radius:20px;letter-spacing:.5px;">
+                        🏭 {{ $factory }}
+                    </span>
+                    <span style="background:linear-gradient(135deg,#f5a623,#e67e22);color:#fff;font-family:'Roboto Condensed',sans-serif;font-weight:800;font-size:12px;padding:5px 14px;border-radius:20px;letter-spacing:.5px;">
+                        ⏰ Shift {{ $shift }}
+                    </span>
+                    <span style="font-size:10px;color:#aaa;font-family:'Roboto Condensed',sans-serif;">🔒 Disesuaikan dengan akun Anda</span>
+                </div>
+            @endif
         </div>
     </div>
 </form>
