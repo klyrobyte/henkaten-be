@@ -81,23 +81,27 @@ class LogController extends Controller
 
     public function close(Request $request, ProblemLog $log)
     {
-        // Selalu gunakan waktu sekarang
-        $waktuSelesai = now('Asia/Jakarta')->format('H:i');
+        $request->validate([
+            'countermeasure' => 'required|string|max:1000',
+            'waktu_selesai'  => 'nullable|date_format:H:i',
+        ]);
+
+        $waktuSelesai = $request->waktu_selesai ?? now('Asia/Jakarta')->format('H:i');
         $durasi       = $this->calcDuration($log->waktu_mulai, $waktuSelesai);
 
-        $updateData = [
-            'waktu_selesai' => $waktuSelesai,
-            'status'        => 'closed',
+        $log->update([
+            'waktu_selesai'  => $waktuSelesai,
+            'status'         => 'closed',
+            'durasi'         => $durasi,
+            'countermeasure' => $request->countermeasure,
+        ]);
+
+        return response()->json([
+            'ok'            => true,
             'durasi'        => $durasi,
-        ];
-
-        if ($request->filled('countermeasure')) {
-            $updateData['countermeasure'] = $request->countermeasure;
-        }
-
-        $log->update($updateData);
-
-        return response()->json(['ok' => true, 'durasi' => $durasi, 'waktu_selesai' => $waktuSelesai, 'log' => $log->fresh()]);
+            'waktu_selesai' => $waktuSelesai,
+            'log'           => $log->fresh(),
+        ]);
     }
 
     public function reopen(ProblemLog $log)
@@ -111,7 +115,26 @@ class LogController extends Controller
         return response()->json(['ok' => true]);
     }
 
+    public function update(Request $request, ProblemLog $log)
+    {
+        $request->validate([
+            'waktu_mulai'   => 'required|date_format:H:i',
+            'waktu_selesai' => 'nullable|date_format:H:i',
+        ]);
 
+        $durasi = null;
+        if ($request->waktu_selesai) {
+            $durasi = $this->calcDuration($request->waktu_mulai, $request->waktu_selesai);
+        }
+
+        $log->update([
+            'waktu_mulai'   => $request->waktu_mulai,
+            'waktu_selesai' => $request->waktu_selesai,
+            'durasi'        => $durasi,
+        ]);
+
+        return response()->json(['ok' => true, 'durasi' => $durasi]);
+    }
 
     public function destroy(ProblemLog $log)
     {
@@ -132,7 +155,7 @@ class LogController extends Controller
 
     /**
      * Hitung durasi antara dua waktu HH:mm.
-     * Handle lintas tengah malam (misal: 23:00 – 01:30 = 2h 30m).
+     * Handle lintas tengah malam (misal: 23:00 – 01:30 = 2j 30m).
      */
     private function calcDuration(string $start, string $end): string
     {
@@ -143,7 +166,6 @@ class LogController extends Controller
         $e    = strtotime("2000-01-01 {$end}");
         $diff = $e - $s;
 
-        // Jika negatif = lintas tengah malam
         if ($diff < 0) $diff += 86400;
 
         $h = intdiv($diff, 3600);

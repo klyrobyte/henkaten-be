@@ -3,6 +3,20 @@
 
 @push('styles')
 <style>
+/* ── CRITICAL: pastikan modal overlay tidak visible saat idle ── */
+.modal-overlay {
+    display: none !important;
+    position: fixed;
+    inset: 0;
+    z-index: 999;
+    background: rgba(0,0,0,.45);
+    align-items: flex-end;
+    justify-content: center;
+}
+.modal-overlay.active {
+    display: flex !important;
+}
+
 /* ── Section card ─────────────────────────────────────────── */
 .rpt-card {
     background:#fff; border-radius:14px; box-shadow:var(--shadow);
@@ -79,10 +93,7 @@
 .repl-row:last-child { border-bottom:none; }
 .repl-arrow { font-size:14px; color:#aaa; }
 .repl-info  { flex:1; font-size:12px; color:#444; }
-.repl-mesin {
-    font-family:'Roboto Condensed',sans-serif; font-size:11px;
-    font-weight:800; color:var(--navy);
-}
+.repl-mesin { font-family:'Roboto Condensed',sans-serif; font-size:11px; font-weight:800; color:var(--navy); }
 .repl-nama  { color:#888; }
 
 /* ── Warning banner ─────────────────────────────────────────── */
@@ -99,14 +110,8 @@
     flex:1; background:#fff; border-radius:12px; border:1.5px solid #eee;
     padding:10px 8px; text-align:center; box-shadow:0 1px 6px rgba(0,0,0,.05);
 }
-.lsb-val {
-    font-family:'Orbitron',sans-serif; font-size:22px; font-weight:700;
-    line-height:1; color:var(--navy);
-}
-.lsb-lbl {
-    font-family:'Roboto Condensed',sans-serif; font-size:10px; font-weight:700;
-    text-transform:uppercase; letter-spacing:.5px; color:#aaa; margin-top:3px;
-}
+.lsb-val { font-family:'Orbitron',sans-serif; font-size:22px; font-weight:700; line-height:1; color:var(--navy); }
+.lsb-lbl { font-family:'Roboto Condensed',sans-serif; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.5px; color:#aaa; margin-top:3px; }
 .log-card {
     background:#fff; border-radius:14px; border:1.5px solid #eee;
     box-shadow:0 2px 8px rgba(0,0,0,.06); margin-bottom:10px; overflow:hidden;
@@ -114,10 +119,7 @@
 }
 .log-card.open   { border-left:4px solid #e74c3c; }
 .log-card.closed { border-left:4px solid #4caf50; opacity:.85; }
-.log-card-top {
-    display:flex; align-items:center; gap:8px;
-    padding:10px 12px 6px; flex-wrap:wrap;
-}
+.log-card-top { display:flex; align-items:center; gap:8px; padding:10px 12px 6px; flex-wrap:wrap; }
 .log-badge {
     font-family:'Roboto Condensed',sans-serif; font-size:10px; font-weight:900;
     padding:3px 9px; border-radius:6px; text-transform:uppercase;
@@ -133,27 +135,20 @@
     0%,100% { box-shadow:0 0 0 0 rgba(231,76,60,.5); }
     50%      { box-shadow:0 0 0 5px rgba(231,76,60,0); }
 }
-.log-time {
-    font-family:'Roboto Condensed',sans-serif; font-size:11px; color:#888; font-weight:600;
-}
+.log-time { font-family:'Roboto Condensed',sans-serif; font-size:11px; color:#888; font-weight:600; }
 .log-durasi { font-family:'Roboto Condensed',sans-serif; font-size:10px; color:#aaa; margin-left:auto; }
 .log-durasi.ongoing { color:#e74c3c; font-weight:800; animation:blink .9s step-end infinite; }
 @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
 .log-card-body { padding:4px 12px 8px; }
-.log-lokasi {
-    font-family:'Roboto Condensed',sans-serif; font-size:11px;
-    font-weight:800; color:var(--navy); margin-bottom:3px;
-}
+.log-lokasi { font-family:'Roboto Condensed',sans-serif; font-size:11px; font-weight:800; color:var(--navy); margin-bottom:3px; }
 .log-desc { font-size:12px; color:#444; line-height:1.5; }
 .log-meta  { font-size:11px; color:#777; margin-top:3px; line-height:1.4; }
-.log-card-actions {
-    display:flex; gap:6px; padding:8px 12px 10px; border-top:1px solid #f5f5f5;
-}
+.log-card-actions { display:flex; gap:6px; padding:8px 12px 10px; border-top:1px solid #f5f5f5; }
 .log-btn {
     padding:6px 12px; border-radius:8px; border:1.5px solid #e0e0e0;
     background:#f7f7f7; font-size:11px; font-weight:700;
     font-family:'Roboto Condensed',sans-serif; cursor:pointer;
-    transition:all .15s; color:#555;
+    transition:all .15s; color:#555; position:relative; z-index:1;
 }
 .log-btn:hover { border-color:#bbb; background:#eee; }
 .log-btn-close  { border-color:#a5d6a7; color:#2e7d32; background:#f1f8e9; }
@@ -190,11 +185,11 @@
 .shb-machine  { background:#eef1fa; color:#1f3c88; border:1.5px solid #c5cae9; }
 .shb-material { background:#fff8ec; color:#e67e22; border:1.5px solid #ffe0b2; }
 .shb-method   { background:#f1f8e9; color:#2e7d32; border:1.5px solid #c8e6c9; }
-.ql-header, .et-header {
+.ql-header {
     display:flex; align-items:center; justify-content:space-between;
     padding:14px 16px 12px; border-bottom:1.5px solid #f0f0f0;
 }
-.ql-header-left, .et-header-left { display:flex; align-items:center; gap:10px; }
+.ql-header-left { display:flex; align-items:center; gap:10px; }
 .ql-header-icon {
     width:34px; height:34px; border-radius:10px;
     background:linear-gradient(135deg, var(--orange,#e65100), #ff7043);
@@ -202,21 +197,8 @@
     display:flex; align-items:center; justify-content:center;
     flex-shrink:0; box-shadow:0 3px 8px rgba(230,81,0,.3);
 }
-.ql-header-title {
-    font-family:'Roboto Condensed',sans-serif; font-size:14px;
-    font-weight:800; color:#222; text-transform:uppercase; letter-spacing:.4px;
-}
+.ql-header-title { font-family:'Roboto Condensed',sans-serif; font-size:14px; font-weight:800; color:#222; text-transform:uppercase; letter-spacing:.4px; }
 .ql-header-sub { font-size:11px; color:#aaa; margin-top:1px; }
-.et-header-icon {
-    width:34px; height:34px; border-radius:10px;
-    background:linear-gradient(135deg, #1f3c88, #2c4a9e); color:#fff; font-size:16px;
-    display:flex; align-items:center; justify-content:center;
-    flex-shrink:0; box-shadow:0 3px 8px rgba(31,60,136,.3);
-}
-.et-header-title {
-    font-family:'Roboto Condensed',sans-serif; font-size:14px;
-    font-weight:800; color:#222; text-transform:uppercase; letter-spacing:.4px;
-}
 .form-divider {
     display:flex; align-items:center; gap:10px; margin:14px 0 10px;
     font-family:'Roboto Condensed',sans-serif; font-size:10px;
@@ -269,7 +251,6 @@
     </div>
 </div>
 
-{{-- ══ SECTION 1: 4M Summary ══════════════════════════════════════ --}}
 @php
     $manCount      = $absenMembers->count();
     $machineCount  = $logs->where('jenis','Machine')->count();
@@ -282,7 +263,6 @@
 
 <div class="rpt-card">
     <div class="rpt-section-title">📊 4M Summary</div>
-
     <div class="m4-grid" style="grid-template-columns:repeat(2,1fr);margin-bottom:8px">
         <div class="m4-box m4-man">
             <div class="m4-val">{{ $manCount }}</div>
@@ -293,74 +273,43 @@
             <div class="m4-lbl">🔄 Pengganti</div>
         </div>
     </div>
-
     <div class="m4-grid">
-        <div class="m4-box m4-machine">
-            <div class="m4-val">{{ $machineCount }}</div>
-            <div class="m4-lbl">⚙️ Machine</div>
-        </div>
-        <div class="m4-box m4-material">
-            <div class="m4-val">{{ $materialCount }}</div>
-            <div class="m4-lbl">📦 Material</div>
-        </div>
-        <div class="m4-box m4-method">
-            <div class="m4-val">{{ $methodCount }}</div>
-            <div class="m4-lbl">📋 Method</div>
-        </div>
+        <div class="m4-box m4-machine"><div class="m4-val">{{ $machineCount }}</div><div class="m4-lbl">⚙️ Machine</div></div>
+        <div class="m4-box m4-material"><div class="m4-val">{{ $materialCount }}</div><div class="m4-lbl">📦 Material</div></div>
+        <div class="m4-box m4-method"><div class="m4-val">{{ $methodCount }}</div><div class="m4-lbl">📋 Method</div></div>
     </div>
-
     @if($totalLogs > 0)
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px">
-            <div class="m4-box m4-open">
-                <div class="m4-val">{{ $openCount }}</div>
-                <div class="m4-lbl">⚠️ Log Open</div>
-            </div>
-            <div class="m4-box m4-closed">
-                <div class="m4-val">{{ $closedCount }}</div>
-                <div class="m4-lbl">✅ Log Closed</div>
-            </div>
+            <div class="m4-box m4-open"><div class="m4-val">{{ $openCount }}</div><div class="m4-lbl">⚠️ Log Open</div></div>
+            <div class="m4-box m4-closed"><div class="m4-val">{{ $closedCount }}</div><div class="m4-lbl">✅ Log Closed</div></div>
         </div>
     @endif
 </div>
 
-{{-- ══ SECTION 2: Man — Absensi ════════════════════════════════════ --}}
 <div class="rpt-card">
     <div class="rpt-section-title">👤 Man — Absensi MP ({{ $manCount }})</div>
-
     @if(count($absenTanpaRepl) > 0)
-        <div class="warning-banner">
-            ⚠️ {{ count($absenTanpaRepl) }} mesin belum ada pengganti:
-            {{ implode(', ', $absenTanpaRepl) }}
-        </div>
+        <div class="warning-banner">⚠️ {{ count($absenTanpaRepl) }} mesin belum ada pengganti: {{ implode(', ', $absenTanpaRepl) }}</div>
     @endif
-
     @forelse($absenMembers as $member)
-        @php
-            $sudahDiganti = $replacements->where('target_machine', $member->mesin)->isNotEmpty();
-        @endphp
+        @php $sudahDiganti = $replacements->where('target_machine', $member->mesin)->isNotEmpty(); @endphp
         <div class="absen-member-row">
-            <div class="absen-avatar">
-                {{ strtoupper(substr($member->nama, 0, 2)) }}
-            </div>
+            <div class="absen-avatar">{{ strtoupper(substr($member->nama, 0, 2)) }}</div>
             <div class="absen-info">
                 <div class="absen-nama">{{ $member->nama }}</div>
                 <div class="absen-meta">{{ $member->nik }} · {{ $member->jabatan }}</div>
             </div>
             @if($member->mesin)
                 <span class="absen-mesin-tag {{ $sudahDiganti ? 'tag-diganti' : 'tag-belum' }}">
-                    {{ $member->mesin }}<br>
-                    <span style="font-weight:400">{{ $sudahDiganti ? '✅ diganti' : '⚠️ belum' }}</span>
+                    {{ $member->mesin }}<br><span style="font-weight:400">{{ $sudahDiganti ? '✅ diganti' : '⚠️ belum' }}</span>
                 </span>
             @else
                 <span class="absen-mesin-tag tag-no-mesin">–</span>
             @endif
         </div>
     @empty
-        <div style="text-align:center;padding:16px;color:#aaa;font-size:12px">
-            ✅ Tidak ada absensi MP hari ini
-        </div>
+        <div style="text-align:center;padding:16px;color:#aaa;font-size:12px">✅ Tidak ada absensi MP hari ini</div>
     @endforelse
-
     @if($replacements->isNotEmpty())
         <div style="margin-top:12px">
             <div class="rpt-section-title" style="font-size:10px;color:#ccc">Pengganti yang Assign</div>
@@ -370,9 +319,7 @@
                     <span class="repl-arrow">←</span>
                     <div class="repl-info">
                         <span class="repl-nama">{{ $repl->member?->nama ?? 'ID '.$repl->member_id }}</span>
-                        @if($repl->catatan)
-                            <span style="color:#bbb"> · {{ $repl->catatan }}</span>
-                        @endif
+                        @if($repl->catatan)<span style="color:#bbb"> · {{ $repl->catatan }}</span>@endif
                     </div>
                 </div>
             @endforeach
@@ -380,39 +327,20 @@
     @endif
 </div>
 
-{{-- ══ SECTION 3: Problem Log (Full Interactive) ══════════════════ --}}
+{{-- ══ SECTION 3: Problem Log ══════════════════════════════════════ --}}
 <div style="margin-bottom:80px">
-
-    {{-- Sub-header + tombol tambah --}}
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
         <div class="rpt-section-title" style="margin-bottom:0;flex:1">🔧 Problem Log 3M</div>
     </div>
 
-    {{-- Summary bar --}}
     <div class="log-summary-bar">
-        <div class="lsb-item">
-            <div class="lsb-val" id="cntAll">{{ $logs->count() }}</div>
-            <div class="lsb-lbl">Total</div>
-        </div>
-        <div class="lsb-item">
-            <div class="lsb-val" style="color:#e74c3c" id="cntOpen">{{ $logs->where('status','open')->count() }}</div>
-            <div class="lsb-lbl">Open</div>
-        </div>
-        <div class="lsb-item">
-            <div class="lsb-val" style="color:#1f3c88" id="cntMachine">{{ $logs->where('jenis','Machine')->count() }}</div>
-            <div class="lsb-lbl">Machine</div>
-        </div>
-        <div class="lsb-item">
-            <div class="lsb-val" style="color:#f39c12" id="cntMaterial">{{ $logs->where('jenis','Material')->count() }}</div>
-            <div class="lsb-lbl">Material</div>
-        </div>
-        <div class="lsb-item">
-            <div class="lsb-val" style="color:#2e7d32" id="cntMethod">{{ $logs->where('jenis','Method')->count() }}</div>
-            <div class="lsb-lbl">Method</div>
-        </div>
+        <div class="lsb-item"><div class="lsb-val" id="cntAll">{{ $logs->count() }}</div><div class="lsb-lbl">Total</div></div>
+        <div class="lsb-item"><div class="lsb-val" style="color:#e74c3c" id="cntOpen">{{ $logs->where('status','open')->count() }}</div><div class="lsb-lbl">Open</div></div>
+        <div class="lsb-item"><div class="lsb-val" style="color:#1f3c88" id="cntMachine">{{ $logs->where('jenis','Machine')->count() }}</div><div class="lsb-lbl">Machine</div></div>
+        <div class="lsb-item"><div class="lsb-val" style="color:#f39c12" id="cntMaterial">{{ $logs->where('jenis','Material')->count() }}</div><div class="lsb-lbl">Material</div></div>
+        <div class="lsb-item"><div class="lsb-val" style="color:#2e7d32" id="cntMethod">{{ $logs->where('jenis','Method')->count() }}</div><div class="lsb-lbl">Method</div></div>
     </div>
 
-    {{-- Log list --}}
     <div id="logList">
         @forelse($logs as $log)
             <div class="log-card {{ $log->status }}" id="logcard-{{ $log->id }}">
@@ -426,36 +354,32 @@
                         <span class="log-durasi" id="dur-{{ $log->id }}">({{ $log->durasi }})</span>
                     @elseif($log->status==='open')
                         <span class="log-durasi ongoing" id="dur-{{ $log->id }}">ON GOING</span>
+                    @else
+                        <span class="log-durasi" id="dur-{{ $log->id }}"></span>
                     @endif
                 </div>
                 <div class="log-card-body">
                     <div class="log-lokasi">📍 {{ $log->lokasi }}</div>
                     <div class="log-desc">{{ $log->deskripsi }}</div>
-                    @if($log->cause)
-                        <div class="log-meta">🔍 <strong>Cause:</strong> {{ $log->cause }}</div>
-                    @endif
-                    @if($log->countermeasure)
-                        <div class="log-meta">🔧 <strong>CM:</strong> {{ $log->countermeasure }}</div>
-                    @endif
-                    @if($log->pic)
-                        <div class="log-meta">👤 <strong>PIC:</strong> {{ $log->pic }}</div>
-                    @endif
+                    @if($log->cause)<div class="log-meta">🔍 <strong>Cause:</strong> {{ $log->cause }}</div>@endif
+                    @if($log->countermeasure)<div class="log-meta" data-cm="1">🔧 <strong>CM:</strong> {{ $log->countermeasure }}</div>@endif
+                    @if($log->pic)<div class="log-meta">👤 <strong>PIC:</strong> {{ $log->pic }}</div>@endif
                 </div>
                 <div class="log-card-actions">
                     @if($log->status==='open')
                         <button class="log-btn log-btn-close" id="btn-close-{{ $log->id }}"
                                 onclick="closeLog({{ $log->id }})">✅ Selesai</button>
                     @else
-                        <button class="log-btn log-btn-reopen" onclick="reopenLog({{ $log->id }})">🔄 Buka Ulang</button>
+                        <button class="log-btn log-btn-reopen" id="btn-reopen-{{ $log->id }}"
+                                onclick="reopenLog({{ $log->id }})">🔄 Buka Ulang</button>
                     @endif
-
                     <button class="log-btn log-btn-del" onclick="deleteLog({{ $log->id }})">🗑️</button>
                 </div>
             </div>
         @empty
             <div class="empty-state">
                 <div class="ei">📝</div>
-                <div class="et">Belum ada problem log hari ini.<br>Tap <strong>➕ Tambah Log</strong> untuk mulai.</div>
+                <div class="et">Belum ada problem log hari ini.</div>
             </div>
         @endforelse
     </div>
@@ -478,137 +402,58 @@
         <div class="modal-sheet-body">
             <div class="form-divider">Pilih Tipe Masalah</div>
             <div class="jenis-selector">
-                <button type="button" class="jenis-btn" id="btn-machine" onclick="selectJenis('Machine')">
-                    <span class="jb-icon">⚙️</span><span class="jb-lbl">Machine</span>
-                </button>
-                <button type="button" class="jenis-btn" id="btn-material" onclick="selectJenis('Material')">
-                    <span class="jb-icon">📦</span><span class="jb-lbl">Material</span>
-                </button>
-                <button type="button" class="jenis-btn" id="btn-method" onclick="selectJenis('Method')">
-                    <span class="jb-icon">📋</span><span class="jb-lbl">Method</span>
-                </button>
+                <button type="button" class="jenis-btn" id="btn-machine" onclick="selectJenis('Machine')"><span class="jb-icon">⚙️</span><span class="jb-lbl">Machine</span></button>
+                <button type="button" class="jenis-btn" id="btn-material" onclick="selectJenis('Material')"><span class="jb-icon">📦</span><span class="jb-lbl">Material</span></button>
+                <button type="button" class="jenis-btn" id="btn-method" onclick="selectJenis('Method')"><span class="jb-icon">📋</span><span class="jb-lbl">Method</span></button>
             </div>
-
-            {{-- FORM: MACHINE --}}
             <div class="form-section" id="section-machine">
                 <div class="section-header-badge shb-machine">⚙️ Machine Problem</div>
                 <div class="form-row">
-                    <div class="field-group">
-                        <label>Mesin / Lokasi *</label>
-                        <select id="m-lokasi">
-                            <option value="">-- Pilih Mesin --</option>
-                            @foreach($mesinList as $m)
-                                <option value="{{ $m }}">{{ $m }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="field-group">
-                        <label>Waktu Mulai *</label>
-                        <input type="time" id="m-mulai">
-                    </div>
+                    <div class="field-group"><label>Mesin / Lokasi *</label><select id="m-lokasi"><option value="">-- Pilih Mesin --</option>@foreach($mesinList as $m)<option value="{{ $m }}">{{ $m }}</option>@endforeach</select></div>
+                    <div class="field-group"><label>Waktu Mulai *</label><input type="time" id="m-mulai"></div>
                 </div>
-                <div class="field-group">
-                    <label>Deskripsi Kerusakan *</label>
-                    <textarea id="m-deskripsi" rows="2" placeholder="Contoh: MC mati mendadak, bunyi abnormal..."
-                              style="width:100%;padding:10px;border:1.5px solid #e0e0e0;border-radius:10px;font-family:inherit;font-size:13px;resize:vertical;box-sizing:border-box"
-                              onfocus="this.style.borderColor='#1f3c88'" onblur="this.style.borderColor='#e0e0e0'"></textarea>
+                <div class="field-group"><label>Deskripsi Kerusakan *</label><textarea id="m-deskripsi" rows="2" placeholder="Contoh: MC mati mendadak..." style="width:100%;padding:10px;border:1.5px solid #e0e0e0;border-radius:10px;font-family:inherit;font-size:13px;resize:vertical;box-sizing:border-box" onfocus="this.style.borderColor='#1f3c88'" onblur="this.style.borderColor='#e0e0e0'"></textarea></div>
+                <div class="form-row">
+                    <div class="field-group"><label>Root Cause</label><input type="text" id="m-cause" placeholder="Contoh: bearing aus..."></div>
+                    <div class="field-group"><label>Countermeasure</label><input type="text" id="m-cm" placeholder="Contoh: ganti bearing..."></div>
                 </div>
                 <div class="form-row">
-                    <div class="field-group"><label>Root Cause</label><input type="text" id="m-cause" placeholder="Contoh: bearing aus, sensor error..."></div>
-                    <div class="field-group"><label>Countermeasure</label><input type="text" id="m-cm" placeholder="Contoh: ganti bearing, reset PLC..."></div>
-                </div>
-                <div class="form-row">
-                    <div class="field-group"><label>Teknisi / PIC</label><input type="text" id="m-pic" placeholder="Nama teknisi yang handle"></div>
-                    <div class="field-group">
-                        <label>Status</label>
-                        <select id="m-status" onchange="toggleSelesai('m', this.value)">
-                            <option value="open">Open — belum selesai</option>
-                            <option value="closed">Closed — sudah selesai</option>
-                        </select>
-                    </div>
+                    <div class="field-group"><label>Teknisi / PIC</label><input type="text" id="m-pic" placeholder="Nama teknisi"></div>
+                    <div class="field-group"><label>Status</label><select id="m-status" onchange="toggleCMRequired('m', this.value)"><option value="open">Open</option><option value="closed">Closed</option></select></div>
                 </div>
             </div>
-
-            {{-- FORM: MATERIAL --}}
             <div class="form-section" id="section-material">
                 <div class="section-header-badge shb-material">📦 Material Problem</div>
                 <div class="form-row">
-                    <div class="field-group">
-                        <label>Mesin / Lokasi *</label>
-                        <select id="mat-lokasi">
-                            <option value="">-- Pilih Mesin --</option>
-                            @foreach($mesinList as $m)
-                                <option value="{{ $m }}">{{ $m }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="field-group">
-                        <label>Waktu Mulai *</label>
-                        <input type="time" id="mat-mulai">
-                    </div>
+                    <div class="field-group"><label>Mesin / Lokasi *</label><select id="mat-lokasi"><option value="">-- Pilih Mesin --</option>@foreach($mesinList as $m)<option value="{{ $m }}">{{ $m }}</option>@endforeach</select></div>
+                    <div class="field-group"><label>Waktu Mulai *</label><input type="time" id="mat-mulai"></div>
                 </div>
-                <div class="field-group">
-                    <label>Deskripsi Masalah Material *</label>
-                    <textarea id="mat-deskripsi" rows="2" placeholder="Contoh: material short shot, warna tidak sesuai..."
-                              style="width:100%;padding:10px;border:1.5px solid #e0e0e0;border-radius:10px;font-family:inherit;font-size:13px;resize:vertical;box-sizing:border-box"
-                              onfocus="this.style.borderColor='#f39c12'" onblur="this.style.borderColor='#e0e0e0'"></textarea>
-                </div>
+                <div class="field-group"><label>Deskripsi *</label><textarea id="mat-deskripsi" rows="2" placeholder="Contoh: material short shot..." style="width:100%;padding:10px;border:1.5px solid #e0e0e0;border-radius:10px;font-family:inherit;font-size:13px;resize:vertical;box-sizing:border-box" onfocus="this.style.borderColor='#f39c12'" onblur="this.style.borderColor='#e0e0e0'"></textarea></div>
                 <div class="form-row">
-                    <div class="field-group"><label>No. Lot / Batch</label><input type="text" id="mat-cause" placeholder="No. lot material bermasalah"></div>
-                    <div class="field-group"><label>Countermeasure</label><input type="text" id="mat-cm" placeholder="Contoh: ganti lot, kembalikan ke gudang..."></div>
+                    <div class="field-group"><label>No. Lot / Batch</label><input type="text" id="mat-cause" placeholder="No. lot bermasalah"></div>
+                    <div class="field-group"><label>Countermeasure</label><input type="text" id="mat-cm" placeholder="Contoh: ganti lot..."></div>
                 </div>
                 <div class="form-row">
                     <div class="field-group"><label>PIC</label><input type="text" id="mat-pic" placeholder="Nama penanggung jawab"></div>
-                    <div class="field-group">
-                        <label>Status</label>
-                        <select id="mat-status" onchange="toggleSelesai('mat', this.value)">
-                            <option value="open">Open — belum selesai</option>
-                            <option value="closed">Closed — sudah selesai</option>
-                        </select>
-                    </div>
+                    <div class="field-group"><label>Status</label><select id="mat-status" onchange="toggleCMRequired('mat', this.value)"><option value="open">Open</option><option value="closed">Closed</option></select></div>
                 </div>
             </div>
-
-            {{-- FORM: METHOD --}}
             <div class="form-section" id="section-method">
                 <div class="section-header-badge shb-method">📋 Method Problem</div>
                 <div class="form-row">
-                    <div class="field-group">
-                        <label>Mesin / Lokasi *</label>
-                        <select id="met-lokasi">
-                            <option value="">-- Pilih Mesin --</option>
-                            @foreach($mesinList as $m)
-                                <option value="{{ $m }}">{{ $m }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="field-group">
-                        <label>Waktu Mulai *</label>
-                        <input type="time" id="met-mulai">
-                    </div>
+                    <div class="field-group"><label>Mesin / Lokasi *</label><select id="met-lokasi"><option value="">-- Pilih Mesin --</option>@foreach($mesinList as $m)<option value="{{ $m }}">{{ $m }}</option>@endforeach</select></div>
+                    <div class="field-group"><label>Waktu Mulai *</label><input type="time" id="met-mulai"></div>
                 </div>
-                <div class="field-group">
-                    <label>Deskripsi Penyimpangan *</label>
-                    <textarea id="met-deskripsi" rows="2" placeholder="Contoh: setting tidak sesuai standar, proses tidak mengikuti SOP..."
-                              style="width:100%;padding:10px;border:1.5px solid #e0e0e0;border-radius:10px;font-family:inherit;font-size:13px;resize:vertical;box-sizing:border-box"
-                              onfocus="this.style.borderColor='#2e7d32'" onblur="this.style.borderColor='#e0e0e0'"></textarea>
-                </div>
+                <div class="field-group"><label>Deskripsi *</label><textarea id="met-deskripsi" rows="2" placeholder="Contoh: setting tidak sesuai..." style="width:100%;padding:10px;border:1.5px solid #e0e0e0;border-radius:10px;font-family:inherit;font-size:13px;resize:vertical;box-sizing:border-box" onfocus="this.style.borderColor='#2e7d32'" onblur="this.style.borderColor='#e0e0e0'"></textarea></div>
                 <div class="form-row">
-                    <div class="field-group"><label>Standar yang Dilanggar</label><input type="text" id="met-cause" placeholder="Contoh: suhu resin, cycle time SOP..."></div>
-                    <div class="field-group"><label>Tindakan Koreksi</label><input type="text" id="met-cm" placeholder="Contoh: re-training, update SOP..."></div>
+                    <div class="field-group"><label>Standar Dilanggar</label><input type="text" id="met-cause" placeholder="Contoh: suhu resin..."></div>
+                    <div class="field-group"><label>Tindakan Koreksi</label><input type="text" id="met-cm" placeholder="Contoh: re-training..."></div>
                 </div>
                 <div class="form-row">
                     <div class="field-group"><label>PIC</label><input type="text" id="met-pic" placeholder="Nama penanggung jawab"></div>
-                    <div class="field-group">
-                        <label>Status</label>
-                        <select id="met-status" onchange="toggleSelesai('met', this.value)">
-                            <option value="open">Open — belum selesai</option>
-                            <option value="closed">Closed — sudah selesai</option>
-                        </select>
-                    </div>
+                    <div class="field-group"><label>Status</label><select id="met-status" onchange="toggleCMRequired('met', this.value)"><option value="open">Open</option><option value="closed">Closed</option></select></div>
                 </div>
             </div>
-
             <div class="save-bar" id="saveBtnWrap" style="display:none">
                 <button class="save-btn-big" id="saveBtnMain" onclick="submitLog()">💾 Simpan Log</button>
             </div>
@@ -616,159 +461,46 @@
     </div>
 </div>
 
-
-
-{{-- ══ MODAL: Close Log (Wajib Countermeasure) ════════════════════ --}}
+{{-- ══ MODAL: Close Log (Wajib CM) — HANYA SATU ══════════════════ --}}
 <div class="modal-overlay" id="closeLogSheet">
-    <div class="modal-sheet" style="max-height:380px">
+    <div class="modal-sheet" style="max-height:400px">
         <div class="modal-sheet-handle"></div>
-        <div style="display:flex;align-items:center;justify-content:space-between;
-                    padding:14px 16px 12px;border-bottom:1.5px solid #f0f0f0">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px 12px;border-bottom:1.5px solid #f0f0f0">
             <div style="display:flex;align-items:center;gap:10px">
-                <div style="width:36px;height:36px;border-radius:10px;
-                            background:linear-gradient(135deg,#2e7d32,#43a047);
-                            color:#fff;font-size:18px;display:flex;align-items:center;
-                            justify-content:center;box-shadow:0 3px 8px rgba(46,125,50,.3);
-                            flex-shrink:0">✅</div>
+                <div style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#2e7d32,#43a047);color:#fff;font-size:18px;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 8px rgba(46,125,50,.3);flex-shrink:0">✅</div>
                 <div>
-                    <div style="font-family:'Roboto Condensed',sans-serif;font-size:14px;
-                                font-weight:900;color:#222;text-transform:uppercase;
-                                letter-spacing:.5px">Selesaikan Log</div>
-                    <div id="closeLogSubtitle"
-                         style="font-size:11px;color:#aaa;margin-top:1px"></div>
+                    <div style="font-family:'Roboto Condensed',sans-serif;font-size:14px;font-weight:900;color:#222;text-transform:uppercase;letter-spacing:.5px">Selesaikan Log</div>
+                    <div id="closeLogSubtitle" style="font-size:11px;color:#aaa;margin-top:1px"></div>
                 </div>
             </div>
             <button class="modal-sheet-close" onclick="closeSheet('closeLogSheet')">✕</button>
         </div>
         <div class="modal-sheet-body">
             <input type="hidden" id="closeLogId">
-
-            {{-- Countermeasure — WAJIB --}}
             <div style="margin-bottom:14px">
-                <label style="font-family:'Roboto Condensed',sans-serif;font-size:11px;
-                              font-weight:900;text-transform:uppercase;letter-spacing:.5px;
-                              color:#2e7d32;display:flex;align-items:center;
-                              gap:6px;margin-bottom:7px">
-                    🔧 Countermeasure
-                    <span style="background:#e74c3c;color:#fff;font-size:9px;
-                                 padding:2px 7px;border-radius:4px;font-weight:900">WAJIB</span>
+                <label style="font-family:'Roboto Condensed',sans-serif;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.5px;color:#2e7d32;display:flex;align-items:center;gap:6px;margin-bottom:7px">
+                    🔧 Countermeasure / Solusi
+                    <span style="background:#e74c3c;color:#fff;font-size:9px;padding:2px 7px;border-radius:4px;font-weight:900">WAJIB</span>
                 </label>
                 <textarea id="closeCM" rows="4"
                           placeholder="Tindakan yang dilakukan untuk menyelesaikan masalah..."
-                          style="width:100%;padding:11px 12px;border:2px solid #e0e0e0;
-                                 border-radius:10px;font-family:inherit;font-size:13px;
-                                 resize:none;box-sizing:border-box;outline:none;
-                                 transition:border-color .2s,box-shadow .2s;line-height:1.5"
+                          style="width:100%;padding:11px 12px;border:2px solid #e0e0e0;border-radius:10px;font-family:inherit;font-size:13px;resize:none;box-sizing:border-box;outline:none;transition:border-color .2s,box-shadow .2s;line-height:1.5"
                           oninput="onCMInput()"
                           onfocus="this.style.borderColor='#2e7d32';this.style.boxShadow='0 0 0 3px rgba(46,125,50,.12)'"
                           onblur="this.style.boxShadow='none';this.style.borderColor=this.value.trim()?'#a5d6a7':'#e0e0e0'">
                 </textarea>
-                <div id="cmError"
-                     style="display:none;color:#e74c3c;font-size:11px;font-weight:700;
-                            font-family:'Roboto Condensed',sans-serif;margin-top:5px">
-                    ⚠️ Countermeasure wajib diisi
-                </div>
+                <div id="cmError" style="display:none;color:#e74c3c;font-size:11px;font-weight:700;font-family:'Roboto Condensed',sans-serif;margin-top:5px">⚠️ Countermeasure wajib diisi</div>
             </div>
-
-
-            {{-- Submit --}}
-            <div class="save-bar">
-                <button id="btnConfirmClose"
-                        onclick="confirmCloseLog()"
-                        style="width:100%;padding:14px;border-radius:12px;border:none;
-                               background:#ccc;color:#fff;cursor:not-allowed;
-                               font-family:'Roboto Condensed',sans-serif;
-                               font-size:14px;font-weight:900;letter-spacing:.5px;
-                               text-transform:uppercase;transition:all .2s;opacity:.6"
-                        disabled>
-                    ✅ Konfirmasi Selesai
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
-{{-- ══ MODAL: Close Log (Wajib Countermeasure) ════════════════════ --}}
-<div class="modal-overlay" id="closeLogSheet">
-    <div class="modal-sheet" style="max-height:380px">
-        <div class="modal-sheet-handle"></div>
-        <div style="display:flex;align-items:center;justify-content:space-between;
-                    padding:14px 16px 12px;border-bottom:1.5px solid #f0f0f0">
-            <div style="display:flex;align-items:center;gap:10px">
-                <div style="width:36px;height:36px;border-radius:10px;
-                            background:linear-gradient(135deg,#2e7d32,#43a047);
-                            color:#fff;font-size:18px;display:flex;align-items:center;
-                            justify-content:center;box-shadow:0 3px 8px rgba(46,125,50,.3);
-                            flex-shrink:0">✅</div>
-                <div>
-                    <div style="font-family:'Roboto Condensed',sans-serif;font-size:14px;
-                                font-weight:900;color:#222;text-transform:uppercase;
-                                letter-spacing:.5px">Selesaikan Log</div>
-                    <div id="closeLogSubtitle"
-                         style="font-size:11px;color:#aaa;margin-top:1px"></div>
-                </div>
-            </div>
-            <button class="modal-sheet-close" onclick="closeSheet('closeLogSheet')">✕</button>
-        </div>
-        <div class="modal-sheet-body">
-            <input type="hidden" id="closeLogId">
-
-            {{-- Countermeasure — WAJIB --}}
-            <div style="margin-bottom:14px">
-                <label style="font-family:'Roboto Condensed',sans-serif;font-size:11px;
-                              font-weight:900;text-transform:uppercase;letter-spacing:.5px;
-                              color:#2e7d32;display:flex;align-items:center;
-                              gap:6px;margin-bottom:7px">
-                    🔧 Countermeasure
-                    <span style="background:#e74c3c;color:#fff;font-size:9px;
-                                 padding:2px 7px;border-radius:4px;font-weight:900">WAJIB</span>
-                </label>
-                <textarea id="closeCM" rows="4"
-                          placeholder="Tindakan yang dilakukan untuk menyelesaikan masalah..."
-                          style="width:100%;padding:11px 12px;border:2px solid #e0e0e0;
-                                 border-radius:10px;font-family:inherit;font-size:13px;
-                                 resize:none;box-sizing:border-box;outline:none;
-                                 transition:border-color .2s,box-shadow .2s;line-height:1.5"
-                          oninput="onCMInput()"
-                          onfocus="this.style.borderColor='#2e7d32';this.style.boxShadow='0 0 0 3px rgba(46,125,50,.12)'"
-                          onblur="this.style.boxShadow='none';this.style.borderColor=this.value.trim()?'#a5d6a7':'#e0e0e0'">
-                </textarea>
-                <div id="cmError"
-                     style="display:none;color:#e74c3c;font-size:11px;font-weight:700;
-                            font-family:'Roboto Condensed',sans-serif;margin-top:5px">
-                    ⚠️ Countermeasure wajib diisi
-                </div>
-            </div>
-
-            {{-- Waktu selesai opsional --}}
             <div style="margin-bottom:16px">
-                <label style="font-family:'Roboto Condensed',sans-serif;font-size:11px;
-                              font-weight:700;text-transform:uppercase;letter-spacing:.4px;
-                              color:#aaa;display:flex;align-items:center;
-                              gap:5px;margin-bottom:6px">
-                    ⏰ Waktu Selesai
-                    <span style="font-weight:400;color:#ccc">(opsional)</span>
+                <label style="font-family:'Roboto Condensed',sans-serif;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:#aaa;display:flex;align-items:center;gap:5px;margin-bottom:6px">
+                    ⏰ Waktu Selesai <span style="font-weight:400;color:#ccc">(opsional)</span>
                 </label>
-                <input type="time" id="closeWaktuSelesai"
-                       style="width:100%;padding:10px 12px;border:1.5px solid #e0e0e0;
-                              border-radius:10px;font-family:inherit;font-size:13px;
-                              box-sizing:border-box;outline:none;transition:border-color .2s"
-                       onfocus="this.style.borderColor='#888'"
-                       onblur="this.style.borderColor='#e0e0e0'">
+                <input type="time" id="closeWaktuSelesai" style="width:100%;padding:10px 12px;border:1.5px solid #e0e0e0;border-radius:10px;font-family:inherit;font-size:13px;box-sizing:border-box;outline:none;transition:border-color .2s" onfocus="this.style.borderColor='#888'" onblur="this.style.borderColor='#e0e0e0'">
             </div>
-
-            {{-- Submit --}}
             <div class="save-bar">
-                <button id="btnConfirmClose"
-                        onclick="confirmCloseLog()"
-                        style="width:100%;padding:14px;border-radius:12px;border:none;
-                               background:#ccc;color:#fff;cursor:not-allowed;
-                               font-family:'Roboto Condensed',sans-serif;
-                               font-size:14px;font-weight:900;letter-spacing:.5px;
-                               text-transform:uppercase;transition:all .2s;opacity:.6"
-                        disabled>
-                    ✅ Konfirmasi Selesai
-                </button>
+                <button id="btnConfirmClose" onclick="confirmCloseLog()"
+                        style="width:100%;padding:14px;border-radius:12px;border:none;background:#ccc;color:#fff;cursor:not-allowed;font-family:'Roboto Condensed',sans-serif;font-size:14px;font-weight:900;letter-spacing:.5px;text-transform:uppercase;transition:all .2s;opacity:.6"
+                        disabled>✅ Konfirmasi Selesai</button>
             </div>
         </div>
     </div>
@@ -778,110 +510,135 @@
 
 @push('scripts')
 <script>
-// ── Query string helper ───────────────────────────────────────
 function updateQS(key, val) {
     const u = new URL(window.location);
     u.searchParams.set(key, val);
     return u.toString();
 }
 
-// ── Problem Log JS ────────────────────────────────────────────
 const LOG_CSRF    = '{{ csrf_token() }}';
 const LOG_TANGGAL = '{{ $tanggal }}';
 const LOG_FACTORY = @json($factory);
 const LOG_SHIFT   = '{{ $shift }}';
 
 let activeJenis = null;
-const PREFIX    = { Machine: 'm', Material: 'mat', Method: 'met' };
+const PREFIX = { Machine: 'm', Material: 'mat', Method: 'met' };
 
-// ── Pilih jenis ──────────────────────────────────────────────
-function selectJenis(jenis) {
-    activeJenis = jenis;
-    ['Machine','Material','Method'].forEach(j => {
-        document.getElementById(`btn-${j.toLowerCase()}`).className = 'jenis-btn';
+// ── openSheet / closeSheet — didefinisikan di window agar override layout ──
+window.openSheet = function(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.style.setProperty('display', 'flex', 'important');
+    el.classList.add('active');
+    document.body.style.overflow = 'hidden';
+};
+
+window.closeSheet = function(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.style.setProperty('display', 'none', 'important');
+    el.classList.remove('active');
+    document.body.style.overflow = '';
+
+    if (id === 'addLogSheet') {
+        activeJenis = null;
+        document.querySelectorAll('.jenis-btn').forEach(b => b.className = 'jenis-btn');
+        document.querySelectorAll('.form-section').forEach(s => s.classList.remove('visible'));
+        document.getElementById('saveBtnWrap').style.display = 'none';
+    }
+    if (id === 'closeLogSheet') { _closeId = null; }
+};
+
+// Tutup modal kalau klik overlay (bukan sheet)
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+    overlay.addEventListener('click', function(e) {
+        if (e.target === this) closeSheet(this.id);
     });
+});
+
+// ── Jenis selector ───────────────────────────────────────────
+window.selectJenis = function(jenis) {
+    activeJenis = jenis;
+    ['Machine','Material','Method'].forEach(j =>
+        document.getElementById(`btn-${j.toLowerCase()}`).className = 'jenis-btn'
+    );
     document.getElementById(`btn-${jenis.toLowerCase()}`).className = `jenis-btn sel-${jenis.toLowerCase()}`;
     document.querySelectorAll('.form-section').forEach(s => s.classList.remove('visible'));
     document.getElementById(`section-${jenis.toLowerCase()}`).classList.add('visible');
-
-    const now = new Date().toTimeString().slice(0, 5);
-    document.getElementById(`${PREFIX[jenis]}-mulai`).value = now;
+    document.getElementById(`${PREFIX[jenis]}-mulai`).value = new Date().toTimeString().slice(0,5);
     document.getElementById('saveBtnWrap').style.display = '';
 }
 
-
+window.toggleCMRequired = function(prefix, val) {
+    const inp   = document.getElementById(`${prefix}-cm`);
+    const label = inp?.closest('.field-group')?.querySelector('label');
+    if (!inp) return;
+    if (val === 'closed') {
+        inp.style.borderColor = '#f39c12';
+        inp.placeholder = 'Wajib diisi untuk status Closed...';
+        if (label) label.style.color = '#e65100';
+    } else {
+        inp.style.borderColor = '';
+        inp.placeholder = '';
+        if (label) label.style.color = '';
+    }
+}
 
 // ── Submit log baru ──────────────────────────────────────────
-async function submitLog() {
+window.submitLog = async function() {
     if (!activeJenis) { showToast('Pilih tipe masalah dulu', 'error'); return; }
-
     const p      = PREFIX[activeJenis];
     const lokasi = document.getElementById(`${p}-lokasi`).value;
     const mulai  = document.getElementById(`${p}-mulai`).value;
     const desk   = document.getElementById(`${p}-deskripsi`).value.trim();
     const status = document.getElementById(`${p}-status`).value;
-
+    const cm     = document.getElementById(`${p}-cm`)?.value.trim();
     if (!lokasi) { showToast('Pilih lokasi mesin', 'error'); return; }
-    if (!mulai)  { showToast('Isi waktu mulai', 'error');    return; }
+    if (!mulai)  { showToast('Isi waktu mulai', 'error'); return; }
     if (!desk)   { showToast('Isi deskripsi masalah', 'error'); return; }
-
-    const cm = document.getElementById(`${p}-cm`)?.value.trim();
-
     if (status === 'closed' && !cm) {
-        showToast('Solusi / Countermeasure wajib diisi untuk status Closed!', 'error');
+        showToast('⚠️ Countermeasure wajib diisi untuk status Closed!', 'error');
         document.getElementById(`${p}-cm`)?.focus();
         return;
     }
-
     const btn = document.getElementById('saveBtnMain');
     btn.disabled = true; btn.textContent = '⏳ Menyimpan...';
-
     try {
         const res = await fetch('/admin/logs', {
             method: 'POST',
             headers: { 'Content-Type':'application/json', 'X-CSRF-TOKEN':LOG_CSRF, 'Accept':'application/json' },
             body: JSON.stringify({
                 tanggal: LOG_TANGGAL, factory: LOG_FACTORY, shift: LOG_SHIFT,
-                jenis: activeJenis, lokasi,
-                waktu_mulai: mulai, status,
-                deskripsi: desk,
+                jenis: activeJenis, lokasi, waktu_mulai: mulai, status, deskripsi: desk,
                 cause:          document.getElementById(`${p}-cause`)?.value || null,
-                countermeasure: document.getElementById(`${p}-cm`)?.value    || null,
+                countermeasure: cm || null,
                 pic:            document.getElementById(`${p}-pic`)?.value   || null,
             }),
         });
         const data = await res.json().catch(() => ({}));
-        if (!res.ok) { showToast('Gagal simpan: ' + (data?.message?.slice(0,80) ?? 'error'), 'error'); return; }
+        if (!res.ok) { showToast('Gagal: ' + (data?.message?.slice(0,80) ?? 'error'), 'error'); return; }
         showToast('✅ Log berhasil ditambah!', 'success');
         closeSheet('addLogSheet');
         setTimeout(() => window.location.reload(), 700);
-    } catch (e) {
-        showToast('Gagal kirim: ' + e.message, 'error');
-    } finally {
-        btn.disabled = false; btn.textContent = '💾 Simpan Log';
-    }
+    } catch (e) { showToast('Gagal: ' + e.message, 'error'); }
+    finally { btn.disabled = false; btn.textContent = '💾 Simpan Log'; }
 }
 
-// ── Close log — buka modal dulu ──────────────────────────────
+// ── Close log — buka modal ────────────────────────────────────
 let _closeId = null;
 
-function closeLog(id) {
+window.closeLog = function(id) {
     _closeId = id;
-
-    const card    = document.getElementById(`logcard-${id}`);
-    const badgeEl = card?.querySelector('.log-badge');
-    const lokEl   = card?.querySelector('.log-lokasi');
-    const jenis   = badgeEl?.textContent?.trim() ?? '';
-    const lokasi  = lokEl?.textContent?.replace('📍','').trim() ?? '';
+    const card   = document.getElementById(`logcard-${id}`);
+    const jenis  = card?.querySelector('.log-badge')?.textContent?.trim() ?? '';
+    const lokasi = card?.querySelector('.log-lokasi')?.textContent?.replace('📍','').trim() ?? '';
 
     document.getElementById('closeLogId').value             = id;
     document.getElementById('closeLogSubtitle').textContent = `${jenis} · ${lokasi}`;
+    document.getElementById('closeWaktuSelesai').value      = new Date().toTimeString().slice(0,5);
 
-    // Reset field
     const cm = document.getElementById('closeCM');
-    cm.value             = '';
-    cm.style.borderColor = '#e0e0e0';
-    cm.style.boxShadow   = 'none';
+    cm.value = ''; cm.style.borderColor = '#e0e0e0'; cm.style.boxShadow = 'none';
     document.getElementById('cmError').style.display = 'none';
     _setCloseBtn(false);
 
@@ -889,10 +646,9 @@ function closeLog(id) {
     setTimeout(() => cm.focus(), 350);
 }
 
-function onCMInput() {
-    const val = document.getElementById('closeCM').value.trim();
+window.onCMInput = function() {
     document.getElementById('cmError').style.display = 'none';
-    _setCloseBtn(!!val);
+    _setCloseBtn(!!document.getElementById('closeCM').value.trim());
 }
 
 function _setCloseBtn(enabled) {
@@ -901,15 +657,11 @@ function _setCloseBtn(enabled) {
     btn.disabled         = !enabled;
     btn.style.cursor     = enabled ? 'pointer'    : 'not-allowed';
     btn.style.opacity    = enabled ? '1'          : '.6';
-    btn.style.background = enabled
-        ? 'linear-gradient(135deg,#2e7d32,#43a047)'
-        : '#ccc';
-    btn.style.boxShadow  = enabled
-        ? '0 4px 12px rgba(46,125,50,.4)'
-        : 'none';
+    btn.style.background = enabled ? 'linear-gradient(135deg,#2e7d32,#43a047)' : '#ccc';
+    btn.style.boxShadow  = enabled ? '0 4px 12px rgba(46,125,50,.4)' : 'none';
 }
 
-async function confirmCloseLog() {
+window.confirmCloseLog = async function() {
     const cm = document.getElementById('closeCM').value.trim();
     if (!cm) {
         document.getElementById('cmError').style.display = '';
@@ -917,28 +669,19 @@ async function confirmCloseLog() {
         showToast('⚠️ Countermeasure wajib diisi!', 'error');
         return;
     }
-
     const id  = _closeId;
+    const ws  = document.getElementById('closeWaktuSelesai').value || null;
     const btn = document.getElementById('btnConfirmClose');
-
-    btn.disabled    = true;
-    btn.textContent = '⏳ Menyimpan...';
-
+    btn.disabled = true; btn.textContent = '⏳ Menyimpan...';
     try {
-        const res  = await fetch(`/admin/logs/${id}/close`, {
-            method : 'PATCH',
-            headers: {
-                'Content-Type' : 'application/json',
-                'X-CSRF-TOKEN' : LOG_CSRF,
-                'Accept'       : 'application/json',
-            },
-            body: JSON.stringify({ countermeasure: cm }),
+        const res = await fetch(`/admin/logs/${id}/close`, {
+            method: 'PATCH',
+            headers: { 'Content-Type':'application/json', 'X-CSRF-TOKEN':LOG_CSRF, 'Accept':'application/json' },
+            body: JSON.stringify({ countermeasure: cm, waktu_selesai: ws }),
         });
-
         const data = await res.json().catch(() => ({}));
         if (!res.ok) { showToast('Gagal: ' + (data?.message ?? 'error'), 'error'); return; }
 
-        // Update DOM card
         const card   = document.getElementById(`logcard-${id}`);
         const timeEl = document.getElementById(`time-${id}`);
         const durEl  = document.getElementById(`dur-${id}`);
@@ -946,82 +689,100 @@ async function confirmCloseLog() {
 
         card?.classList.replace('open','closed');
         if (dotEl) dotEl.className = 'log-status-dot dot-closed';
-        if (timeEl && data.waktu_selesai) {
-            const mulai = timeEl.textContent.split('–')[0].trim();
-            timeEl.textContent = `${mulai} – ${data.waktu_selesai}`;
+        if (timeEl) {
+            const finalWs = data.waktu_selesai || ws;
+            if (finalWs) {
+                const mulai = timeEl.textContent.split('–')[0].trim();
+                timeEl.textContent = `${mulai} – ${finalWs}`;
+            }
         }
-        if (durEl) {
-            durEl.className   = 'log-durasi';
-            durEl.textContent = data.durasi ? `(${data.durasi})` : '';
-        }
+        if (durEl) { durEl.className = 'log-durasi'; durEl.textContent = data.durasi ? `(${data.durasi})` : ''; }
 
-        // Ganti tombol Selesai → Buka Ulang
         const closeBtn = document.getElementById(`btn-close-${id}`);
         if (closeBtn) {
-            closeBtn.className   = 'log-btn log-btn-reopen';
-            closeBtn.id          = '';
+            closeBtn.className = 'log-btn log-btn-reopen';
+            closeBtn.id = `btn-reopen-${id}`;
             closeBtn.textContent = '🔄 Buka Ulang';
-            closeBtn.onclick     = () => reopenLog(id);
+            closeBtn.onclick = () => reopenLog(id);
         }
 
-        // Tampilkan CM di card body
         const body = card?.querySelector('.log-card-body');
         if (body) {
             let cmEl = body.querySelector('[data-cm]');
-            if (!cmEl) {
-                cmEl = document.createElement('div');
-                cmEl.className = 'log-meta';
-                cmEl.setAttribute('data-cm','1');
-                body.appendChild(cmEl);
-            }
+            if (!cmEl) { cmEl = document.createElement('div'); cmEl.className = 'log-meta'; cmEl.setAttribute('data-cm','1'); body.appendChild(cmEl); }
             cmEl.innerHTML = `🔧 <strong>CM:</strong> ${cm}`;
         }
 
-        // Update counter open
         const cntOpen = document.getElementById('cntOpen');
         if (cntOpen) cntOpen.textContent = Math.max(0, parseInt(cntOpen.textContent) - 1);
 
         closeSheet('closeLogSheet');
         showToast('✅ Log ditutup — ' + (data.durasi ?? ''), 'success');
-
-    } catch (e) {
-        showToast('Gagal: ' + e.message, 'error');
-    } finally {
-        btn.disabled    = false;
-        btn.textContent = '✅ Konfirmasi Selesai';
-        _setCloseBtn(true);
-    }
+    } catch (e) { showToast('Gagal: ' + e.message, 'error'); }
+    finally { btn.disabled = false; btn.textContent = '✅ Konfirmasi Selesai'; _setCloseBtn(true); }
 }
 
 // ── Reopen log ───────────────────────────────────────────────
-async function reopenLog(id) {
+window.reopenLog = async function(id) {
+    const btn = document.getElementById(`btn-reopen-${id}`);
+    if (btn) { btn.disabled = true; btn.textContent = '⏳...'; }
     try {
-        await fetch(`/admin/logs/${id}/reopen`, {
+        const res = await fetch(`/admin/logs/${id}/reopen`, {
             method: 'PATCH',
             headers: { 'X-CSRF-TOKEN':LOG_CSRF, 'Accept':'application/json', 'Content-Type':'application/json' },
         });
+        if (!res.ok) { showToast('Gagal buka ulang', 'error'); return; }
+
+        const card   = document.getElementById(`logcard-${id}`);
+        const timeEl = document.getElementById(`time-${id}`);
+        const durEl  = document.getElementById(`dur-${id}`);
+        const dotEl  = document.getElementById(`dot-${id}`);
+
+        card?.classList.replace('closed','open');
+        if (dotEl) dotEl.className = 'log-status-dot dot-open';
+        if (timeEl) { const mulai = timeEl.textContent.split('–')[0].trim(); timeEl.textContent = `${mulai} – …`; }
+        if (durEl)  { durEl.className = 'log-durasi ongoing'; durEl.textContent = 'ON GOING'; }
+
+        if (btn) {
+            btn.className = 'log-btn log-btn-close';
+            btn.id = `btn-close-${id}`;
+            btn.textContent = '✅ Selesai';
+            btn.disabled = false;
+            btn.onclick = () => closeLog(id);
+        }
+
+        const cntOpen = document.getElementById('cntOpen');
+        if (cntOpen) cntOpen.textContent = parseInt(cntOpen.textContent) + 1;
+
         showToast('🔄 Log dibuka ulang', 'info');
-        setTimeout(() => window.location.reload(), 600);
-    } catch (e) { showToast('Gagal', 'error'); }
+    } catch (e) {
+        showToast('Gagal: ' + e.message, 'error');
+        if (btn) { btn.disabled = false; btn.textContent = '🔄 Buka Ulang'; }
+    }
 }
 
+// ── Delete log ───────────────────────────────────────────────
+window.deleteLog = async function(id) {
+    if (!confirm('Hapus log ini? Tidak bisa dibatalkan.')) return;
+    try {
+        const res = await fetch(`/admin/logs/${id}`, {
+            method: 'DELETE',
+            headers: { 'X-CSRF-TOKEN':LOG_CSRF, 'Accept':'application/json', 'Content-Type':'application/json' },
+        });
+        if (!res.ok) { showToast('Gagal hapus', 'error'); return; }
+        document.getElementById(`logcard-${id}`)?.remove();
+        const cntAll = document.getElementById('cntAll');
+        if (cntAll) cntAll.textContent = Math.max(0, parseInt(cntAll.textContent) - 1);
         showToast('🗑️ Log dihapus', 'info');
     } catch (e) { showToast('Gagal', 'error'); }
 }
 
-// ── Reset form saat sheet ditutup ────────────────────────────
-const origClose = window.closeSheet;
-window.closeSheet = function(id) {
-    if (id === 'addLogSheet') {
-        activeJenis = null;
-        document.querySelectorAll('.jenis-btn').forEach(b => b.className = 'jenis-btn');
-        document.querySelectorAll('.form-section').forEach(s => s.classList.remove('visible'));
-        document.getElementById('saveBtnWrap').style.display = 'none';
-    }
-    if (id === 'closeLogSheet') {
-        _closeId = null;
-    }
-    if (origClose) origClose(id);
-};
+// Pastikan semua modal tertutup saat halaman load
+document.addEventListener('DOMContentLoaded', function() {
+    ['addLogSheet','closeLogSheet'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) { el.style.display = 'none'; el.classList.remove('active'); }
+    });
+});
 </script>
 @endpush

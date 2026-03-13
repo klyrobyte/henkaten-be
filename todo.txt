@@ -1,0 +1,4 @@
+could you add "solution" input on "qlLogList" when user trying to close a problems and tryin to click "selesai" and there is gonna be a soultion input that user must be filled to procced, after "<div class="ql-log-actions">
+                    <button class="ql-btn ql-btn-done" onclick="qlCloseLog(27,this)">✅ Selesai</button>
+                    <button class="ql-btn ql-btn-del" onclick="qlDeleteLog(27,this)">🗑️</button>
+                </div>" and the solution input gonna be saved on countermeasure on table problem_logs 
