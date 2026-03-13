@@ -242,10 +242,7 @@
                 @else
                     <button class="log-btn log-btn-reopen" onclick="reopenLog({{ $log->id }})">🔄 Buka Ulang</button>
                 @endif
-                <button class="log-btn log-btn-edit"
-                        onclick="editLog({{ $log->id }},'{{ substr($log->waktu_mulai,0,5) }}','{{ $log->waktu_selesai ? substr($log->waktu_selesai,0,5) : '' }}')">
-                    ✏️ Edit Waktu
-                </button>
+
                 <button class="log-btn log-btn-del" onclick="deleteLog({{ $log->id }})">🗑️</button>
             </div>
         </div>
@@ -323,10 +320,6 @@
                         </select>
                     </div>
                 </div>
-                <div class="field-group" id="m-selesai-wrap" style="display:none">
-                    <label>Waktu Selesai</label>
-                    <input type="time" id="m-selesai">
-                </div>
             </div>
 
             {{-- FORM: MATERIAL --}}
@@ -366,10 +359,6 @@
                             <option value="closed">Closed — sudah selesai</option>
                         </select>
                     </div>
-                </div>
-                <div class="field-group" id="mat-selesai-wrap" style="display:none">
-                    <label>Waktu Selesai</label>
-                    <input type="time" id="mat-selesai">
                 </div>
             </div>
 
@@ -411,10 +400,6 @@
                         </select>
                     </div>
                 </div>
-                <div class="field-group" id="met-selesai-wrap" style="display:none">
-                    <label>Waktu Selesai</label>
-                    <input type="time" id="met-selesai">
-                </div>
             </div>
 
             <div class="save-bar" id="saveBtnWrap" style="display:none">
@@ -424,38 +409,7 @@
     </div>
 </div>
 
-{{-- ══ MODAL: Edit Waktu ══════════════════════════════════════════ --}}
-<div class="modal-overlay" id="editTimeSheet">
-    <div class="modal-sheet" style="max-height:320px">
-        <div class="modal-sheet-handle"></div>
-        <div class="et-header">
-            <div class="et-header-left">
-                <div class="et-header-icon">✏️</div>
-                <div class="et-header-title">Edit Waktu Log</div>
-            </div>
-            <button class="modal-sheet-close" onclick="closeSheet('editTimeSheet')">✕</button>
-        </div>
-        <div class="modal-sheet-body">
-            <input type="hidden" id="editLogId">
-            <div class="form-row">
-                <div class="field-group">
-                    <label>Waktu Mulai</label>
-                    <input type="time" id="editMulai">
-                </div>
-                <div class="field-group">
-                    <label>Waktu Selesai <span style="font-weight:400;color:#bbb">(opsional)</span></label>
-                    <input type="time" id="editSelesai">
-                </div>
-            </div>
-            {{-- Preview durasi --}}
-            <div id="durasiPreview" style="text-align:center;font-family:'Roboto Condensed',sans-serif;
-                 font-size:13px;color:#888;margin-bottom:8px;min-height:20px"></div>
-            <div class="save-bar" style="margin-top:4px">
-                <button class="save-btn-big" onclick="saveEditTime()">💾 Simpan Perubahan</button>
-            </div>
-        </div>
-    </div>
-</div>
+
 
 @endsection
 
@@ -490,14 +444,7 @@ function selectJenis(jenis) {
     document.getElementById('saveBtnWrap').style.display = '';
 }
 
-function toggleSelesai(prefix, val) {
-    const wrap = document.getElementById(`${prefix}-selesai-wrap`);
-    wrap.style.display = val === 'closed' ? '' : 'none';
-    if (val === 'closed') {
-        // Auto-isi waktu selesai dengan jam sekarang
-        document.getElementById(`${prefix}-selesai`).value = new Date().toTimeString().slice(0, 5);
-    }
-}
+
 
 // ── Submit log baru ──────────────────────────────────────────
 async function submitLog() {
@@ -513,9 +460,6 @@ async function submitLog() {
     if (!mulai)  { showToast('Isi waktu mulai', 'error');    return; }
     if (!desk)   { showToast('Isi deskripsi masalah', 'error'); return; }
 
-    const selesaiRaw   = document.getElementById(`${p}-selesai`)?.value;
-    const waktuSelesai = (status === 'closed' && selesaiRaw) ? selesaiRaw : null;
-
     const btn = document.getElementById('saveBtnMain');
     btn.disabled = true; btn.textContent = '⏳ Menyimpan...';
 
@@ -526,7 +470,7 @@ async function submitLog() {
             body: JSON.stringify({
                 tanggal: TANGGAL, factory: FACTORY, shift: SHIFT,
                 jenis: activeJenis, lokasi,
-                waktu_mulai: mulai, waktu_selesai: waktuSelesai, status,
+                waktu_mulai: mulai, status,
                 deskripsi: desk,
                 cause:          document.getElementById(`${p}-cause`)?.value || null,
                 countermeasure: document.getElementById(`${p}-cm`)?.value    || null,
@@ -537,12 +481,6 @@ async function submitLog() {
         if (!res.ok) { showToast('Gagal simpan: ' + (data?.message?.slice(0,80) ?? 'error'), 'error'); return; }
         showToast('✅ Log berhasil ditambah!', 'success');
         closeSheet('addLogSheet');
-        setTimeout(() => window.location.reload(), 700);
-    } catch (e) {
-        showToast('Gagal kirim: ' + e.message, 'error');
-    } finally {
-        btn.disabled = false; btn.textContent = '💾 Simpan Log';
-    }
 }
 
 // ── Close log: tampilkan jam selesai + durasi langsung di card ──
@@ -599,71 +537,9 @@ async function reopenLog(id) {
     } catch (e) { showToast('Gagal', 'error'); }
 }
 
-// ── Edit waktu: auto-isi waktu selesai sekarang jika kosong ──
-function editLog(id, mulai, selesai) {
-    document.getElementById('editLogId').value   = id;
-    document.getElementById('editMulai').value   = mulai;
-    // Jika belum ada waktu selesai, isi dengan jam sekarang sebagai saran
-    document.getElementById('editSelesai').value = selesai || new Date().toTimeString().slice(0, 5);
-    updateDurasiPreview();
-    openSheet('editTimeSheet');
-}
-
-function updateDurasiPreview() {
-    const mulai   = document.getElementById('editMulai').value;
-    const selesai = document.getElementById('editSelesai').value;
-    const preview = document.getElementById('durasiPreview');
-    if (!mulai || !selesai) { preview.textContent = ''; return; }
-
-    const s    = mulai.split(':').map(Number);
-    const e    = selesai.split(':').map(Number);
-    let diff   = (e[0]*60+e[1]) - (s[0]*60+s[1]);
-    if (diff < 0) diff += 1440; // lintas tengah malam
-
-    const h = Math.floor(diff / 60);
-    const m = diff % 60;
-    const dur = h > 0 ? `${h}j ${m}m` : `${m}m`;
-    preview.innerHTML = `⏱ Durasi perbaikan: <strong style="color:var(--navy)">${dur}</strong>`;
-}
-
-async function saveEditTime() {
-    const id      = document.getElementById('editLogId').value;
-    const mulai   = document.getElementById('editMulai').value;
-    const selesai = document.getElementById('editSelesai').value;
-    const btn     = document.querySelector('#editTimeSheet .save-btn-big');
-    if (btn) { btn.disabled = true; btn.textContent = '⏳ Menyimpan...'; }
-    try {
-        const res  = await fetch(`/admin/logs/${id}`, {
-            method: 'PATCH',
-            headers: { 'Content-Type':'application/json', 'X-CSRF-TOKEN':CSRF, 'Accept':'application/json' },
-            body: JSON.stringify({ waktu_mulai: mulai, waktu_selesai: selesai || null }),
-        });
-        const data = await res.json();
-        closeSheet('editTimeSheet');
-        showToast('✅ Waktu diupdate — ' + (data.durasi ?? ''), 'success');
-        setTimeout(() => window.location.reload(), 600);
-    } catch (e) {
-        showToast('Gagal', 'error');
-    } finally {
-        if (btn) { btn.disabled = false; btn.textContent = '💾 Simpan Perubahan'; }
-    }
-}
-
-async function deleteLog(id) {
-    if (!confirm('Hapus log ini? Tindakan tidak bisa dibatalkan.')) return;
-    try {
-        await fetch(`/admin/logs/${id}`, {
-            method: 'DELETE',
-            headers: { 'X-CSRF-TOKEN':CSRF, 'Accept':'application/json', 'Content-Type':'application/json' },
-        });
-        document.getElementById(`logcard-${id}`)?.remove();
         showToast('🗑️ Log dihapus', 'info');
     } catch (e) { showToast('Gagal', 'error'); }
 }
-
-// ── Live preview durasi saat edit waktu ─────────────────────
-document.getElementById('editMulai').addEventListener('input', updateDurasiPreview);
-document.getElementById('editSelesai').addEventListener('input', updateDurasiPreview);
 
 // ── Reset form saat sheet ditutup ────────────────────────────
 const origClose = window.closeSheet;

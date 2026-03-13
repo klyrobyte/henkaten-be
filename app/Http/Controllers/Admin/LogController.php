@@ -45,9 +45,14 @@ class LogController extends Controller
             'pic'            => 'nullable|string',
         ]);
 
+        $waktuSelesai = $request->waktu_selesai;
+        if ($request->status === 'closed' && empty($waktuSelesai)) {
+            $waktuSelesai = now('Asia/Jakarta')->format('H:i');
+        }
+
         $durasi = null;
-        if ($request->filled('waktu_selesai')) {
-            $durasi = $this->calcDuration($request->waktu_mulai, $request->waktu_selesai);
+        if (!empty($waktuSelesai)) {
+            $durasi = $this->calcDuration($request->waktu_mulai, $waktuSelesai);
         }
 
         $log = ProblemLog::create([
@@ -57,7 +62,7 @@ class LogController extends Controller
             'jenis'          => $request->jenis,
             'lokasi'         => $request->lokasi,
             'waktu_mulai'    => $request->waktu_mulai,
-            'waktu_selesai'  => $request->waktu_selesai ?: null,
+            'waktu_selesai'  => $waktuSelesai ?: null,
             'status'         => $request->status,
             'deskripsi'      => $request->deskripsi,
             'cause'          => $request->cause ?: null,
@@ -74,16 +79,23 @@ class LogController extends Controller
         return back()->with('success', "{$request->jenis} log ditambah: {$request->lokasi}");
     }
 
-    public function close(ProblemLog $log)
+    public function close(Request $request, ProblemLog $log)
     {
+        // Selalu gunakan waktu sekarang
         $waktuSelesai = now('Asia/Jakarta')->format('H:i');
         $durasi       = $this->calcDuration($log->waktu_mulai, $waktuSelesai);
 
-        $log->update([
+        $updateData = [
             'waktu_selesai' => $waktuSelesai,
             'status'        => 'closed',
             'durasi'        => $durasi,
-        ]);
+        ];
+
+        if ($request->filled('countermeasure')) {
+            $updateData['countermeasure'] = $request->countermeasure;
+        }
+
+        $log->update($updateData);
 
         return response()->json(['ok' => true, 'durasi' => $durasi, 'waktu_selesai' => $waktuSelesai, 'log' => $log->fresh()]);
     }
@@ -99,27 +111,7 @@ class LogController extends Controller
         return response()->json(['ok' => true]);
     }
 
-    public function update(Request $request, ProblemLog $log)
-    {
-        $request->validate([
-            'waktu_mulai'   => 'required|date_format:H:i',
-            'waktu_selesai' => 'nullable|date_format:H:i',
-        ]);
 
-        $hasSelesai = $request->filled('waktu_selesai');
-        $durasi     = $hasSelesai
-            ? $this->calcDuration($request->waktu_mulai, $request->waktu_selesai)
-            : null;
-
-        $log->update([
-            'waktu_mulai'   => $request->waktu_mulai,
-            'waktu_selesai' => $hasSelesai ? $request->waktu_selesai : null,
-            'status'        => $hasSelesai ? 'closed' : 'open',
-            'durasi'        => $durasi,
-        ]);
-
-        return response()->json(['ok' => true, 'durasi' => $durasi, 'log' => $log->fresh()]);
-    }
 
     public function destroy(ProblemLog $log)
     {

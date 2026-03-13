@@ -843,9 +843,6 @@
                         </select>
                     </div>
                 </div>
-                <div class="field-group" id="ql-m-selesai-wrap" style="display:none">
-                    <label>Waktu Selesai</label><input type="time" id="ql-m-selesai">
-                </div>
                 <div class="field-group">
                     <label>Deskripsi Kerusakan *</label>
                     <textarea id="qlDeskripsi" rows="2" placeholder="Contoh: MC mati mendadak, bunyi abnormal…"
@@ -870,9 +867,6 @@
                         </select>
                     </div>
                 </div>
-                <div class="field-group" id="ql-mat-selesai-wrap" style="display:none">
-                    <label>Waktu Selesai</label><input type="time" id="ql-mat-selesai">
-                </div>
                 <div class="field-group">
                     <label>Deskripsi Masalah Material *</label>
                     <textarea id="ql-mat-deskripsi" rows="2" placeholder="Contoh: material short shot, warna tidak sesuai…"
@@ -896,9 +890,6 @@
                             <option value="closed">Closed — sudah selesai</option>
                         </select>
                     </div>
-                </div>
-                <div class="field-group" id="ql-met-selesai-wrap" style="display:none">
-                    <label>Waktu Selesai</label><input type="time" id="ql-met-selesai">
                 </div>
                 <div class="field-group">
                     <label>Deskripsi Penyimpangan *</label>
@@ -1167,7 +1158,6 @@ function openQuickLog(machine) {
     ['qlMulai','ql-mat-mulai','ql-met-mulai'].forEach(id => { const el=$id(id); if(el) el.value=now; });
     ['qlDeskripsi','qlCause','qlPIC','ql-mat-deskripsi','ql-mat-cause','ql-mat-pic','ql-met-deskripsi','ql-met-cause','ql-met-pic'].forEach(id => { const el=$id(id); if(el) el.value=''; });
     ['ql-m-status','ql-mat-status','ql-met-status'].forEach(id => { const el=$id(id); if(el) el.value='open'; });
-    ['m','mat','met'].forEach(p => { const w=$id(`ql-${p}-selesai-wrap`); if(w) w.style.display='none'; });
     renderLogList(machine);
     openSheet('quickLogOverlay');
 }
@@ -1185,12 +1175,6 @@ function qlSelectJenis(jenis) {
     const mulaiId = jenis==='Machine' ? 'qlMulai' : `ql-${p}-mulai`;
     const el = $id(mulaiId); if(el && !el.value) el.value=now;
     $id('qlSaveBtnWrap').style.display='block';
-}
-
-function qlToggleSelesai(prefix, val) {
-    const wrap = $id(`ql-${prefix}-selesai-wrap`); if(!wrap) return;
-    wrap.style.display = val==='closed' ? '' : 'none';
-    if(val==='closed'){ const el=$id(`ql-${prefix}-selesai`); if(el) el.value=new Date().toTimeString().slice(0,5); }
 }
 
 async function renderLogList(machine) {
@@ -1218,10 +1202,18 @@ async function renderLogList(machine) {
                 <div class="ql-log-desc">${esc(l.deskripsi)}</div>
                 ${l.cause?`<div class="ql-log-meta">🔍 ${esc(l.cause)}</div>`:''}
                 ${l.pic?`<div class="ql-log-meta">👤 ${esc(l.pic)}</div>`:''}
-                <div class="ql-log-actions">
-                    ${isOpen?`<button class="ql-btn ql-btn-done" onclick="qlCloseLog(${l.id},this)">✅ Selesai</button>`:`<button class="ql-btn ql-btn-reopen" onclick="qlReopenLog(${l.id},this)">🔄 Buka Ulang</button>`}
+                <div class="ql-log-actions" id="qlactions-${l.id}">
+                    ${isOpen?`<button class="ql-btn ql-btn-done" onclick="qlShowCloseInput(${l.id})">✅ Selesai</button>`:`<button class="ql-btn ql-btn-reopen" onclick="qlReopenLog(${l.id},this)">🔄 Buka Ulang</button>`}
                     <button class="ql-btn ql-btn-del" onclick="qlDeleteLog(${l.id},this)">🗑️</button>
                 </div>
+                ${isOpen ? `
+                <div id="qlclose-wrap-${l.id}" style="display:none; margin-top:8px; border-top:1px dashed #eee; padding-top:8px;">
+                    <textarea id="ql-cm-${l.id}" rows="2" placeholder="Solusi / Countermeasure (Wajib)..." style="width:100%; border:1px solid #ccc; border-radius:6px; padding:6px 8px; font-size:11px; margin-bottom:6px; resize:none; font-family:inherit; box-sizing:border-box; outline:none;" onfocus="this.style.borderColor='#2e7d32'" onblur="this.style.borderColor='#ccc'"></textarea>
+                    <div style="display:flex; gap:5px;">
+                        <button class="ql-btn ql-btn-done" style="flex:1" onclick="qlCloseLog(${l.id}, this)">💾 Simpan Selesai</button>
+                        <button class="ql-btn ql-btn-del" style="padding:4px 8px" onclick="qlHideCloseInput(${l.id})">Batal</button>
+                    </div>
+                </div>` : ''}
             </div>`;
         }).join('');
     } catch(e){ wrap.innerHTML='<div style="text-align:center;padding:10px;color:#f99;font-size:11px">Gagal memuat log.</div>'; }
@@ -1237,8 +1229,6 @@ async function submitQuickLog() {
     const mulai    = $id(mulaiId)?.value;
     const desk     = $id(deskId)?.value?.trim();
     const status   = $id(`ql-${p}-status`)?.value||'open';
-    const selesaiR = $id(`ql-${p}-selesai`)?.value;
-    const waktuSel = (status==='closed'&&selesaiR)?selesaiR:null;
     if(!mulai){ showToast('Isi waktu mulai','error'); return; }
     if(!desk) { showToast('Isi deskripsi masalah','error'); return; }
     const btn=$id('qlSubmitBtn'); if(btn){btn.disabled=true;btn.textContent='⏳ Menyimpan…';}
@@ -1246,7 +1236,7 @@ async function submitQuickLog() {
         const res=await fetch('/admin/logs',{
             method:'POST',
             headers:{'Content-Type':'application/json','X-CSRF-TOKEN':CSRF,'Accept':'application/json'},
-            body:JSON.stringify({tanggal:TANGGAL,factory:FACTORY,shift:SHIFT,jenis,lokasi,waktu_mulai:mulai,waktu_selesai:waktuSel,status,deskripsi:desk,cause:$id(causeId)?.value||null,countermeasure:null,pic:$id(picId)?.value||null}),
+            body:JSON.stringify({tanggal:TANGGAL,factory:FACTORY,shift:SHIFT,jenis,lokasi,waktu_mulai:mulai,status,deskripsi:desk,cause:$id(causeId)?.value||null,countermeasure:null,pic:$id(picId)?.value||null}),
         });
         const data=await res.json().catch(()=>({}));
         if(!res.ok){showToast('Gagal: '+(data?.message?.slice(0,60)??'error'),'error');return;}
@@ -1257,10 +1247,39 @@ async function submitQuickLog() {
     finally{if(btn){btn.disabled=false;btn.textContent='💾 Simpan Log';}}
 }
 
+function qlShowCloseInput(id) {
+    const wrap = $id(`qlclose-wrap-${id}`);
+    const actions = $id(`qlactions-${id}`);
+    if (wrap) wrap.style.display = 'block';
+    if (actions) actions.style.display = 'none';
+    const cm = $id(`ql-cm-${id}`);
+    if (cm) cm.focus();
+}
+
+function qlHideCloseInput(id) {
+    const wrap = $id(`qlclose-wrap-${id}`);
+    const actions = $id(`qlactions-${id}`);
+    if (wrap) wrap.style.display = 'none';
+    if (actions) actions.style.display = 'flex';
+}
+
 async function qlCloseLog(id,btn) {
+    const cmEl = $id(`ql-cm-${id}`);
+    const cm = cmEl ? cmEl.value.trim() : '';
+
+    if (!cm) {
+        if (cmEl) { cmEl.style.borderColor = '#e74c3c'; cmEl.focus(); }
+        showToast('Solusi / Countermeasure wajib diisi!', 'error');
+        return;
+    }
+
     if(btn){btn.disabled=true;btn.textContent='⏳…';}
     try {
-        const res=await fetch(`/admin/logs/${id}/close`,{method:'PATCH',headers:{'X-CSRF-TOKEN':CSRF,'Accept':'application/json','Content-Type':'application/json'}});
+        const res=await fetch(`/admin/logs/${id}/close`,{
+            method:'PATCH',
+            headers:{'X-CSRF-TOKEN':CSRF,'Accept':'application/json','Content-Type':'application/json'},
+            body:JSON.stringify({ countermeasure: cm })
+        });
         const data=await res.json();
         if(!res.ok){showToast('Gagal menutup log','error');if(btn){btn.disabled=false;btn.textContent='✅ Selesai';}return;}
         const item=$id(`qli-${id}`),timeEl=$id(`qltime-${id}`),durEl=$id(`qldur-${id}`),dotEl=item?.querySelector('.ql-log-dot');
@@ -1268,7 +1287,17 @@ async function qlCloseLog(id,btn) {
         if(dotEl)dotEl.className='ql-log-dot dot-closed';
         if(timeEl&&data.waktu_selesai){const m=timeEl.textContent.split('–')[0].trim();timeEl.textContent=`${m} – ${data.waktu_selesai}`;}
         if(durEl&&data.durasi){durEl.className='ql-log-dur';durEl.textContent=`(${data.durasi})`;}
-        if(btn){btn.className='ql-btn ql-btn-reopen';btn.disabled=false;btn.textContent='🔄 Buka Ulang';btn.onclick=()=>qlReopenLog(id,btn);}
+        
+        // Ganti actions kembali dengan re-open
+        const actions = $id(`qlactions-${id}`);
+        if(actions) {
+            actions.style.display = 'flex';
+            actions.innerHTML = `<button class="ql-btn ql-btn-reopen" onclick="qlReopenLog(${id},this)">🔄 Buka Ulang</button>
+                                 <button class="ql-btn ql-btn-del" onclick="qlDeleteLog(${id},this)">🗑️</button>`;
+        }
+        const wrap = $id(`qlclose-wrap-${id}`);
+        if(wrap) wrap.style.display = 'none';
+
         showToast(`✅ Selesai — ${data.durasi??''}`,'success'); syncAll();
     } catch(e){showToast('Gagal','error');if(btn){btn.disabled=false;btn.textContent='✅ Selesai';}}
 }

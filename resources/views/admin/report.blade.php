@@ -235,19 +235,26 @@
     <button class="factory-select-btn" onclick="showFactoryPicker()">🏭</button>
 </div>
 <div class="shift-toggle-bar">
-    @php $userShift = auth()->user()->shift; @endphp
-    @if(!$userShift || $userShift === 'A')
     <button class="shift-toggle-btn {{ $shift==='A'?'active':'' }}" onclick="switchShift('A')">SHIFT A</button>
-    @endif
-    @if(!$userShift || $userShift === 'B')
     <button class="shift-toggle-btn {{ $shift==='B'?'active':'' }}" onclick="switchShift('B')">SHIFT B</button>
-    @endif
 </div>
 
 {{-- Header + export --}}
 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
     <div style="font-family:'Orbitron',sans-serif;font-size:13px;font-weight:700;color:var(--navy)">
         LAPORAN HARIAN
+    </div>
+    <div style="display:flex;gap:8px">
+        <a href="{{ route('admin.reports.export', ['tanggal'=>$tanggal,'factory'=>$factory,'shift'=>$shift]) }}"
+           style="padding:8px 14px;border-radius:8px;background:var(--green);color:#fff;
+                  text-decoration:none;font-size:12px;font-weight:700;font-family:'Roboto Condensed',sans-serif">
+            📤 CSV
+        </a>
+        <a href="{{ route('admin.reports.backup', ['tanggal'=>$tanggal,'factory'=>$factory,'shift'=>$shift]) }}"
+           style="padding:8px 14px;border-radius:8px;background:var(--navy);color:#fff;
+                  text-decoration:none;font-size:12px;font-weight:700;font-family:'Roboto Condensed',sans-serif">
+            💾 JSON
+        </a>
     </div>
 </div>
 
@@ -441,10 +448,7 @@
                     @else
                         <button class="log-btn log-btn-reopen" onclick="reopenLog({{ $log->id }})">🔄 Buka Ulang</button>
                     @endif
-                    <button class="log-btn log-btn-edit"
-                            onclick="editLog({{ $log->id }},'{{ substr($log->waktu_mulai,0,5) }}','{{ $log->waktu_selesai ? substr($log->waktu_selesai,0,5) : '' }}')">
-                        ✏️ Edit Waktu
-                    </button>
+
                     <button class="log-btn log-btn-del" onclick="deleteLog({{ $log->id }})">🗑️</button>
                 </div>
             </div>
@@ -523,10 +527,6 @@
                         </select>
                     </div>
                 </div>
-                <div class="field-group" id="m-selesai-wrap" style="display:none">
-                    <label>Waktu Selesai</label>
-                    <input type="time" id="m-selesai">
-                </div>
             </div>
 
             {{-- FORM: MATERIAL --}}
@@ -566,10 +566,6 @@
                             <option value="closed">Closed — sudah selesai</option>
                         </select>
                     </div>
-                </div>
-                <div class="field-group" id="mat-selesai-wrap" style="display:none">
-                    <label>Waktu Selesai</label>
-                    <input type="time" id="mat-selesai">
                 </div>
             </div>
 
@@ -611,10 +607,6 @@
                         </select>
                     </div>
                 </div>
-                <div class="field-group" id="met-selesai-wrap" style="display:none">
-                    <label>Waktu Selesai</label>
-                    <input type="time" id="met-selesai">
-                </div>
             </div>
 
             <div class="save-bar" id="saveBtnWrap" style="display:none">
@@ -624,33 +616,159 @@
     </div>
 </div>
 
-{{-- ══ MODAL: Edit Waktu ══════════════════════════════════════════ --}}
-<div class="modal-overlay" id="editTimeSheet">
-    <div class="modal-sheet" style="max-height:320px">
+
+
+{{-- ══ MODAL: Close Log (Wajib Countermeasure) ════════════════════ --}}
+<div class="modal-overlay" id="closeLogSheet">
+    <div class="modal-sheet" style="max-height:380px">
         <div class="modal-sheet-handle"></div>
-        <div class="et-header">
-            <div class="et-header-left">
-                <div class="et-header-icon">✏️</div>
-                <div class="et-header-title">Edit Waktu Log</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;
+                    padding:14px 16px 12px;border-bottom:1.5px solid #f0f0f0">
+            <div style="display:flex;align-items:center;gap:10px">
+                <div style="width:36px;height:36px;border-radius:10px;
+                            background:linear-gradient(135deg,#2e7d32,#43a047);
+                            color:#fff;font-size:18px;display:flex;align-items:center;
+                            justify-content:center;box-shadow:0 3px 8px rgba(46,125,50,.3);
+                            flex-shrink:0">✅</div>
+                <div>
+                    <div style="font-family:'Roboto Condensed',sans-serif;font-size:14px;
+                                font-weight:900;color:#222;text-transform:uppercase;
+                                letter-spacing:.5px">Selesaikan Log</div>
+                    <div id="closeLogSubtitle"
+                         style="font-size:11px;color:#aaa;margin-top:1px"></div>
+                </div>
             </div>
-            <button class="modal-sheet-close" onclick="closeSheet('editTimeSheet')">✕</button>
+            <button class="modal-sheet-close" onclick="closeSheet('closeLogSheet')">✕</button>
         </div>
         <div class="modal-sheet-body">
-            <input type="hidden" id="editLogId">
-            <div class="form-row">
-                <div class="field-group">
-                    <label>Waktu Mulai</label>
-                    <input type="time" id="editMulai">
-                </div>
-                <div class="field-group">
-                    <label>Waktu Selesai <span style="font-weight:400;color:#bbb">(opsional)</span></label>
-                    <input type="time" id="editSelesai">
+            <input type="hidden" id="closeLogId">
+
+            {{-- Countermeasure — WAJIB --}}
+            <div style="margin-bottom:14px">
+                <label style="font-family:'Roboto Condensed',sans-serif;font-size:11px;
+                              font-weight:900;text-transform:uppercase;letter-spacing:.5px;
+                              color:#2e7d32;display:flex;align-items:center;
+                              gap:6px;margin-bottom:7px">
+                    🔧 Countermeasure
+                    <span style="background:#e74c3c;color:#fff;font-size:9px;
+                                 padding:2px 7px;border-radius:4px;font-weight:900">WAJIB</span>
+                </label>
+                <textarea id="closeCM" rows="4"
+                          placeholder="Tindakan yang dilakukan untuk menyelesaikan masalah..."
+                          style="width:100%;padding:11px 12px;border:2px solid #e0e0e0;
+                                 border-radius:10px;font-family:inherit;font-size:13px;
+                                 resize:none;box-sizing:border-box;outline:none;
+                                 transition:border-color .2s,box-shadow .2s;line-height:1.5"
+                          oninput="onCMInput()"
+                          onfocus="this.style.borderColor='#2e7d32';this.style.boxShadow='0 0 0 3px rgba(46,125,50,.12)'"
+                          onblur="this.style.boxShadow='none';this.style.borderColor=this.value.trim()?'#a5d6a7':'#e0e0e0'">
+                </textarea>
+                <div id="cmError"
+                     style="display:none;color:#e74c3c;font-size:11px;font-weight:700;
+                            font-family:'Roboto Condensed',sans-serif;margin-top:5px">
+                    ⚠️ Countermeasure wajib diisi
                 </div>
             </div>
-            <div id="durasiPreview" style="text-align:center;font-family:'Roboto Condensed',sans-serif;
-                 font-size:13px;color:#888;margin-bottom:8px;min-height:20px"></div>
-            <div class="save-bar" style="margin-top:4px">
-                <button class="save-btn-big" onclick="saveEditTime()">💾 Simpan Perubahan</button>
+
+
+            {{-- Submit --}}
+            <div class="save-bar">
+                <button id="btnConfirmClose"
+                        onclick="confirmCloseLog()"
+                        style="width:100%;padding:14px;border-radius:12px;border:none;
+                               background:#ccc;color:#fff;cursor:not-allowed;
+                               font-family:'Roboto Condensed',sans-serif;
+                               font-size:14px;font-weight:900;letter-spacing:.5px;
+                               text-transform:uppercase;transition:all .2s;opacity:.6"
+                        disabled>
+                    ✅ Konfirmasi Selesai
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{{-- ══ MODAL: Close Log (Wajib Countermeasure) ════════════════════ --}}
+<div class="modal-overlay" id="closeLogSheet">
+    <div class="modal-sheet" style="max-height:380px">
+        <div class="modal-sheet-handle"></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;
+                    padding:14px 16px 12px;border-bottom:1.5px solid #f0f0f0">
+            <div style="display:flex;align-items:center;gap:10px">
+                <div style="width:36px;height:36px;border-radius:10px;
+                            background:linear-gradient(135deg,#2e7d32,#43a047);
+                            color:#fff;font-size:18px;display:flex;align-items:center;
+                            justify-content:center;box-shadow:0 3px 8px rgba(46,125,50,.3);
+                            flex-shrink:0">✅</div>
+                <div>
+                    <div style="font-family:'Roboto Condensed',sans-serif;font-size:14px;
+                                font-weight:900;color:#222;text-transform:uppercase;
+                                letter-spacing:.5px">Selesaikan Log</div>
+                    <div id="closeLogSubtitle"
+                         style="font-size:11px;color:#aaa;margin-top:1px"></div>
+                </div>
+            </div>
+            <button class="modal-sheet-close" onclick="closeSheet('closeLogSheet')">✕</button>
+        </div>
+        <div class="modal-sheet-body">
+            <input type="hidden" id="closeLogId">
+
+            {{-- Countermeasure — WAJIB --}}
+            <div style="margin-bottom:14px">
+                <label style="font-family:'Roboto Condensed',sans-serif;font-size:11px;
+                              font-weight:900;text-transform:uppercase;letter-spacing:.5px;
+                              color:#2e7d32;display:flex;align-items:center;
+                              gap:6px;margin-bottom:7px">
+                    🔧 Countermeasure
+                    <span style="background:#e74c3c;color:#fff;font-size:9px;
+                                 padding:2px 7px;border-radius:4px;font-weight:900">WAJIB</span>
+                </label>
+                <textarea id="closeCM" rows="4"
+                          placeholder="Tindakan yang dilakukan untuk menyelesaikan masalah..."
+                          style="width:100%;padding:11px 12px;border:2px solid #e0e0e0;
+                                 border-radius:10px;font-family:inherit;font-size:13px;
+                                 resize:none;box-sizing:border-box;outline:none;
+                                 transition:border-color .2s,box-shadow .2s;line-height:1.5"
+                          oninput="onCMInput()"
+                          onfocus="this.style.borderColor='#2e7d32';this.style.boxShadow='0 0 0 3px rgba(46,125,50,.12)'"
+                          onblur="this.style.boxShadow='none';this.style.borderColor=this.value.trim()?'#a5d6a7':'#e0e0e0'">
+                </textarea>
+                <div id="cmError"
+                     style="display:none;color:#e74c3c;font-size:11px;font-weight:700;
+                            font-family:'Roboto Condensed',sans-serif;margin-top:5px">
+                    ⚠️ Countermeasure wajib diisi
+                </div>
+            </div>
+
+            {{-- Waktu selesai opsional --}}
+            <div style="margin-bottom:16px">
+                <label style="font-family:'Roboto Condensed',sans-serif;font-size:11px;
+                              font-weight:700;text-transform:uppercase;letter-spacing:.4px;
+                              color:#aaa;display:flex;align-items:center;
+                              gap:5px;margin-bottom:6px">
+                    ⏰ Waktu Selesai
+                    <span style="font-weight:400;color:#ccc">(opsional)</span>
+                </label>
+                <input type="time" id="closeWaktuSelesai"
+                       style="width:100%;padding:10px 12px;border:1.5px solid #e0e0e0;
+                              border-radius:10px;font-family:inherit;font-size:13px;
+                              box-sizing:border-box;outline:none;transition:border-color .2s"
+                       onfocus="this.style.borderColor='#888'"
+                       onblur="this.style.borderColor='#e0e0e0'">
+            </div>
+
+            {{-- Submit --}}
+            <div class="save-bar">
+                <button id="btnConfirmClose"
+                        onclick="confirmCloseLog()"
+                        style="width:100%;padding:14px;border-radius:12px;border:none;
+                               background:#ccc;color:#fff;cursor:not-allowed;
+                               font-family:'Roboto Condensed',sans-serif;
+                               font-size:14px;font-weight:900;letter-spacing:.5px;
+                               text-transform:uppercase;transition:all .2s;opacity:.6"
+                        disabled>
+                    ✅ Konfirmasi Selesai
+                </button>
             </div>
         </div>
     </div>
@@ -667,7 +785,7 @@ function updateQS(key, val) {
     return u.toString();
 }
 
-// ── Problem Log JS (identik logika dari log.blade.php) ────────
+// ── Problem Log JS ────────────────────────────────────────────
 const LOG_CSRF    = '{{ csrf_token() }}';
 const LOG_TANGGAL = '{{ $tanggal }}';
 const LOG_FACTORY = @json($factory);
@@ -691,13 +809,7 @@ function selectJenis(jenis) {
     document.getElementById('saveBtnWrap').style.display = '';
 }
 
-function toggleSelesai(prefix, val) {
-    const wrap = document.getElementById(`${prefix}-selesai-wrap`);
-    wrap.style.display = val === 'closed' ? '' : 'none';
-    if (val === 'closed') {
-        document.getElementById(`${prefix}-selesai`).value = new Date().toTimeString().slice(0, 5);
-    }
-}
+
 
 // ── Submit log baru ──────────────────────────────────────────
 async function submitLog() {
@@ -713,8 +825,13 @@ async function submitLog() {
     if (!mulai)  { showToast('Isi waktu mulai', 'error');    return; }
     if (!desk)   { showToast('Isi deskripsi masalah', 'error'); return; }
 
-    const selesaiRaw   = document.getElementById(`${p}-selesai`)?.value;
-    const waktuSelesai = (status === 'closed' && selesaiRaw) ? selesaiRaw : null;
+    const cm = document.getElementById(`${p}-cm`)?.value.trim();
+
+    if (status === 'closed' && !cm) {
+        showToast('Solusi / Countermeasure wajib diisi untuk status Closed!', 'error');
+        document.getElementById(`${p}-cm`)?.focus();
+        return;
+    }
 
     const btn = document.getElementById('saveBtnMain');
     btn.disabled = true; btn.textContent = '⏳ Menyimpan...';
@@ -726,7 +843,7 @@ async function submitLog() {
             body: JSON.stringify({
                 tanggal: LOG_TANGGAL, factory: LOG_FACTORY, shift: LOG_SHIFT,
                 jenis: activeJenis, lokasi,
-                waktu_mulai: mulai, waktu_selesai: waktuSelesai, status,
+                waktu_mulai: mulai, status,
                 deskripsi: desk,
                 cause:          document.getElementById(`${p}-cause`)?.value || null,
                 countermeasure: document.getElementById(`${p}-cm`)?.value    || null,
@@ -745,44 +862,134 @@ async function submitLog() {
     }
 }
 
-// ── Close log ────────────────────────────────────────────────
-async function closeLog(id) {
-    const btn = document.getElementById(`btn-close-${id}`);
-    if (btn) { btn.disabled = true; btn.textContent = '⏳...'; }
+// ── Close log — buka modal dulu ──────────────────────────────
+let _closeId = null;
+
+function closeLog(id) {
+    _closeId = id;
+
+    const card    = document.getElementById(`logcard-${id}`);
+    const badgeEl = card?.querySelector('.log-badge');
+    const lokEl   = card?.querySelector('.log-lokasi');
+    const jenis   = badgeEl?.textContent?.trim() ?? '';
+    const lokasi  = lokEl?.textContent?.replace('📍','').trim() ?? '';
+
+    document.getElementById('closeLogId').value             = id;
+    document.getElementById('closeLogSubtitle').textContent = `${jenis} · ${lokasi}`;
+
+    // Reset field
+    const cm = document.getElementById('closeCM');
+    cm.value             = '';
+    cm.style.borderColor = '#e0e0e0';
+    cm.style.boxShadow   = 'none';
+    document.getElementById('cmError').style.display = 'none';
+    _setCloseBtn(false);
+
+    openSheet('closeLogSheet');
+    setTimeout(() => cm.focus(), 350);
+}
+
+function onCMInput() {
+    const val = document.getElementById('closeCM').value.trim();
+    document.getElementById('cmError').style.display = 'none';
+    _setCloseBtn(!!val);
+}
+
+function _setCloseBtn(enabled) {
+    const btn = document.getElementById('btnConfirmClose');
+    if (!btn) return;
+    btn.disabled         = !enabled;
+    btn.style.cursor     = enabled ? 'pointer'    : 'not-allowed';
+    btn.style.opacity    = enabled ? '1'          : '.6';
+    btn.style.background = enabled
+        ? 'linear-gradient(135deg,#2e7d32,#43a047)'
+        : '#ccc';
+    btn.style.boxShadow  = enabled
+        ? '0 4px 12px rgba(46,125,50,.4)'
+        : 'none';
+}
+
+async function confirmCloseLog() {
+    const cm = document.getElementById('closeCM').value.trim();
+    if (!cm) {
+        document.getElementById('cmError').style.display = '';
+        document.getElementById('closeCM').style.borderColor = '#e74c3c';
+        showToast('⚠️ Countermeasure wajib diisi!', 'error');
+        return;
+    }
+
+    const id  = _closeId;
+    const btn = document.getElementById('btnConfirmClose');
+
+    btn.disabled    = true;
+    btn.textContent = '⏳ Menyimpan...';
+
     try {
         const res  = await fetch(`/admin/logs/${id}/close`, {
-            method: 'PATCH',
-            headers: { 'X-CSRF-TOKEN':LOG_CSRF, 'Accept':'application/json', 'Content-Type':'application/json' },
+            method : 'PATCH',
+            headers: {
+                'Content-Type' : 'application/json',
+                'X-CSRF-TOKEN' : LOG_CSRF,
+                'Accept'       : 'application/json',
+            },
+            body: JSON.stringify({ countermeasure: cm }),
         });
-        const data = await res.json();
 
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) { showToast('Gagal: ' + (data?.message ?? 'error'), 'error'); return; }
+
+        // Update DOM card
         const card   = document.getElementById(`logcard-${id}`);
         const timeEl = document.getElementById(`time-${id}`);
         const durEl  = document.getElementById(`dur-${id}`);
         const dotEl  = document.getElementById(`dot-${id}`);
 
-        if (card)   { card.classList.replace('open', 'closed'); }
-        if (dotEl)  { dotEl.className = 'log-status-dot dot-closed'; }
+        card?.classList.replace('open','closed');
+        if (dotEl) dotEl.className = 'log-status-dot dot-closed';
         if (timeEl && data.waktu_selesai) {
             const mulai = timeEl.textContent.split('–')[0].trim();
             timeEl.textContent = `${mulai} – ${data.waktu_selesai}`;
         }
-        if (durEl && data.durasi) {
+        if (durEl) {
             durEl.className   = 'log-durasi';
-            durEl.textContent = `(${data.durasi})`;
+            durEl.textContent = data.durasi ? `(${data.durasi})` : '';
         }
 
-        if (btn) {
-            btn.className   = 'log-btn log-btn-reopen';
-            btn.id          = '';
-            btn.textContent = '🔄 Buka Ulang';
-            btn.onclick     = () => reopenLog(id);
+        // Ganti tombol Selesai → Buka Ulang
+        const closeBtn = document.getElementById(`btn-close-${id}`);
+        if (closeBtn) {
+            closeBtn.className   = 'log-btn log-btn-reopen';
+            closeBtn.id          = '';
+            closeBtn.textContent = '🔄 Buka Ulang';
+            closeBtn.onclick     = () => reopenLog(id);
         }
 
+        // Tampilkan CM di card body
+        const body = card?.querySelector('.log-card-body');
+        if (body) {
+            let cmEl = body.querySelector('[data-cm]');
+            if (!cmEl) {
+                cmEl = document.createElement('div');
+                cmEl.className = 'log-meta';
+                cmEl.setAttribute('data-cm','1');
+                body.appendChild(cmEl);
+            }
+            cmEl.innerHTML = `🔧 <strong>CM:</strong> ${cm}`;
+        }
+
+        // Update counter open
+        const cntOpen = document.getElementById('cntOpen');
+        if (cntOpen) cntOpen.textContent = Math.max(0, parseInt(cntOpen.textContent) - 1);
+
+        closeSheet('closeLogSheet');
         showToast('✅ Log ditutup — ' + (data.durasi ?? ''), 'success');
+
     } catch (e) {
-        showToast('Gagal', 'error');
-        if (btn) { btn.disabled = false; btn.textContent = '✅ Selesai'; }
+        showToast('Gagal: ' + e.message, 'error');
+    } finally {
+        btn.disabled    = false;
+        btn.textContent = '✅ Konfirmasi Selesai';
+        _setCloseBtn(true);
     }
 }
 
@@ -798,71 +1005,9 @@ async function reopenLog(id) {
     } catch (e) { showToast('Gagal', 'error'); }
 }
 
-// ── Edit waktu ───────────────────────────────────────────────
-function editLog(id, mulai, selesai) {
-    document.getElementById('editLogId').value   = id;
-    document.getElementById('editMulai').value   = mulai;
-    document.getElementById('editSelesai').value = selesai || new Date().toTimeString().slice(0, 5);
-    updateDurasiPreview();
-    openSheet('editTimeSheet');
-}
-
-function updateDurasiPreview() {
-    const mulai   = document.getElementById('editMulai').value;
-    const selesai = document.getElementById('editSelesai').value;
-    const preview = document.getElementById('durasiPreview');
-    if (!mulai || !selesai) { preview.textContent = ''; return; }
-
-    const s    = mulai.split(':').map(Number);
-    const e    = selesai.split(':').map(Number);
-    let diff   = (e[0]*60+e[1]) - (s[0]*60+s[1]);
-    if (diff < 0) diff += 1440;
-
-    const h   = Math.floor(diff / 60);
-    const m   = diff % 60;
-    const dur = h > 0 ? `${h}j ${m}m` : `${m}m`;
-    preview.innerHTML = `⏱ Durasi perbaikan: <strong style="color:var(--navy)">${dur}</strong>`;
-}
-
-async function saveEditTime() {
-    const id      = document.getElementById('editLogId').value;
-    const mulai   = document.getElementById('editMulai').value;
-    const selesai = document.getElementById('editSelesai').value;
-    const btn     = document.querySelector('#editTimeSheet .save-btn-big');
-    if (btn) { btn.disabled = true; btn.textContent = '⏳ Menyimpan...'; }
-    try {
-        const res  = await fetch(`/admin/logs/${id}`, {
-            method: 'PATCH',
-            headers: { 'Content-Type':'application/json', 'X-CSRF-TOKEN':LOG_CSRF, 'Accept':'application/json' },
-            body: JSON.stringify({ waktu_mulai: mulai, waktu_selesai: selesai || null }),
-        });
-        const data = await res.json();
-        closeSheet('editTimeSheet');
-        showToast('✅ Waktu diupdate — ' + (data.durasi ?? ''), 'success');
-        setTimeout(() => window.location.reload(), 600);
-    } catch (e) {
-        showToast('Gagal', 'error');
-    } finally {
-        if (btn) { btn.disabled = false; btn.textContent = '💾 Simpan Perubahan'; }
-    }
-}
-
-// ── Delete log ───────────────────────────────────────────────
-async function deleteLog(id) {
-    if (!confirm('Hapus log ini? Tindakan tidak bisa dibatalkan.')) return;
-    try {
-        await fetch(`/admin/logs/${id}`, {
-            method: 'DELETE',
-            headers: { 'X-CSRF-TOKEN':LOG_CSRF, 'Accept':'application/json', 'Content-Type':'application/json' },
-        });
-        document.getElementById(`logcard-${id}`)?.remove();
         showToast('🗑️ Log dihapus', 'info');
     } catch (e) { showToast('Gagal', 'error'); }
 }
-
-// ── Live preview durasi saat edit waktu ─────────────────────
-document.getElementById('editMulai').addEventListener('input', updateDurasiPreview);
-document.getElementById('editSelesai').addEventListener('input', updateDurasiPreview);
 
 // ── Reset form saat sheet ditutup ────────────────────────────
 const origClose = window.closeSheet;
@@ -872,6 +1017,9 @@ window.closeSheet = function(id) {
         document.querySelectorAll('.jenis-btn').forEach(b => b.className = 'jenis-btn');
         document.querySelectorAll('.form-section').forEach(s => s.classList.remove('visible'));
         document.getElementById('saveBtnWrap').style.display = 'none';
+    }
+    if (id === 'closeLogSheet') {
+        _closeId = null;
     }
     if (origClose) origClose(id);
 };

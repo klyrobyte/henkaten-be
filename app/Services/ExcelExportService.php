@@ -178,7 +178,7 @@ class ExcelExportService
         foreach ($sorted as $member) {
             $isAbsen = $this->isAbsen($member, $records);
             $record  = $records[$member->id] ?? null;
-            $alasan  = $record?->alasan ?? null;
+            $alasan  = $record?->reason ?? null;
 
             $rowBg = $isAbsen
                 ? self::RED_SOFT
@@ -534,7 +534,7 @@ class ExcelExportService
         return $members->filter(function ($m) use ($records, $alasan) {
             $rec = $records[$m->id] ?? null;
             return $rec && $rec->status === 'absen'
-                && strcasecmp($rec->alasan ?? '', $alasan) === 0;
+                && strcasecmp($rec->reason ?? '', $alasan) === 0;
         })->count();
     }
 }
