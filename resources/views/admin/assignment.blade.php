@@ -249,8 +249,13 @@
     <button class="factory-select-btn" onclick="showFactoryPicker()">🏭</button>
 </div>
 <div class="shift-toggle-bar">
+    @php $userShift = auth()->user()->shift; @endphp
+    @if(!$userShift || $userShift === 'A')
     <button class="shift-toggle-btn {{ $shift==='A'?'active':'' }}" onclick="switchShiftAssign('A')">SHIFT A</button>
+    @endif
+    @if(!$userShift || $userShift === 'B')
     <button class="shift-toggle-btn {{ $shift==='B'?'active':'' }}" onclick="switchShiftAssign('B')">SHIFT B</button>
+    @endif
 </div>
 
 {{-- Legenda --}}

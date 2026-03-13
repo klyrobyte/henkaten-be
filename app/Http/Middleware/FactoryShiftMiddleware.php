@@ -15,9 +15,12 @@ class FactoryShiftMiddleware
      * TV    → tidak relevan (sudah ditangani TvRestrictMiddleware).
      *
      * Untuk non-admin dengan factory+shift yang di-assign:
-     *  1. Paksa session factory & shift ke nilai user (agar dashboard selalu menampilkan miliknya)
-     *  2. Blokir POST /admin/context yang mencoba ganti factory/shift ke value lain
-     *  3. Blokir request JSON/form yang menyertakan factory/shift yang tidak cocok
+     *  1. Paksa session factory & shift ke nilai user
+     *  2. Blokir setContext yang mencoba ganti factory/shift
+     *  3. Blokir request yang menyertakan factory/shift yg tidak cocok
+     *
+     * CATATAN PENTING: Normalisasi factory sebelum perbandingan karena
+     * "Factory 3 & 4" bisa datang dari form sebagai "Factory 3 &amp; 4".
      */
     public function handle(Request $request, Closure $next): mixed
     {
@@ -32,7 +35,7 @@ class FactoryShiftMiddleware
             return $next($request);
         }
 
-        // Jika user tidak punya factory/shift (mis. tv, atau non-admin belum di-assign) → lewat saja
+        // Jika user tidak punya factory/shift (mis. tv, atau belum di-assign) → lewat saja
         if (!$user->factory || !$user->shift) {
             return $next($request);
         }
@@ -47,37 +50,54 @@ class FactoryShiftMiddleware
         // ── 2. Blokir setContext yang mencoba ganti ke factory/shift lain ─────
         $routeName = $request->route()?->getName();
         if ($routeName === 'admin.context') {
-            $reqFactory = $request->input('factory');
+            $reqFactory = $this->normalizeFactory($request->input('factory'));
             $reqShift   = $request->input('shift');
 
             if ($reqFactory !== $allowedFactory || $reqShift !== $allowedShift) {
                 if ($request->wantsJson()) {
-                    return response()->json(['message' => 'Akses ditolak: Anda hanya bisa mengakses ' . $allowedFactory . ' Shift ' . $allowedShift . '.'], 403);
+                    return response()->json([
+                        'error'   => 'access_denied',
+                        'message' => 'Akses ditolak: Anda hanya bisa mengakses ' . $allowedFactory . ' Shift ' . $allowedShift . '.',
+                    ], 403);
                 }
-                // Abaikan permintaan ganti context, kembali tanpa ubah session
-                return back()->with('error', 'Anda hanya bisa mengakses ' . $allowedFactory . ' Shift ' . $allowedShift . '.');
+                return back()->with('error', 'Akses ditolak: Anda hanya bisa mengakses ' . $allowedFactory . ' Shift ' . $allowedShift . '.');
             }
         }
 
         // ── 3. Blokir request yang menyertakan factory/shift yang tidak cocok ─
-        // Hanya cek jika ada parameter factory atau shift di request
+        // Normalisasi dulu sebelum dibandingkan (handle &amp; vs & dll.)
         $reqFactory = $request->input('factory');
         $reqShift   = $request->input('shift');
 
-        if ($reqFactory !== null && $reqFactory !== $allowedFactory) {
-            if ($request->wantsJson()) {
-                return response()->json(['message' => 'Akses ditolak: factory tidak sesuai.'], 403);
+        if ($reqFactory !== null && $this->normalizeFactory($reqFactory) !== $allowedFactory) {
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json([
+                    'error'   => 'access_denied',
+                    'message' => 'Akses ditolak: factory tidak sesuai.',
+                ], 403);
             }
             abort(403, 'Akses ditolak: factory tidak sesuai.');
         }
 
         if ($reqShift !== null && $reqShift !== $allowedShift) {
-            if ($request->wantsJson()) {
-                return response()->json(['message' => 'Akses ditolak: shift tidak sesuai.'], 403);
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json([
+                    'error'   => 'access_denied',
+                    'message' => 'Akses ditolak: shift tidak sesuai.',
+                ], 403);
             }
             abort(403, 'Akses ditolak: shift tidak sesuai.');
         }
 
         return $next($request);
+    }
+
+    /**
+     * Normalisasi factory name: decode HTML entities dan trim whitespace.
+     * "Factory 3 &amp; 4" → "Factory 3 & 4"
+     */
+    private function normalizeFactory(?string $factory): string
+    {
+        return html_entity_decode(trim($factory ?? ''), ENT_QUOTES | ENT_HTML5, 'UTF-8');
     }
 }

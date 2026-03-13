@@ -19,6 +19,9 @@
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script src="{{ asset('js/auto-sync.js') }}"></script>
 
+{{-- SweetAlert2 --}}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 {{-- CSS utama --}}
 <link rel="stylesheet" href="{{ asset('assets/css/henkaten.css') }}">
 
@@ -183,7 +186,8 @@
 
     <div class="header-clock" id="headerClock">00:00:00</div>
 
-    {{-- Factory switcher — tombol pill --}}
+    {{-- Factory switcher pill — hanya tampil untuk admin --}}
+    @if(auth()->user()->role === 'admin')
     <button onclick="showFactoryPicker()"
             style="background:rgba(255,255,255,.12);border:1.5px solid rgba(255,255,255,.25);border-radius:20px;padding:5px 12px;color:#fff;font-family:'Roboto Condensed',sans-serif;font-weight:700;font-size:11px;letter-spacing:.8px;cursor:pointer;display:flex;align-items:center;gap:5px;white-space:nowrap;transition:background .15s;"
             onmouseover="this.style.background='rgba(255,255,255,.2)'"
@@ -191,6 +195,11 @@
             id="headerFactory">
         🏭 {{ session('factory', 'Factory 2') === 'Factory 2' ? 'F2' : 'F3&4' }}
     </button>
+    @else
+    <div style="background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.15);border-radius:20px;padding:5px 12px;color:rgba(255,255,255,.7);font-family:'Roboto Condensed',sans-serif;font-weight:700;font-size:11px;letter-spacing:.8px;white-space:nowrap;display:flex;align-items:center;gap:5px;">
+        🏭 {{ auth()->user()->factory === 'Factory 2' ? 'F2' : 'F3&4' }} · Shift {{ auth()->user()->shift }}
+    </div>
+    @endif
 </div>
 
 {{-- ── MAIN CONTENT ── --}}
@@ -230,9 +239,16 @@
         </div>
         <div class="modal-sheet-body">
             <div style="display:flex;flex-direction:column;gap:12px">
+                @php $userRole = auth()->user()->role; $userFactory = auth()->user()->factory; @endphp
+                {{-- Factory 2: tampil jika admin ATAU user milik Factory 2 --}}
+                @if($userRole === 'admin' || $userFactory === 'Factory 2')
                 <button class="btn-primary" onclick="setFactory('Factory 2')">🏭 Factory 2</button>
+                @endif
+                {{-- Factory 3 & 4: tampil jika admin ATAU user milik Factory 3 & 4 --}}
+                @if($userRole === 'admin' || $userFactory === 'Factory 3 & 4')
                 <button class="btn-primary" style="background:linear-gradient(135deg,var(--navy),var(--blue))"
                         onclick="setFactory('Factory 3 &amp; 4')">🏭 Factory 3 &amp; 4</button>
+                @endif
             </div>
         </div>
     </div>
@@ -312,6 +328,10 @@
 const CSRF_TOKEN      = document.querySelector('meta[name="csrf-token"]').content;
 const CURRENT_FACTORY = @json(session('factory', 'Factory 2'));
 const CURRENT_SHIFT   = @json(session('shift', 'A'));
+// Factory & shift dari akun user yang login (null jika admin / belum di-assign)
+const USER_FACTORY    = @json(auth()->user()->factory);
+const USER_SHIFT      = @json(auth()->user()->shift);
+const IS_ADMIN        = @json(auth()->user()->role === 'admin');
 
 async function api(url, method = 'GET', body = null) {
     const opts = {
@@ -324,7 +344,22 @@ async function api(url, method = 'GET', body = null) {
     };
     if (body) opts.body = JSON.stringify(body);
     const res = await fetch(url, opts);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    if (!res.ok) {
+        // Tangani 403 access_denied dengan SweetAlert2
+        if (res.status === 403) {
+            let msg = 'Akses ditolak.';
+            try { const d = await res.json(); msg = d.message ?? msg; } catch (_) {}
+            Swal.fire({
+                icon: 'error',
+                title: 'Akses Ditolak',
+                text: msg,
+                confirmButtonColor: '#1f3c88',
+                confirmButtonText: 'OK',
+            });
+            throw new Error('access_denied');
+        }
+        throw new Error(`HTTP ${res.status}`);
+    }
     return res.json();
 }
 
