@@ -16,7 +16,7 @@
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            background: linear-gradient(135deg, var(--navy), #2c4a9e);
+            background: #2E7D32;
             color: #fff;
             padding: 6px 16px 6px 12px;
             border-radius: 0 20px 20px 0;
@@ -1135,10 +1135,50 @@
 
 @section('content')
 
-    <div class="date-bar">
-        <div class="date-label">📅</div>
-        <input type="date" id="tanggalHari" value="{{ $tanggal }}" onchange="onDateChange(this.value)">
-        <button class="factory-select-btn" onclick="showFactoryPicker()">🏭</button>
+    <div class="date-bar"
+        style="display:flex;align-items:center;background:#fff;border-radius:50px;padding:10px 18px;box-shadow:0 1px 4px rgba(0,0,0,0.08);gap:12px;">
+
+        {{-- Icon kalender — klik ini untuk buka date picker --}}
+        <div class="date-label" onclick="document.getElementById('tanggalHari').showPicker()"
+            style="width:36px;height:36px;background:#2E7D32;border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                <line x1="16" y1="2" x2="16" y2="6" />
+                <line x1="8" y1="2" x2="8" y2="6" />
+                <line x1="3" y1="10" x2="21" y2="10" />
+            </svg>
+        </div>
+
+        {{-- Tanggal display --}}
+        <span
+            style="flex:1;font-family:'Roboto Condensed',sans-serif;font-weight:600;font-size:18px;color:#222;letter-spacing:.5px;">
+            {{ \Carbon\Carbon::parse($tanggal)->format('d / m / Y') }}
+        </span>
+
+        {{-- Input date tersembunyi — hanya trigger via icon --}}
+        <input type="date" id="tanggalHari" value="{{ $tanggal }}" onchange="onDateChange(this.value)"
+            style="position:absolute;opacity:0;pointer-events:none;width:0;height:0;">
+
+        {{-- Factory badge --}}
+        <button onclick="showFactoryPicker()" style="background:#2E7D32;border:none;border-radius:20px;padding:7px 18px;color:#fff;
+                                           font-family:'Orbitron', sans-serif;font-weight:700;font-size:12px;
+                                           letter-spacing:1px;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:6px;
+                                           transition:all .2s ease;" onmouseover="this.style.filter='brightness(1.15)'"
+            onmouseout="this.style.filter='brightness(1)'">
+            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff"
+                stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="7" width="20" height="15" rx="1" />
+                <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" />
+                <line x1="12" y1="12" x2="12" y2="12" />
+                <line x1="8" y1="12" x2="8" y2="12" />
+                <line x1="16" y1="12" x2="16" y2="12" />
+                <line x1="8" y1="16" x2="8" y2="16" />
+                <line x1="16" y1="16" x2="16" y2="16" />
+                <line x1="12" y1="16" x2="12" y2="16" />
+            </svg>
+            FACTORY {{ session('factory', 'Factory 2') === 'Factory 2' ? '2' : '3&4' }}
+        </button>
     </div>
 
     <div class="shift-toggle-bar">
@@ -1146,19 +1186,47 @@
         <button class="shift-toggle-btn {{ $shift === 'B' ? 'active' : '' }}" onclick="switchShift('B')">SHIFT B</button>
     </div>
 
-    <div class="legend-4m">
-        <div class="legend-4m-item">
-            <div class="l4m-dot" style="background:var(--red)"></div>Man (Absen)
+    <div class="legend-4m" style="display:inline-flex;
+                                align-items:center;
+                                gap:16px;
+                                background:#fff;
+                                border-radius:50px;
+                                border:1.5px solid #e0e0e0;
+                                padding:10px 22px;
+                                box-shadow:0 1px 3px rgba(0,0,0,0.05);
+                                transition:box-shadow .2s ease, border-color .2s ease;"
+        onmouseover="this.style.boxShadow='0 4px 16px rgba(0,0,0,0.10)';this.style.borderColor='#bdbdbd';"
+        onmouseout="this.style.boxShadow='0 1px 3px rgba(0,0,0,0.05)';this.style.borderColor='#e0e0e0';">
+
+        <div style="display:flex;align-items:center;gap:7px;">
+            <span
+                style="width:14px;height:14px;border-radius:50%;background:var(--red);flex-shrink:0;display:inline-block;"></span>
+            <span
+                style="font-size:13px;font-weight:700;color:#1a1a1a;white-space:nowrap;font-family:'Roboto Condensed',sans-serif;">Man
+                (Absen)</span>
         </div>
-        <div class="legend-4m-item">
-            <div class="l4m-dot" style="background:var(--navy)"></div>Machine
+
+        <div style="display:flex;align-items:center;gap:7px;">
+            <span
+                style="width:14px;height:14px;border-radius:50%;background:var(--navy);flex-shrink:0;display:inline-block;"></span>
+            <span
+                style="font-size:13px;font-weight:700;color:#1a1a1a;white-space:nowrap;font-family:'Roboto Condensed',sans-serif;">Machine</span>
         </div>
-        <div class="legend-4m-item">
-            <div class="l4m-dot" style="background:var(--yellow)"></div>Material
+
+        <div style="display:flex;align-items:center;gap:7px;">
+            <span
+                style="width:14px;height:14px;border-radius:50%;background:var(--yellow);flex-shrink:0;display:inline-block;"></span>
+            <span
+                style="font-size:13px;font-weight:700;color:#1a1a1a;white-space:nowrap;font-family:'Roboto Condensed',sans-serif;">Material</span>
         </div>
-        <div class="legend-4m-item">
-            <div class="l4m-dot" style="background:var(--green-light)"></div>Method
+
+        <div style="display:flex;align-items:center;gap:7px;">
+            <span
+                style="width:14px;height:14px;border-radius:50%;background:var(--green);flex-shrink:0;display:inline-block;"></span>
+            <span
+                style="font-size:13px;font-weight:700;color:#1a1a1a;white-space:nowrap;font-family:'Roboto Condensed',sans-serif;">Method</span>
         </div>
+
     </div>
 
     <div class="status-panel">
@@ -1927,20 +1995,20 @@
                     const mulaiStr = (l.waktu_mulai || '').slice(0, 5), selStr = (l.waktu_selesai || '').slice(0, 5);
                     const timeStr = mulaiStr + (selStr ? ` – ${selStr}` : ' – …');
                     return `<div class="ql-log-item ${isOpen ? 'ql-log-open' : 'ql-log-closed'}" id="qli-${l.id}">
-                        <div class="ql-log-top">
-                            <span class="ql-log-badge" style="background:${jClr}">${esc(l.jenis)}</span>
-                            <span class="ql-log-dot ${isOpen ? 'dot-open' : 'dot-closed'}"></span>
-                            <span class="ql-log-time" id="qltime-${l.id}">${timeStr}</span>
-                            ${l.durasi ? `<span class="ql-log-dur" id="qldur-${l.id}">(${esc(l.durasi)})</span>` : (isOpen ? `<span class="ql-log-dur blink" id="qldur-${l.id}">ON GOING</span>` : '')}
-                        </div>
-                        <div class="ql-log-desc">${esc(l.deskripsi)}</div>
-                        ${l.cause ? `<div class="ql-log-meta">🔍 ${esc(l.cause)}</div>` : ''}
-                        ${l.pic ? `<div class="ql-log-meta">👤 ${esc(l.pic)}</div>` : ''}
-                        <div class="ql-log-actions">
-                            ${isOpen ? `<button class="ql-btn ql-btn-done" onclick="qlCloseLog(${l.id},this)">✅ Selesai</button>` : `<button class="ql-btn ql-btn-reopen" onclick="qlReopenLog(${l.id},this)">🔄 Buka Ulang</button>`}
-                            <button class="ql-btn ql-btn-del" onclick="qlDeleteLog(${l.id},this)">🗑️</button>
-                        </div>
-                    </div>`;
+                                                <div class="ql-log-top">
+                                                    <span class="ql-log-badge" style="background:${jClr}">${esc(l.jenis)}</span>
+                                                    <span class="ql-log-dot ${isOpen ? 'dot-open' : 'dot-closed'}"></span>
+                                                    <span class="ql-log-time" id="qltime-${l.id}">${timeStr}</span>
+                                                    ${l.durasi ? `<span class="ql-log-dur" id="qldur-${l.id}">(${esc(l.durasi)})</span>` : (isOpen ? `<span class="ql-log-dur blink" id="qldur-${l.id}">ON GOING</span>` : '')}
+                                                </div>
+                                                <div class="ql-log-desc">${esc(l.deskripsi)}</div>
+                                                ${l.cause ? `<div class="ql-log-meta">🔍 ${esc(l.cause)}</div>` : ''}
+                                                ${l.pic ? `<div class="ql-log-meta">👤 ${esc(l.pic)}</div>` : ''}
+                                                <div class="ql-log-actions">
+                                                    ${isOpen ? `<button class="ql-btn ql-btn-done" onclick="qlCloseLog(${l.id},this)">✅ Selesai</button>` : `<button class="ql-btn ql-btn-reopen" onclick="qlReopenLog(${l.id},this)">🔄 Buka Ulang</button>`}
+                                                    <button class="ql-btn ql-btn-del" onclick="qlDeleteLog(${l.id},this)">🗑️</button>
+                                                </div>
+                                            </div>`;
                 }).join('');
             } catch (e) { wrap.innerHTML = '<div style="text-align:center;padding:10px;color:#f99;font-size:11px">Gagal memuat log.</div>'; }
         }
@@ -2060,13 +2128,13 @@
                 list.innerHTML = data.map(m => {
                     const av = m.photo ? `<img src="${esc(m.photo)}" alt="">` : `<span>${initials(m.name)}</span>`;
                     return `<div class="cand-card">
-                        <div class="cand-av ${m.isWorking ? 'cav-w' : 'cav-n'}">${av}</div>
-                        <div class="cand-name">${esc(m.name)}</div>
-                        ${m.jabatan ? `<div style="font-size:9px;color:#aaa;font-family:'Roboto Condensed',sans-serif">${esc(m.jabatan)}</div>` : ''}
-                        ${m.mesin ? `<div style="font-size:9px;color:#aaa;font-family:'Roboto Condensed',sans-serif">${esc(m.mesin)}</div>` : ''}
-                        ${m.isWorking ? '<div class="cand-tag">Sdh Bertugas</div>' : ''}
-                        <button class="cand-btn" onclick="pickCandidate(${m.id},'${esc(m.name)}','${esc(m.photo || '')}','${esc(m.mesin || '')}')">✓ Pilih</button>
-                    </div>`;
+                                                <div class="cand-av ${m.isWorking ? 'cav-w' : 'cav-n'}">${av}</div>
+                                                <div class="cand-name">${esc(m.name)}</div>
+                                                ${m.jabatan ? `<div style="font-size:9px;color:#aaa;font-family:'Roboto Condensed',sans-serif">${esc(m.jabatan)}</div>` : ''}
+                                                ${m.mesin ? `<div style="font-size:9px;color:#aaa;font-family:'Roboto Condensed',sans-serif">${esc(m.mesin)}</div>` : ''}
+                                                ${m.isWorking ? '<div class="cand-tag">Sdh Bertugas</div>' : ''}
+                                                <button class="cand-btn" onclick="pickCandidate(${m.id},'${esc(m.name)}','${esc(m.photo || '')}','${esc(m.mesin || '')}')">✓ Pilih</button>
+                                            </div>`;
                 }).join('');
             } catch (e) { list.innerHTML = '<div class="cand-empty">Gagal memuat kandidat.</div>'; }
         }

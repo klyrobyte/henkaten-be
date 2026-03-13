@@ -20,22 +20,26 @@ class UserController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name'     => 'required|string|max:100',
+            'name' => 'required|string|max:100',
             'username' => 'required|string|max:50|unique:users,username|alpha_dash',
             'password' => 'required|string|min:6|confirmed',
-            'role'     => ['required', Rule::in(['admin', 'tl', 'gl', 'pengawas', 'tv'])],
+            'role' => ['required', Rule::in(['admin', 'tl', 'gl', 'pengawas', 'tv'])],
+            'factory' => 'nullable|string',
+            'shift' => ['nullable', Rule::in(['A', 'B', ''])],
         ], [
-            'username.unique'     => 'Username sudah digunakan.',
+            'username.unique' => 'Username sudah digunakan.',
             'username.alpha_dash' => 'Username hanya boleh huruf, angka, dash, dan underscore.',
-            'password.min'        => 'Password minimal 6 karakter.',
-            'password.confirmed'  => 'Konfirmasi password tidak cocok.',
+            'password.min' => 'Password minimal 6 karakter.',
+            'password.confirmed' => 'Konfirmasi password tidak cocok.',
         ]);
 
         User::create([
-            'name'     => $request->name,
+            'name' => $request->name,
             'username' => $request->username,
             'password' => Hash::make($request->password),
-            'role'     => $request->role,
+            'role' => $request->role,
+            'factory' => $request->factory ?: null,
+            'shift' => $request->shift ?: null,
         ]);
 
         return response()->json(['ok' => true, 'message' => '✅ User berhasil ditambahkan.']);
@@ -45,15 +49,17 @@ class UserController extends Controller
     {
         // Cegah admin mengedit dirinya sendiri via endpoint ini (untuk keamanan role)
         $request->validate([
-            'name'     => 'required|string|max:100',
-            'username' => ['required','string','max:50','alpha_dash', Rule::unique('users','username')->ignore($user->id)],
-            'role'     => ['required', Rule::in(['admin', 'tl', 'gl', 'pengawas', 'tv'])],
+            'name' => 'required|string|max:100',
+            'username' => ['required', 'string', 'max:50', 'alpha_dash', Rule::unique('users', 'username')->ignore($user->id)],
+            'role' => ['required', Rule::in(['admin', 'tl', 'gl', 'pengawas', 'tv'])],
             'password' => 'nullable|string|min:6|confirmed',
+            'factory' => 'nullable|string',
+            'shift' => ['nullable', Rule::in(['A', 'B', ''])],
         ], [
-            'username.unique'     => 'Username sudah digunakan.',
+            'username.unique' => 'Username sudah digunakan.',
             'username.alpha_dash' => 'Username hanya boleh huruf, angka, dash, dan underscore.',
-            'password.min'        => 'Password minimal 6 karakter.',
-            'password.confirmed'  => 'Konfirmasi password tidak cocok.',
+            'password.min' => 'Password minimal 6 karakter.',
+            'password.confirmed' => 'Konfirmasi password tidak cocok.',
         ]);
 
         // Cegah mengubah role satu-satunya admin
@@ -65,9 +71,11 @@ class UserController extends Controller
         }
 
         $data = [
-            'name'     => $request->name,
+            'name' => $request->name,
             'username' => $request->username,
-            'role'     => $request->role,
+            'role' => $request->role,
+            'factory' => $request->factory ?: null,
+            'shift' => $request->shift ?: null,
         ];
 
         if ($request->filled('password')) {
@@ -100,6 +108,6 @@ class UserController extends Controller
 
     public function show(User $user)
     {
-        return response()->json($user->only(['id', 'name', 'username', 'role', 'created_at']));
+        return response()->json($user->only(['id', 'name', 'username', 'role', 'factory', 'shift', 'created_at']));
     }
 }

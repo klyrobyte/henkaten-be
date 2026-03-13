@@ -251,7 +251,7 @@ Header = app-header hijau dari admin.blade, semua komponen konten = copy 1:1 das
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            background: linear-gradient(135deg, var(--navy), #2c4a9e);
+            background: #2E7D32;
             color: #fff;
             padding: 6px 16px 6px 12px;
             border-radius: 0 20px 20px 0;
