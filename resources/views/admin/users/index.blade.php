@@ -276,7 +276,7 @@
                 </div>
                 <div class="um-field">
                     <label>Role *</label>
-                    <select id="umRole" onchange="toggleFactoryShiftFields()">
+                    <select id="umRole">
                         <option value="">— Pilih Role —</option>
                         <option value="admin">🔴 Admin (Full + User Mgmt)</option>
                         <option value="tl">🔵 Team Leader (TL)</option>
@@ -285,17 +285,16 @@
                         <option value="tv">📺 TV Only</option>
                     </select>
                 </div>
-                {{-- Factory + Shift: hanya muncul untuk TL / GL / Pengawas --}}
-                <div class="um-field" id="umFactoryWrap" style="display:none">
-                    <label>Factory *</label>
+                <div class="um-field">
+                    <label>Factory</label>
                     <select id="umFactory">
                         <option value="">— Pilih Factory —</option>
                         <option value="Factory 2">Factory 2</option>
                         <option value="Factory 3 &amp; 4">Factory 3 &amp; 4</option>
                     </select>
                 </div>
-                <div class="um-field" id="umShiftWrap" style="display:none">
-                    <label>Shift *</label>
+                <div class="um-field">
+                    <label>Shift</label>
                     <select id="umShift">
                         <option value="">— Pilih Shift —</option>
                         <option value="A">Shift A</option>
@@ -326,31 +325,23 @@ let _umEditId = null;
 
 const RESTRICTED_ROLES = ['tl', 'gl', 'pengawas'];
 
-function toggleFactoryShiftFields() {
-    const role = document.getElementById('umRole').value;
-    const needsScope = RESTRICTED_ROLES.includes(role);
-    document.getElementById('umFactoryWrap').style.display = needsScope ? '' : 'none';
-    document.getElementById('umShiftWrap').style.display   = needsScope ? '' : 'none';
-}
-
 function openUserModal(id = null, name = '', username = '', role = '', factory = '', shift = '') {
     _umEditId = id;
     const isEdit = !!id;
 
     document.getElementById('userModalTitle').textContent = isEdit ? '✏️ Edit User' : '➕ Tambah User';
-    document.getElementById('umUserId').value       = id ?? '';
-    document.getElementById('umName').value         = name;
-    document.getElementById('umUsername').value     = username;
-    document.getElementById('umRole').value         = role;
-    document.getElementById('umFactory').value      = factory;
-    document.getElementById('umShift').value        = shift;
-    document.getElementById('umPassword').value     = '';
+    document.getElementById('umUserId').value          = id ?? '';
+    document.getElementById('umName').value            = name;
+    document.getElementById('umUsername').value        = username;
+    document.getElementById('umRole').value            = role;
+    document.getElementById('umFactory').value         = factory;
+    document.getElementById('umShift').value           = shift;
+    document.getElementById('umPassword').value        = '';
     document.getElementById('umPasswordConfirm').value = '';
-    document.getElementById('umPwHint').textContent = isEdit
+    document.getElementById('umPwHint').textContent    = isEdit
         ? 'Kosongkan jika tidak ingin mengubah password.'
         : 'Minimal 6 karakter.';
 
-    toggleFactoryShiftFields();
     openSheet('userModal');
     setTimeout(() => document.getElementById('umName').focus(), 200);
 }
@@ -380,8 +371,7 @@ async function saveUser() {
     try {
         const url    = id ? `/admin/users/${id}` : '/admin/users';
         const method = id ? 'PUT' : 'POST';
-        const body   = { name, username, role };
-        if (RESTRICTED_ROLES.includes(role)) { body.factory = factory; body.shift = shift; }
+    const body   = { name, username, role, factory, shift };
         if (password) { body.password = password; body.password_confirmation = confirm; }
 
         const res  = await fetch(url, {
