@@ -1186,8 +1186,13 @@
     </div>
 
     <div class="shift-toggle-bar">
+        @php $userShift = auth()->user()->shift; $isAdmin = auth()->user()->role === 'admin'; @endphp
+        @if($isAdmin || !$userShift || $userShift === 'A')
         <button class="shift-toggle-btn {{ $shift === 'A' ? 'active' : '' }}" onclick="switchShift('A')">SHIFT A</button>
+        @endif
+        @if($isAdmin || !$userShift || $userShift === 'B')
         <button class="shift-toggle-btn {{ $shift === 'B' ? 'active' : '' }}" onclick="switchShift('B')">SHIFT B</button>
+        @endif
     </div>
 
     <div class="legend-4m" style="display:inline-flex;

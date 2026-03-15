@@ -970,10 +970,13 @@
     </div>
 
     <div class="shift-toggle-bar">
-        <button class="shift-toggle-btn {{ $shift === 'A' ? 'active' : '' }}" onclick="switchShiftAssign('A')">SHIFT
-            A</button>
-        <button class="shift-toggle-btn {{ $shift === 'B' ? 'active' : '' }}" onclick="switchShiftAssign('B')">SHIFT
-            B</button>
+        @php $userShift = auth()->user()->shift; $isAdmin = auth()->user()->role === 'admin'; @endphp
+        @if($isAdmin || !$userShift || $userShift === 'A')
+        <button class="shift-toggle-btn {{ $shift === 'A' ? 'active' : '' }}" onclick="switchShiftAssign('A')">SHIFT A</button>
+        @endif
+        @if($isAdmin || !$userShift || $userShift === 'B')
+        <button class="shift-toggle-btn {{ $shift === 'B' ? 'active' : '' }}" onclick="switchShiftAssign('B')">SHIFT B</button>
+        @endif
     </div>
 
     {{-- Legenda --}}

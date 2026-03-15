@@ -359,9 +359,14 @@
             </div>
             <div class="modal-sheet-body">
                 <div style="display:flex;flex-direction:column;gap:12px">
+                    @php $userRole = auth()->user()->role; $userFactory = auth()->user()->factory; @endphp
+                    @if($userRole === 'admin' || !$userFactory || $userFactory === 'Factory 2')
                     <button class="btn-primary" onclick="setFactory('Factory 2')">🏭 Factory 2</button>
+                    @endif
+                    @if($userRole === 'admin' || !$userFactory || $userFactory === 'Factory 3 & 4')
                     <button class="btn-primary" style="background:#e16013;" onclick="setFactory('Factory 3 &amp; 4')">🏭
                         Factory 3 &amp; 4</button>
+                    @endif
                 </div>
             </div>
         </div>

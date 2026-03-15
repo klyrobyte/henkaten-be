@@ -17,16 +17,27 @@ body > nav.bottom-nav { display: none !important; }
 <div class="page active" id="page-members">
 
     <div class="filter-bar">
+        @php $userRole = auth()->user()->role; $userFactory = auth()->user()->factory; $userShift = auth()->user()->shift; @endphp
+        @if($userRole === 'admin')
         <div class="filter-chip {{ $factory==='all'          ? 'active' : '' }}"
              onclick="applyFilter('all','all')">Semua</div>
+        @endif
+        @if($userRole === 'admin' || !$userFactory || $userFactory === 'Factory 2')
         <div class="filter-chip orange {{ $factory==='Factory 2'     ? 'active' : '' }}"
              onclick="applyFilter('Factory 2', currentShift)">Factory 2</div>
+        @endif
+        @if($userRole === 'admin' || !$userFactory || $userFactory === 'Factory 3 & 4')
         <div class="filter-chip navy {{ $factory==='Factory 3 & 4' ? 'active' : '' }}"
              onclick="applyFilter('Factory 3 & 4', currentShift)">Factory 3&4</div>
+        @endif
+        @if($userRole === 'admin' || !$userShift || $userShift === 'A')
         <div class="filter-chip {{ $shift==='A' ? 'active' : '' }}"
              onclick="applyFilter(currentFactory, currentShift==='A'?'all':'A')">Shift A</div>
+        @endif
+        @if($userRole === 'admin' || !$userShift || $userShift === 'B')
         <div class="filter-chip {{ $shift==='B' ? 'active' : '' }}"
              onclick="applyFilter(currentFactory, currentShift==='B'?'all':'B')">Shift B</div>
+        @endif
     </div>
 
     <div class="stats-row">

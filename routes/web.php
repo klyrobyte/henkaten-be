@@ -83,14 +83,14 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::prefix('members')->name('members.')->group(function () {
         Route::get('/',             [MemberController::class, 'index'])->name('index');
         Route::get('/list',         [MemberController::class, 'list'])->name('list');
-        Route::get('/{member}',     [MemberController::class, 'show'])->name('show');
-        Route::post('/',            [MemberController::class, 'store'])->name('store');
-        Route::put('/{member}',     [MemberController::class, 'update'])->name('update');
-        Route::delete('/clear-all', [MemberController::class, 'clearAll'])->name('clear-all');
-        Route::delete('/{member}',  [MemberController::class, 'destroy'])->name('destroy');
-        Route::post('/import',      [MemberController::class, 'import'])->name('import');
         Route::get('/export',       [MemberController::class, 'export'])->name('export');
         Route::get('/template',     [MemberController::class, 'downloadTemplate'])->name('template');
+        Route::delete('/clear-all', [MemberController::class, 'clearAll'])->name('clear-all');
+        Route::post('/import',      [MemberController::class, 'import'])->name('import');
+        Route::post('/',            [MemberController::class, 'store'])->name('store');
+        Route::get('/{member}',     [MemberController::class, 'show'])->name('show');
+        Route::put('/{member}',     [MemberController::class, 'update'])->name('update');
+        Route::delete('/{member}',  [MemberController::class, 'destroy'])->name('destroy');
     });
 
     // ── Absensi per-member ───────────────────────────────────────────

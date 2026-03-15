@@ -15,16 +15,25 @@
                 <div class="field-group" style="flex:1;min-width:100px">
                     <label>Factory</label>
                     <select name="factory" onchange="document.getElementById('filterForm').submit()">
+                        @php $userRole = auth()->user()->role; $userFactory = auth()->user()->factory; $userShift = auth()->user()->shift; @endphp
+                        @if($userRole === 'admin' || !$userFactory || $userFactory === 'Factory 2')
                         <option value="Factory 2" {{ $factory === 'Factory 2' ? 'selected' : '' }}>Factory 2</option>
+                        @endif
+                        @if($userRole === 'admin' || !$userFactory || $userFactory === 'Factory 3 & 4')
                         <option value="Factory 3 &amp; 4" {{ $factory === 'Factory 3 & 4' ? 'selected' : '' }}>Factory 3 &amp;
                             4</option>
+                        @endif
                     </select>
                 </div>
                 <div class="field-group" style="flex:1;min-width:90px">
                     <label>Shift</label>
                     <select name="shift" onchange="document.getElementById('filterForm').submit()">
+                        @if($userRole === 'admin' || !$userShift || $userShift === 'A')
                         <option value="A" {{ $shift === 'A' ? 'selected' : '' }}>Shift A</option>
+                        @endif
+                        @if($userRole === 'admin' || !$userShift || $userShift === 'B')
                         <option value="B" {{ $shift === 'B' ? 'selected' : '' }}>Shift B</option>
+                        @endif
                     </select>
                 </div>
             </div>
