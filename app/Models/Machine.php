@@ -14,6 +14,6 @@ class Machine extends Model
      */
     public function getPhotoUrlAttribute(): ?string
     {
-        return $this->photo ? Storage::url($this->photo) : null;
+        return $this->photo ? '/storage/' . $this->photo : null;
     }
 }

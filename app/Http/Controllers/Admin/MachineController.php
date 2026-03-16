@@ -52,7 +52,7 @@ class MachineController extends Controller
 
         return response()->json([
             'ok'        => true,
-            'photo_url' => Storage::url($path),
+            'photo_url' => '/storage/' . $path,
         ]);
     }
 

@@ -34,6 +34,6 @@ class Member extends Model
     {
         if (!$this->photo) return null;
         if (str_starts_with($this->photo, 'data:')) return $this->photo; // base64 legacy
-        return asset('storage/' . $this->photo);
+        return '/storage/' . $this->photo;
     }
 }
