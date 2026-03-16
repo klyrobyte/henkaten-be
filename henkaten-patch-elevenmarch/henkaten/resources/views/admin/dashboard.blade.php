@@ -1162,9 +1162,9 @@
 
         {{-- Factory badge --}}
         <button onclick="showFactoryPicker()" style="background:#2E7D32;border:none;border-radius:20px;padding:7px 18px;color:#fff;
-                                           font-family:'Orbitron', sans-serif;font-weight:700;font-size:12px;
-                                           letter-spacing:1px;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:6px;
-                                           transition:all .2s ease;" onmouseover="this.style.filter='brightness(1.15)'"
+                                               font-family:'Orbitron', sans-serif;font-weight:700;font-size:12px;
+                                               letter-spacing:1px;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:6px;
+                                               transition:all .2s ease;" onmouseover="this.style.filter='brightness(1.15)'"
             onmouseout="this.style.filter='brightness(1)'">
             <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff"
                 stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
@@ -1187,569 +1187,569 @@
     </div>
 
     <div class="legend-4m" style="display:inline-flex;
-                                align-items:center;
-                                gap:16px;
-                                background:#fff;
-                                border-radius:50px;
-                                border:1.5px solid #e0e0e0;
-                                padding:10px 22px;
-                                box-shadow:0 1px 3px rgba(0,0,0,0.05);
-                                transition:box-shadow .2s ease, border-color .2s ease;"
-        onmouseover="this.style.boxShadow='0 4px 16px rgba(0,0,0,0.10)';this.style.borderColor='#bdbdbd';"
-        onmouseout="this.style.boxShadow='0 1px 3px rgba(0,0,0,0.05)';this.style.borderColor='#e0e0e0';">
+                                    align-items:center;
+                                    gap:16px;
+                                    background:#fff;
+                                    border-radius:15px;
+                                    border:1.5px solid #e0e0e0;
+                                    padding:10px 22px;
+                                    box-shadow:0 1px 3px rgba(0,0,0,0.05);
+                                    transition:box-shadow .2s ease, border-color .2s ease;"
+            onmouseover="this.style.boxShadow='0 4px 16px rgba(0,0,0,0.10)';this.style.borderColor='#bdbdbd';"
+            onmouseout="this.style.boxShadow='0 1px 3px rgba(0,0,0,0.05)';this.style.borderColor='#e0e0e0';">
 
-        <div style="display:flex;align-items:center;gap:7px;">
-            <span
-                style="width:14px;height:14px;border-radius:50%;background:var(--red);flex-shrink:0;display:inline-block;"></span>
-            <span
-                style="font-size:13px;font-weight:700;color:#1a1a1a;white-space:nowrap;font-family:'Roboto Condensed',sans-serif;">Man
-                (Absen)</span>
+            <div style="display:flex;align-items:center;gap:7px;">
+                <span
+                    style="width:14px;height:14px;border-radius:50%;background:var(--red);flex-shrink:0;display:inline-block;"></span>
+                <span
+                    style="font-size:13px;font-weight:700;color:#1a1a1a;white-space:nowrap;font-family:'Roboto Condensed',sans-serif;">Man
+                    (Absen)</span>
+            </div>
+
+            <div style="display:flex;align-items:center;gap:7px;">
+                <span
+                    style="width:14px;height:14px;border-radius:50%;background:var(--navy);flex-shrink:0;display:inline-block;"></span>
+                <span
+                    style="font-size:13px;font-weight:700;color:#1a1a1a;white-space:nowrap;font-family:'Roboto Condensed',sans-serif;">Machine</span>
+            </div>
+
+            <div style="display:flex;align-items:center;gap:7px;">
+                <span
+                    style="width:14px;height:14px;border-radius:50%;background:var(--yellow);flex-shrink:0;display:inline-block;"></span>
+                <span
+                    style="font-size:13px;font-weight:700;color:#1a1a1a;white-space:nowrap;font-family:'Roboto Condensed',sans-serif;">Material</span>
+            </div>
+
+            <div style="display:flex;align-items:center;gap:7px;">
+                <span
+                    style="width:14px;height:14px;border-radius:50%;background:var(--green);flex-shrink:0;display:inline-block;"></span>
+                <span
+                    style="font-size:13px;font-weight:700;color:#1a1a1a;white-space:nowrap;font-family:'Roboto Condensed',sans-serif;">Method</span>
+            </div>
+
         </div>
 
-        <div style="display:flex;align-items:center;gap:7px;">
-            <span
-                style="width:14px;height:14px;border-radius:50%;background:var(--navy);flex-shrink:0;display:inline-block;"></span>
-            <span
-                style="font-size:13px;font-weight:700;color:#1a1a1a;white-space:nowrap;font-family:'Roboto Condensed',sans-serif;">Machine</span>
-        </div>
-
-        <div style="display:flex;align-items:center;gap:7px;">
-            <span
-                style="width:14px;height:14px;border-radius:50%;background:var(--yellow);flex-shrink:0;display:inline-block;"></span>
-            <span
-                style="font-size:13px;font-weight:700;color:#1a1a1a;white-space:nowrap;font-family:'Roboto Condensed',sans-serif;">Material</span>
-        </div>
-
-        <div style="display:flex;align-items:center;gap:7px;">
-            <span
-                style="width:14px;height:14px;border-radius:50%;background:var(--green);flex-shrink:0;display:inline-block;"></span>
-            <span
-                style="font-size:13px;font-weight:700;color:#1a1a1a;white-space:nowrap;font-family:'Roboto Condensed',sans-serif;">Method</span>
-        </div>
-
-    </div>
-
-    <div class="status-panel">
-        <div class="status-panel-title">📊 Status Keseluruhan</div>
-        <div class="auto-refresh-bar">
-            <div class="ar-left">
-                <div class="ar-dot" id="arDot"></div>
-                <span id="arLabel">Auto Refresh</span>
-            </div>
-            <span class="ar-countdown" id="arCountdown">30s</span>
-            <button class="ar-toggle" id="arToggleBtn" onclick="toggleAutoRefresh()">⏸ Pause</button>
-        </div>
-        <div class="ar-last-updated" id="arLastUpdated">Belum diperbarui</div>
-        <div class="status-emot-row">
-            <div class="emot-card {{ $statusLevel === 0 ? 'active-green' : '' }}" id="ec-green">
-                <span class="emot-icon">🟢</span>
-                <div class="emot-label">AMAN</div>
-            </div>
-            <div class="emot-card {{ $statusLevel === 1 ? 'active-yellowgreen' : '' }}" id="ec-yg">
-                <span class="emot-icon">🟡</span>
-                <div class="emot-label">RINGAN</div>
-            </div>
-            <div class="emot-card {{ $statusLevel === 2 ? 'active-yellow' : '' }}" id="ec-yellow">
-                <span class="emot-icon">⚠️</span>
-                <div class="emot-label">KHUSUS</div>
-            </div>
-            <div class="emot-card {{ $statusLevel === 3 ? 'active-red' : '' }}" id="ec-red">
-                <span class="emot-icon">🔴</span>
-                <div class="emot-label">BAHAYA</div>
-            </div>
-        </div>
-        @php
-            $chipMap = ['chip-green', 'chip-yellowgreen', 'chip-yellow', 'chip-red'];
-            $chipTxt = [
-                '🟢 AMAN — Semua Normal',
-                '🟡 PERHATIAN RINGAN — Absen 1',
-                '⚠️ PERHATIAN KHUSUS — Absen 2–3 / Ada Problem',
-                '🔴 BAHAYA — Absen ≥4 / MC Problem ≥2',
-            ];
-        @endphp
-        <div class="status-chip {{ $chipMap[$statusLevel] }}" id="statusChip">{{ $chipTxt[$statusLevel] }}</div>
-        <div class="status-live-row">
-            <div class="live-item">
-                <div class="live-value" id="liveAbsen">{{ $absenceSummary?->total_absen ?? 0 }}</div>
-                <div class="live-label">Absen MP</div>
-            </div>
-            <div class="live-item">
-                <div class="live-value" id="liveMCProblem">{{ $machineSummary['problem'] }}</div>
-                <div class="live-label">MC Problem</div>
-            </div>
-            <div class="live-item">
-                <div class="live-value" id="liveLogOpen">{{ $openLogsCount }}</div>
-                <div class="live-label">Log Open</div>
-            </div>
-        </div>
-    </div>
-
-    <div class="section-title">Report Summary</div>
-    <div class="summary-grid">
-        <div class="summary-card">
-            <div class="s-val" id="sTotalMC">{{ $machineSummary['total'] }}</div>
-            <div class="s-lbl">Total MC</div>
-        </div>
-        <div class="summary-card">
-            <div class="s-val" id="sTotalMP">{{ $totalMP }}</div>
-            <div class="s-lbl">Total MP</div>
-        </div>
-        <div class="summary-card" style="border-bottom-color:var(--red)">
-            <div class="s-val" id="sMan" style="color:var(--red)">{{ $machineSummary['man'] }}</div>
-            <div class="s-lbl">Man</div>
-        </div>
-        <div class="summary-card" style="border-bottom-color:var(--navy)">
-            <div class="s-val" id="sMachine" style="color:var(--navy)">{{ $machineSummary['machine'] }}</div>
-            <div class="s-lbl">Machine</div>
-        </div>
-        <div class="summary-card" style="border-bottom-color:var(--yellow)">
-            <div class="s-val" id="sMaterial" style="color:var(--yellow)">{{ $machineSummary['material'] }}</div>
-            <div class="s-lbl">Material</div>
-        </div>
-        <div class="summary-card" style="border-bottom-color:var(--green-light)">
-            <div class="s-val" id="sMethod" style="color:var(--green-light)">{{ $machineSummary['method'] }}</div>
-            <div class="s-lbl">Method</div>
-        </div>
-    </div>
-
-    <div class="section-title">Diagram Kehadiran</div>
-    <div class="attendance-chart-wrap">
-        <div class="chart-container">
-            <canvas id="myChart"></canvas>
-            <div class="chart-center">
-                <div class="cv" id="centerValue">
-                    {{ $absenceSummary ? $absenceSummary->mp_hadir . '/' . $absenceSummary->total_member : '0/0' }}
+        <div class="status-panel">
+            <div class="status-panel-title">📊 Status Keseluruhan</div>
+            <div class="auto-refresh-bar">
+                <div class="ar-left">
+                    <div class="ar-dot" id="arDot"></div>
+                    <span id="arLabel">Auto Refresh</span>
                 </div>
-                <div class="cl">MP</div>
+                <span class="ar-countdown" id="arCountdown">30s</span>
+                <button class="ar-toggle" id="arToggleBtn" onclick="toggleAutoRefresh()">⏸ Pause</button>
+            </div>
+            <div class="ar-last-updated" id="arLastUpdated">Belum diperbarui</div>
+            <div class="status-emot-row">
+                <div class="emot-card {{ $statusLevel === 0 ? 'active-green' : '' }}" id="ec-green">
+                    <span class="emot-icon">🟢</span>
+                    <div class="emot-label">AMAN</div>
+                </div>
+                <div class="emot-card {{ $statusLevel === 1 ? 'active-yellowgreen' : '' }}" id="ec-yg">
+                    <span class="emot-icon">🟡</span>
+                    <div class="emot-label">RINGAN</div>
+                </div>
+                <div class="emot-card {{ $statusLevel === 2 ? 'active-yellow' : '' }}" id="ec-yellow">
+                    <span class="emot-icon">⚠️</span>
+                    <div class="emot-label">KHUSUS</div>
+                </div>
+                <div class="emot-card {{ $statusLevel === 3 ? 'active-red' : '' }}" id="ec-red">
+                    <span class="emot-icon">🔴</span>
+                    <div class="emot-label">BAHAYA</div>
+                </div>
+            </div>
+            @php
+                $chipMap = ['chip-green', 'chip-yellowgreen', 'chip-yellow', 'chip-red'];
+                $chipTxt = [
+                    '🟢 AMAN — Semua Normal',
+                    '🟡 PERHATIAN RINGAN — Absen 1',
+                    '⚠️ PERHATIAN KHUSUS — Absen 2–3 / Ada Problem',
+                    '🔴 BAHAYA — Absen ≥4 / MC Problem ≥2',
+                ];
+            @endphp
+            <div class="status-chip {{ $chipMap[$statusLevel] }}" id="statusChip">{{ $chipTxt[$statusLevel] }}</div>
+            <div class="status-live-row">
+                <div class="live-item">
+                    <div class="live-value" id="liveAbsen">{{ $absenceSummary?->total_absen ?? 0 }}</div>
+                    <div class="live-label">Absen MP</div>
+                </div>
+                <div class="live-item">
+                    <div class="live-value" id="liveMCProblem">{{ $machineSummary['problem'] }}</div>
+                    <div class="live-label">MC Problem</div>
+                </div>
+                <div class="live-item">
+                    <div class="live-value" id="liveLogOpen">{{ $openLogsCount }}</div>
+                    <div class="live-label">Log Open</div>
+                </div>
             </div>
         </div>
-        <div class="legend-grid">
-            <div class="legend-item"><span class="leg-dot" style="background:#729E3F"></span>MP Hadir</div>
-            <div class="legend-item"><span class="leg-dot" style="background:#ff69b4"></span>OP Cuti</div>
-            <div class="legend-item"><span class="leg-dot" style="background:#8e44ad"></span>OP Sakit</div>
-            <div class="legend-item"><span class="leg-dot" style="background:#f1c40f"></span>OP Ijin</div>
-            <div class="legend-item"><span class="leg-dot" style="background:#1F3C88"></span>Pengawas Cuti</div>
-            <div class="legend-item"><span class="leg-dot" style="background:#5dade2"></span>Pengawas Sakit</div>
-            <div class="legend-item"><span class="leg-dot" style="background:#FF8F1F"></span>Pengawas Ijin</div>
-        </div>
-        <div style="width:100%">
-            <div class="absen-bar">
-                @php
-                    $pct = ($absenceSummary && $absenceSummary->total_member > 0)
-                        ? round($absenceSummary->mp_hadir / $absenceSummary->total_member * 100, 1)
-                        : 0;
-                @endphp
-                <div class="absen-fill" id="absenFill" style="width:{{ $pct }}%">{{ $pct }}%</div>
+
+        <div class="section-title">Report Summary</div>
+        <div class="summary-grid">
+            <div class="summary-card">
+                <div class="s-val" id="sTotalMC">{{ $machineSummary['total'] }}</div>
+                <div class="s-lbl">Total MC</div>
+            </div>
+            <div class="summary-card">
+                <div class="s-val" id="sTotalMP">{{ $totalMP }}</div>
+                <div class="s-lbl">Total MP</div>
+            </div>
+            <div class="summary-card" style="border-bottom-color:var(--red)">
+                <div class="s-val" id="sMan" style="color:var(--red)">{{ $machineSummary['man'] }}</div>
+                <div class="s-lbl">Man</div>
+            </div>
+            <div class="summary-card" style="border-bottom-color:var(--navy)">
+                <div class="s-val" id="sMachine" style="color:var(--navy)">{{ $machineSummary['machine'] }}</div>
+                <div class="s-lbl">Machine</div>
+            </div>
+            <div class="summary-card" style="border-bottom-color:var(--yellow)">
+                <div class="s-val" id="sMaterial" style="color:var(--yellow)">{{ $machineSummary['material'] }}</div>
+                <div class="s-lbl">Material</div>
+            </div>
+            <div class="summary-card" style="border-bottom-color:var(--green-light)">
+                <div class="s-val" id="sMethod" style="color:var(--green-light)">{{ $machineSummary['method'] }}</div>
+                <div class="s-lbl">Method</div>
             </div>
         </div>
-    </div>
 
-    <div class="section-title" style="margin-top:16px">Status Mesin</div>
-    <div class="legend-4m" style="margin-bottom:10px">
-        <div class="legend-4m-item">
-            <div class="l4m-dot" style="background:#e74c3c"></div>Man
+        <div class="section-title">Diagram Kehadiran</div>
+        <div class="attendance-chart-wrap">
+            <div class="chart-container">
+                <canvas id="myChart"></canvas>
+                <div class="chart-center">
+                    <div class="cv" id="centerValue">
+                        {{ $absenceSummary ? $absenceSummary->mp_hadir . '/' . $absenceSummary->total_member : '0/0' }}
+                    </div>
+                    <div class="cl">MP</div>
+                </div>
+            </div>
+            <div class="legend-grid">
+                <div class="legend-item"><span class="leg-dot" style="background:#729E3F"></span>MP Hadir</div>
+                <div class="legend-item"><span class="leg-dot" style="background:#ff69b4"></span>OP Cuti</div>
+                <div class="legend-item"><span class="leg-dot" style="background:#8e44ad"></span>OP Sakit</div>
+                <div class="legend-item"><span class="leg-dot" style="background:#f1c40f"></span>OP Ijin</div>
+                <div class="legend-item"><span class="leg-dot" style="background:#1F3C88"></span>Pengawas Cuti</div>
+                <div class="legend-item"><span class="leg-dot" style="background:#5dade2"></span>Pengawas Sakit</div>
+                <div class="legend-item"><span class="leg-dot" style="background:#FF8F1F"></span>Pengawas Ijin</div>
+            </div>
+            <div style="width:100%">
+                <div class="absen-bar">
+                    @php
+                        $pct = ($absenceSummary && $absenceSummary->total_member > 0)
+                            ? round($absenceSummary->mp_hadir / $absenceSummary->total_member * 100, 1)
+                            : 0;
+                    @endphp
+                    <div class="absen-fill" id="absenFill" style="width:{{ $pct }}%">{{ $pct }}%</div>
+                </div>
+            </div>
         </div>
-        <div class="legend-4m-item">
-            <div class="l4m-dot" style="background:#1f3c88"></div>Machine
-        </div>
-        <div class="legend-4m-item">
-            <div class="l4m-dot" style="background:#f39c12"></div>Material
-        </div>
-        <div class="legend-4m-item">
-            <div class="l4m-dot" style="background:var(--green)"></div>Method
-        </div>
-        <div class="legend-4m-item" style="color:#e74c3c;font-weight:700;font-size:11px">● = ada absen (klik)</div>
-        <div class="legend-4m-item" style="color:#607d8b;font-weight:700;font-size:11px">▨ = tugas di mesin lain</div>
-    </div>
 
-    <div class="machines-wrap">
-        @php
-            $absenIds = \App\Models\AbsenceRecord::where([
-                'tanggal' => $tanggal,
-                'factory' => $factory,
-                'shift' => $shift,
-                'status' => 'absen',
-            ])->pluck('member_id')->toArray();
+        <div class="section-title" style="margin-top:16px">Status Mesin</div>
+        <div class="legend-4m" style="margin-bottom:10px">
+            <div class="legend-4m-item">
+                <div class="l4m-dot" style="background:#e74c3c"></div>Man
+            </div>
+            <div class="legend-4m-item">
+                <div class="l4m-dot" style="background:#1f3c88"></div>Machine
+            </div>
+            <div class="legend-4m-item">
+                <div class="l4m-dot" style="background:#f39c12"></div>Material
+            </div>
+            <div class="legend-4m-item">
+                <div class="l4m-dot" style="background:var(--green)"></div>Method
+            </div>
+            <div class="legend-4m-item" style="color:#e74c3c;font-weight:700;font-size:11px">● = ada absen (klik)</div>
+            <div class="legend-4m-item" style="color:#607d8b;font-weight:700;font-size:11px">▨ = tugas di mesin lain</div>
+        </div>
 
-            try {
-                $replacements = \App\Models\AssignmentReplacement::where([
+        <div class="machines-wrap">
+            @php
+                $absenIds = \App\Models\AbsenceRecord::where([
                     'tanggal' => $tanggal,
                     'factory' => $factory,
                     'shift' => $shift,
-                ])->get()->keyBy('member_id');
-            } catch (\Throwable $e) {
-                $replacements = collect();
-            }
+                    'status' => 'absen',
+                ])->pluck('member_id')->toArray();
 
-            $replacedMachines = \App\Models\AssignmentReplacement::where([
-                'tanggal' => $tanggal,
-                'factory' => $factory,
-                'shift' => $shift,
-            ])->pluck('target_machine')->toArray();
-
-            $pipColors = [
-                'man' => '#e74c3c',
-                'machine' => '#1f3c88',
-                'material' => '#f39c12',
-                'method' => '#2e7d32',
-            ];
-
-            $pillDefs = [
-                'normal' => ['dot' => null, 'label' => 'Normal'],
-                'man' => ['dot' => 'dm', 'label' => 'Man'],
-                'material' => ['dot' => 'dt', 'label' => 'Matl'],
-                'machine' => ['dot' => 'dc', 'label' => 'Mchn'],
-                'method' => ['dot' => 'dme', 'label' => 'Mthd'],
-            ];
-        @endphp
-
-        @foreach($groups as $group)
-            @php
-                $absenMesinCount = 0;
-                foreach ($group['machines'] as $mac) {
-                    $assigned = $members->filter(fn($m) => $m->mesin === $mac);
-                    $macHasAbsen = $assigned->whereIn('id', $absenIds)->isNotEmpty();
-                    $macHasReplacement = in_array($mac, $replacedMachines);
-                    if ($macHasAbsen && !$macHasReplacement)
-                        $absenMesinCount++;
+                try {
+                    $replacements = \App\Models\AssignmentReplacement::where([
+                        'tanggal' => $tanggal,
+                        'factory' => $factory,
+                        'shift' => $shift,
+                    ])->get()->keyBy('member_id');
+                } catch (\Throwable $e) {
+                    $replacements = collect();
                 }
+
+                $replacedMachines = \App\Models\AssignmentReplacement::where([
+                    'tanggal' => $tanggal,
+                    'factory' => $factory,
+                    'shift' => $shift,
+                ])->pluck('target_machine')->toArray();
+
+                $pipColors = [
+                    'man' => '#e74c3c',
+                    'machine' => '#1f3c88',
+                    'material' => '#f39c12',
+                    'method' => '#2e7d32',
+                ];
+
+                $pillDefs = [
+                    'normal' => ['dot' => null, 'label' => 'Normal'],
+                    'man' => ['dot' => 'dm', 'label' => 'Man'],
+                    'material' => ['dot' => 'dt', 'label' => 'Matl'],
+                    'machine' => ['dot' => 'dc', 'label' => 'Mchn'],
+                    'method' => ['dot' => 'dme', 'label' => 'Mthd'],
+                ];
             @endphp
 
-            <div class="machine-group-section">
-                <div class="machine-group-title">
-                    🔧 {{ $group['title'] }}
-                    @if($absenMesinCount > 0)
-                        <span class="mg-badge warn">⚠ {{ $absenMesinCount }} absen</span>
-                    @else
-                        <span class="mg-badge">{{ count($group['machines']) }} mesin</span>
-                    @endif
-                </div>
+            @foreach($groups as $group)
+                @php
+                    $absenMesinCount = 0;
+                    foreach ($group['machines'] as $mac) {
+                        $assigned = $members->filter(fn($m) => $m->mesin === $mac);
+                        $macHasAbsen = $assigned->whereIn('id', $absenIds)->isNotEmpty();
+                        $macHasReplacement = in_array($mac, $replacedMachines);
+                        if ($macHasAbsen && !$macHasReplacement)
+                            $absenMesinCount++;
+                    }
+                @endphp
 
-                <div class="machine-cards-row">
-                    @foreach($group['machines'] as $machine)
-                        @php
-                            // ═══ MULTI-STATUS: data dari controller (single source of truth) ═══
-                            $st = $statuses[$machine] ?? null;
-                            $stVal = $st?->status ?? 'normal'; // primary (border & dot)
-                            $stAll = $st?->statuses ?? [];        // SEMUA status aktif sekaligus
+                <div class="machine-group-section">
+                    <div class="machine-group-title">
+                        🔧 {{ $group['title'] }}
+                        @if($absenMesinCount > 0)
+                            <span class="mg-badge warn">⚠ {{ $absenMesinCount }} absen</span>
+                        @else
+                            <span class="mg-badge">{{ count($group['machines']) }} mesin</span>
+                        @endif
+                    </div>
 
-                            $assigned = $members->filter(fn($m) => $m->mesin === $machine);
-                            $absenMemberIds = $assigned->whereIn('id', $absenIds)->pluck('id');
-                            $machineHasRepl = in_array($machine, $replacedMachines);
-                            $hasAbsen = $absenMemberIds->isNotEmpty();
-                            $needsFinder = $hasAbsen && !$machineHasRepl;
+                    <div class="machine-cards-row">
+                        @foreach($group['machines'] as $machine)
+                            @php
+                                // ═══ MULTI-STATUS: data dari controller (single source of truth) ═══
+                                $st = $statuses[$machine] ?? null;
+                                $stVal = $st?->status ?? 'normal'; // primary (border & dot)
+                                $stAll = $st?->statuses ?? [];        // SEMUA status aktif sekaligus
 
-                            $cardCls = $needsFinder
-                                ? 'mc-has-absen'
-                                : (!$hasAbsen && $stVal !== 'normal' ? 'mc-status-' . $stVal : '');
+                                $assigned = $members->filter(fn($m) => $m->mesin === $machine);
+                                $absenMemberIds = $assigned->whereIn('id', $absenIds)->pluck('id');
+                                $machineHasRepl = in_array($machine, $replacedMachines);
+                                $hasAbsen = $absenMemberIds->isNotEmpty();
+                                $needsFinder = $hasAbsen && !$machineHasRepl;
 
-                            $machineRecord = $machinePhotos[$machine] ?? null;
-                            $machinePhoto = $machineRecord?->photo_url ?? null;
-                            $machineSlug = Str::slug($machine);
+                                $cardCls = $needsFinder
+                                    ? 'mc-has-absen'
+                                    : (!$hasAbsen && $stVal !== 'normal' ? 'mc-status-' . $stVal : '');
 
-                            // Pip di foto: man (jika ada absen) + semua dari open log
-                            $initPips = [];
-                            if ($hasAbsen)
-                                $initPips[] = 'man';
-                            foreach ($stAll as $s) {
-                                if ($s !== 'man' && !in_array($s, $initPips))
-                                    $initPips[] = $s;
-                            }
+                                $machineRecord = $machinePhotos[$machine] ?? null;
+                                $machinePhoto = $machineRecord?->photo_url ?? null;
+                                $machineSlug = Str::slug($machine);
 
-                            // Dot kecil di sudut
-                            $dotInitClass = $hasAbsen ? 'd-absen' : ($stVal !== 'normal' ? 'd-visible' : '');
-                            $dotInitBg = (!$hasAbsen && $stVal !== 'normal') ? ($pipColors[$stVal] ?? '') : '';
+                                // Pip di foto: man (jika ada absen) + semua dari open log
+                                $initPips = [];
+                                if ($hasAbsen)
+                                    $initPips[] = 'man';
+                                foreach ($stAll as $s) {
+                                    if ($s !== 'man' && !in_array($s, $initPips))
+                                        $initPips[] = $s;
+                                }
 
-                            // Pills aktif: gabungan man (jika absen) + semua dari $stAll
-                            $activePills = [];
-                            if ($hasAbsen)
-                                $activePills[] = 'man';
-                            foreach ($stAll as $s) {
-                                if (!in_array($s, $activePills))
-                                    $activePills[] = $s;
-                            }
-                            if (empty($activePills))
-                                $activePills[] = 'normal';
-                        @endphp
+                                // Dot kecil di sudut
+                                $dotInitClass = $hasAbsen ? 'd-absen' : ($stVal !== 'normal' ? 'd-visible' : '');
+                                $dotInitBg = (!$hasAbsen && $stVal !== 'normal') ? ($pipColors[$stVal] ?? '') : '';
 
-                        <div class="mc-card {{ $cardCls }}" data-machine="{{ $machine }}" data-status="{{ $stVal }}"
-                            onclick="handleCardClick(event,'{{ addslashes($machine) }}','{{ $stVal }}')">
+                                // Pills aktif: gabungan man (jika absen) + semua dari $stAll
+                                $activePills = [];
+                                if ($hasAbsen)
+                                    $activePills[] = 'man';
+                                foreach ($stAll as $s) {
+                                    if (!in_array($s, $activePills))
+                                        $activePills[] = $s;
+                                }
+                                if (empty($activePills))
+                                    $activePills[] = 'normal';
+                            @endphp
 
-                            <div class="mc-photo-wrap" id="photo-wrap-{{ $machineSlug }}">
-                                @if($machinePhoto)
-                                    <img src="{{ $machinePhoto }}" alt="{{ $machine }}" loading="lazy"
-                                        id="photo-img-{{ $machineSlug }}">
-                                @else
-                                    <div class="mc-photo-placeholder" id="photo-img-{{ $machineSlug }}">
-                                        <div class="ph-ico">📷</div>
-                                        <div class="ph-txt">Foto Mesin</div>
-                                    </div>
-                                @endif
+                            <div class="mc-card {{ $cardCls }}" data-machine="{{ $machine }}" data-status="{{ $stVal }}"
+                                onclick="handleCardClick(event,'{{ addslashes($machine) }}','{{ $stVal }}')">
 
-                                <div class="mc-photo-upload-overlay"
-                                    onclick="event.stopPropagation(); triggerPhotoUpload('{{ addslashes($machine) }}','{{ $machineSlug }}')"
-                                    title="Ganti foto mesin">
-                                    <span class="upload-ico">📷</span>
-                                    <span class="upload-txt">{{ $machinePhoto ? 'Ganti Foto' : 'Upload Foto' }}</span>
-                                </div>
-
-                                <input type="file" accept="image/*" id="file-{{ $machineSlug }}" style="display:none"
-                                    onchange="uploadMachinePhoto(event,'{{ addslashes($machine) }}','{{ $machineSlug }}')">
-
-                                <div class="mc-name-badge">
-                                    <span class="mc-name-txt">{{ $machine }}</span>
-                                    <div style="display:flex;align-items:center;gap:4px">
-                                        <div class="mc-4m-row" id="lights-{{ $machineSlug }}">
-                                            @foreach($initPips as $pip)
-                                                <div class="mc-4m-pip" style="background:{{ $pipColors[$pip] ?? '#ccc' }}"
-                                                    title="{{ $pip }}"></div>
-                                            @endforeach
+                                <div class="mc-photo-wrap" id="photo-wrap-{{ $machineSlug }}">
+                                    @if($machinePhoto)
+                                        <img src="{{ $machinePhoto }}" alt="{{ $machine }}" loading="lazy"
+                                            id="photo-img-{{ $machineSlug }}">
+                                    @else
+                                        <div class="mc-photo-placeholder" id="photo-img-{{ $machineSlug }}">
+                                            <div class="ph-ico">📷</div>
+                                            <div class="ph-txt">Foto Mesin</div>
                                         </div>
-                                        <div class="mc-dot {{ $dotInitClass }}" id="dot-{{ $machineSlug }}" @if($dotInitBg)
-                                        style="background:{{ $dotInitBg }}" @endif @if($hasAbsen && $needsFinder)
+                                    @endif
+
+                                    <div class="mc-photo-upload-overlay"
+                                        onclick="event.stopPropagation(); triggerPhotoUpload('{{ addslashes($machine) }}','{{ $machineSlug }}')"
+                                        title="Ganti foto mesin">
+                                        <span class="upload-ico">📷</span>
+                                        <span class="upload-txt">{{ $machinePhoto ? 'Ganti Foto' : 'Upload Foto' }}</span>
+                                    </div>
+
+                                    <input type="file" accept="image/*" id="file-{{ $machineSlug }}" style="display:none"
+                                        onchange="uploadMachinePhoto(event,'{{ addslashes($machine) }}','{{ $machineSlug }}')">
+
+                                    <div class="mc-name-badge">
+                                        <span class="mc-name-txt">{{ $machine }}</span>
+                                        <div style="display:flex;align-items:center;gap:4px">
+                                            <div class="mc-4m-row" id="lights-{{ $machineSlug }}">
+                                                @foreach($initPips as $pip)
+                                                    <div class="mc-4m-pip" style="background:{{ $pipColors[$pip] ?? '#ccc' }}"
+                                                        title="{{ $pip }}"></div>
+                                                @endforeach
+                                            </div>
+                                            <div class="mc-dot {{ $dotInitClass }}" id="dot-{{ $machineSlug }}" @if($dotInitBg)
+                                            style="background:{{ $dotInitBg }}" @endif @if($hasAbsen && $needsFinder)
                                                 onclick="event.stopPropagation();openFinderModal('{{ addslashes($machine) }}')"
                                             @elseif(!$hasAbsen && $stVal !== 'normal')
-                                                onclick="event.stopPropagation();openMachineDetail('{{ addslashes($machine) }}','{{ $stVal }}')"
-                                            @endif></div>
+                                                    onclick="event.stopPropagation();openMachineDetail('{{ addslashes($machine) }}','{{ $stVal }}')"
+                                                @endif></div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mc-card-body">
+                                    <div class="mc-members-row">
+                                        @if($assigned->isEmpty())
+                                            <div class="mc-empty-slot">+</div>
+                                        @else
+                                            @foreach($assigned as $m)
+                                                @php
+                                                    $isAbsen = in_array($m->id, $absenIds);
+                                                    $isDipinjam = !$isAbsen && isset($replacements[$m->id]);
+                                                    $destMachine = $isDipinjam ? ($replacements[$m->id]->target_machine ?? '?') : null;
+                                                    $itemCls = $isAbsen ? 'mi-absen' : ($isDipinjam ? 'mi-dipinjam' : '');
+                                                    $avCls = $isAbsen ? 'av-absen' : 'av-ok';
+                                                @endphp
+                                                <div class="mc-member-item {{ $itemCls }}" data-member-id="{{ $m->id }}">
+                                                    <div class="mc-av {{ $avCls }}">
+                                                        @if($m->photo_url)
+                                                            <img src="{{ $m->photo_url }}" alt="{{ $m->nama }}" @if($isAbsen)
+                                                            style="filter:grayscale(.5) brightness(.8)" @elseif($isDipinjam)
+                                                            style="filter:grayscale(.55) brightness(.72)" @endif>
+                                                        @else
+                                                            {{ mb_strtoupper(mb_substr($m->nama, 0, 1)) . (str_contains($m->nama, ' ') ? mb_strtoupper(mb_substr(explode(' ', $m->nama)[1], 0, 1)) : '') }}
+                                                        @endif
+                                                    </div>
+                                                    <div class="mc-member-name" title="{{ $m->nama }}">
+                                                        {{ Str::limit(explode(' ', $m->nama)[0], 7) }}{{ isset(explode(' ', $m->nama)[1]) ? ' ' . mb_strtoupper(mb_substr(explode(' ', $m->nama)[1], 0, 1)) . '.' : '' }}
+                                                    </div>
+                                                    @if($isAbsen)
+                                                        @php
+                                                            $absenReason = strtolower($absenReasons[$m->id] ?? '');
+                                                            $absenLabel = match (true) {
+                                                                str_contains($absenReason, 'sakit') => 'SAKIT',
+                                                                str_contains($absenReason, 'izin') || str_contains($absenReason, 'ijin') => 'IZIN',
+                                                                str_contains($absenReason, 'cuti') => 'CUTI',
+                                                                default => 'Absen',
+                                                            };
+                                                        @endphp
+                                                        <span class="mc-member-tag tag-absen">{{ $absenLabel }}</span>
+                                                    @elseif($isDipinjam)
+                                                        <span class="mc-member-tag tag-dipinjam">Tugas Lain</span>
+                                                        <div class="mi-dipinjam-dest" title="Bertugas di: {{ $destMachine }}">
+                                                            ↗ {{ Str::limit($destMachine, 8) }}
+                                                        </div>
+                                                    @else
+                                                        <span class="mc-member-tag tag-hadir">Hadir</span>
+                                                    @endif
+                                                </div>
+                                            @endforeach
+                                        @endif
+                                    </div>
+
+                                    {{-- Pills: in_array() agar bisa aktif lebih dari satu sekaligus --}}
+                                    <div class="mc-status-row">
+                                        @foreach($pillDefs as $pKey => $pDef)
+                                            <span class="mc-status-pill p-{{ $pKey }} {{ in_array($pKey, $activePills) ? 'active' : '' }}"
+                                                data-status="{{ $pKey }}">
+                                                @if($pDef['dot'])
+                                                    <span class="pill-dot {{ $pDef['dot'] }}"></span>
+                                                @endif
+                                                {{ $pDef['label'] }}
+                                            </span>
+                                        @endforeach
+                                    </div>
+
+                                    <div class="mc-addlog-bar" onclick="event.stopPropagation()">
+                                        <button class="mc-addlog-btn" onclick="openQuickLog('{{ addslashes($machine) }}')">
+                                            + Log
+                                        </button>
                                     </div>
                                 </div>
                             </div>
+                        @endforeach
+                    </div>
+                </div>
+            @endforeach
+        </div>
 
-                            <div class="mc-card-body">
-                                <div class="mc-members-row">
-                                    @if($assigned->isEmpty())
-                                        <div class="mc-empty-slot">+</div>
-                                    @else
-                                        @foreach($assigned as $m)
-                                            @php
-                                                $isAbsen = in_array($m->id, $absenIds);
-                                                $isDipinjam = !$isAbsen && isset($replacements[$m->id]);
-                                                $destMachine = $isDipinjam ? ($replacements[$m->id]->target_machine ?? '?') : null;
-                                                $itemCls = $isAbsen ? 'mi-absen' : ($isDipinjam ? 'mi-dipinjam' : '');
-                                                $avCls = $isAbsen ? 'av-absen' : 'av-ok';
-                                            @endphp
-                                            <div class="mc-member-item {{ $itemCls }}" data-member-id="{{ $m->id }}">
-                                                <div class="mc-av {{ $avCls }}">
-                                                    @if($m->photo_url)
-                                                        <img src="{{ $m->photo_url }}" alt="{{ $m->nama }}" @if($isAbsen)
-                                                        style="filter:grayscale(.5) brightness(.8)" @elseif($isDipinjam)
-                                                            style="filter:grayscale(.55) brightness(.72)" @endif>
-                                                    @else
-                                                        {{ mb_strtoupper(mb_substr($m->nama, 0, 1)) . (str_contains($m->nama, ' ') ? mb_strtoupper(mb_substr(explode(' ', $m->nama)[1], 0, 1)) : '') }}
-                                                    @endif
-                                                </div>
-                                                <div class="mc-member-name" title="{{ $m->nama }}">
-                                                    {{ Str::limit(explode(' ', $m->nama)[0], 7) }}{{ isset(explode(' ', $m->nama)[1]) ? ' ' . mb_strtoupper(mb_substr(explode(' ', $m->nama)[1], 0, 1)) . '.' : '' }}
-                                                </div>
-                                                @if($isAbsen)
-                                                    @php
-                                                        $absenReason = strtolower($absenReasons[$m->id] ?? '');
-                                                        $absenLabel = match (true) {
-                                                            str_contains($absenReason, 'sakit') => 'SAKIT',
-                                                            str_contains($absenReason, 'izin') || str_contains($absenReason, 'ijin') => 'IZIN',
-                                                            str_contains($absenReason, 'cuti') => 'CUTI',
-                                                            default => 'Absen',
-                                                        };
-                                                    @endphp
-                                                    <span class="mc-member-tag tag-absen">{{ $absenLabel }}</span>
-                                                @elseif($isDipinjam)
-                                                    <span class="mc-member-tag tag-dipinjam">Tugas Lain</span>
-                                                    <div class="mi-dipinjam-dest" title="Bertugas di: {{ $destMachine }}">
-                                                        ↗ {{ Str::limit($destMachine, 8) }}
-                                                    </div>
-                                                @else
-                                                    <span class="mc-member-tag tag-hadir">Hadir</span>
-                                                @endif
-                                            </div>
-                                        @endforeach
-                                    @endif
-                                </div>
+        {{-- Machine detail modal --}}
+        <div class="modal-overlay" id="machineSheet">
+            <div class="modal-sheet">
+                <div class="modal-sheet-handle"></div>
+                <div class="modal-sheet-header">
+                    <h3 id="machineSheetTitle">Detail Mesin</h3>
+                    <button class="modal-sheet-close" onclick="closeSheet('machineSheet')">✕</button>
+                </div>
+                <div class="modal-sheet-body" id="machineSheetBody">
+                    <div style="text-align:center;padding:24px;color:#aaa">Memuat...</div>
+                </div>
+            </div>
+        </div>
 
-                                {{-- Pills: in_array() agar bisa aktif lebih dari satu sekaligus --}}
-                                <div class="mc-status-row">
-                                    @foreach($pillDefs as $pKey => $pDef)
-                                        <span class="mc-status-pill p-{{ $pKey }} {{ in_array($pKey, $activePills) ? 'active' : '' }}"
-                                            data-status="{{ $pKey }}">
-                                            @if($pDef['dot'])
-                                                <span class="pill-dot {{ $pDef['dot'] }}"></span>
-                                            @endif
-                                            {{ $pDef['label'] }}
-                                        </span>
-                                    @endforeach
-                                </div>
+        {{-- Quick Add Log modal --}}
+        <div class="modal-overlay" id="quickLogOverlay">
+            <div class="modal-sheet" style="max-height:94vh;display:flex;flex-direction:column;">
+                <div class="modal-sheet-handle" style="flex-shrink:0"></div>
+                <div class="ql-header" style="flex-shrink:0">
+                    <div class="ql-header-left">
+                        <div class="ql-header-icon">＋</div>
+                        <div>
+                            <div class="ql-header-title">Tambah Problem Log</div>
+                            <div class="ql-header-sub" id="qlMesinLabel">—</div>
+                        </div>
+                    </div>
+                    <button class="modal-sheet-close" onclick="closeQuickLog()">✕</button>
+                    <input type="hidden" id="qlLokasi">
+                </div>
+                <div class="modal-sheet-body" style="padding-top:6px;overflow-y:auto;flex:1;min-height:0;">
+                    <div id="qlLogList" style="display:none"></div>
+                    <div class="ql-form-divider">Pilih Tipe Masalah</div>
+                    <div class="jenis-selector">
+                        <button type="button" class="jenis-btn" id="ql-btn-machine" onclick="qlSelectJenis('Machine')">
+                            <span class="jb-icon">⚙️</span><span class="jb-lbl">Machine</span>
+                        </button>
+                        <button type="button" class="jenis-btn" id="ql-btn-material" onclick="qlSelectJenis('Material')">
+                            <span class="jb-icon">📦</span><span class="jb-lbl">Material</span>
+                        </button>
+                        <button type="button" class="jenis-btn" id="ql-btn-method" onclick="qlSelectJenis('Method')">
+                            <span class="jb-icon">📋</span><span class="jb-lbl">Method</span>
+                        </button>
+                    </div>
 
-                                <div class="mc-addlog-bar" onclick="event.stopPropagation()">
-                                    <button class="mc-addlog-btn" onclick="openQuickLog('{{ addslashes($machine) }}')">
-                                        + Log
-                                    </button>
-                                </div>
+                    <div class="ql-form-section" id="ql-section-machine">
+                        <div class="ql-shb ql-shb-machine">⚙️ Machine Problem</div>
+                        <div class="form-row">
+                            <div class="field-group"><label>Waktu Mulai *</label><input type="time" id="qlMulai"></div>
+                            <div class="field-group">
+                                <label>Status</label>
+                                <select id="ql-m-status" onchange="qlToggleSelesai('m',this.value)">
+                                    <option value="open">Open — belum selesai</option>
+                                    <option value="closed">Closed — sudah selesai</option>
+                                </select>
                             </div>
                         </div>
-                    @endforeach
-                </div>
-            </div>
-        @endforeach
-    </div>
-
-    {{-- Machine detail modal --}}
-    <div class="modal-overlay" id="machineSheet">
-        <div class="modal-sheet">
-            <div class="modal-sheet-handle"></div>
-            <div class="modal-sheet-header">
-                <h3 id="machineSheetTitle">Detail Mesin</h3>
-                <button class="modal-sheet-close" onclick="closeSheet('machineSheet')">✕</button>
-            </div>
-            <div class="modal-sheet-body" id="machineSheetBody">
-                <div style="text-align:center;padding:24px;color:#aaa">Memuat...</div>
-            </div>
-        </div>
-    </div>
-
-    {{-- Quick Add Log modal --}}
-    <div class="modal-overlay" id="quickLogOverlay">
-        <div class="modal-sheet" style="max-height:94vh;display:flex;flex-direction:column;">
-            <div class="modal-sheet-handle" style="flex-shrink:0"></div>
-            <div class="ql-header" style="flex-shrink:0">
-                <div class="ql-header-left">
-                    <div class="ql-header-icon">＋</div>
-                    <div>
-                        <div class="ql-header-title">Tambah Problem Log</div>
-                        <div class="ql-header-sub" id="qlMesinLabel">—</div>
-                    </div>
-                </div>
-                <button class="modal-sheet-close" onclick="closeQuickLog()">✕</button>
-                <input type="hidden" id="qlLokasi">
-            </div>
-            <div class="modal-sheet-body" style="padding-top:6px;overflow-y:auto;flex:1;min-height:0;">
-                <div id="qlLogList" style="display:none"></div>
-                <div class="ql-form-divider">Pilih Tipe Masalah</div>
-                <div class="jenis-selector">
-                    <button type="button" class="jenis-btn" id="ql-btn-machine" onclick="qlSelectJenis('Machine')">
-                        <span class="jb-icon">⚙️</span><span class="jb-lbl">Machine</span>
-                    </button>
-                    <button type="button" class="jenis-btn" id="ql-btn-material" onclick="qlSelectJenis('Material')">
-                        <span class="jb-icon">📦</span><span class="jb-lbl">Material</span>
-                    </button>
-                    <button type="button" class="jenis-btn" id="ql-btn-method" onclick="qlSelectJenis('Method')">
-                        <span class="jb-icon">📋</span><span class="jb-lbl">Method</span>
-                    </button>
-                </div>
-
-                <div class="ql-form-section" id="ql-section-machine">
-                    <div class="ql-shb ql-shb-machine">⚙️ Machine Problem</div>
-                    <div class="form-row">
-                        <div class="field-group"><label>Waktu Mulai *</label><input type="time" id="qlMulai"></div>
+                        <div class="field-group" id="ql-m-selesai-wrap" style="display:none">
+                            <label>Waktu Selesai</label><input type="time" id="ql-m-selesai">
+                        </div>
                         <div class="field-group">
-                            <label>Status</label>
-                            <select id="ql-m-status" onchange="qlToggleSelesai('m',this.value)">
-                                <option value="open">Open — belum selesai</option>
-                                <option value="closed">Closed — sudah selesai</option>
-                            </select>
+                            <label>Deskripsi Kerusakan *</label>
+                            <textarea id="qlDeskripsi" rows="2" placeholder="Contoh: MC mati mendadak, bunyi abnormal…"
+                                style="width:100%;padding:10px;border:1.5px solid #e0e0e0;border-radius:10px;font-family:inherit;font-size:13px;resize:vertical;box-sizing:border-box"
+                                onfocus="this.style.borderColor='#1f3c88'" onblur="this.style.borderColor='#e0e0e0'"></textarea>
+                        </div>
+                        <div class="form-row">
+                            <div class="field-group"><label>Root Cause</label><input type="text" id="qlCause"
+                                    placeholder="Contoh: bearing aus…"></div>
+                            <div class="field-group"><label>Teknisi / PIC</label><input type="text" id="qlPIC"
+                                    placeholder="Nama teknisi"></div>
                         </div>
                     </div>
-                    <div class="field-group" id="ql-m-selesai-wrap" style="display:none">
-                        <label>Waktu Selesai</label><input type="time" id="ql-m-selesai">
-                    </div>
-                    <div class="field-group">
-                        <label>Deskripsi Kerusakan *</label>
-                        <textarea id="qlDeskripsi" rows="2" placeholder="Contoh: MC mati mendadak, bunyi abnormal…"
-                            style="width:100%;padding:10px;border:1.5px solid #e0e0e0;border-radius:10px;font-family:inherit;font-size:13px;resize:vertical;box-sizing:border-box"
-                            onfocus="this.style.borderColor='#1f3c88'" onblur="this.style.borderColor='#e0e0e0'"></textarea>
-                    </div>
-                    <div class="form-row">
-                        <div class="field-group"><label>Root Cause</label><input type="text" id="qlCause"
-                                placeholder="Contoh: bearing aus…"></div>
-                        <div class="field-group"><label>Teknisi / PIC</label><input type="text" id="qlPIC"
-                                placeholder="Nama teknisi"></div>
-                    </div>
-                </div>
 
-                <div class="ql-form-section" id="ql-section-material">
-                    <div class="ql-shb ql-shb-material">📦 Material Problem</div>
-                    <div class="form-row">
-                        <div class="field-group"><label>Waktu Mulai *</label><input type="time" id="ql-mat-mulai"></div>
+                    <div class="ql-form-section" id="ql-section-material">
+                        <div class="ql-shb ql-shb-material">📦 Material Problem</div>
+                        <div class="form-row">
+                            <div class="field-group"><label>Waktu Mulai *</label><input type="time" id="ql-mat-mulai"></div>
+                            <div class="field-group">
+                                <label>Status</label>
+                                <select id="ql-mat-status" onchange="qlToggleSelesai('mat',this.value)">
+                                    <option value="open">Open — belum selesai</option>
+                                    <option value="closed">Closed — sudah selesai</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="field-group" id="ql-mat-selesai-wrap" style="display:none">
+                            <label>Waktu Selesai</label><input type="time" id="ql-mat-selesai">
+                        </div>
                         <div class="field-group">
-                            <label>Status</label>
-                            <select id="ql-mat-status" onchange="qlToggleSelesai('mat',this.value)">
-                                <option value="open">Open — belum selesai</option>
-                                <option value="closed">Closed — sudah selesai</option>
-                            </select>
+                            <label>Deskripsi Masalah Material *</label>
+                            <textarea id="ql-mat-deskripsi" rows="2"
+                                placeholder="Contoh: material short shot, warna tidak sesuai…"
+                                style="width:100%;padding:10px;border:1.5px solid #e0e0e0;border-radius:10px;font-family:inherit;font-size:13px;resize:vertical;box-sizing:border-box"
+                                onfocus="this.style.borderColor='#f39c12'" onblur="this.style.borderColor='#e0e0e0'"></textarea>
+                        </div>
+                        <div class="form-row">
+                            <div class="field-group"><label>No. Lot / Batch</label><input type="text" id="ql-mat-cause"
+                                    placeholder="No. lot material bermasalah"></div>
+                            <div class="field-group"><label>PIC</label><input type="text" id="ql-mat-pic"
+                                    placeholder="Nama penanggung jawab"></div>
                         </div>
                     </div>
-                    <div class="field-group" id="ql-mat-selesai-wrap" style="display:none">
-                        <label>Waktu Selesai</label><input type="time" id="ql-mat-selesai">
-                    </div>
-                    <div class="field-group">
-                        <label>Deskripsi Masalah Material *</label>
-                        <textarea id="ql-mat-deskripsi" rows="2"
-                            placeholder="Contoh: material short shot, warna tidak sesuai…"
-                            style="width:100%;padding:10px;border:1.5px solid #e0e0e0;border-radius:10px;font-family:inherit;font-size:13px;resize:vertical;box-sizing:border-box"
-                            onfocus="this.style.borderColor='#f39c12'" onblur="this.style.borderColor='#e0e0e0'"></textarea>
-                    </div>
-                    <div class="form-row">
-                        <div class="field-group"><label>No. Lot / Batch</label><input type="text" id="ql-mat-cause"
-                                placeholder="No. lot material bermasalah"></div>
-                        <div class="field-group"><label>PIC</label><input type="text" id="ql-mat-pic"
-                                placeholder="Nama penanggung jawab"></div>
-                    </div>
-                </div>
 
-                <div class="ql-form-section" id="ql-section-method">
-                    <div class="ql-shb ql-shb-method">📋 Method Problem</div>
-                    <div class="form-row">
-                        <div class="field-group"><label>Waktu Mulai *</label><input type="time" id="ql-met-mulai"></div>
+                    <div class="ql-form-section" id="ql-section-method">
+                        <div class="ql-shb ql-shb-method">📋 Method Problem</div>
+                        <div class="form-row">
+                            <div class="field-group"><label>Waktu Mulai *</label><input type="time" id="ql-met-mulai"></div>
+                            <div class="field-group">
+                                <label>Status</label>
+                                <select id="ql-met-status" onchange="qlToggleSelesai('met',this.value)">
+                                    <option value="open">Open — belum selesai</option>
+                                    <option value="closed">Closed — sudah selesai</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="field-group" id="ql-met-selesai-wrap" style="display:none">
+                            <label>Waktu Selesai</label><input type="time" id="ql-met-selesai">
+                        </div>
                         <div class="field-group">
-                            <label>Status</label>
-                            <select id="ql-met-status" onchange="qlToggleSelesai('met',this.value)">
-                                <option value="open">Open — belum selesai</option>
-                                <option value="closed">Closed — sudah selesai</option>
-                            </select>
+                            <label>Deskripsi Penyimpangan *</label>
+                            <textarea id="ql-met-deskripsi" rows="2"
+                                placeholder="Contoh: setting tidak sesuai standar, tidak mengikuti SOP…"
+                                style="width:100%;padding:10px;border:1.5px solid #e0e0e0;border-radius:10px;font-family:inherit;font-size:13px;resize:vertical;box-sizing:border-box"
+                                onfocus="this.style.borderColor='#2e7d32'" onblur="this.style.borderColor='#e0e0e0'"></textarea>
+                        </div>
+                        <div class="form-row">
+                            <div class="field-group"><label>Standar yang Dilanggar</label><input type="text" id="ql-met-cause"
+                                    placeholder="Contoh: suhu resin, cycle time SOP…"></div>
+                            <div class="field-group"><label>PIC</label><input type="text" id="ql-met-pic"
+                                    placeholder="Nama penanggung jawab"></div>
                         </div>
                     </div>
-                    <div class="field-group" id="ql-met-selesai-wrap" style="display:none">
-                        <label>Waktu Selesai</label><input type="time" id="ql-met-selesai">
-                    </div>
-                    <div class="field-group">
-                        <label>Deskripsi Penyimpangan *</label>
-                        <textarea id="ql-met-deskripsi" rows="2"
-                            placeholder="Contoh: setting tidak sesuai standar, tidak mengikuti SOP…"
-                            style="width:100%;padding:10px;border:1.5px solid #e0e0e0;border-radius:10px;font-family:inherit;font-size:13px;resize:vertical;box-sizing:border-box"
-                            onfocus="this.style.borderColor='#2e7d32'" onblur="this.style.borderColor='#e0e0e0'"></textarea>
-                    </div>
-                    <div class="form-row">
-                        <div class="field-group"><label>Standar yang Dilanggar</label><input type="text" id="ql-met-cause"
-                                placeholder="Contoh: suhu resin, cycle time SOP…"></div>
-                        <div class="field-group"><label>PIC</label><input type="text" id="ql-met-pic"
-                                placeholder="Nama penanggung jawab"></div>
-                    </div>
+                </div>
+
+                <div style="flex-shrink:0;padding:10px 16px 16px;border-top:1px solid #f0f0f0;background:#fff;"
+                    id="qlSaveBtnWrap">
+                    <button class="save-btn-big" id="qlSubmitBtn" onclick="submitQuickLog()">💾 Simpan Log</button>
                 </div>
             </div>
+        </div>
 
-            <div style="flex-shrink:0;padding:10px 16px 16px;border-top:1px solid #f0f0f0;background:#fff;"
-                id="qlSaveBtnWrap">
-                <button class="save-btn-big" id="qlSubmitBtn" onclick="submitQuickLog()">💾 Simpan Log</button>
+        {{-- Finder pengganti --}}
+        <div class="finder-overlay" id="finderOverlay" onclick="handleFinderOverlayClick(event)">
+            <div class="finder-sheet">
+                <div class="finder-handle"></div>
+                <div class="finder-ph">
+                    <button class="finder-close-btn" onclick="closeFinderModal()">✕</button>
+                    <h2>🔍 Cari Pengganti</h2>
+                    <p>Pilih member untuk menggantikan di mesin:</p>
+                    <div class="finder-ph-machine" id="finderMachineName">—</div>
+                </div>
+                <div class="finder-search-wrap">
+                    <input type="text" id="finderSearch" placeholder="🔍 Cari nama member…" oninput="renderFinderCandidates()">
+                </div>
+                <div class="finder-cand-list" id="finderCandList">
+                    <div class="cand-empty">⏳ Memuat…</div>
+                </div>
             </div>
         </div>
-    </div>
-
-    {{-- Finder pengganti --}}
-    <div class="finder-overlay" id="finderOverlay" onclick="handleFinderOverlayClick(event)">
-        <div class="finder-sheet">
-            <div class="finder-handle"></div>
-            <div class="finder-ph">
-                <button class="finder-close-btn" onclick="closeFinderModal()">✕</button>
-                <h2>🔍 Cari Pengganti</h2>
-                <p>Pilih member untuk menggantikan di mesin:</p>
-                <div class="finder-ph-machine" id="finderMachineName">—</div>
-            </div>
-            <div class="finder-search-wrap">
-                <input type="text" id="finderSearch" placeholder="🔍 Cari nama member…" oninput="renderFinderCandidates()">
-            </div>
-            <div class="finder-cand-list" id="finderCandList">
-                <div class="cand-empty">⏳ Memuat…</div>
-            </div>
-        </div>
-    </div>
 
 @endsection
 

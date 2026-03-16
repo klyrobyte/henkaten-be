@@ -11,7 +11,7 @@
 
     {{-- Fonts --}}
     <link
-        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Roboto+Condensed:wght@400;600;700&family=Roboto:wght@300;400;500;700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@500;600;700&family=Exo+2:wght@400;500;600&family=Roboto+Condensed:wght@400;600;700&family=Roboto:wght@300;400;500;700&display=swap"
         rel="stylesheet">
 
     {{-- Chart.js --}}
@@ -224,8 +224,8 @@
         </div>
     </div>
 
-    {{-- ── HEADER ── --}}
-    <div class="app-header" style="padding:0 12px;gap:10px;">
+    {{-- ── HEADER (DESKTOP) ── --}}
+    <div class="app-header desktop-header" style="padding:0 12px;gap:10px;">
         <button class="header-menu-btn" onclick="openDrawer()">☰</button>
 
         {{-- Logo Sugity + Nama --}}
@@ -290,6 +290,31 @@
                 {{ strtoupper(substr(Auth::user()->name ?? 'A', 0, 1)) }}
             </div>
         </div>
+    </div>
+
+    {{-- ── HEADER (MOBILE) ── --}}
+    <div class="app-header mobile-header">
+        <button class="mobile-menu-btn" onclick="openDrawer()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="3" y1="12" x2="21" y2="12"></line>
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+        </button>
+
+        <div class="mobile-brand-container">
+            <img class="mobile-logo-svg" src="{{ asset('images/sugity.png') }}" alt="S" onerror="this.style.display='none'">
+            <div class="mobile-brand-text">
+                <span class="mb-title">HENKATEN BOARD</span>
+                <span class="mb-subtitle">
+                    {!! session('factory', 'Factory 2') === 'Factory 2' ? 'FACTORY 2' : 'FACTORY 3 &amp; 4' !!}
+                </span>
+            </div>
+        </div>
+
+        <button class="mobile-factory-badge" onclick="showFactoryPicker()">
+            {{ session('factory', 'Factory 2') === 'Factory 2' ? 'F2' : 'F3&4' }}
+        </button>
     </div>
 
 

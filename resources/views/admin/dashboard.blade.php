@@ -1166,10 +1166,10 @@
 
         {{-- Factory badge --}}
         <button onclick="showFactoryPicker()" style="background:#2E7D32;border:none;border-radius:20px;padding:7px 18px;color:#fff;
-                                               font-family:'Orbitron', sans-serif;font-weight:700;font-size:12px;
-                                               letter-spacing:1px;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:6px;
-                                               transition:all .2s ease;" onmouseover="this.style.filter='brightness(1.15)'"
-            onmouseout="this.style.filter='brightness(1)'">
+                                                   font-family:'Orbitron', sans-serif;font-weight:700;font-size:12px;
+                                                   letter-spacing:1px;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:6px;
+                                                   transition:all .2s ease;"
+            onmouseover="this.style.filter='brightness(1.15)'" onmouseout="this.style.filter='brightness(1)'">
             <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff"
                 stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                 <rect x="2" y="7" width="20" height="15" rx="1" />
@@ -1186,24 +1186,25 @@
     </div>
 
     <div class="shift-toggle-bar">
-        @php $userShift = auth()->user()->shift; $isAdmin = auth()->user()->role === 'admin'; @endphp
+        @php $userShift = auth()->user()->shift;
+        $isAdmin = auth()->user()->role === 'admin'; @endphp
         @if($isAdmin || !$userShift || $userShift === 'A')
-        <button class="shift-toggle-btn {{ $shift === 'A' ? 'active' : '' }}" onclick="switchShift('A')">SHIFT A</button>
+            <button class="shift-toggle-btn {{ $shift === 'A' ? 'active' : '' }}" onclick="switchShift('A')">SHIFT A</button>
         @endif
         @if($isAdmin || !$userShift || $userShift === 'B')
-        <button class="shift-toggle-btn {{ $shift === 'B' ? 'active' : '' }}" onclick="switchShift('B')">SHIFT B</button>
+            <button class="shift-toggle-btn {{ $shift === 'B' ? 'active' : '' }}" onclick="switchShift('B')">SHIFT B</button>
         @endif
     </div>
 
     <div class="legend-4m" style="display:inline-flex;
-                                        align-items:center;
-                                        gap:16px;
-                                        background:#fff;
-                                        border-radius:50px;
-                                        border:1.5px solid #e0e0e0;
-                                        padding:10px 22px;
-                                        box-shadow:0 1px 3px rgba(0,0,0,0.05);
-                                        transition:box-shadow .2s ease, border-color .2s ease;"
+                                            align-items:center;
+                                            gap:16px;
+                                            background:#fff;
+                                            border-radius:15px;
+                                            border:1.5px solid #e0e0e0;
+                                            padding:10px 22px;
+                                            box-shadow:0 1px 3px rgba(0,0,0,0.05);
+                                            transition:box-shadow .2s ease, border-color .2s ease;"
         onmouseover="this.style.boxShadow='0 4px 16px rgba(0,0,0,0.10)';this.style.borderColor='#bdbdbd';"
         onmouseout="this.style.boxShadow='0 1px 3px rgba(0,0,0,0.05)';this.style.borderColor='#e0e0e0';">
 
@@ -2015,45 +2016,45 @@
         }
 
         async function renderLogList(machine) {
-            const wrap = $id('qlLogList'); if(!wrap) return;
-            wrap.innerHTML='<div style="text-align:center;padding:10px;color:#aaa;font-size:11px">⏳ Memuat…</div>';
+            const wrap = $id('qlLogList'); if (!wrap) return;
+            wrap.innerHTML = '<div style="text-align:center;padding:10px;color:#aaa;font-size:11px">⏳ Memuat…</div>';
             wrap.style.display = 'block';
             try {
                 const qs = `tanggal=${TANGGAL}&factory=${encodeURIComponent(FACTORY)}&shift=${SHIFT}`;
-                const res = await fetch(`/admin/logs/list?${qs}`,{headers:{Accept:'application/json'}});
+                const res = await fetch(`/admin/logs/list?${qs}`, { headers: { Accept: 'application/json' } });
                 const all = res.ok ? await res.json() : [];
-                const logs = all.filter(l => l.lokasi===machine);
-                if(!logs.length){ wrap.innerHTML='<div style="text-align:center;padding:12px;color:#ccc;font-size:11px">Belum ada log untuk mesin ini hari ini.</div>'; return; }
-                const jc = { machine:'#1f3c88', material:'#f39c12', method:'#2e7d32' };
+                const logs = all.filter(l => l.lokasi === machine);
+                if (!logs.length) { wrap.innerHTML = '<div style="text-align:center;padding:12px;color:#ccc;font-size:11px">Belum ada log untuk mesin ini hari ini.</div>'; return; }
+                const jc = { machine: '#1f3c88', material: '#f39c12', method: '#2e7d32' };
                 wrap.innerHTML = logs.map(l => {
-                    const isOpen=l.status==='open', jClr=jc[(l.jenis||'').toLowerCase()]||'#888';
-                    const mulaiStr=(l.waktu_mulai||'').slice(0,5), selStr=(l.waktu_selesai||'').slice(0,5);
-                    const timeStr=mulaiStr+(selStr?` – ${selStr}`:' – …');
-                    return `<div class="ql-log-item ${isOpen?'ql-log-open':'ql-log-closed'}" id="qli-${l.id}">
-                        <div class="ql-log-top">
-                            <span class="ql-log-badge" style="background:${jClr}">${esc(l.jenis)}</span>
-                            <span class="ql-log-dot ${isOpen?'dot-open':'dot-closed'}"></span>
-                            <span class="ql-log-time" id="qltime-${l.id}">${timeStr}</span>
-                            ${l.durasi?`<span class="ql-log-dur" id="qldur-${l.id}">(${esc(l.durasi)})</span>`:(isOpen?`<span class="ql-log-dur blink" id="qldur-${l.id}">ON GOING</span>`:'')}
-                        </div>
-                        <div class="ql-log-desc">${esc(l.deskripsi)}</div>
-                        ${l.cause?`<div class="ql-log-meta">🔍 ${esc(l.cause)}</div>`:''}
-                        ${l.pic?`<div class="ql-log-meta">👤 ${esc(l.pic)}</div>`:''}
-                        <div class="ql-log-actions" id="qlactions-${l.id}">
-                            ${isOpen?`<button class="ql-btn ql-btn-done" onclick="qlShowCloseInput(${l.id})">✅ Selesai</button>`:`<button class="ql-btn ql-btn-reopen" onclick="qlReopenLog(${l.id},this)">🔄 Buka Ulang</button>`}
-                            <button class="ql-btn ql-btn-del" onclick="qlDeleteLog(${l.id},this)">🗑️</button>
-                        </div>
-                        ${isOpen ? `
-                        <div id="qlclose-wrap-${l.id}" style="display:none; margin-top:8px; border-top:1px dashed #eee; padding-top:8px;">
-                            <textarea id="ql-cm-${l.id}" rows="2" placeholder="Solusi / Countermeasure (Wajib)..." style="width:100%; border:1px solid #ccc; border-radius:6px; padding:6px 8px; font-size:11px; margin-bottom:6px; resize:none; font-family:inherit; box-sizing:border-box; outline:none;" onfocus="this.style.borderColor='#2e7d32'" onblur="this.style.borderColor='#ccc'"></textarea>
-                            <div style="display:flex; gap:5px;">
-                                <button class="ql-btn ql-btn-done" style="flex:1" onclick="qlCloseLog(${l.id}, this)">💾 Simpan Selesai</button>
-                                <button class="ql-btn ql-btn-del" style="padding:4px 8px" onclick="qlHideCloseInput(${l.id})">Batal</button>
+                    const isOpen = l.status === 'open', jClr = jc[(l.jenis || '').toLowerCase()] || '#888';
+                    const mulaiStr = (l.waktu_mulai || '').slice(0, 5), selStr = (l.waktu_selesai || '').slice(0, 5);
+                    const timeStr = mulaiStr + (selStr ? ` – ${selStr}` : ' – …');
+                    return `<div class="ql-log-item ${isOpen ? 'ql-log-open' : 'ql-log-closed'}" id="qli-${l.id}">
+                            <div class="ql-log-top">
+                                <span class="ql-log-badge" style="background:${jClr}">${esc(l.jenis)}</span>
+                                <span class="ql-log-dot ${isOpen ? 'dot-open' : 'dot-closed'}"></span>
+                                <span class="ql-log-time" id="qltime-${l.id}">${timeStr}</span>
+                                ${l.durasi ? `<span class="ql-log-dur" id="qldur-${l.id}">(${esc(l.durasi)})</span>` : (isOpen ? `<span class="ql-log-dur blink" id="qldur-${l.id}">ON GOING</span>` : '')}
                             </div>
-                        </div>` : ''}
-                    </div>`;
+                            <div class="ql-log-desc">${esc(l.deskripsi)}</div>
+                            ${l.cause ? `<div class="ql-log-meta">🔍 ${esc(l.cause)}</div>` : ''}
+                            ${l.pic ? `<div class="ql-log-meta">👤 ${esc(l.pic)}</div>` : ''}
+                            <div class="ql-log-actions" id="qlactions-${l.id}">
+                                ${isOpen ? `<button class="ql-btn ql-btn-done" onclick="qlShowCloseInput(${l.id})">✅ Selesai</button>` : `<button class="ql-btn ql-btn-reopen" onclick="qlReopenLog(${l.id},this)">🔄 Buka Ulang</button>`}
+                                <button class="ql-btn ql-btn-del" onclick="qlDeleteLog(${l.id},this)">🗑️</button>
+                            </div>
+                            ${isOpen ? `
+                            <div id="qlclose-wrap-${l.id}" style="display:none; margin-top:8px; border-top:1px dashed #eee; padding-top:8px;">
+                                <textarea id="ql-cm-${l.id}" rows="2" placeholder="Solusi / Countermeasure (Wajib)..." style="width:100%; border:1px solid #ccc; border-radius:6px; padding:6px 8px; font-size:11px; margin-bottom:6px; resize:none; font-family:inherit; box-sizing:border-box; outline:none;" onfocus="this.style.borderColor='#2e7d32'" onblur="this.style.borderColor='#ccc'"></textarea>
+                                <div style="display:flex; gap:5px;">
+                                    <button class="ql-btn ql-btn-done" style="flex:1" onclick="qlCloseLog(${l.id}, this)">💾 Simpan Selesai</button>
+                                    <button class="ql-btn ql-btn-del" style="padding:4px 8px" onclick="qlHideCloseInput(${l.id})">Batal</button>
+                                </div>
+                            </div>` : ''}
+                        </div>`;
                 }).join('');
-            } catch(e){ wrap.innerHTML='<div style="text-align:center;padding:10px;color:#f99;font-size:11px">Gagal memuat log.</div>'; }
+            } catch (e) { wrap.innerHTML = '<div style="text-align:center;padding:10px;color:#f99;font-size:11px">Gagal memuat log.</div>'; }
         }
 
         async function submitQuickLog() {
@@ -2106,8 +2107,8 @@
 
             if (btn) { btn.disabled = true; btn.textContent = '⏳…'; }
             try {
-                const res = await fetch(`/admin/logs/${id}/close`, { 
-                    method: 'PATCH', 
+                const res = await fetch(`/admin/logs/${id}/close`, {
+                    method: 'PATCH',
                     headers: { 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json', 'Content-Type': 'application/json' },
                     body: JSON.stringify({ countermeasure: cm })
                 });
@@ -2118,14 +2119,14 @@
                 if (dotEl) dotEl.className = 'ql-log-dot dot-closed';
                 if (timeEl && data.waktu_selesai) { const m = timeEl.textContent.split('–')[0].trim(); timeEl.textContent = `${m} – ${data.waktu_selesai}`; }
                 if (durEl && data.durasi) { durEl.className = 'ql-log-dur'; durEl.textContent = `(${data.durasi})`; }
-                
+
                 qlHideCloseInput(id);
                 const actWrap = $id(`qlactions-${id}`);
                 if (actWrap) {
                     actWrap.style.display = 'flex';
                     actWrap.innerHTML = `<button class="ql-btn ql-btn-reopen" onclick="qlReopenLog(${id},this)">🔄 Buka Ulang</button> <button class="ql-btn ql-btn-del" onclick="qlDeleteLog(${id},this)">🗑️</button>`;
                 }
-                
+
                 showToast(`✅ Selesai — ${data.durasi ?? ''}`, 'success'); syncAll();
             } catch (e) { showToast('Gagal', 'error'); if (btn) { btn.disabled = false; btn.textContent = '💾 Simpan Selesai'; } }
         }
@@ -2199,13 +2200,13 @@
                 list.innerHTML = data.map(m => {
                     const av = m.photo ? `<img src="${esc(m.photo)}" alt="">` : `<span>${initials(m.name)}</span>`;
                     return `<div class="cand-card">
-                                            <div class="cand-av ${m.isWorking ? 'cav-w' : 'cav-n'}">${av}</div>
-                                            <div class="cand-name">${esc(m.name)}</div>
-                                            ${m.jabatan ? `<div style="font-size:9px;color:#aaa;font-family:'Roboto Condensed',sans-serif">${esc(m.jabatan)}</div>` : ''}
-                                            ${m.mesin ? `<div style="font-size:9px;color:#aaa;font-family:'Roboto Condensed',sans-serif">${esc(m.mesin)}</div>` : ''}
-                                            ${m.isWorking ? '<div class="cand-tag">Sdh Bertugas</div>' : ''}
-                                            <button class="cand-btn" onclick="pickCandidate(${m.id},'${esc(m.name)}','${esc(m.photo || '')}','${esc(m.mesin || '')}')">✓ Pilih</button>
-                                        </div>`;
+                                                <div class="cand-av ${m.isWorking ? 'cav-w' : 'cav-n'}">${av}</div>
+                                                <div class="cand-name">${esc(m.name)}</div>
+                                                ${m.jabatan ? `<div style="font-size:9px;color:#aaa;font-family:'Roboto Condensed',sans-serif">${esc(m.jabatan)}</div>` : ''}
+                                                ${m.mesin ? `<div style="font-size:9px;color:#aaa;font-family:'Roboto Condensed',sans-serif">${esc(m.mesin)}</div>` : ''}
+                                                ${m.isWorking ? '<div class="cand-tag">Sdh Bertugas</div>' : ''}
+                                                <button class="cand-btn" onclick="pickCandidate(${m.id},'${esc(m.name)}','${esc(m.photo || '')}','${esc(m.mesin || '')}')">✓ Pilih</button>
+                                            </div>`;
                 }).join('');
             } catch (e) { list.innerHTML = '<div class="cand-empty">Gagal memuat kandidat.</div>'; }
         }
