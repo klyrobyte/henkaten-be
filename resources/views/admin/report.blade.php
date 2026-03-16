@@ -1165,9 +1165,94 @@ $totalLogs = $logs->count();
                 </div>
             </div>
             <div id="durasiPreview" style="text-align:center;font-family:'Roboto Condensed',sans-serif;
-                     font-size:13px;color:#888;margin-bottom:8px;min-height:20px"></div>
+                 font-size:13px;color:#888;margin-bottom:8px;min-height:20px"></div>
             <div class="save-bar" style="margin-top:4px">
                 <button class="save-btn-big" onclick="saveEditTime()">💾 Simpan Perubahan</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{{-- ══ MODAL: Close Log (Wajib Countermeasure) ════════════════════ --}}
+<div class="modal-overlay" id="closeLogSheet">
+    <div class="modal-sheet" style="max-height:380px">
+        <div class="modal-sheet-handle"></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;
+                    padding:14px 16px 12px;border-bottom:1.5px solid #f0f0f0">
+            <div style="display:flex;align-items:center;gap:10px">
+                <div style="width:36px;height:36px;border-radius:10px;
+                            background:linear-gradient(135deg,#2e7d32,#43a047);
+                            color:#fff;font-size:18px;display:flex;align-items:center;
+                            justify-content:center;box-shadow:0 3px 8px rgba(46,125,50,.3);
+                            flex-shrink:0">✅</div>
+                <div>
+                    <div style="font-family:'Roboto Condensed',sans-serif;font-size:14px;
+                                font-weight:900;color:#222;text-transform:uppercase;
+                                letter-spacing:.5px">Selesaikan Log</div>
+                    <div id="closeLogSubtitle"
+                         style="font-size:11px;color:#aaa;margin-top:1px"></div>
+                </div>
+            </div>
+            <button class="modal-sheet-close" onclick="closeSheet('closeLogSheet')">✕</button>
+        </div>
+        <div class="modal-sheet-body">
+            <input type="hidden" id="closeLogId">
+
+            {{-- Countermeasure — WAJIB --}}
+            <div style="margin-bottom:14px">
+                <label style="font-family:'Roboto Condensed',sans-serif;font-size:11px;
+                              font-weight:900;text-transform:uppercase;letter-spacing:.5px;
+                              color:#2e7d32;display:flex;align-items:center;
+                              gap:6px;margin-bottom:7px">
+                    🔧 Countermeasure
+                    <span style="background:#e74c3c;color:#fff;font-size:9px;
+                                 padding:2px 7px;border-radius:4px;font-weight:900">WAJIB</span>
+                </label>
+                <textarea id="closeCM" rows="4"
+                          placeholder="Tindakan yang dilakukan untuk menyelesaikan masalah..."
+                          style="width:100%;padding:11px 12px;border:2px solid #e0e0e0;
+                                 border-radius:10px;font-family:inherit;font-size:13px;
+                                 resize:none;box-sizing:border-box;outline:none;
+                                 transition:border-color .2s,box-shadow .2s;line-height:1.5"
+                          oninput="onCMInput()"
+                          onfocus="this.style.borderColor='#2e7d32';this.style.boxShadow='0 0 0 3px rgba(46,125,50,.12)'"
+                          onblur="this.style.boxShadow='none';this.style.borderColor=this.value.trim()?'#a5d6a7':'#e0e0e0'">
+                </textarea>
+                <div id="cmError"
+                     style="display:none;color:#e74c3c;font-size:11px;font-weight:700;
+                            font-family:'Roboto Condensed',sans-serif;margin-top:5px">
+                    ⚠️ Countermeasure wajib diisi
+                </div>
+            </div>
+
+            {{-- Waktu selesai opsional --}}
+            <div style="margin-bottom:16px">
+                <label style="font-family:'Roboto Condensed',sans-serif;font-size:11px;
+                              font-weight:700;text-transform:uppercase;letter-spacing:.4px;
+                              color:#aaa;display:flex;align-items:center;
+                              gap:5px;margin-bottom:6px">
+                    ⏰ Waktu Selesai
+                    <span style="font-weight:400;color:#ccc">(opsional)</span>
+                </label>
+                <input type="time" id="closeWaktuSelesai"
+                       style="width:100%;padding:10px 12px;border:1.5px solid #e0e0e0;
+                              border-radius:10px;font-family:inherit;font-size:13px;
+                              box-sizing:border-box;outline:none;transition:border-color .2s"
+                       onfocus="this.style.borderColor='#888'"
+                       onblur="this.style.borderColor='#e0e0e0'">
+            </div>
+
+            <div class="save-bar">
+                <button id="btnConfirmClose"
+                        onclick="confirmCloseLog()"
+                        style="width:100%;padding:14px;border-radius:12px;border:none;
+                               background:#ccc;color:#fff;cursor:not-allowed;
+                               font-family:'Roboto Condensed',sans-serif;
+                               font-size:14px;font-weight:900;letter-spacing:.5px;
+                               text-transform:uppercase;transition:all .2s;opacity:.6"
+                        disabled>
+                    ✅ Konfirmasi Selesai
+                </button>
             </div>
         </div>
     </div>
@@ -1263,43 +1348,98 @@ $totalLogs = $logs->count();
     }
 
     // ── Close log ────────────────────────────────────────────────
-    async function closeLog(id) {
-        const btn = document.getElementById(`btn-close-${id}`);
-        if (btn) { btn.disabled = true; btn.textContent = '⏳...'; }
+    function closeLog(id) {
+        document.getElementById('closeLogId').value = id;
+        document.getElementById('closeCM').value = '';
+        document.getElementById('closeWaktuSelesai').value = '';
+        document.getElementById('cmError').style.display = 'none';
+        
+        const btn = document.getElementById('btnConfirmClose');
+        btn.disabled = true;
+        btn.style.background = '#ccc';
+        btn.style.cursor = 'not-allowed';
+        
+        const subtitle = document.getElementById('closeLogSubtitle');
+        if (subtitle) subtitle.textContent = 'ID Log: ' + id;
+        
+        openSheet('closeLogSheet');
+    }
+
+    function onCMInput() {
+        const cm = document.getElementById('closeCM').value.trim();
+        const btn = document.getElementById('btnConfirmClose');
+        const err = document.getElementById('cmError');
+        if (cm) {
+            btn.disabled = false;
+            btn.style.background = 'linear-gradient(135deg, #2e7d32, #43a047)';
+            btn.style.cursor = 'pointer';
+            err.style.display = 'none';
+        } else {
+            btn.disabled = true;
+            btn.style.background = '#ccc';
+            btn.style.cursor = 'not-allowed';
+        }
+    }
+
+    async function confirmCloseLog() {
+        const id = document.getElementById('closeLogId').value;
+        const cm = document.getElementById('closeCM').value.trim();
+        const waktu = document.getElementById('closeWaktuSelesai').value;
+        const btn = document.getElementById('btnConfirmClose');
+        
+        if (!cm) {
+            document.getElementById('cmError').style.display = 'block';
+            return;
+        }
+
+        btn.disabled = true;
+        btn.textContent = '⏳ Menyimpan...';
+        
         try {
+            const payload = { countermeasure: cm };
+            if (waktu) payload.waktu_selesai = waktu;
+            
             const res = await fetch(`/admin/logs/${id}/close`, {
                 method: 'PATCH',
                 headers: { 'X-CSRF-TOKEN': LOG_CSRF, 'Accept': 'application/json', 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
             });
             const data = await res.json();
+            
+            if (res.ok) {
+                showToast('✅ Log diselesaikan', 'success');
+                closeSheet('closeLogSheet');
+                
+                const card = document.getElementById(`logcard-${id}`);
+                const timeEl = document.getElementById(`time-${id}`);
+                const durEl = document.getElementById(`dur-${id}`);
+                const dotEl = document.getElementById(`dot-${id}`);
+                const closeBtn = document.getElementById(`btn-close-${id}`);
 
-            const card = document.getElementById(`logcard-${id}`);
-            const timeEl = document.getElementById(`time-${id}`);
-            const durEl = document.getElementById(`dur-${id}`);
-            const dotEl = document.getElementById(`dot-${id}`);
-
-            if (card) { card.classList.replace('open', 'closed'); }
-            if (dotEl) { dotEl.className = 'log-status-dot dot-closed'; }
-            if (timeEl && data.waktu_selesai) {
-                const mulai = timeEl.textContent.split('–')[0].trim();
-                timeEl.textContent = `${mulai} – ${data.waktu_selesai}`;
+                if (card) card.classList.replace('open', 'closed');
+                if (dotEl) dotEl.className = 'log-status-dot dot-closed';
+                if (timeEl && data.waktu_selesai) {
+                    const mulai = timeEl.textContent.split('–')[0].trim();
+                    timeEl.textContent = `${mulai} – ${data.waktu_selesai}`;
+                }
+                if (durEl && data.durasi) {
+                    durEl.className = 'log-durasi';
+                    durEl.textContent = `(${data.durasi})`;
+                }
+                if (closeBtn) {
+                    closeBtn.className = 'log-btn log-btn-reopen';
+                    closeBtn.id = '';
+                    closeBtn.textContent = '🔄 Buka Ulang';
+                    closeBtn.onclick = () => reopenLog(id);
+                }
+            } else {
+                showToast('Gagal: ' + (data.message || 'error'), 'error');
             }
-            if (durEl && data.durasi) {
-                durEl.className = 'log-durasi';
-                durEl.textContent = `(${data.durasi})`;
-            }
-
-            if (btn) {
-                btn.className = 'log-btn log-btn-reopen';
-                btn.id = '';
-                btn.textContent = '🔄 Buka Ulang';
-                btn.onclick = () => reopenLog(id);
-            }
-
-            showToast('✅ Log ditutup — ' + (data.durasi ?? ''), 'success');
         } catch (e) {
-            showToast('Gagal', 'error');
-            if (btn) { btn.disabled = false; btn.textContent = '✅ Selesai'; }
+            showToast('Error: ' + e.message, 'error');
+        } finally {
+            btn.textContent = '✅ Konfirmasi Selesai';
+            btn.disabled = false;
         }
     }
 

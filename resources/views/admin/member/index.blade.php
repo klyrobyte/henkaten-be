@@ -24,19 +24,19 @@ body > nav.bottom-nav { display: none !important; }
         @endif
         @if($userRole === 'admin' || !$userFactory || $userFactory === 'Factory 2')
         <div class="filter-chip orange {{ $factory==='Factory 2'     ? 'active' : '' }}"
-             onclick="applyFilter('Factory 2', currentShift)">Factory 2</div>
+             {!! $userRole === 'admin' ? 'onclick="applyFilter(\'Factory 2\', currentShift)" style="cursor:pointer;"' : 'style="cursor:default;"' !!}>Factory 2</div>
         @endif
         @if($userRole === 'admin' || !$userFactory || $userFactory === 'Factory 3 & 4')
         <div class="filter-chip navy {{ $factory==='Factory 3 & 4' ? 'active' : '' }}"
-             onclick="applyFilter('Factory 3 & 4', currentShift)">Factory 3&4</div>
+             {!! $userRole === 'admin' ? 'onclick="applyFilter(\'Factory 3 & 4\', currentShift)" style="cursor:pointer;"' : 'style="cursor:default;"' !!}>Factory 3&4</div>
         @endif
         @if($userRole === 'admin' || !$userShift || $userShift === 'A')
         <div class="filter-chip {{ $shift==='A' ? 'active' : '' }}"
-             onclick="applyFilter(currentFactory, currentShift==='A'?'all':'A')">Shift A</div>
+             {!! $userRole === 'admin' ? 'onclick="applyFilter(currentFactory, currentShift===\'A\'?\'all\':\'A\')" style="cursor:pointer;"' : 'style="cursor:default;"' !!}>Shift A</div>
         @endif
         @if($userRole === 'admin' || !$userShift || $userShift === 'B')
         <div class="filter-chip {{ $shift==='B' ? 'active' : '' }}"
-             onclick="applyFilter(currentFactory, currentShift==='B'?'all':'B')">Shift B</div>
+             {!! $userRole === 'admin' ? 'onclick="applyFilter(currentFactory, currentShift===\'B\'?\'all\':\'B\')" style="cursor:pointer;"' : 'style="cursor:default;"' !!}>Shift B</div>
         @endif
     </div>
 

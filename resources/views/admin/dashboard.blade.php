@@ -2015,37 +2015,45 @@
         }
 
         async function renderLogList(machine) {
-            const wrap = $id('qlLogList'); if (!wrap) return;
-            wrap.innerHTML = '<div style="text-align:center;padding:10px;color:#aaa;font-size:11px">⏳ Memuat…</div>';
+            const wrap = $id('qlLogList'); if(!wrap) return;
+            wrap.innerHTML='<div style="text-align:center;padding:10px;color:#aaa;font-size:11px">⏳ Memuat…</div>';
             wrap.style.display = 'block';
             try {
                 const qs = `tanggal=${TANGGAL}&factory=${encodeURIComponent(FACTORY)}&shift=${SHIFT}`;
-                const res = await fetch(`/admin/logs/list?${qs}`, { headers: { Accept: 'application/json' } });
+                const res = await fetch(`/admin/logs/list?${qs}`,{headers:{Accept:'application/json'}});
                 const all = res.ok ? await res.json() : [];
-                const logs = all.filter(l => l.lokasi === machine);
-                if (!logs.length) { wrap.innerHTML = '<div style="text-align:center;padding:12px;color:#ccc;font-size:11px">Belum ada log untuk mesin ini hari ini.</div>'; return; }
-                const jc = { machine: '#1f3c88', material: '#f39c12', method: '#2e7d32' };
+                const logs = all.filter(l => l.lokasi===machine);
+                if(!logs.length){ wrap.innerHTML='<div style="text-align:center;padding:12px;color:#ccc;font-size:11px">Belum ada log untuk mesin ini hari ini.</div>'; return; }
+                const jc = { machine:'#1f3c88', material:'#f39c12', method:'#2e7d32' };
                 wrap.innerHTML = logs.map(l => {
-                    const isOpen = l.status === 'open', jClr = jc[(l.jenis || '').toLowerCase()] || '#888';
-                    const mulaiStr = (l.waktu_mulai || '').slice(0, 5), selStr = (l.waktu_selesai || '').slice(0, 5);
-                    const timeStr = mulaiStr + (selStr ? ` – ${selStr}` : ' – …');
-                    return `<div class="ql-log-item ${isOpen ? 'ql-log-open' : 'ql-log-closed'}" id="qli-${l.id}">
-                                            <div class="ql-log-top">
-                                                <span class="ql-log-badge" style="background:${jClr}">${esc(l.jenis)}</span>
-                                                <span class="ql-log-dot ${isOpen ? 'dot-open' : 'dot-closed'}"></span>
-                                                <span class="ql-log-time" id="qltime-${l.id}">${timeStr}</span>
-                                                ${l.durasi ? `<span class="ql-log-dur" id="qldur-${l.id}">(${esc(l.durasi)})</span>` : (isOpen ? `<span class="ql-log-dur blink" id="qldur-${l.id}">ON GOING</span>` : '')}
-                                            </div>
-                                            <div class="ql-log-desc">${esc(l.deskripsi)}</div>
-                                            ${l.cause ? `<div class="ql-log-meta">🔍 ${esc(l.cause)}</div>` : ''}
-                                            ${l.pic ? `<div class="ql-log-meta">👤 ${esc(l.pic)}</div>` : ''}
-                                            <div class="ql-log-actions">
-                                                ${isOpen ? `<button class="ql-btn ql-btn-done" onclick="qlCloseLog(${l.id},this)">✅ Selesai</button>` : `<button class="ql-btn ql-btn-reopen" onclick="qlReopenLog(${l.id},this)">🔄 Buka Ulang</button>`}
-                                                <button class="ql-btn ql-btn-del" onclick="qlDeleteLog(${l.id},this)">🗑️</button>
-                                        </div>
-                                    </div>`;
+                    const isOpen=l.status==='open', jClr=jc[(l.jenis||'').toLowerCase()]||'#888';
+                    const mulaiStr=(l.waktu_mulai||'').slice(0,5), selStr=(l.waktu_selesai||'').slice(0,5);
+                    const timeStr=mulaiStr+(selStr?` – ${selStr}`:' – …');
+                    return `<div class="ql-log-item ${isOpen?'ql-log-open':'ql-log-closed'}" id="qli-${l.id}">
+                        <div class="ql-log-top">
+                            <span class="ql-log-badge" style="background:${jClr}">${esc(l.jenis)}</span>
+                            <span class="ql-log-dot ${isOpen?'dot-open':'dot-closed'}"></span>
+                            <span class="ql-log-time" id="qltime-${l.id}">${timeStr}</span>
+                            ${l.durasi?`<span class="ql-log-dur" id="qldur-${l.id}">(${esc(l.durasi)})</span>`:(isOpen?`<span class="ql-log-dur blink" id="qldur-${l.id}">ON GOING</span>`:'')}
+                        </div>
+                        <div class="ql-log-desc">${esc(l.deskripsi)}</div>
+                        ${l.cause?`<div class="ql-log-meta">🔍 ${esc(l.cause)}</div>`:''}
+                        ${l.pic?`<div class="ql-log-meta">👤 ${esc(l.pic)}</div>`:''}
+                        <div class="ql-log-actions" id="qlactions-${l.id}">
+                            ${isOpen?`<button class="ql-btn ql-btn-done" onclick="qlShowCloseInput(${l.id})">✅ Selesai</button>`:`<button class="ql-btn ql-btn-reopen" onclick="qlReopenLog(${l.id},this)">🔄 Buka Ulang</button>`}
+                            <button class="ql-btn ql-btn-del" onclick="qlDeleteLog(${l.id},this)">🗑️</button>
+                        </div>
+                        ${isOpen ? `
+                        <div id="qlclose-wrap-${l.id}" style="display:none; margin-top:8px; border-top:1px dashed #eee; padding-top:8px;">
+                            <textarea id="ql-cm-${l.id}" rows="2" placeholder="Solusi / Countermeasure (Wajib)..." style="width:100%; border:1px solid #ccc; border-radius:6px; padding:6px 8px; font-size:11px; margin-bottom:6px; resize:none; font-family:inherit; box-sizing:border-box; outline:none;" onfocus="this.style.borderColor='#2e7d32'" onblur="this.style.borderColor='#ccc'"></textarea>
+                            <div style="display:flex; gap:5px;">
+                                <button class="ql-btn ql-btn-done" style="flex:1" onclick="qlCloseLog(${l.id}, this)">💾 Simpan Selesai</button>
+                                <button class="ql-btn ql-btn-del" style="padding:4px 8px" onclick="qlHideCloseInput(${l.id})">Batal</button>
+                            </div>
+                        </div>` : ''}
+                    </div>`;
                 }).join('');
-            } catch (e) { wrap.innerHTML = '<div style="text-align:center;padding:10px    ;color:#f99;font-size:11px">Gagal memuat log.</div>'; }
+            } catch(e){ wrap.innerHTML='<div style="text-align:center;padding:10px;color:#f99;font-size:11px">Gagal memuat log.</div>'; }
         }
 
         async function submitQuickLog() {
@@ -2078,20 +2086,48 @@
             finally { if (btn) { btn.disabled = false; btn.textContent = '💾 Simpan Log'; } }
         }
 
+        function qlShowCloseInput(id) {
+            const wrap = $id(`qlclose-wrap-${id}`);
+            const acts = $id(`qlactions-${id}`);
+            if (wrap) wrap.style.display = 'block';
+            if (acts) acts.style.display = 'none';
+        }
+        function qlHideCloseInput(id) {
+            const wrap = $id(`qlclose-wrap-${id}`);
+            const acts = $id(`qlactions-${id}`);
+            if (wrap) wrap.style.display = 'none';
+            if (acts) acts.style.display = 'flex';
+        }
+
         async function qlCloseLog(id, btn) {
+            const cmEl = $id(`ql-cm-${id}`);
+            const cm = cmEl ? cmEl.value.trim() : '';
+            if (!cm) { showToast('Countermeasure wajib diisi!', 'error'); return; }
+
             if (btn) { btn.disabled = true; btn.textContent = '⏳…'; }
             try {
-                const res = await fetch(`/admin/logs/${id}/close`, { method: 'PATCH', headers: { 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json', 'Content-Type': 'application/json' } });
+                const res = await fetch(`/admin/logs/${id}/close`, { 
+                    method: 'PATCH', 
+                    headers: { 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json', 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ countermeasure: cm })
+                });
                 const data = await res.json();
-                if (!res.ok) { showToast('Gagal menutup log', 'error'); if (btn) { btn.disabled = false; btn.textContent = '✅ Selesai'; } return; }
+                if (!res.ok) { showToast('Gagal: ' + (data?.message || 'error'), 'error'); if (btn) { btn.disabled = false; btn.textContent = '💾 Simpan Selesai'; } return; }
                 const item = $id(`qli-${id}`), timeEl = $id(`qltime-${id}`), durEl = $id(`qldur-${id}`), dotEl = item?.querySelector('.ql-log-dot');
                 if (item) item.classList.replace('ql-log-open', 'ql-log-closed');
                 if (dotEl) dotEl.className = 'ql-log-dot dot-closed';
                 if (timeEl && data.waktu_selesai) { const m = timeEl.textContent.split('–')[0].trim(); timeEl.textContent = `${m} – ${data.waktu_selesai}`; }
                 if (durEl && data.durasi) { durEl.className = 'ql-log-dur'; durEl.textContent = `(${data.durasi})`; }
-                if (btn) { btn.className = 'ql-btn ql-btn-reopen'; btn.disabled = false; btn.textContent = '🔄 Buka Ulang'; btn.onclick = () => qlReopenLog(id, btn); }
+                
+                qlHideCloseInput(id);
+                const actWrap = $id(`qlactions-${id}`);
+                if (actWrap) {
+                    actWrap.style.display = 'flex';
+                    actWrap.innerHTML = `<button class="ql-btn ql-btn-reopen" onclick="qlReopenLog(${id},this)">🔄 Buka Ulang</button> <button class="ql-btn ql-btn-del" onclick="qlDeleteLog(${id},this)">🗑️</button>`;
+                }
+                
                 showToast(`✅ Selesai — ${data.durasi ?? ''}`, 'success'); syncAll();
-            } catch (e) { showToast('Gagal', 'error'); if (btn) { btn.disabled = false; btn.textContent = '✅ Selesai'; } }
+            } catch (e) { showToast('Gagal', 'error'); if (btn) { btn.disabled = false; btn.textContent = '💾 Simpan Selesai'; } }
         }
 
         async function qlReopenLog(id, btn) {

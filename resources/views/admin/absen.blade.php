@@ -238,9 +238,21 @@
 
         // ── Rekap: navigasi tanggal ───────────────────────────────────
         function changeReportDate(d) {
-            const dt = new Date(currentReportDate + 'T00:00:00');
+            const dt = new Date(currentReportDate + 'T12:00:00'); // Use 12:00:00 to avoid timezone shift
             dt.setDate(dt.getDate() + d);
-            currentReportDate = dt.toISOString().split('T')[0];
+
+            // Cek apakah melebih hari ini
+            const today = new Date();
+            today.setHours(23, 59, 59, 999);
+            if (dt > today) {
+                return; // tidak boleh lewati hari ini
+            }
+
+            const year = dt.getFullYear();
+            const month = String(dt.getMonth() + 1).padStart(2, '0');
+            const day = String(dt.getDate()).padStart(2, '0');
+            currentReportDate = `${year}-${month}-${day}`;
+
             renderReportDateLabel();
             generateReport();
         }

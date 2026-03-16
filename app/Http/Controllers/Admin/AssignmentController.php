@@ -198,6 +198,13 @@ class AssignmentController extends Controller
         $tanggal = $request->get('tanggal', today()->toDateString());
         $factory = $request->get('factory', session('factory', 'Factory 2'));
         $shift   = $this->normalizeShift($request->get('shift', session('shift', 'A')));
+
+        $user = auth()->user();
+        if ($user && $user->role !== 'admin') {
+            if ($user->factory) $factory = $user->factory;
+            if ($user->shift) $shift = $this->normalizeShift($user->shift);
+        }
+
         $q       = trim($request->get('q', ''));
 
         // --- Kumpulkan semua nama yang sedang ABSEN dari semua sumber ---
@@ -239,6 +246,7 @@ class AssignmentController extends Controller
 
         // --- Query member kandidat ---
         $query = Member::where('factory', $factory)
+            ->where('shift', $shift)
             ->where('status', 'active');
 
         // Kecualikan member yang sedang absen
