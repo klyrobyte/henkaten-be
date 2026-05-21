@@ -99,7 +99,7 @@
         }
 
         .factory-2 .factory-header {
-            background: linear-gradient(135deg, #1b5e20, #2e7d32);
+            background: var(--brand-primary);
         }
 
         .factory-34 .factory-header {

@@ -16,7 +16,7 @@
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            background: #2E7D32;
+            background: var(--brand-primary);
             color: #fff;
             padding: 6px 16px 6px 12px;
             border-radius: 0 20px 20px 0;
@@ -510,7 +510,7 @@
         }
 
         .pill-dot.dme {
-            background: #2e7d32;
+            background: var(--brand-primary);
         }
 
         .mc-addlog-bar {
@@ -1196,7 +1196,7 @@
 
         {{-- Icon kalender  - klik ini untuk buka date picker --}}
         <div class="date-label" onclick="document.getElementById('tanggalHari').showPicker()"
-            style="width:36px;height:36px;background:#2E7D32;border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">
+            style="width:36px;height:36px;background:var(--brand-primary);border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff"
                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
@@ -1217,7 +1217,7 @@
             style="position:absolute;opacity:0;pointer-events:none;width:0;height:0;">
 
         {{-- Factory badge --}}
-        <button onclick="showFactoryPicker()" style="background:#2E7D32;border:none;border-radius:20px;padding:7px 18px;color:#fff;
+        <button onclick="showFactoryPicker()" style="background:var(--brand-primary);border:none;border-radius:20px;padding:7px 18px;color:#fff;
                                                    font-family:'Roboto Condensed', sans-serif;font-weight:700;font-size:12px;
                                                    letter-spacing:1px;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:6px;
                                                    transition:all .2s ease;"
@@ -1465,13 +1465,13 @@
                 'method'   => '#2e7d32',
             ];
 
-            $pillDefs = [
-                'normal'   => ['dot' => null, 'label' => 'Normal'],
-                'man'      => ['dot' => 'dm', 'label' => 'Man'],
-                'material' => ['dot' => 'dt', 'label' => 'Matl'],
-                'machine'  => ['dot' => 'dc', 'label' => 'Mchn'],
-                'method'   => ['dot' => 'dme', 'label' => 'Mthd'],
-            ];
+           $pillDefs = [
+    'normal'   => ['dot' => null, 'label' => 'Normal'],
+    'man'      => ['dot' => 'dm', 'label' => 'Man'],
+    'material' => ['dot' => 'dt', 'label' => "Mat'l"], 
+    'machine'  => ['dot' => 'dc', 'label' => 'Machine'],
+    'method'   => ['dot' => 'dme', 'label' => 'Method'],
+];
         @endphp
 
         
@@ -1687,7 +1687,7 @@
 
                                     <div class="mc-addlog-bar" onclick="event.stopPropagation()">
                                         <button class="mc-addlog-btn" onclick="openQuickLog('{{ addslashes($machine) }}')">
-                                            + Log
+                                            + Input
                                         </button>
                                     </div>
                                 </div>
@@ -1844,7 +1844,7 @@
                         <textarea id="ql-met-deskripsi" rows="2"
                             placeholder="Contoh: setting tidak sesuai standar, tidak mengikuti SOP…"
                             style="width:100%;padding:10px;border:1.5px solid #e0e0e0;border-radius:10px;font-family:inherit;font-size:13px;resize:vertical;box-sizing:border-box"
-                            onfocus="this.style.borderColor='#2e7d32'" onblur="this.style.borderColor='#e0e0e0'"></textarea>
+                            onfocus="this.style.borderColor='var(--brand-primary)'" onblur="this.style.borderColor='#e0e0e0'"></textarea>
                     </div>
                     <div class="form-row">
                         <div class="field-group"><label>Standar yang Dilanggar</label><input type="text" id="ql-met-cause"
@@ -2180,7 +2180,7 @@
                             </div>
                             ${isOpen ? `
                             <div id="qlclose-wrap-${l.id}" style="display:none; margin-top:8px; border-top:1px dashed #eee; padding-top:8px;">
-                                <textarea id="ql-cm-${l.id}" rows="2" placeholder="Solusi / Countermeasure (Wajib)..." style="width:100%; border:1px solid #ccc; border-radius:6px; padding:6px 8px; font-size:11px; margin-bottom:6px; resize:none; font-family:inherit; box-sizing:border-box; outline:none;" onfocus="this.style.borderColor='#2e7d32'" onblur="this.style.borderColor='#ccc'"></textarea>
+                                <textarea id="ql-cm-${l.id}" rows="2" placeholder="Solusi / Countermeasure (Wajib)..." style="width:100%; border:1px solid #ccc; border-radius:6px; padding:6px 8px; font-size:11px; margin-bottom:6px; resize:none; font-family:inherit; box-sizing:border-box; outline:none;" onfocus="this.style.borderColor='var(--brand-primary)'" onblur="this.style.borderColor='#ccc'"></textarea>
                                 <div style="display:flex; gap:5px;">
                                     <button class="ql-btn ql-btn-done" style="flex:1" onclick="qlCloseLog(${l.id}, this)">💾 Simpan Selesai</button>
                                     <button class="ql-btn ql-btn-del" style="padding:4px 8px" onclick="qlHideCloseInput(${l.id})">Batal</button>
@@ -2583,8 +2583,10 @@
         /* ── 6. CHART KEHADIRAN (Task 4: includes red Absen segment) ── */
         function renderChart(data) {
             if (!data) return;
-            // Task 4: total_absen = orang yang tidak hadir (absen/sakit/izin/cuti dikurangi hadir)
-            const absenCount = Math.max(0, (data.total_member ?? 0) - (data.mp_hadir ?? 0) - (data.op_cuti ?? 0) - (data.op_sakit ?? 0) - (data.op_ijin ?? 0) - (data.spv_cuti ?? 0) - (data.spv_sakit ?? 0) - (data.spv_ijin ?? 0));
+            // Use Alpha columns from DB if available, otherwise fallback to calculation
+            const alphaCount = (data.op_Alpha ?? 0) + (data.spv_Alpha ?? 0);
+            const absenCount = alphaCount > 0 ? alphaCount : Math.max(0, (data.total_member ?? 0) - (data.mp_hadir ?? 0) - (data.op_cuti ?? 0) - (data.op_sakit ?? 0) - (data.op_ijin ?? 0) - (data.spv_cuti ?? 0) - (data.spv_sakit ?? 0) - (data.spv_ijin ?? 0));
+            
             const showAbsen = absenCount > 0;
             const values = [
                 data.mp_hadir    ?? 0,
@@ -2597,7 +2599,8 @@
                 showAbsen ? absenCount : 0, // Task 4: red Absen segment
             ];
             const labels = ['MP Hadir', 'OP Cuti', 'OP Sakit', 'OP Izin', 'Pengawas Cuti', 'Pengawas Sakit', 'Pengawas Izin', 'Absen'];
-            const colors = ['#729E3F', '#ff69b4', '#8e44ad', '#f1c40f', '#1F3C88', '#5dade2', '#FF8F1F', '#EF4444'];
+            const pColor = getComputedStyle(document.documentElement).getPropertyValue('--brand-primary').trim() || '#2E7D32';
+            const colors = [pColor, '#ff69b4', '#8e44ad', '#f1c40f', '#1F3C88', '#5dade2', '#FF8F1F', '#EF4444'];
             const total = data.total_member ?? values.reduce((a, b) => a + b, 0);
             if (!total) return;
             const hadir = data.mp_hadir ?? 0, pct = ((hadir / total) * 100).toFixed(1);

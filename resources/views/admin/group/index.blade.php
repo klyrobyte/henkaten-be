@@ -410,7 +410,7 @@
                 </div>
 
                 <div class="gm-field">
-                    <label>Warna Header</label>
+                    <label>Warna Header / Gradient</label>
                     <input type="hidden" id="gmGradient">
                     <div class="gm-chip-grid" id="gmChipGrid"></div>
                     <div class="gm-custom-picker-wrap" id="gmCustomPickerWrap">
@@ -426,7 +426,7 @@
                     </div>
                     <small
                         style="color:#888;font-size:10px;font-family:'Roboto Condensed',sans-serif;margin-top:4px;display:block">Pilih
-                        warna untuk header factory. Kosongkan untuk warna default.</small>
+                        warna untuk background header factory.</small>
                 </div>
 
                 <button class="gm-save-btn" id="gmSaveBtn" onclick="saveFactory()">💾 Simpan</button>

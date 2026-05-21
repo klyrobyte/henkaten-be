@@ -25,6 +25,9 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Auth;
 
+use App\Models\AbsenceReason;
+use App\Services\AbsenceSummaryService;
+
 /**
  * @group Absence
  * 
@@ -35,6 +38,7 @@ class AbsenceController extends Controller
     public function __construct(
         protected ExcelExportService $excelService,
         protected FactoryConfigService $factoryConfig,
+        protected AbsenceSummaryService $summaryService,
     ) {
     }
 
@@ -84,9 +88,11 @@ class AbsenceController extends Controller
         $hadir = $members->filter(fn($m) => ($records[$m->id]?->status ?? 'hadir') === 'hadir')->count();
         $absen = $members->count() - $hadir;
 
+        $absenceReasons = AbsenceReason::orderBy('name')->get();
+
         return view(
             'admin.absen',
-            compact('members', 'records', 'tanggal', 'factory', 'shift', 'hadir', 'absen', 'factories')
+            compact('members', 'records', 'tanggal', 'factory', 'shift', 'hadir', 'absen', 'factories', 'absenceReasons')
         );
     }
 
@@ -126,7 +132,7 @@ class AbsenceController extends Controller
                     ]
                 );
             }
-            $this->rebuildSummary($tanggal, $factory, $shift);
+            $this->summaryService->recalculate($tanggal, $factory, $shift);
         });
 
         if ($request->wantsJson()) {
@@ -483,7 +489,7 @@ class AbsenceController extends Controller
         }
 
         $shift = $request->shift;
-        $this->rebuildSummary($tanggal, $factory, $shift);
+        $this->summaryService->recalculate($tanggal, $factory, $shift);
         return response()->json(['ok' => true, 'message' => 'Summary berhasil direbuild']);
     }
 
@@ -493,62 +499,6 @@ class AbsenceController extends Controller
 
     public function rebuildSummary(string $tanggal, string $factory, string $shift): void
     {
-        $members = $this->membersFor($factory, $shift);
-        $totalMember = $members->count();
-
-        $records = AbsenceRecord::where([
-            'tanggal' => $tanggal,
-            'factory' => $factory,
-            'shift' => $shift,
-        ])->get()->keyBy('member_id');
-
-        $hadirCount = 0;
-        $opCuti = $opSakit = $opIjin = $opAlpha = 0;
-        $spvCuti = $spvSakit = $spvIjin = $spvAlpha = 0;
-
-        foreach ($members as $m) {
-            $rec = $records[$m->id] ?? null;
-            if (!$rec || $rec->status === 'hadir') {
-                $hadirCount++;
-                continue;
-            }
-
-            // ── Deteksi Key Person / Pengawas ──────────────────────────────
-            // Sumber primer: field `mesin`  - Key Persons di FactoryConfigService
-            //   punya nilai mesin seperti 'GL', 'TL Resin', 'KY Assy (1)', dll.
-            // Sumber sekunder: field `jabatan`  - untuk Factory 3&4 yang sudah benar (GL, TL, KY).
-            // Factory 2 Key Persons ber-jabatan 'Operator', jadi tidak bisa diandalkan jabatan.
-            $mesinLower = strtolower($m->mesin ?? '');
-            $jabatanLower = strtolower($m->jabatan ?? '');
-            $isPengawas = str_starts_with($mesinLower, 'gl')
-                || str_starts_with($mesinLower, 'tl')
-                || str_starts_with($mesinLower, 'ky')
-                || in_array($jabatanLower, ['gl', 'tl', 'ky', 'spv', 'supervisor', 'foreman', 'pengawas']);
-            $reason = $rec->reason ?? 'Ijin';
-
-            if ($isPengawas) {
-                match ($reason) { 'Cuti' => $spvCuti++, 'Sakit' => $spvSakit++, 'Alpha' => $spvAlpha++, default => $spvIjin++};
-            } else {
-                match ($reason) { 'Cuti' => $opCuti++, 'Sakit' => $opSakit++, 'Alpha' => $opAlpha++, default => $opIjin++};
-            }
-        }
-
-        $totalAbsen = $opCuti + $opSakit + $opIjin + $opAlpha + $spvCuti + $spvSakit + $spvIjin + $spvAlpha;
-
-        AbsenceSummary::updateOrCreate(
-            ['tanggal' => $tanggal, 'factory' => $factory, 'shift' => $shift],
-            [
-                'mp_hadir' => $hadirCount,
-                'total_absen' => $totalAbsen,
-                'total_member' => $totalMember,
-                'op_cuti' => $opCuti,
-                'op_sakit' => $opSakit,
-                'op_ijin' => $opIjin,
-                'spv_cuti' => $spvCuti,
-                'spv_sakit' => $spvSakit,
-                'spv_ijin' => $spvIjin,
-                'source' => 'membermanagement',
-            ]
-        );
+        $this->summaryService->recalculate($tanggal, $factory, $shift);
     }
 }
