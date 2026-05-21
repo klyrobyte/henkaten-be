@@ -52,11 +52,11 @@
         };
         $primaryRgb = $hexToRgb($primaryColor);
 
-        // Fetch current factory's solid color for Warna Header
+        // Fetch current factory's gradient for Warna Header
         $rawFactory = $factory ?? session('factory') ?? request('factory') ?? 'Factory 2';
         $normalizedName = html_entity_decode($rawFactory, ENT_QUOTES | ENT_HTML5, 'UTF-8');
         $factoryData = $factories->firstWhere('name', $normalizedName);
-        $factoryWarnaHeader = $factoryData?->warna_header ?: 'var(--brand-primary)';
+        $factoryGradient = $factoryData?->gradient ?: 'var(--brand-primary)';
     @endphp
     <style>
         :root {
@@ -64,7 +64,7 @@
             --brand-primary: {{ $primaryColor }};
             --brand-primary-rgb: {{ $primaryRgb }};
             --brand-secondary: {{ $secondaryColor }};
-            --warna-header: {{ $factoryWarnaHeader }};
+            --warna-header: {{ $factoryGradient }};
         }
 
         /* Navbar dynamic colors */
@@ -643,7 +643,7 @@
                     $userFactory = auth()->user()->factory; @endphp
                     @foreach($factories as $fac)
                         @if($userRole === 'admin' || !$userFactory || $userFactory === $fac->name)
-                            <button class="btn-primary" style="background:{{ $fac->gradient }};"
+                            <button class="btn-primary" style="background:{{ $fac->gradient }} !important; border: none;"
                                 onclick="setFactory('{{ addslashes($fac->name) }}')">🏭 {{ $fac->name }}</button>
                         @endif
                     @endforeach
@@ -673,9 +673,8 @@
                                                          text-transform:uppercase;">{{ $fac->name }}</span>
                             </div>
                             {{-- Shift buttons --}}
-                            {{-- Shift buttons --}}
                             @php 
-                                $warna_header = $fac->warna_header ?: ($fac->gradient ?: 'var(--brand-primary)'); 
+                                $warna_header = $fac->gradient ?: 'var(--brand-primary)'; 
                                 preg_match('/#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})/', $warna_header, $matches);
                                 $baseTint = $matches[0] ?? '#2E7D32';
                                 $hoverTint = $baseTint . '1a'; // ~10% opacity hex
