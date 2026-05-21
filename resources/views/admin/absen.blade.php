@@ -110,10 +110,9 @@
                         </button>
                         <select class="reason-sel {{ $isAbsen ? 'show' : '' }}" id="reason-{{ $m->id }}"
                             onchange="if(absenState[{{ $m->id }}]?.status==='absen') setAbsenState({{ $m->id }},'absen',this.value)">
-                            <option value="Cuti" {{ $reason === 'Cuti' ? 'selected' : '' }}>Cuti</option>
-                            <option value="Sakit" {{ $reason === 'Sakit' ? 'selected' : '' }}>Sakit</option>
-                            <option value="Ijin" {{ $reason === 'Ijin' ? 'selected' : '' }}>Ijin</option>
-                            <option value="Alpha" {{ $reason === 'Alpha' ? 'selected' : '' }}>Alpha</option>
+                            @foreach($absenceReasons as $ar)
+                                <option value="{{ $ar->name }}" {{ $reason === $ar->name ? 'selected' : '' }}>{{ $ar->name }}</option>
+                            @endforeach
                         </select>
                     </div>
                 </div>
@@ -190,9 +189,10 @@
 
         // ── Toggle hadir / absen ─────────────────────────────────────
         function setAbsenState(memberId, status, reason) {
+            const defaultReason = @json($absenceReasons->first()?->name ?? 'Alpha');
             absenState[memberId] = {
                 status,
-                reason: status === 'absen' ? (reason || 'Cuti') : '',
+                reason: status === 'absen' ? (reason || defaultReason) : '',
             };
 
             const hadirBtn = document.querySelector(`#arow-${memberId} .absen-btn.hadir`);
@@ -226,9 +226,10 @@
         // ── Save ke server ────────────────────────────────────────────
         async function saveAbsenData() {
             if (!Object.keys(absenState).length) {
-                showToast('Tidak ada data absen', 'error'); return;
+                showToast('Tidak ada data absen', 'error'); return false;
             }
-            showLoading('Menyimpan data absen...');
+            const btn = document.querySelector('.btn.btn-primary[onclick="broadcastAbsen()"]');
+            if (btn) { btn.disabled = true; btn.textContent = '⏳ Menyimpan…'; }
             try {
                 const res = await fetch('/api/absence/save', {
                     method: 'POST',
@@ -244,26 +245,34 @@
                         records: absenState,
                     }),
                 });
+                if (!res.ok) {
+                    const err = await res.json().catch(() => ({}));
+                    showToast('Gagal: ' + (err.message ?? res.statusText), 'error');
+                    return false;
+                }
                 const data = await res.json();
-                hideLoading();
                 if (data.ok) {
                     const absenCount = Object.values(absenState).filter(v => v.status === 'absen').length;
                     const hadirCount = Object.values(absenState).length - absenCount;
-                    showToast(`✅ Absen disimpan! Hadir: ${hadirCount} | Absen: ${absenCount}`, 'success');
+                    showToast(`✅ Tersimpan! Hadir: ${hadirCount} | Absen: ${absenCount}`, 'success');
                     updateAbsenCounts();
+                    return true;
                 } else {
                     showToast('Gagal menyimpan', 'error');
+                    return false;
                 }
             } catch (e) {
-                hideLoading();
                 showToast('Gagal menyimpan: ' + e.message, 'error');
+                return false;
+            } finally {
+                if (btn) { btn.disabled = false; btn.textContent = '💾 Simpan & Sync'; }
             }
         }
 
         // ── Sync ke Board ─────────────────────────────────────────────
         async function broadcastAbsen() {
-            await saveAbsenData();
-            showToast('📡 Data disinkronkan ke Board!', 'success');
+            const ok = await saveAbsenData();
+            if (ok) showToast('📡 Data disinkronkan ke Board!', 'success');
         }
 
         // ── Rekap: navigasi tanggal ───────────────────────────────────
@@ -290,9 +299,10 @@
         function renderReportDateLabel() {
             const dt = new Date(currentReportDate + 'T00:00:00');
             const lbl = dt.toLocaleDateString('id-ID', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
-            document.getElementById('reportDateLabel').textContent = lbl;
-            document.getElementById('exportReportBtn').href =
-                `/admin/absence/export?tanggal=${currentReportDate}`;
+            const labelEl = document.getElementById('reportDateLabel');
+            if (labelEl) labelEl.textContent = lbl;
+            const exportBtn = document.getElementById('exportReportBtn');
+            if (exportBtn) exportBtn.href = `/admin/absence/export?tanggal=${currentReportDate}`;
         }
 
         async function generateReport() {

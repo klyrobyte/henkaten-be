@@ -59,7 +59,7 @@ class AbsenceSummaryService
         foreach ($records as $rec) {
             $member = $members[$rec->member_id] ?? null;
             $jabatan = $member?->jabatan ?? '';
-            $reason = strtolower($rec->reason ?? 'Alpha');
+            $reason = strtolower($rec->reason ?? 'alpha');
             $isSpv = $this->isSpv($jabatan);
 
             if ($isSpv) {
@@ -67,6 +67,7 @@ class AbsenceSummaryService
                     'cuti' => $spvCuti++,
                     'sakit' => $spvSakit++,
                     'ijin' => $spvIjin++,
+                    'izin' => $spvIjin++,
                     default => $spvAlpha++,
                 };
             } else {
@@ -74,6 +75,7 @@ class AbsenceSummaryService
                     'cuti' => $opCuti++,
                     'sakit' => $opSakit++,
                     'ijin' => $opIjin++,
+                    'izin' => $opIjin++,
                     default => $opAlpha++,
                 };
             }

@@ -5,8 +5,11 @@
  */
 
 :root {
-   --green: #2E7D32;
-   --green-light: #729E3F;
+   --brand-primary: #2E7D32;
+   --brand-secondary: #729E3F;
+   --status-green: #2E7D32;
+   --green: var(--brand-primary);
+   --green-light: var(--brand-secondary);
    --green-pale: #A4C814;
    --orange: #ff8000;
    --navy: #1F3C88;
@@ -268,7 +271,7 @@ body {
    transform: translateX(-50%) scaleX(0);
    width: 40px;
    height: 3px;
-   background: #2E7D32;
+   background: var(--brand-primary);
    border-radius: 0 0 4px 4px;
    transition: transform .2s cubic-bezier(.4, 0, .2, 1);
 }
@@ -278,7 +281,7 @@ body {
 }
 
 .nav-btn.active {
-   color: #2E7D32;
+   color: var(--brand-primary);
 }
 
 /* Icon wrapper */
@@ -304,7 +307,7 @@ body {
 }
 
 .nav-btn.active .nav-icon svg {
-   stroke: #2E7D32;
+   stroke: var(--brand-primary);
 }
 
 /* ── MAIN CONTENT ── */
@@ -341,7 +344,7 @@ body {
 }
 
 .shift-toggle-btn.active {
-   background: #2E7D32;
+   background: var(--brand-primary);
    color: #fff;
    box-shadow: 0 2px 8px rgba(255, 128, 0, .4);
 }
@@ -404,7 +407,7 @@ body {
    font-family: 'Roboto Condensed', sans-serif;
    font-weight: 800;
    font-size: 18px;
-   color: #2E7D32;
+   color: var(--brand-primary);
    text-align: center;
    letter-spacing: 1.5px;
    text-transform: uppercase;
@@ -492,8 +495,8 @@ body {
 }
 
 .ar-toggle.paused {
-   border-color: #2E7D32;
-   color: #2E7D32;
+   border-color: var(--brand-primary);
+   color: var(--brand-primary);
 }
 
 .ar-last-updated {
@@ -590,6 +593,22 @@ body {
    background: #f9fbe7;
    border-color: #aed561;
    border-width: 2px;
+}
+
+/* Default: semua icon gray & faded */
+.status-emot-row .emot-card .emot-icon {
+    filter: grayscale(100%);
+    opacity: 0.35;
+    transition: filter 0.3s ease, opacity 0.3s ease;
+}
+
+/* Active state: icon kembali ke warna normal */
+.status-emot-row .emot-card.active-green .emot-icon,
+.status-emot-row .emot-card.active-yellowgreen .emot-icon,
+.status-emot-row .emot-card.active-yellow .emot-icon,
+.status-emot-row .emot-card.active-red .emot-icon {
+    filter: grayscale(0%);
+    opacity: 1;
 }
 
 .emot-card.active-yellowgreen .emot-label {
@@ -1325,7 +1344,7 @@ body {
 }
 
 .type-method {
-   background: var(--green-light);
+   background: #729E3F;
    color: #fff;
 }
 
@@ -1509,7 +1528,7 @@ body {
 
 /* ── DRAWER HEADER ── */
 .drawer-header {
-   background: #2E7D32;
+   background: var(--brand-primary);
    padding: 20px 18px 16px;
    display: flex;
    flex-direction: column;
@@ -1590,8 +1609,8 @@ body {
 }
 
 .drawer-item.active {
-   background: #e8f5e9;
-   color: #2E7D32;
+   background: rgba(var(--brand-primary-rgb), 0.1);
+   color: var(--brand-primary);
    font-weight: 700;
 }
 
@@ -1608,7 +1627,7 @@ body {
 }
 
 .drawer-item.active .di-icon {
-   background: #2E7D32;
+   background: var(--brand-primary);
 }
 
 .drawer-item.active .di-icon svg {
@@ -1616,7 +1635,7 @@ body {
 }
 
 .di-icon svg {
-   stroke: #2E7D32;
+   stroke: var(--brand-primary);
    width: 18px;
    height: 18px;
 }
@@ -1662,7 +1681,7 @@ body {
    padding: 13px 16px;
    border: none;
    border-radius: 12px;
-   background: #2E7D32;
+   background: var(--brand-primary);
    cursor: pointer;
    transition: filter .15s;
 }
@@ -2773,6 +2792,9 @@ body {
 
 /* Purple color var (untuk badge GL) */
 :root {
+   --brand-primary: #2E7D32;
+   --brand-secondary: #729E3F;
+   --status-green: #2E7D32;
    --purple: #8e44ad;
 }
 
@@ -2788,7 +2810,7 @@ body {
 }
 
 .machine-group-title {
-   background: #2E7D32;
+   background: var(--brand-primary);
    color: #fff;
    padding: 10px 14px;
    font-family: 'Roboto Condensed', sans-serif;
@@ -2917,7 +2939,7 @@ body {
 
 .mc-status-method {
    background: rgba(114, 158, 63, .15);
-   color: var(--green)
+   color: var(--status-green)
 }
 
 .mc-status-sel {
@@ -2987,7 +3009,7 @@ body {
 }
 
 .log-card.closed {
-   border-left-color: var(--green)
+   border-left-color: var(--status-green)
 }
 
 .log-card-top {
@@ -3023,7 +3045,7 @@ body {
 
 .log-method {
    background: rgba(114, 158, 63, .12);
-   color: var(--green)
+   color: var(--status-green)
 }
 
 .log-status-dot {
@@ -3038,7 +3060,7 @@ body {
 }
 
 .dot-closed {
-   background: var(--green)
+   background: var(--status-green)
 }
 
 .log-time {
@@ -3116,11 +3138,11 @@ body {
 
 .log-btn-close {
    background: rgba(46, 125, 50, .1);
-   color: var(--green)
+   color: var(--status-green)
 }
 
 .log-btn-close:active {
-   background: var(--green);
+   background: var(--status-green);
    color: #fff
 }
 

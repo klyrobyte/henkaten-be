@@ -28,10 +28,123 @@
     {{-- CSS utama --}}
     <link rel="stylesheet" href="{{ asset('assets/css/henkaten.css') }}">
 
+    {{-- Dynamic Theme Styles --}}
+    @php
+        $siteConfigs = \App\Models\SiteConfig::all()->pluck('value', 'key');
+        $navbarBg = $siteConfigs['navbar_color'] ?? '#2E7D32';
+        $primaryColor = $siteConfigs['primary_color'] ?? '#2E7D32';
+        $secondaryColor = $siteConfigs['secondary_color'] ?? '#729E3F';
+        $themeEffect = $siteConfigs['theme_effect'] ?? 'normal';
+
+        // Helper to convert hex to RGB for translucent colors
+        $hexToRgb = function($hex) {
+            $hex = str_replace('#', '', $hex);
+            if(strlen($hex) == 3) {
+                $r = hexdec(substr($hex,0,1).substr($hex,0,1));
+                $g = hexdec(substr($hex,1,1).substr($hex,1,1));
+                $b = hexdec(substr($hex,2,1).substr($hex,2,1));
+            } else {
+                $r = hexdec(substr($hex,0,2));
+                $g = hexdec(substr($hex,2,2));
+                $b = hexdec(substr($hex,4,2));
+            }
+            return "$r, $g, $b";
+        };
+        $primaryRgb = $hexToRgb($primaryColor);
+
+        // Fetch current factory's solid color for Warna Header
+        $rawFactory = $factory ?? session('factory') ?? request('factory') ?? 'Factory 2';
+        $normalizedName = html_entity_decode($rawFactory, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        $factoryData = $factories->firstWhere('name', $normalizedName);
+        $factoryWarnaHeader = $factoryData?->warna_header ?: 'var(--brand-primary)';
+    @endphp
+    <style>
+        :root {
+            --navbar-bg: {{ $navbarBg }};
+            --brand-primary: {{ $primaryColor }};
+            --brand-primary-rgb: {{ $primaryRgb }};
+            --brand-secondary: {{ $secondaryColor }};
+            --warna-header: {{ $factoryWarnaHeader }};
+        }
+
+        /* Navbar dynamic colors */
+        .app-header.desktop-header { background: var(--navbar-bg) !important; }
+        
+
+        /* 1. Dynamic Primary Theme Mapping */
+        .statusChip { background: var(--brand-primary) !important; color: #fff !important; }
+        .leg-dot[style*="background: #729E3F"], .leg-dot[style*="background:#729E3F"] { background: var(--brand-primary) !important; }
+        
+        /* Apply Primary Branding Color */
+        .date-label, 
+        button[onclick*="showFactoryPicker"] {
+            background: var(--brand-primary) !important;
+            color: #fff !important;
+        }
+
+        /* Factory-context items should follow --warna-header */
+        .mobile-factory-badge,
+        .machine-group-title,
+        .shift-toggle-btn.active,
+        .dmb-btn.active, 
+        .dmb-apply,
+        .absenFill { 
+            background: var(--warna-header) !important; 
+            color: #fff !important;
+        }
+
+        .um-add-btn { background: var(--brand-primary) !important; color: #fff !important; }
+        .um-table thead tr { background: var(--brand-primary) !important; color: #fff !important; }
+        .um-table tr { border-left: 3px solid transparent; transition: all 0.2s; }
+        .um-table tr:hover { background-color: rgba(var(--brand-primary-rgb), 0.05); border-left-color: var(--brand-primary) !important; }
+
+        /* 2. Exception Rules (Warna Header mapping in Modals) */
+        .modal-sheet-body .btn-primary,
+        .modal-sheet-body .ar-save-btn,
+        .modal-sheet-body .um-add-btn,
+        .modal-sheet-body .save-btn-big {
+            background: var(--warna-header) !important;
+            color: #fff !important;
+            border: none;
+        }
+
+        /* 3. Component-Specific UI Styling (iOS Glassmorphism) */
+        .header-menu-btn {
+            background: rgba(255, 255, 255, 0.4) !important;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.5) !important;
+            color: #fff !important;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        /* Brand primary overrides */
+        .btn-primary, .ar-save-btn, .ar-add-btn, .mobile-menu-btn, .save-btn-big {
+            background: var(--brand-primary) !important;
+        }
+        
+        .shift-toggle-btn.active { background: var(--brand-primary) !important; }
+        .drawer-item.active .di-icon { background: var(--brand-primary) !important; }
+        .drawer-header { background: var(--brand-primary) !important; }
+        .tv-mode-btn { background: var(--brand-primary) !important; }
+
+        /* Secondary color overrides */
+        .mg-badge:not(.warn) { background: var(--brand-secondary) !important; }
+
+        /* Glossy Effect */
+        @if($themeEffect === 'glossy')
+        .btn-primary, .ar-save-btn, .ar-add-btn, .save-btn-big, .app-header, .bottom-nav, .shift-toggle-btn.active, .tv-mode-btn {
+            background-image: linear-gradient(to bottom, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.05) 50%, rgba(0,0,0,0.05) 100%) !important;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.3) !important;
+            border: 1px solid rgba(0,0,0,0.1) !important;
+        }
+        @endif
+    </style>
+
     @stack('styles')
 </head>
 
-<body>
+<body class="{{ $themeEffect === 'glossy' ? 'theme-glossy' : '' }}">
 
     {{-- ── LOADING OVERLAY ── --}}
     <div class="loading-overlay" id="loadingEl">
@@ -200,7 +313,32 @@
                             </span>
                             Group (Factory)
                         </button>
-                    @endif
+
+                        <button class="drawer-item {{ request()->routeIs('admin.absence-reasons.*') ? 'active' : '' }}"
+                            onclick="window.location='{{ route('admin.absence-reasons.index') }}'">
+                            <span class="di-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                                    <polyline points="14 2 14 8 20 8" />
+                                    <line x1="16" y1="13" x2="8" y2="13" />
+                                    <line x1="16" y1="17" x2="8" y2="17" />
+                                    <polyline points="10 9 9 9 8 9" />
+                                </svg>
+                            </span>
+                            Absence Detail
+                        </button>
+
+                        <button class="drawer-item {{ request()->routeIs('admin.site-config.*') ? 'active' : '' }}"
+                            onclick="window.location='{{ route('admin.site-config.index') }}'">
+                            <span class="di-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                                </svg>
+                            </span>
+                            Site Config
+                        </button>                    @endif
                 @endif
 
                 <button class="drawer-item {{ request()->routeIs('admin.section.*') ? 'active' : '' }}"
@@ -492,7 +630,7 @@
     </nav>
 
     {{-- ── FACTORY PICKER MODAL - dynamic from DB ── --}}
-    <div class="modal-overlay" id="factorySheet">
+     <div class="modal-overlay" id="factorySheet">
         <div class="modal-sheet">
             <div class="modal-sheet-handle"></div>
             <div class="modal-sheet-header">
@@ -535,33 +673,40 @@
                                                          text-transform:uppercase;">{{ $fac->name }}</span>
                             </div>
                             {{-- Shift buttons --}}
+                            {{-- Shift buttons --}}
+                            @php 
+                                $warna_header = $fac->warna_header ?: ($fac->gradient ?: 'var(--brand-primary)'); 
+                                preg_match('/#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})/', $warna_header, $matches);
+                                $baseTint = $matches[0] ?? '#2E7D32';
+                                $hoverTint = $baseTint . '1a'; // ~10% opacity hex
+                            @endphp
                             <div style="display:flex;background:#f8f9fa;border:1px solid #e0e0e0;
                                                     border-top:none;border-radius:0 0 14px 14px;overflow:hidden;">
                                 <button onclick="openTvMode('{{ $fac->name }}','A');closeSheet('tvPickerSheet')" style="flex:1;padding:14px 8px;border:none;border-right:1px solid #e0e0e0;
                                                            background:transparent;cursor:pointer;transition:background .15s;
                                                            display:flex;flex-direction:column;align-items:center;gap:4px;"
-                                    onmouseover="this.style.background='#e8f5e9'"
+                                    onmouseover="this.style.background='{{ $hoverTint }}'"
                                     onmouseout="this.style.background='transparent'">
                                     <span style="font-family:'Roboto Condensed',sans-serif;font-weight:900;
                                                              font-size:16px;color:#333;">{{ $fac->short_label }}</span>
                                     <span
                                         style="font-family:'Roboto Condensed',sans-serif;font-weight:800;
                                                              font-size:10px;letter-spacing:1px;text-transform:uppercase;
-                                                             color:#fff;background:#f5a623;padding:2px 10px;border-radius:20px;">
+                                                             color:#fff;background:{{ $warna_header }};padding:2px 10px;border-radius:20px;">
                                         SHIFT A
                                     </span>
                                 </button>
                                 <button onclick="openTvMode('{{ $fac->name }}','B');closeSheet('tvPickerSheet')" style="flex:1;padding:14px 8px;border:none;
                                                            background:transparent;cursor:pointer;transition:background .15s;
                                                            display:flex;flex-direction:column;align-items:center;gap:4px;"
-                                    onmouseover="this.style.background='#ffebee'"
+                                    onmouseover="this.style.background='{{ $hoverTint }}'"
                                     onmouseout="this.style.background='transparent'">
                                     <span style="font-family:'Roboto Condensed',sans-serif;font-weight:900;
                                                              font-size:16px;color:#333;">{{ $fac->short_label }}</span>
                                     <span
                                         style="font-family:'Roboto Condensed',sans-serif;font-weight:800;
                                                              font-size:10px;letter-spacing:1px;text-transform:uppercase;
-                                                             color:#fff;background:#ef5350;padding:2px 10px;border-radius:20px;">
+                                                             color:#fff;background:{{ $warna_header }};padding:2px 10px;border-radius:20px;">
                                         SHIFT B
                                     </span>
                                 </button>

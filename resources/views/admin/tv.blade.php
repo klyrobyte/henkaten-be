@@ -25,6 +25,49 @@ Header = app-header hijau dari admin.blade, semua komponen konten = copy 1:1 das
     {{-- Floor plan CSS for TV mode --}}
     <link rel="stylesheet" href="{{ asset('css/floor-plan.css') }}">
 
+    {{-- Dynamic Theme Styles --}}
+    @php
+        $siteConfigs = \App\Models\SiteConfig::all()->pluck('value', 'key');
+        $navbarBg = $siteConfigs['navbar_color'] ?? '#2E7D32';
+        $primaryColor = $siteConfigs['primary_color'] ?? '#2E7D32';
+        $secondaryColor = $siteConfigs['secondary_color'] ?? '#729E3F';
+        $themeEffect = $siteConfigs['theme_effect'] ?? 'normal';
+    @endphp
+    <style>
+        :root {
+            --navbar-bg: {{ $navbarBg }};
+            --brand-primary: {{ $primaryColor }};
+            --brand-secondary: {{ $secondaryColor }};
+        }
+        
+        /* Navbar dynamic colors */
+        .app-header { background: var(--navbar-bg) !important; }
+        .tv-footer { background: var(--navbar-bg) !important; }
+        
+        /* Brand primary overrides */
+        .section-title-box, .stat-card, .machine-group-title {
+            border-color: var(--brand-primary) !important;
+        }
+        
+        .machine-group-title { background: var(--brand-primary) !important; }
+
+        /* 1. Dynamic Primary Theme Mapping (TV Mode) */
+        .statusChip { background: var(--brand-primary) !important; color: #fff !important; }
+        .leg-dot[style*="background: #729E3F"], .leg-dot[style*="background:#729E3F"] { background: var(--brand-primary) !important; }
+        
+        .tv-ticker { background: var(--brand-primary) !important; color: #fff !important; }
+        .tv-fs { background: var(--brand-primary) !important; color: #fff !important; }
+        .absen-bar, .absenFill { background: var(--brand-primary) !important; }
+
+        /* Glossy Effect */
+        @if($themeEffect === 'glossy')
+        .app-header, .tv-footer, .machine-group-title {
+            background-image: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 50%, rgba(0,0,0,0.05) 100%) !important;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.2) !important;
+        }
+        @endif
+    </style>
+
     <style>
         html,
         body {
@@ -2250,17 +2293,18 @@ Header = app-header hijau dari admin.blade, semua komponen konten = copy 1:1 das
             const absenCount = Math.max(0, (d.total_member ?? 0) - (d.mp_hadir ?? 0) - (d.op_cuti ?? 0) - (d.op_sakit ?? 0) - (d.op_ijin ?? 0) - (d.spv_cuti ?? 0) - (d.spv_sakit ?? 0) - (d.spv_ijin ?? 0));
             const showAbsen = absenCount > 0;
             const v = [
-                d.mp_hadir   ?? 0,
-                d.spv_sakit  ?? 0,
-                d.spv_ijin   ?? 0,
-                d.spv_cuti   ?? 0,
-                d.op_sakit   ?? 0,
-                d.op_ijin    ?? 0,
-                d.op_cuti    ?? 0,
+                d.mp_hadir ?? 0,
+                d.spv_sakit ?? 0,
+                d.spv_ijin ?? 0,
+                d.spv_cuti ?? 0,
+                d.op_sakit ?? 0,
+                d.op_ijin ?? 0,
+                d.op_cuti ?? 0,
                 showAbsen ? absenCount : 0,
             ];
             const labels = ['MP', 'PENGAWAS SAKIT', 'PENGAWAS IZIN', 'PENGAWAS CUTI', 'OPERATOR SAKIT', 'OPERATOR IZIN', 'OPERATOR CUTI', 'ABSEN'];
-            const colors = ['#729E3F', '#5dade2', '#FF8F1F', '#1F3C88', '#8e44ad', '#f1c40f', '#ff69b4', '#EF4444'];
+            const pColor = getComputedStyle(document.documentElement).getPropertyValue('--brand-primary').trim() || '#2E7D32';
+            const colors = [pColor, '#5dade2', '#FF8F1F', '#1F3C88', '#8e44ad', '#f1c40f', '#ff69b4', '#EF4444'];
             const tot = d.total_member ?? v.reduce((a, b) => a + b, 0);
             if (!tot) return;
             const h = d.mp_hadir ?? 0;
@@ -2658,7 +2702,7 @@ Header = app-header hijau dari admin.blade, semua komponen konten = copy 1:1 das
                     const totalMins = Math.floor(elapsed / 60000);
                     return {
                         ...p,
-                        duration_hours:   Math.floor(totalMins / 60),
+                        duration_hours: Math.floor(totalMins / 60),
                         duration_minutes: totalMins % 60,
                     };
                 });
@@ -2787,91 +2831,169 @@ Header = app-header hijau dari admin.blade, semua komponen konten = copy 1:1 das
     </script>
 
     <style>
-    /* ── Task 7: Overdue MC Overlay Styles ── */
-    #tvOverdueOverlay {
-        position: fixed;
-        top: 0; left: 0; right: 0; bottom: 0;
-        background: rgba(15, 10, 10, 0.82);
-        z-index: 9999;
-        display: none;
-        align-items: center;
-        justify-content: center;
-        flex-direction: column;
-        gap: 16px;
-        padding: 24px;
-        backdrop-filter: blur(4px);
-        animation: ovFadeIn .4s ease;
-    }
-    #tvOverdueOverlay.visible { display: flex; }
-    @keyframes ovFadeIn { from { opacity:0; } to { opacity:1; } }
+        /* ── Task 7: Overdue MC Overlay Styles ── */
+        #tvOverdueOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(15, 10, 10, 0.82);
+            z-index: 9999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 16px;
+            padding: 24px;
+            backdrop-filter: blur(4px);
+            animation: ovFadeIn .4s ease;
+        }
 
-    .ov-header {
-        text-align: center;
-        color: #fff;
-        font-family: 'Roboto Condensed', sans-serif;
-    }
-    .ov-title {
-        font-size: 28px; font-weight: 900; letter-spacing: 2px;
-        color: #EF4444;
-        text-shadow: 0 0 20px rgba(239,68,68,.6);
-        animation: ovPulse 1.8s ease-in-out infinite;
-    }
-    @keyframes ovPulse {
-        0%,100% { opacity:1; text-shadow: 0 0 20px rgba(239,68,68,.6); }
-        50%      { opacity:.75; text-shadow: 0 0 40px rgba(239,68,68,.9); }
-    }
-    .ov-sub { font-size: 13px; color: rgba(255,255,255,.7); margin-top: 4px; letter-spacing:.5px; }
+        #tvOverdueOverlay.visible {
+            display: flex;
+        }
 
-    .ov-cards-wrap {
-        display: flex; flex-wrap: wrap; gap: 12px;
-        justify-content: center; max-width: 1000px; width: 100%;
-    }
-    .ov-card {
-        background: linear-gradient(135deg, #1a0a0a, #2d1010);
-        border: 2px solid #EF4444;
-        border-radius: 14px; padding: 14px 18px;
-        min-width: 240px; max-width: 320px;
-        box-shadow: 0 4px 20px rgba(239,68,68,.3);
-        animation: ovCardBlink 2s ease-in-out infinite;
-    }
-    @keyframes ovCardBlink {
-        0%,100% { border-color:#EF4444; box-shadow:0 4px 20px rgba(239,68,68,.3); }
-        50%      { border-color:#f87171; box-shadow:0 4px 30px rgba(239,68,68,.6); }
-    }
-    .ov-card-header {
-        display: flex; align-items: center; gap: 8px; margin-bottom: 8px;
-        font-family: 'Roboto Condensed', sans-serif;
-    }
-    .ov-jenis {
-        background: #EF4444; color:#fff;
-        padding: 2px 8px; border-radius: 6px;
-        font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing:.5px;
-    }
-    .ov-machine {
-        font-size: 14px; font-weight: 900; color: #fff;
-        text-transform: uppercase; letter-spacing:.5px; flex: 1;
-    }
-    .ov-duration {
-        font-size: 11px; font-weight: 800; color: #f87171;
-        white-space: nowrap;
-    }
-    .ov-desc {
-        font-size: 12px; color: rgba(255,255,255,.8);
-        font-family: 'Roboto Condensed', sans-serif;
-        line-height: 1.4;
-    }
+        @keyframes ovFadeIn {
+            from {
+                opacity: 0;
+            }
 
-    .ov-dismiss {
-        margin-top: 8px;
-        background: rgba(255,255,255,.1);
-        border: 1.5px solid rgba(255,255,255,.3);
-        color: rgba(255,255,255,.8);
-        padding: 8px 24px; border-radius: 20px;
-        font-family: 'Roboto Condensed', sans-serif;
-        font-size: 12px; font-weight: 700; cursor: pointer;
-        transition: all .2s;
-    }
-    .ov-dismiss:hover { background: rgba(255,255,255,.2); color:#fff; }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .ov-header {
+            text-align: center;
+            color: #fff;
+            font-family: 'Roboto Condensed', sans-serif;
+        }
+
+        .ov-title {
+            font-size: 28px;
+            font-weight: 900;
+            letter-spacing: 2px;
+            color: #EF4444;
+            text-shadow: 0 0 20px rgba(239, 68, 68, .6);
+            animation: ovPulse 1.8s ease-in-out infinite;
+        }
+
+        @keyframes ovPulse {
+
+            0%,
+            100% {
+                opacity: 1;
+                text-shadow: 0 0 20px rgba(239, 68, 68, .6);
+            }
+
+            50% {
+                opacity: .75;
+                text-shadow: 0 0 40px rgba(239, 68, 68, .9);
+            }
+        }
+
+        .ov-sub {
+            font-size: 13px;
+            color: rgba(255, 255, 255, .7);
+            margin-top: 4px;
+            letter-spacing: .5px;
+        }
+
+        .ov-cards-wrap {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: center;
+            max-width: 1000px;
+            width: 100%;
+        }
+
+        .ov-card {
+            background: linear-gradient(135deg, #1a0a0a, #2d1010);
+            border: 2px solid #EF4444;
+            border-radius: 14px;
+            padding: 14px 18px;
+            min-width: 240px;
+            max-width: 320px;
+            box-shadow: 0 4px 20px rgba(239, 68, 68, .3);
+            animation: ovCardBlink 2s ease-in-out infinite;
+        }
+
+        @keyframes ovCardBlink {
+
+            0%,
+            100% {
+                border-color: #EF4444;
+                box-shadow: 0 4px 20px rgba(239, 68, 68, .3);
+            }
+
+            50% {
+                border-color: #f87171;
+                box-shadow: 0 4px 30px rgba(239, 68, 68, .6);
+            }
+        }
+
+        .ov-card-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+            font-family: 'Roboto Condensed', sans-serif;
+        }
+
+        .ov-jenis {
+            background: #EF4444;
+            color: #fff;
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-size: 10px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+        }
+
+        .ov-machine {
+            font-size: 14px;
+            font-weight: 900;
+            color: #fff;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            flex: 1;
+        }
+
+        .ov-duration {
+            font-size: 11px;
+            font-weight: 800;
+            color: #f87171;
+            white-space: nowrap;
+        }
+
+        .ov-desc {
+            font-size: 12px;
+            color: rgba(255, 255, 255, .8);
+            font-family: 'Roboto Condensed', sans-serif;
+            line-height: 1.4;
+        }
+
+        .ov-dismiss {
+            margin-top: 8px;
+            background: rgba(255, 255, 255, .1);
+            border: 1.5px solid rgba(255, 255, 255, .3);
+            color: rgba(255, 255, 255, .8);
+            padding: 8px 24px;
+            border-radius: 20px;
+            font-family: 'Roboto Condensed', sans-serif;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all .2s;
+        }
+
+        .ov-dismiss:hover {
+            background: rgba(255, 255, 255, .2);
+            color: #fff;
+        }
     </style>
 
     {{-- Task 7: Overlay HTML (hidden until overdue problems detected) --}}

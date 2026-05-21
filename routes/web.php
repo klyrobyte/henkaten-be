@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\AttendanceController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\MemberController;
 use App\Http\Controllers\Admin\AbsenceController;
+use App\Http\Controllers\Admin\AbsenceReasonController;
 use App\Http\Controllers\Admin\AssignmentController;
 use App\Http\Controllers\Admin\ReplacementController;
 use App\Http\Controllers\Admin\UserController;
@@ -16,6 +17,7 @@ use App\Http\Controllers\Admin\FactoryController;
 use App\Http\Controllers\Admin\SectionController;
 use App\Http\Controllers\Admin\StatusController;
 use App\Http\Controllers\Admin\RepairDepartmentController;
+use App\Http\Controllers\Admin\SiteConfigController;
 use Illuminate\Support\Facades\Route;
 
 // â”€â”€â”€ Auth â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -103,8 +105,15 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::middleware('role:admin')->group(function () {
         // Pages (non-JSON â€” not deprecated)
         Route::get('group',   [FactoryController::class,  'index'])->name('group.index');
+        Route::get('absence-reasons', [AbsenceReasonController::class, 'index'])->name('absence-reasons.index');
+        Route::post('absence-reasons', [AbsenceReasonController::class, 'store'])->name('absence-reasons.store');
+        Route::put('absence-reasons/{absence_reason}', [AbsenceReasonController::class, 'update'])->name('absence-reasons.update');
+        Route::delete('absence-reasons/{absence_reason}', [AbsenceReasonController::class, 'destroy'])->name('absence-reasons.destroy');
         Route::get('section', [SectionController::class,  'index'])->name('section.index');
         Route::get('status-management',  [StatusController::class,   'index'])->name('status.index');
+        Route::get('site-config', [SiteConfigController::class, 'index'])->name('site-config.index');
+        Route::post('site-config', [SiteConfigController::class, 'update'])->name('site-config.update');
+        Route::post('site-config/reset', [SiteConfigController::class, 'reset'])->name('site-config.reset');
         Route::get('repair-departments', [RepairDepartmentController::class, 'index'])->name('repair-departments.index');
         Route::post('repair-departments', [RepairDepartmentController::class, 'store'])->name('repair-departments.store');
         Route::put('repair-departments/{department}', [RepairDepartmentController::class, 'update'])->name('repair-departments.update');
@@ -301,3 +310,4 @@ Route::middleware(['auth', 'internal.request', 'throttle:120,1', 'log.deprecated
         // DEPRECATED â€” migrate to GET /api/machines/{id}/floor-plan
         Route::get('machines/{id}/floor-plan',  [\App\Http\Controllers\Api\MachineFloorPlanController::class, 'getFloorPlanDataById']);
     });
+

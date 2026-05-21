@@ -46,6 +46,7 @@ class FactoryController extends Controller
             'slug' => $slug,
             'short_label' => $request->short_label ?? $short,
             'gradient' => $request->gradient ?? 'linear-gradient(135deg,#546e7a,#78909c)',
+            'warna_header' => $request->warna_header,
             'order_index' => $maxOrder + 1,
         ]);
 
@@ -65,6 +66,7 @@ class FactoryController extends Controller
             'slug' => Factory::makeSlug($name),
             'short_label' => $request->short_label ?? Factory::makeShortLabel($name),
             'gradient' => $request->gradient ?? $factory->gradient,
+            'warna_header' => $request->has('warna_header') ? $request->warna_header : $factory->warna_header,
         ]);
 
         return response()->json(['ok' => true, 'factory' => $factory->fresh()]);

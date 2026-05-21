@@ -52,7 +52,7 @@
         }
 
         .report-card-header {
-            background: #2E7D32;
+            background: var(--brand-primary);
             padding: 12px 16px;
             color: #fff;
             display: flex;
@@ -167,12 +167,12 @@
         }
 
         .btn-export-csv {
-            background: linear-gradient(135deg, #2e7d32, #43a047);
+            background: var(--brand-primary);
             color: #fff;
         }
 
         .btn-export-xlsx {
-            background: #2E7D32;
+            background: var(--brand-primary);
             color: #fff;
         }
     </style>

@@ -367,7 +367,7 @@
                     </div>
                     <div class="gm-card-actions">
                         <button class="gm-act-btn gm-act-edit"
-                            onclick="openGroupModal({{ $f->id }}, '{{ addslashes($f->name) }}', '{{ addslashes($f->short_label) }}', '{{ addslashes($f->gradient) }}')">
+                            onclick="openGroupModal({{ $f->id }}, '{{ addslashes($f->name) }}', '{{ addslashes($f->short_label) }}', '{{ addslashes($f->gradient) }}', '{{ addslashes($f->warna_header) }}')">
                             ✏️ Edit
                         </button>
                         <button class="gm-act-btn gm-act-del"
@@ -410,7 +410,7 @@
                 </div>
 
                 <div class="gm-field">
-                    <label>Warna Header</label>
+                    <label>Background Gradient</label>
                     <input type="hidden" id="gmGradient">
                     <div class="gm-chip-grid" id="gmChipGrid"></div>
                     <div class="gm-custom-picker-wrap" id="gmCustomPickerWrap">
@@ -426,7 +426,13 @@
                     </div>
                     <small
                         style="color:#888;font-size:10px;font-family:'Roboto Condensed',sans-serif;margin-top:4px;display:block">Pilih
-                        warna untuk header factory. Kosongkan untuk warna default.</small>
+                        warna untuk background card factory.</small>
+                </div>
+
+                <div class="gm-field">
+                    <label>Warna Header (Solid)</label>
+                    <input type="color" id="gmWarnaHeader" value="#1f3c88" style="width: 44px; height: 34px; border-radius: 8px; border: 1.5px solid #ddd; padding: 2px; cursor: pointer; background: #fff;">
+                    <small style="color:#888;font-size:10px;font-family:'Roboto Condensed',sans-serif;margin-top:4px;display:block">Warna utama (hex) untuk elemen UI Modal & Badge.</small>
                 </div>
 
                 <button class="gm-save-btn" id="gmSaveBtn" onclick="saveFactory()">💾 Simpan</button>
@@ -537,7 +543,7 @@
             } catch (e) { /* silent */ }
         });
 
-        function openGroupModal(id = null, name = '', shortLabel = '', gradient = '') {
+        function openGroupModal(id = null, name = '', shortLabel = '', gradient = '', warnaHeader = '') {
             _gmEditId = id;
             const isEdit = !!id;
             document.getElementById('groupModalTitle').textContent = isEdit ? '✏️ Edit Factory' : '➕ Tambah Factory';
@@ -545,6 +551,7 @@
             document.getElementById('gmName').value = name;
             document.getElementById('gmShortLabel').value = shortLabel;
             document.getElementById('gmGradient').value = gradient;
+            document.getElementById('gmWarnaHeader').value = warnaHeader || '#1f3c88';
             // Reset chip selection, then auto-select matching chip
             document.querySelectorAll('#gmChipGrid .gm-chip').forEach(c => c.classList.remove('active'));
             document.getElementById('gmCustomPickerWrap')?.classList.remove('show');
@@ -558,6 +565,7 @@
             const name = document.getElementById('gmName').value.trim();
             const short = document.getElementById('gmShortLabel').value.trim();
             const grad = document.getElementById('gmGradient').value.trim();
+            const warnaHeader = document.getElementById('gmWarnaHeader').value.trim();
 
             if (!name) { showToast('Nama factory tidak boleh kosong.', 'error'); return; }
 
@@ -570,6 +578,7 @@
                 const body = { name };
                 if (short) body.short_label = short;
                 if (grad) body.gradient = grad;
+                if (warnaHeader) body.warna_header = warnaHeader;
 
                 const res = await fetch(url, {
                     method,
