@@ -1,0 +1,422 @@
+name: Absence
+description: |-
+
+  APIs for managing Absence.
+endpoints:
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: api/absence/save
+    metadata:
+      custom: []
+      groupName: Absence
+      groupDescription: |-
+
+        APIs for managing Absence.
+      subgroup: ''
+      subgroupDescription: ''
+      title: ''
+      description: ''
+      authenticated: true
+      deprecated: false
+    headers:
+      X-App-Secret: '{HMAC_SHA256_TOKEN}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      tanggal:
+        custom: []
+        name: tanggal
+        description: 'Must be a valid date.'
+        required: true
+        example: '2026-05-20T05:58:41'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      factory:
+        custom: []
+        name: factory
+        description: ''
+        required: true
+        example: architecto
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      shift:
+        custom: []
+        name: shift
+        description: ''
+        required: true
+        example: B
+        type: string
+        enumValues:
+          - A
+          - B
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      records:
+        custom: []
+        name: records
+        description: ''
+        required: true
+        example: []
+        type: object
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanBodyParameters:
+      tanggal: '2026-05-20T05:58:41'
+      factory: architecto
+      shift: B
+      records: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 401
+        content: '{"message":"Unauthenticated."}'
+        headers:
+          cache-control: 'no-cache, private'
+          content-type: application/json
+          access-control-allow-origin: '*'
+          set-cookie: 'henkaten-session=eyJpdiI6Imk5NnErSmJoQ2lNaTRuZVJEb3BpMUE9PSIsInZhbHVlIjoiYXdZaUlad3dSMzM5TGRiVVo5ZzVEdG5jQUZGNDUxZUczNDhjdG5SWkRuREU1bUZ2Z252TUdEVXN4UWNTSzc3RENEU0FEc2V5eEJBYlpiRnNCNGI1R3ViUlVlRmRkekszVmptcENsN0tpQVFXS1grb3QvMU5FLy91RTBRRUFhRVMiLCJtYWMiOiI4OWJjYjY5NzhmNmNiZGMzMTU2ZmQ3NDI4YjRkOTNkMmU1N2U2ZDZkNjU2NTk5OGZkNzA1ZjU3MjRlNTlhMWM4IiwidGFnIjoiIn0%3D; expires=Wed, 20 May 2026 07:58:41 GMT; Max-Age=7200; path=/; httponly; samesite=lax'
+        description: null
+    responseFields: []
+    auth:
+      - headers
+      - X-App-Secret
+      - a50876f597456c68eeac891dc55ed31c46a4deaea8baba84c0641a1efea6c38b
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: api/absence/data
+    metadata:
+      custom: []
+      groupName: Absence
+      groupDescription: |-
+
+        APIs for managing Absence.
+      subgroup: ''
+      subgroupDescription: ''
+      title: ''
+      description: ''
+      authenticated: true
+      deprecated: false
+    headers:
+      X-App-Secret: '{HMAC_SHA256_TOKEN}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 401
+        content: '{"message":"Unauthenticated."}'
+        headers:
+          cache-control: 'no-cache, private'
+          content-type: application/json
+          access-control-allow-origin: '*'
+          set-cookie: 'henkaten-session=eyJpdiI6IkRma2d3M2pWQlJVZEI5L003bTlOelE9PSIsInZhbHVlIjoiOVlhTmt3dTc2TGFTZWhaa2QxZ0pLcVg2cnhQTXdmN3RNUmlYaEd5WUozbktzV3ZCUVFwZlhpZ2huTE50ak1FR1hDVXZFUzFYSnpkbTcxS2tySzFBKzBMRmZobFdGS2xSSmkwVkRMb21SM3ZVekhzV3VGQjE1bUc0VzFPVkFLa08iLCJtYWMiOiI5ZGM3YjY4YjdlN2EzOTE5Yzk2MzczZmY3MDAzNjY2ZmY4NjA0MzQ3ZmUxMTE3ZTFmNDE3YzBkNGEzYmQzNTgyIiwidGFnIjoiIn0%3D; expires=Wed, 20 May 2026 07:58:41 GMT; Max-Age=7200; path=/; httponly; samesite=lax'
+        description: null
+    responseFields: []
+    auth:
+      - headers
+      - X-App-Secret
+      - a50876f597456c68eeac891dc55ed31c46a4deaea8baba84c0641a1efea6c38b
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: api/absence/candidates
+    metadata:
+      custom: []
+      groupName: Absence
+      groupDescription: |-
+
+        APIs for managing Absence.
+      subgroup: ''
+      subgroupDescription: ''
+      title: ''
+      description: ''
+      authenticated: true
+      deprecated: false
+    headers:
+      X-App-Secret: '{HMAC_SHA256_TOKEN}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 401
+        content: '{"message":"Unauthenticated."}'
+        headers:
+          cache-control: 'no-cache, private'
+          content-type: application/json
+          access-control-allow-origin: '*'
+          set-cookie: 'henkaten-session=eyJpdiI6Ikp3TE5iT0FCUGxHNlRLbFBTWkQ2eFE9PSIsInZhbHVlIjoiS0I4OVQ2ZmxKZTgwYU5FYWpFQUJnV1h0WXVib1pINlpCQzI1TkhmREk0dWRobjA1ZHRDR1ZDUE1nbHc0bWlvUlhMMlU4dzZkcnoyWXI2MDg2N0l2cVJSVlFDUWlMMzdmYVVmYzBHRVpia3dBTXg4QTZ4Y3ErR0FwTTNKTGdXWlgiLCJtYWMiOiI2NDQwNWEyN2Q4NzQxZDFkNTg4ZjA4NThjNDI0N2E5ZDNjMDMwMjU3YzQ2NjY1ZTYzZTNjNDMxNGQ3ZWQ3MzlmIiwidGFnIjoiIn0%3D; expires=Wed, 20 May 2026 07:58:41 GMT; Max-Age=7200; path=/; httponly; samesite=lax'
+        description: null
+    responseFields: []
+    auth:
+      - headers
+      - X-App-Secret
+      - a50876f597456c68eeac891dc55ed31c46a4deaea8baba84c0641a1efea6c38b
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: api/absence/report
+    metadata:
+      custom: []
+      groupName: Absence
+      groupDescription: |-
+
+        APIs for managing Absence.
+      subgroup: ''
+      subgroupDescription: ''
+      title: ''
+      description: ''
+      authenticated: true
+      deprecated: false
+    headers:
+      X-App-Secret: '{HMAC_SHA256_TOKEN}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 401
+        content: '{"message":"Unauthenticated."}'
+        headers:
+          cache-control: 'no-cache, private'
+          content-type: application/json
+          access-control-allow-origin: '*'
+          set-cookie: 'henkaten-session=eyJpdiI6Ilp3bDRORlU3bXdZZ0JPR25zeWk0VXc9PSIsInZhbHVlIjoiMzh6N2ZvRWVrbUk4dmZkTlFqMVYzNE01KzJWSGVEUmxZT1A1dCt3TXhXZ0NWeDVCdWYwNGpMYUdDT1B4eGtrNFBmdHhkUGJ0bWplbDZhLzFsdEs3SmU1Tm1JdEVteEdaRTkySytYYTlUWTZpMURGNnVPZFhOT2xSVmRQSmJlRFMiLCJtYWMiOiI1MGM1MjUzOWFmMjIzYzJkYjFlYWRmOTYxNTk2MjIzYWNmYTJlZTZkYWI3YmViNDYyOWQ4MmE1ZDY5ZDI2NWQ1IiwidGFnIjoiIn0%3D; expires=Wed, 20 May 2026 07:58:41 GMT; Max-Age=7200; path=/; httponly; samesite=lax'
+        description: null
+    responseFields: []
+    auth:
+      - headers
+      - X-App-Secret
+      - a50876f597456c68eeac891dc55ed31c46a4deaea8baba84c0641a1efea6c38b
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: api/absence/rebuild-summary
+    metadata:
+      custom: []
+      groupName: Absence
+      groupDescription: |-
+
+        APIs for managing Absence.
+      subgroup: ''
+      subgroupDescription: ''
+      title: ''
+      description: ''
+      authenticated: true
+      deprecated: false
+    headers:
+      X-App-Secret: '{HMAC_SHA256_TOKEN}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      tanggal:
+        custom: []
+        name: tanggal
+        description: 'Must be a valid date.'
+        required: true
+        example: '2026-05-20T05:58:41'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      factory:
+        custom: []
+        name: factory
+        description: ''
+        required: true
+        example: architecto
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      shift:
+        custom: []
+        name: shift
+        description: ''
+        required: true
+        example: A
+        type: string
+        enumValues:
+          - A
+          - B
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanBodyParameters:
+      tanggal: '2026-05-20T05:58:41'
+      factory: architecto
+      shift: A
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 401
+        content: '{"message":"Unauthenticated."}'
+        headers:
+          cache-control: 'no-cache, private'
+          content-type: application/json
+          access-control-allow-origin: '*'
+          set-cookie: 'henkaten-session=eyJpdiI6IlNjN2hGbGduQnptaHFaUWEwR3V6c3c9PSIsInZhbHVlIjoiT3h2QXZ5dG9MVnlvdVZnN1F3czdtaklWNXlwekJ1VzUzVVFyMnlRNUxRSjY3d2NSOW0yN2Q0TEFtTmsvSlIwTHQ1WUZzWmhnNms5SE5LdzNraUVaM2M5NUJkYnFKaWd4d2FiTUE3YXA1d3JoTGp0eTRUYjZKTC9ZTk5jbnF5M3ciLCJtYWMiOiI1MDhkMjFlMTYyZmJjMWVjMWZlY2VjMGEwZmMwNTQwOTBmM2U1ZTViMWFlYjY1MGY0NTA1NjRjMmZjZTkwMzAyIiwidGFnIjoiIn0%3D; expires=Wed, 20 May 2026 07:58:41 GMT; Max-Age=7200; path=/; httponly; samesite=lax'
+        description: null
+    responseFields: []
+    auth:
+      - headers
+      - X-App-Secret
+      - a50876f597456c68eeac891dc55ed31c46a4deaea8baba84c0641a1efea6c38b
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: api/absence/export
+    metadata:
+      custom: []
+      groupName: Absence
+      groupDescription: |-
+
+        APIs for managing Absence.
+      subgroup: ''
+      subgroupDescription: ''
+      title: ''
+      description: ''
+      authenticated: true
+      deprecated: false
+    headers:
+      X-App-Secret: '{HMAC_SHA256_TOKEN}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 401
+        content: '{"message":"Unauthenticated."}'
+        headers:
+          cache-control: 'no-cache, private'
+          content-type: application/json
+          access-control-allow-origin: '*'
+          set-cookie: 'henkaten-session=eyJpdiI6IkNvMDcrQU80aEhtUEtXVm4rOUI0cGc9PSIsInZhbHVlIjoidWwxS3ZIVjgrd2VsNW1ZOTdoMDUxK0QwN2EvVGRFckJXWWZhVzhOME0vUitzb2p0TWNMVlYzQTZCQ2hCU0t2dG9wektKekhJekRWemRzWCt1SW84SVhHRUNWVjJFcGlsWEMxRGJrcTZCZng3UE5WSERVK2xobkVpZjg4L0g0N1IiLCJtYWMiOiJiZmIwNjEwNGFkZTQyMTBmMmVhMjZlYmQ2NTM3Y2U2MTAwOGJmMWJhYjE0YThlNDYzZjhjMWE5YTg5ZGMyYWQ1IiwidGFnIjoiIn0%3D; expires=Wed, 20 May 2026 07:58:41 GMT; Max-Age=7200; path=/; httponly; samesite=lax'
+        description: null
+    responseFields: []
+    auth:
+      - headers
+      - X-App-Secret
+      - a50876f597456c68eeac891dc55ed31c46a4deaea8baba84c0641a1efea6c38b
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: api/absence/export-excel
+    metadata:
+      custom: []
+      groupName: Absence
+      groupDescription: |-
+
+        APIs for managing Absence.
+      subgroup: ''
+      subgroupDescription: ''
+      title: ''
+      description: ''
+      authenticated: true
+      deprecated: false
+    headers:
+      X-App-Secret: '{HMAC_SHA256_TOKEN}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 401
+        content: '{"message":"Unauthenticated."}'
+        headers:
+          cache-control: 'no-cache, private'
+          content-type: application/json
+          access-control-allow-origin: '*'
+          set-cookie: 'henkaten-session=eyJpdiI6IkFWUm90M1R0NCtKSnFiWkNkZE1acmc9PSIsInZhbHVlIjoiRWRsWnY2c1p5cFhDSTdwcEJNQzNycUluM2RtSFF3MFFvS3MwVEhqeHpOT1BqblplTURKUHNkKzlVS1BZZUt6cjBMKzV1M042YzBhdGkyR2laTWZsVUlQVjRHZ0ZJZjcxVWxuVXNvck1SbzhoSFAxRzVrSXY2QTNXZFA1RWFIeHciLCJtYWMiOiIyYjVhZmNkMjZhNjM4NDMzNzM2NWY0YzA3ZWUxMTJmODI1YTNmZGRjMWZiZDgzNjRhMzg0NzJkMTVkM2Q5Y2U5IiwidGFnIjoiIn0%3D; expires=Wed, 20 May 2026 07:58:41 GMT; Max-Age=7200; path=/; httponly; samesite=lax'
+        description: null
+    responseFields: []
+    auth:
+      - headers
+      - X-App-Secret
+      - a50876f597456c68eeac891dc55ed31c46a4deaea8baba84c0641a1efea6c38b
+    controller: null
+    method: null
+    route: null

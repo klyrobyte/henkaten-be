@@ -3,28 +3,65 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Factory;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 
+/**
+ * @group User
+ * 
+ * APIs for managing User.
+ */
 class UserController extends Controller
 {
     public function index()
     {
-        $users = User::orderBy('role')->orderBy('name')->get();
-        return view('admin.users.index', compact('users'));
+        $currentUser = Auth::user();
+        $query = User::orderBy('role')->orderBy('name');
+
+        if ($currentUser->isSuperAdmin()) {
+            // Superadmin sees everyone
+            $users = $query->get();
+            $factories = Factory::orderBy('order_index')->get();
+        } else {
+            // Normal admin only sees users within their factory scope
+            // And hides superadmins
+            $adminFactories = (array) $currentUser->factory;
+            
+            $users = $query->where('role', '!=', 'superadmin')
+                ->get()
+                ->filter(function($u) use ($adminFactories) {
+                    // If user has no factory, only show if admin also has no factory (shouldn't happen for admin)
+                    if (empty($u->factory)) return false;
+                    
+                    $uFactories = (array) $u->factory;
+                    return !empty(array_intersect($uFactories, $adminFactories));
+                });
+                
+            $factories = Factory::whereIn('name', $adminFactories)->orderBy('order_index')->get();
+        }
+
+        return view('admin.users.index', compact('users', 'factories'));
     }
 
     public function store(Request $request)
     {
+        $currentUser = Auth::user();
+        
+        $allowedRoles = ['admin', 'tl', 'gl', 'pengawas', 'tv'];
+        if ($currentUser->isSuperAdmin()) {
+            $allowedRoles[] = 'superadmin';
+        }
+
         $request->validate([
             'name' => 'required|string|max:100',
             'username' => 'required|string|max:50|unique:users,username|alpha_dash',
             'password' => 'required|string|min:6|confirmed',
-            'role' => ['required', Rule::in(['admin', 'tl', 'gl', 'pengawas', 'tv'])],
-            'factory' => 'nullable|string',
+            'role' => ['required', Rule::in($allowedRoles)],
+            'factory' => 'nullable|array',
             'shift' => ['nullable', Rule::in(['A', 'B', ''])],
         ], [
             'username.unique' => 'Username sudah digunakan.',
@@ -33,12 +70,18 @@ class UserController extends Controller
             'password.confirmed' => 'Konfirmasi password tidak cocok.',
         ]);
 
+        $factory = $request->factory;
+        if (!$currentUser->isSuperAdmin()) {
+            // Force factory to admin's factories
+            $factory = (array) $currentUser->factory;
+        }
+
         User::create([
             'name' => $request->name,
             'username' => $request->username,
             'password' => Hash::make($request->password),
             'role' => $request->role,
-            'factory' => $request->factory ?: null,
+            'factory' => $factory,
             'shift' => $request->shift ?: null,
         ]);
 
@@ -47,13 +90,24 @@ class UserController extends Controller
 
     public function update(Request $request, User $user)
     {
-        // Cegah admin mengedit dirinya sendiri via endpoint ini (untuk keamanan role)
+        $currentUser = Auth::user();
+
+        // Prevent normal admin from editing superadmin
+        if (!$currentUser->isSuperAdmin() && $user->isSuperAdmin()) {
+            return response()->json(['ok' => false, 'message' => 'Akses ditolak.'], 403);
+        }
+
+        $allowedRoles = ['admin', 'tl', 'gl', 'pengawas', 'tv'];
+        if ($currentUser->isSuperAdmin()) {
+            $allowedRoles[] = 'superadmin';
+        }
+
         $request->validate([
             'name' => 'required|string|max:100',
             'username' => ['required', 'string', 'max:50', 'alpha_dash', Rule::unique('users', 'username')->ignore($user->id)],
-            'role' => ['required', Rule::in(['admin', 'tl', 'gl', 'pengawas', 'tv'])],
+            'role' => ['required', Rule::in($allowedRoles)],
             'password' => 'nullable|string|min:6|confirmed',
-            'factory' => 'nullable|string',
+            'factory' => 'nullable|array',
             'shift' => ['nullable', Rule::in(['A', 'B', ''])],
         ], [
             'username.unique' => 'Username sudah digunakan.',
@@ -62,19 +116,20 @@ class UserController extends Controller
             'password.confirmed' => 'Konfirmasi password tidak cocok.',
         ]);
 
-        // Cegah mengubah role satu-satunya admin
-        if ($user->role === 'admin' && $request->role !== 'admin') {
-            $adminCount = User::where('role', 'admin')->count();
-            if ($adminCount <= 1) {
-                return response()->json(['ok' => false, 'message' => '⚠️ Tidak bisa mengubah role — harus ada minimal 1 Admin.'], 422);
-            }
+        // Prevent changing last admin/superadmin role if necessary
+        // (Simplified for now, superadmin can always manage)
+
+        $factory = $request->factory;
+        if (!$currentUser->isSuperAdmin()) {
+            // Force factory to admin's factories
+            $factory = (array) $currentUser->factory;
         }
 
         $data = [
             'name' => $request->name,
             'username' => $request->username,
             'role' => $request->role,
-            'factory' => $request->factory ?: null,
+            'factory' => $factory,
             'shift' => $request->shift ?: null,
         ];
 
@@ -89,17 +144,16 @@ class UserController extends Controller
 
     public function destroy(User $user)
     {
-        // Cegah hapus diri sendiri
-        if ($user->id === Auth::id()) {
-            return response()->json(['ok' => false, 'message' => '⚠️ Tidak bisa menghapus akun sendiri.'], 422);
+        $currentUser = Auth::user();
+
+        // Prevent normal admin from deleting superadmin
+        if (!$currentUser->isSuperAdmin() && $user->isSuperAdmin()) {
+            return response()->json(['ok' => false, 'message' => 'Akses ditolak.'], 403);
         }
 
-        // Cegah hapus satu-satunya admin
-        if ($user->role === 'admin') {
-            $adminCount = User::where('role', 'admin')->count();
-            if ($adminCount <= 1) {
-                return response()->json(['ok' => false, 'message' => '⚠️ Tidak bisa menghapus — harus ada minimal 1 Admin.'], 422);
-            }
+        // Prevent deleting self
+        if ($user->id === Auth::id()) {
+            return response()->json(['ok' => false, 'message' => '⚠️ Tidak bisa menghapus akun sendiri.'], 422);
         }
 
         $user->delete();
@@ -108,6 +162,11 @@ class UserController extends Controller
 
     public function show(User $user)
     {
+        $currentUser = Auth::user();
+        if (!$currentUser->isSuperAdmin() && $user->isSuperAdmin()) {
+            return response()->json(['message' => 'Akses ditolak.'], 403);
+        }
+
         return response()->json($user->only(['id', 'name', 'username', 'role', 'factory', 'shift', 'created_at']));
     }
 }

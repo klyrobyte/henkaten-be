@@ -20,7 +20,7 @@ return new class extends Migration
         DB::statement("UPDATE users SET role = 'pengawas' WHERE role = 'operator'");
 
         // 3. Ubah definisi kolom enum
-        DB::statement("ALTER TABLE users MODIFY COLUMN role ENUM('admin','tl','gl','pengawas') NOT NULL DEFAULT 'pengawas'");
+        DB::statement("ALTER TABLE users MODIFY COLUMN role ENUM('admin','tl','gl','pengawas', 'tv') NOT NULL DEFAULT 'pengawas'");
     }
 
     public function down(): void

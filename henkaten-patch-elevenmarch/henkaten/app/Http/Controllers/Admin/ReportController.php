@@ -13,29 +13,31 @@ use Illuminate\Http\Request;
 
 class ReportController extends Controller
 {
-    public function __construct(protected FactoryConfigService $factoryConfig) {}
+    public function __construct(protected FactoryConfigService $factoryConfig)
+    {
+    }
 
     public function index(Request $request)
     {
         $factory = $request->session()->get('factory', 'Factory 2');
-        $shift   = $request->session()->get('shift', 'A');
+        $shift = $request->session()->get('shift', 'A');
         $tanggal = $request->get('tanggal', today()->toDateString());
 
-        // Problem logs — HANYA 3M (Machine / Material / Method)
+        // Problem logs  - HANYA 3M (Machine / Material / Method)
         // Man tidak ada di ProblemLog, diambil dari AbsenceRecord
         $logs = ProblemLog::where([
             'tanggal' => $tanggal,
             'factory' => $factory,
-            'shift'   => $shift,
+            'shift' => $shift,
         ])->whereIn('jenis', ['Machine', 'Material', 'Method'])
-          ->orderBy('waktu_mulai')
-          ->get();
+            ->orderBy('waktu_mulai')
+            ->get();
 
         // Absence summary (untuk chart kehadiran)
         $absenceSummary = AbsenceSummary::where([
             'tanggal' => $tanggal,
             'factory' => $factory,
-            'shift'   => $shift,
+            'shift' => $shift,
         ])->first();
 
         // Absen detail: member yang absen hari ini
@@ -45,7 +47,7 @@ class ReportController extends Controller
         $replacements = AssignmentReplacement::where([
             'tanggal' => $tanggal,
             'factory' => $factory,
-            'shift'   => $shift,
+            'shift' => $shift,
         ])->with('member')->get();
 
         // Mesin absen tanpa pengganti
@@ -55,9 +57,14 @@ class ReportController extends Controller
         $mesinList = $this->factoryConfig->getAllMachines($factory);
 
         return view('admin.report', compact(
-            'factory', 'shift', 'tanggal',
-            'logs', 'absenceSummary',
-            'absenMembers', 'replacements', 'absenTanpaRepl',
+            'factory',
+            'shift',
+            'tanggal',
+            'logs',
+            'absenceSummary',
+            'absenMembers',
+            'replacements',
+            'absenTanpaRepl',
             'mesinList'
         ));
     }
@@ -65,27 +72,27 @@ class ReportController extends Controller
     public function exportExcel(Request $request)
     {
         $factory = $request->get('factory', $request->session()->get('factory', 'Factory 2'));
-        $shift   = $request->get('shift',   $request->session()->get('shift', 'A'));
+        $shift = $request->get('shift', $request->session()->get('shift', 'A'));
         $tanggal = $request->get('tanggal', today()->toDateString());
 
         $logs = ProblemLog::where([
             'tanggal' => $tanggal,
             'factory' => $factory,
-            'shift'   => $shift,
+            'shift' => $shift,
         ])->whereIn('jenis', ['Machine', 'Material', 'Method'])
-          ->orderBy('waktu_mulai')
-          ->get();
+            ->orderBy('waktu_mulai')
+            ->get();
 
         $absenceSummary = AbsenceSummary::where([
             'tanggal' => $tanggal,
             'factory' => $factory,
-            'shift'   => $shift,
+            'shift' => $shift,
         ])->first();
 
         $absenMembers = $this->getAbsenDetail($tanggal, $factory, $shift);
 
         $filename = "report_{$factory}_shift{$shift}_{$tanggal}.csv";
-        $headers  = ['Content-Type' => 'text/csv', 'Content-Disposition' => "attachment; filename=\"{$filename}\""];
+        $headers = ['Content-Type' => 'text/csv', 'Content-Disposition' => "attachment; filename=\"{$filename}\""];
 
         $callback = function () use ($logs, $absenceSummary, $absenMembers, $factory, $shift, $tanggal) {
             $out = fopen('php://output', 'w');
@@ -98,8 +105,8 @@ class ReportController extends Controller
             // Ringkasan absensi
             fputcsv($out, ['=== ABSENSI ===']);
             fputcsv($out, ['Total Member', $absenceSummary?->total_member ?? 0]);
-            fputcsv($out, ['MP Hadir',     $absenceSummary?->mp_hadir ?? 0]);
-            fputcsv($out, ['MP Absen',     $absenceSummary?->mp_absen ?? 0]);
+            fputcsv($out, ['MP Hadir', $absenceSummary?->mp_hadir ?? 0]);
+            fputcsv($out, ['MP Absen', $absenceSummary?->mp_absen ?? 0]);
             fputcsv($out, []);
 
             // Detail absen
@@ -114,7 +121,7 @@ class ReportController extends Controller
 
             // Problem log 3M
             fputcsv($out, ['=== PROBLEM LOG (3M) ===']);
-            fputcsv($out, ['No','Jenis','Lokasi','Waktu Mulai','Waktu Selesai','Durasi','Status','Deskripsi','Cause','Countermeasure','PIC']);
+            fputcsv($out, ['No', 'Jenis', 'Lokasi', 'Waktu Mulai', 'Waktu Selesai', 'Durasi', 'Status', 'Deskripsi', 'Cause', 'Countermeasure', 'PIC']);
             foreach ($logs as $i => $log) {
                 fputcsv($out, [
                     $i + 1,
@@ -139,19 +146,19 @@ class ReportController extends Controller
     public function exportJson(Request $request)
     {
         $factory = $request->get('factory', $request->session()->get('factory', 'Factory 2'));
-        $shift   = $request->get('shift',   $request->session()->get('shift', 'A'));
+        $shift = $request->get('shift', $request->session()->get('shift', 'A'));
         $tanggal = $request->get('tanggal', today()->toDateString());
 
         $logs = ProblemLog::where([
             'tanggal' => $tanggal,
             'factory' => $factory,
-            'shift'   => $shift,
+            'shift' => $shift,
         ])->whereIn('jenis', ['Machine', 'Material', 'Method'])->get();
 
         $absenceSummary = AbsenceSummary::where([
             'tanggal' => $tanggal,
             'factory' => $factory,
-            'shift'   => $shift,
+            'shift' => $shift,
         ])->first();
 
         $absenMembers = $this->getAbsenDetail($tanggal, $factory, $shift);
@@ -159,16 +166,16 @@ class ReportController extends Controller
         $replacements = AssignmentReplacement::where([
             'tanggal' => $tanggal,
             'factory' => $factory,
-            'shift'   => $shift,
+            'shift' => $shift,
         ])->get();
 
         $payload = [
-            'meta'            => compact('factory', 'shift', 'tanggal'),
+            'meta' => compact('factory', 'shift', 'tanggal'),
             'absence_summary' => $absenceSummary,
-            'absen_members'   => $absenMembers,
-            'replacements'    => $replacements,
-            'problem_logs'    => $logs,
-            'exported_at'     => now()->toIso8601String(),
+            'absen_members' => $absenMembers,
+            'replacements' => $replacements,
+            'problem_logs' => $logs,
+            'exported_at' => now()->toIso8601String(),
         ];
 
         $filename = "backup_{$factory}_shift{$shift}_{$tanggal}.json";
@@ -186,8 +193,8 @@ class ReportController extends Controller
         $absenMemberIds = AbsenceRecord::where([
             'tanggal' => $tanggal,
             'factory' => $factory,
-            'shift'   => $shift,
-            'status'  => 'absen',
+            'shift' => $shift,
+            'status' => 'absen',
         ])->pluck('member_id');
 
         return Member::whereIn('id', $absenMemberIds)->get();
@@ -199,7 +206,7 @@ class ReportController extends Controller
      */
     private function getAbsenTanpaPenggantiDetail($absenMembers, $replacements): array
     {
-        $absenMesin    = $absenMembers->whereNotNull('mesin')->pluck('mesin')->toArray();
+        $absenMesin = $absenMembers->whereNotNull('mesin')->pluck('mesin')->toArray();
         $replacedMesin = $replacements->pluck('target_machine')->toArray();
 
         return array_values(array_diff($absenMesin, $replacedMesin));

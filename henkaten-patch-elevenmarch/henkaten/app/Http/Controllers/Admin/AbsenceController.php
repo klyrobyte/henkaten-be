@@ -35,22 +35,24 @@ class AbsenceController extends Controller
     {
         $tanggal = $request->get('tanggal', today()->toDateString());
         $factory = $this->normalizeFactory($request->get('factory', 'Factory 2'));
-        $shift   = $request->get('shift', 'A');
+        $shift = $request->get('shift', 'A');
 
         $members = $this->membersFor($factory, $shift);
 
         $records = AbsenceRecord::where([
             'tanggal' => $tanggal,
             'factory' => $factory,
-            'shift'   => $shift,
+            'shift' => $shift,
         ])->get()->keyBy('member_id');
 
         $hadir = $members->filter(fn($m) => ($records[$m->id]?->status ?? 'hadir') === 'hadir')->count();
         $absen = $members->count() - $hadir;
 
         // ✅ view yang benar: admin.absen (bukan admin.member.absen)
-        return view('admin.absen',
-            compact('members', 'records', 'tanggal', 'factory', 'shift', 'hadir', 'absen'));
+        return view(
+            'admin.absen',
+            compact('members', 'records', 'tanggal', 'factory', 'shift', 'hadir', 'absen')
+        );
     }
 
     // ──────────────────────────────────────────────────────────────────
@@ -62,26 +64,27 @@ class AbsenceController extends Controller
         $request->validate([
             'tanggal' => 'required|date',
             'factory' => 'required|string',
-            'shift'   => 'required|in:A,B',
+            'shift' => 'required|in:A,B',
             'records' => 'required|array',
         ]);
 
         $tanggal = $request->tanggal;
         $factory = $this->normalizeFactory($request->factory);
-        $shift   = $request->shift;
+        $shift = $request->shift;
 
         $validIds = $this->membersFor($factory, $shift)->pluck('id')->toArray();
 
         DB::transaction(function () use ($request, $tanggal, $factory, $shift, $validIds) {
             foreach ($request->records as $memberId => $rec) {
-                if (!in_array((int)$memberId, $validIds)) continue;
+                if (!in_array((int) $memberId, $validIds))
+                    continue;
 
                 AbsenceRecord::updateOrCreate(
                     [
-                        'tanggal'   => $tanggal,
-                        'factory'   => $factory,
-                        'shift'     => $shift,
-                        'member_id' => (int)$memberId,
+                        'tanggal' => $tanggal,
+                        'factory' => $factory,
+                        'shift' => $shift,
+                        'member_id' => (int) $memberId,
                     ],
                     [
                         'status' => $rec['status'] ?? 'hadir',
@@ -97,12 +100,16 @@ class AbsenceController extends Controller
 
         if ($request->wantsJson()) {
             $hadir = AbsenceRecord::where([
-                'tanggal' => $tanggal, 'factory' => $factory,
-                'shift'   => $shift,   'status'  => 'hadir',
+                'tanggal' => $tanggal,
+                'factory' => $factory,
+                'shift' => $shift,
+                'status' => 'hadir',
             ])->count();
             $absen = AbsenceRecord::where([
-                'tanggal' => $tanggal, 'factory' => $factory,
-                'shift'   => $shift,   'status'  => 'absen',
+                'tanggal' => $tanggal,
+                'factory' => $factory,
+                'shift' => $shift,
+                'status' => 'absen',
             ])->count();
             return response()->json(['ok' => true, 'hadir' => $hadir, 'absen' => $absen]);
         }
@@ -118,12 +125,14 @@ class AbsenceController extends Controller
     {
         $tanggal = $request->get('tanggal', today()->toDateString());
         $factory = $this->normalizeFactory($request->get('factory', 'Factory 2'));
-        $shift   = $request->get('shift', 'A');
-        $q       = strtolower(trim($request->get('q', '')));
+        $shift = $request->get('shift', 'A');
+        $q = strtolower(trim($request->get('q', '')));
 
         $absentIds = AbsenceRecord::where([
-            'tanggal' => $tanggal, 'factory' => $factory,
-            'shift'   => $shift,   'status'  => 'absen',
+            'tanggal' => $tanggal,
+            'factory' => $factory,
+            'shift' => $shift,
+            'status' => 'absen',
         ])->pluck('member_id')->toArray();
 
         $query = Member::where('factory', $factory)
@@ -139,16 +148,18 @@ class AbsenceController extends Controller
         $allMembers = $query->get();
 
         $workingIds = AbsenceRecord::where([
-            'tanggal' => $tanggal, 'factory' => $factory,
-            'shift'   => $shift,   'status'  => 'hadir',
+            'tanggal' => $tanggal,
+            'factory' => $factory,
+            'shift' => $shift,
+            'status' => 'hadir',
         ])->pluck('member_id')->toArray();
 
         $result = $allMembers->map(fn($m) => [
-            'id'        => $m->id,
-            'name'      => $m->nama,
-            'photo'     => $m->photo_url,
-            'jabatan'   => $m->jabatan,
-            'mesin'     => $m->mesin,
+            'id' => $m->id,
+            'name' => $m->nama,
+            'photo' => $m->photo_url,
+            'jabatan' => $m->jabatan,
+            'mesin' => $m->mesin,
             'isWorking' => in_array($m->id, $workingIds),
         ]);
 
@@ -166,7 +177,7 @@ class AbsenceController extends Controller
         $records = AbsenceRecord::where([
             'tanggal' => $request->get('tanggal', today()->toDateString()),
             'factory' => $factory,
-            'shift'   => $request->get('shift', 'A'),
+            'shift' => $request->get('shift', 'A'),
         ])->get();
 
         return response()->json($records->keyBy('member_id'));
@@ -184,17 +195,18 @@ class AbsenceController extends Controller
         foreach (['Factory 2', 'Factory 3 & 4'] as $factory) {
             foreach (['A', 'B'] as $shift) {
                 $members = $this->membersFor($factory, $shift);
-                if ($members->isEmpty()) continue;
+                if ($members->isEmpty())
+                    continue;
 
                 $records = AbsenceRecord::where([
                     'tanggal' => $tanggal,
                     'factory' => $factory,
-                    'shift'   => $shift,
+                    'shift' => $shift,
                 ])->get()->keyBy('member_id');
 
                 $hadirList = $members->filter(fn($m) => ($records[$m->id]?->status ?? 'hadir') === 'hadir');
                 $absenList = $members->filter(fn($m) => ($records[$m->id]?->status ?? 'hadir') === 'absen');
-                $pct       = $members->count() ? round($hadirList->count() / $members->count() * 100) : 0;
+                $pct = $members->count() ? round($hadirList->count() / $members->count() * 100) : 0;
 
                 $reasons = [];
                 foreach ($absenList as $m) {
@@ -215,31 +227,36 @@ class AbsenceController extends Controller
     // ──────────────────────────────────────────────────────────────────
     public function export(Request $request)
     {
-        $tanggal  = $request->get('tanggal', today()->toDateString());
+        $tanggal = $request->get('tanggal', today()->toDateString());
         $filename = "HENKATEN_Absen_{$tanggal}.csv";
-        $allRows  = [];
+        $allRows = [];
 
         foreach (['Factory 2', 'Factory 3 & 4'] as $factory) {
             foreach (['A', 'B'] as $shift) {
                 $members = $this->membersFor($factory, $shift);
-                if ($members->isEmpty()) continue;
+                if ($members->isEmpty())
+                    continue;
 
                 $records = AbsenceRecord::where([
                     'tanggal' => $tanggal,
                     'factory' => $factory,
-                    'shift'   => $shift,
+                    'shift' => $shift,
                 ])->get()->keyBy('member_id');
 
-                $allRows[] = ["REKAP ABSEN — {$factory} Shift {$shift}"];
+                $allRows[] = ["REKAP ABSEN  - {$factory} Shift {$shift}"];
                 $allRows[] = ["Tanggal: {$tanggal}"];
                 $allRows[] = [];
                 $allRows[] = ['Nama', 'NIK', 'Jabatan', 'Mesin', 'Factory', 'Shift', 'Status', 'Alasan'];
 
                 foreach ($members as $m) {
-                    $rec       = $records[$m->id] ?? null;
+                    $rec = $records[$m->id] ?? null;
                     $allRows[] = [
-                        $m->nama, $m->nik ?? '-', $m->jabatan, $m->mesin ?? '-',
-                        $factory, "Shift {$shift}",
+                        $m->nama,
+                        $m->nik ?? '-',
+                        $m->jabatan,
+                        $m->mesin ?? '-',
+                        $factory,
+                        "Shift {$shift}",
                         $rec?->status === 'absen' ? 'Absen' : 'Hadir',
                         $rec?->status === 'absen' ? ($rec->reason ?? '-') : '-',
                     ];
@@ -250,10 +267,11 @@ class AbsenceController extends Controller
 
         return Response::stream(function () use ($allRows) {
             $h = fopen('php://output', 'w');
-            foreach ($allRows as $r) fputcsv($h, $r);
+            foreach ($allRows as $r)
+                fputcsv($h, $r);
             fclose($h);
         }, 200, [
-            'Content-Type'        => 'text/csv',
+            'Content-Type' => 'text/csv',
             'Content-Disposition' => "attachment; filename=\"{$filename}\"",
         ]);
     }
@@ -263,13 +281,13 @@ class AbsenceController extends Controller
     // ══════════════════════════════════════════════════════════════════
     private function rebuildSummary(string $tanggal, string $factory, string $shift): void
     {
-        $members     = $this->membersFor($factory, $shift);
+        $members = $this->membersFor($factory, $shift);
         $totalMember = $members->count();
 
         $records = AbsenceRecord::where([
             'tanggal' => $tanggal,
             'factory' => $factory,
-            'shift'   => $shift,
+            'shift' => $shift,
         ])->get()->keyBy('member_id');
 
         $hadirCount = 0;
@@ -285,22 +303,22 @@ class AbsenceController extends Controller
             }
 
             $jabatanLower = strtolower($m->jabatan ?? '');
-            $isPengawas   = str_contains($jabatanLower, 'pengawas')
-                         || str_contains($jabatanLower, 'spv')
-                         || str_contains($jabatanLower, 'supervisor')
-                         || str_contains($jabatanLower, 'foreman');
+            $isPengawas = str_contains($jabatanLower, 'pengawas')
+                || str_contains($jabatanLower, 'spv')
+                || str_contains($jabatanLower, 'supervisor')
+                || str_contains($jabatanLower, 'foreman');
 
             $reason = $rec->reason ?? 'Ijin';
 
             if ($isPengawas) {
                 match ($reason) {
-                    'Cuti'  => $spvCuti++,
+                    'Cuti' => $spvCuti++,
                     'Sakit' => $spvSakit++,
                     default => $spvIjin++,
                 };
             } else {
                 match ($reason) {
-                    'Cuti'  => $opCuti++,
+                    'Cuti' => $opCuti++,
                     'Sakit' => $opSakit++,
                     default => $opIjin++,
                 };
@@ -313,19 +331,19 @@ class AbsenceController extends Controller
             [
                 'tanggal' => $tanggal,
                 'factory' => $factory,
-                'shift'   => $shift,
+                'shift' => $shift,
             ],
             [
-                'mp_hadir'     => $hadirCount,
-                'total_absen'  => $totalAbsen,
+                'mp_hadir' => $hadirCount,
+                'total_absen' => $totalAbsen,
                 'total_member' => $totalMember,
-                'op_cuti'      => $opCuti,
-                'op_sakit'     => $opSakit,
-                'op_ijin'      => $opIjin,
-                'spv_cuti'     => $spvCuti,
-                'spv_sakit'    => $spvSakit,
-                'spv_ijin'     => $spvIjin,
-                'source'       => 'membermanagement',
+                'op_cuti' => $opCuti,
+                'op_sakit' => $opSakit,
+                'op_ijin' => $opIjin,
+                'spv_cuti' => $spvCuti,
+                'spv_sakit' => $spvSakit,
+                'spv_ijin' => $spvIjin,
+                'source' => 'membermanagement',
             ]
         );
     }

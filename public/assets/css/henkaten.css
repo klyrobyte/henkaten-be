@@ -135,7 +135,7 @@ body {
 }
 
 .mb-title {
-   font-family: 'Rajdhani', 'Orbitron', sans-serif;
+   font-family: 'Rajdhani', 'Roboto Condensed', sans-serif;
    font-weight: 700;
    font-size: 19px;
    letter-spacing: 0.5px;
@@ -189,7 +189,7 @@ body {
 
 .header-title {
    flex: 1;
-   font-family: 'Orbitron', sans-serif;
+   font-family: 'Roboto Condensed', sans-serif;
    font-size: 14px;
    font-weight: 700;
    color: var(--orange);
@@ -200,7 +200,7 @@ body {
 }
 
 .header-clock {
-   font-family: 'Orbitron', monospace;
+   font-family: 'Roboto Condensed', monospace;
    font-size: 13px;
    font-weight: 700;
    color: #fff;
@@ -396,19 +396,20 @@ body {
    border-radius: 16px;
    border: 1.5px solid #e0e0e0;
    padding: 16px;
-   margin-bottom: 16px;
+   margin-bottom: 75px;
    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
 .status-panel-title {
-   font-family: 'Orbitron', sans-serif;
+   font-family: 'Roboto Condensed', sans-serif;
    font-weight: 800;
    font-size: 18px;
    color: #2E7D32;
    text-align: center;
    letter-spacing: 1.5px;
    text-transform: uppercase;
-   margin-bottom: 16px;
+   margin-top: 10px;
+   margin-bottom: 0px
 }
 
 .auto-refresh-bar {
@@ -433,20 +434,20 @@ body {
    width: 12px;
    height: 12px;
    border-radius: 50%;
-   background: #2E7D32;
+   background: #ffffff;
    flex-shrink: 0;
-   animation: pulse-green 1.4s ease-in-out infinite;
+   animation: pulse-white 1.4s ease-in-out infinite;
 }
 
-@keyframes pulse-green {
+@keyframes pulse-white {
 
    0%,
    100% {
-      box-shadow: 0 0 0 0 rgba(46, 125, 50, 0.5);
+      box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.5);
    }
 
    50% {
-      box-shadow: 0 0 0 6px rgba(46, 125, 50, 0);
+      box-shadow: 0 0 0 6px rgba(255, 255, 255, 0);
    }
 }
 
@@ -561,7 +562,7 @@ body {
    display: block;
    width: 32px;
    height: 28px;
-   background: #FDD835;
+   background: #F18100;
    clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
 }
 
@@ -597,7 +598,7 @@ body {
 
 .emot-card.active-yellow {
    background: #fffde7;
-   border-color: #FDD835;
+   border-color: #F18100;
    border-width: 2px;
 }
 
@@ -727,7 +728,7 @@ body {
 }
 
 .live-value {
-   font-family: 'Orbitron', sans-serif;
+   font-family: 'Roboto Condensed', sans-serif;
    font-size: 24px;
    font-weight: 800;
    color: #1a1a1a;
@@ -761,7 +762,7 @@ body {
 }
 
 .summary-card .s-val {
-   font-family: 'Orbitron', sans-serif;
+   font-family: 'Roboto Condensed', sans-serif;
    font-size: 20px;
    font-weight: 700;
    color: var(--navy);
@@ -808,7 +809,7 @@ body {
    display: flex;
    flex-direction: column;
    align-items: center;
-   gap: 16px;
+
 }
 
 .chart-container {
@@ -826,7 +827,7 @@ body {
 }
 
 .chart-center .cv {
-   font-family: 'Orbitron', sans-serif;
+   font-family: 'Roboto Condensed', sans-serif;
    font-size: 20px;
    font-weight: 700;
    color: var(--green);
@@ -839,9 +840,10 @@ body {
 
 .legend-grid {
    display: grid;
-   grid-template-columns: 1fr 1fr;
-   gap: 8px;
-   width: 100%;
+   grid-template-columns: auto auto;
+   gap: 6px 85px;
+   width: fit-content;
+   margin: 0 auto;
 }
 
 .legend-item {
@@ -1517,7 +1519,7 @@ body {
 }
 
 .dh-logo {
-   font-family: 'Orbitron', sans-serif;
+   font-family: 'Roboto Condensed', sans-serif;
    font-weight: 900;
    font-size: 17px;
    letter-spacing: 1.5px;
@@ -1733,7 +1735,7 @@ body {
 }
 
 .tv-factory-header span {
-   font-family: 'Orbitron', sans-serif;
+   font-family: 'Roboto Condensed', sans-serif;
    font-weight: 700;
    font-size: 9px;
    letter-spacing: 1.2px;
@@ -2033,7 +2035,7 @@ body {
 }
 
 /* ══════════════════════════════════════════════════════════════
-   MEMBER MANAGEMENT — tambahan CSS (dari membermanagement.html)
+   MEMBER MANAGEMENT  - tambahan CSS (dari membermanagement.html)
    ══════════════════════════════════════════════════════════════ */
 
 /* Member grid */
@@ -2080,7 +2082,7 @@ body {
    position: absolute;
    top: 6px;
    left: 8px;
-   font-family: 'Orbitron', sans-serif;
+   font-family: 'Roboto Condensed', sans-serif;
    font-size: 9px;
    font-weight: 700;
    color: rgba(31, 60, 136, .45);
@@ -2191,7 +2193,7 @@ body {
 }
 
 .stat-card .sv {
-   font-family: 'Orbitron', sans-serif;
+   font-family: 'Roboto Condensed', sans-serif;
    font-size: 20px;
    font-weight: 700;
    color: var(--navy)
@@ -2300,7 +2302,7 @@ body {
 }
 
 .absen-stat .as-val {
-   font-family: 'Orbitron', sans-serif;
+   font-family: 'Roboto Condensed', sans-serif;
    font-size: 22px;
    font-weight: 700
 }
@@ -2427,7 +2429,7 @@ body {
 }
 
 .rdn-date {
-   font-family: 'Orbitron', sans-serif;
+   font-family: 'Roboto Condensed', sans-serif;
    font-size: 14px;
    font-weight: 700;
    color: var(--navy)
@@ -2466,7 +2468,7 @@ body {
 }
 
 .rch-title {
-   font-family: 'Orbitron', sans-serif;
+   font-family: 'Roboto Condensed', sans-serif;
    font-size: 12px;
    font-weight: 700;
    letter-spacing: .8px
@@ -2488,7 +2490,7 @@ body {
 }
 
 .rbar-val {
-   font-family: 'Orbitron', sans-serif;
+   font-family: 'Roboto Condensed', sans-serif;
    font-size: 18px;
    font-weight: 700
 }
@@ -2789,7 +2791,7 @@ body {
    background: #2E7D32;
    color: #fff;
    padding: 10px 14px;
-   font-family: 'Orbitron', sans-serif;
+   font-family: 'Roboto Condensed', sans-serif;
    font-size: 11px;
    font-weight: 700;
    letter-spacing: .8px
@@ -2955,7 +2957,7 @@ body {
 }
 
 .lsb-val {
-   font-family: 'Orbitron', sans-serif;
+   font-family: 'Roboto Condensed', sans-serif;
    font-size: 20px;
    font-weight: 700;
    color: var(--navy);

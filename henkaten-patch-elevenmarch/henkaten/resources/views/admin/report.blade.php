@@ -48,7 +48,7 @@
         }
 
         .m4-box .m4-val {
-            font-family: 'Orbitron', sans-serif;
+            font-family: 'Roboto Condensed', sans-serif;
             font-size: 22px;
             font-weight: 700;
             line-height: 1;
@@ -264,7 +264,7 @@
         }
 
         .lsb-val {
-            font-family: 'Orbitron', sans-serif;
+            font-family: 'Roboto Condensed', sans-serif;
             font-size: 22px;
             font-weight: 700;
             line-height: 1;
@@ -683,7 +683,7 @@
     <div class="date-bar"
         style="display:flex;align-items:center;background:#fff;border-radius:50px;padding:10px 18px;box-shadow:0 1px 4px rgba(0,0,0,0.08);gap:12px;">
 
-        {{-- Icon kalender — klik ini untuk buka date picker --}}
+        {{-- Icon kalender - klik ini untuk buka date picker --}}
         <div class="date-label" onclick="document.getElementById('tanggalHari').showPicker()"
             style="width:36px;height:36px;background:#2E7D32;border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff"
@@ -701,15 +701,15 @@
             {{ \Carbon\Carbon::parse($tanggal)->format('d / m / Y') }}
         </span>
 
-        {{-- Input date tersembunyi — hanya trigger via icon --}}
+        {{-- Input date tersembunyi - hanya trigger via icon --}}
         <input type="date" id="tanggalHari" value="{{ $tanggal }}" onchange="onDateChange(this.value)"
             style="position:absolute;opacity:0;pointer-events:none;width:0;height:0;">
 
         {{-- Factory badge --}}
         <button onclick="showFactoryPicker()" style="background:#2E7D32;border:none;border-radius:20px;padding:7px 18px;color:#fff;
-                       font-family:'Roboto Condensed',sans-serif;font-weight:700;font-size:12px;
-                       letter-spacing:1px;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:6px;
-                       transition:all .2s ease;" onmouseover="this.style.filter='brightness(1.15)'"
+                               font-family:'Roboto Condensed',sans-serif;font-weight:700;font-size:12px;
+                               letter-spacing:1px;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:6px;
+                               transition:all .2s ease;" onmouseover="this.style.filter='brightness(1.15)'"
             onmouseout="this.style.filter='brightness(1)'">
             <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff"
                 stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
@@ -732,16 +732,18 @@
 
     {{-- Header + export --}}
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
-        <div style="font-family:'Orbitron',sans-serif;font-size:13px;font-weight:700;color:var(--navy)">
-            LAPORAN HARIAN
+        <div style="font-family:'Roboto Condensed',sans-serif;font-size:13px;font-weight:700;color:var(--navy)">
+            HISTORY 4M
         </div>
         <div style="display:flex;gap:8px">
-            <a href="{{ route('admin.reports.export', ['tanggal' => $tanggal, 'factory' => $factory, 'shift' => $shift]) }}" style="padding:8px 14px;border-radius:8px;background:var(--green);color:#fff;
-                      text-decoration:none;font-size:12px;font-weight:700;font-family:'Roboto Condensed',sans-serif">
+            <a href="{{ route('admin.reports.export', ['tanggal' => $tanggal, 'factory' => $factory, 'shift' => $shift]) }}"
+                style="padding:8px 14px;border-radius:8px;background:var(--green);color:#fff;
+                              text-decoration:none;font-size:12px;font-weight:700;font-family:'Roboto Condensed',sans-serif">
                 📤 CSV
             </a>
-            <a href="{{ route('admin.reports.backup', ['tanggal' => $tanggal, 'factory' => $factory, 'shift' => $shift]) }}" style="padding:8px 14px;border-radius:8px;background:var(--navy);color:#fff;
-                      text-decoration:none;font-size:12px;font-weight:700;font-family:'Roboto Condensed',sans-serif">
+            <a href="{{ route('admin.reports.backup', ['tanggal' => $tanggal, 'factory' => $factory, 'shift' => $shift]) }}"
+                style="padding:8px 14px;border-radius:8px;background:var(--navy);color:#fff;
+                              text-decoration:none;font-size:12px;font-weight:700;font-family:'Roboto Condensed',sans-serif">
                 💾 JSON
             </a>
         </div>
@@ -812,9 +814,9 @@
         @endif
     </div>
 
-    {{-- ══ SECTION 2: Man — Absensi ════════════════════════════════════ --}}
+    {{-- ══ SECTION 2: Man - Absensi ════════════════════════════════════ --}}
     <div class="rpt-card">
-        <div class="rpt-section-title">👤 Man — Absensi MP ({{ $manCount }})</div>
+        <div class="rpt-section-title">👤 Man - Absensi MP ({{ $manCount }})</div>
 
         @if(count($absenTanpaRepl) > 0)
             <div class="warning-banner">
@@ -1021,8 +1023,8 @@
                         <div class="field-group">
                             <label>Status</label>
                             <select id="m-status" onchange="toggleSelesai('m', this.value)">
-                                <option value="open">Open — belum selesai</option>
-                                <option value="closed">Closed — sudah selesai</option>
+                                <option value="open">Open - belum selesai</option>
+                                <option value="closed">Closed - sudah selesai</option>
                             </select>
                         </div>
                     </div>
@@ -1069,8 +1071,8 @@
                         <div class="field-group">
                             <label>Status</label>
                             <select id="mat-status" onchange="toggleSelesai('mat', this.value)">
-                                <option value="open">Open — belum selesai</option>
-                                <option value="closed">Closed — sudah selesai</option>
+                                <option value="open">Open - belum selesai</option>
+                                <option value="closed">Closed - sudah selesai</option>
                             </select>
                         </div>
                     </div>
@@ -1117,8 +1119,8 @@
                         <div class="field-group">
                             <label>Status</label>
                             <select id="met-status" onchange="toggleSelesai('met', this.value)">
-                                <option value="open">Open — belum selesai</option>
-                                <option value="closed">Closed — sudah selesai</option>
+                                <option value="open">Open - belum selesai</option>
+                                <option value="closed">Closed - sudah selesai</option>
                             </select>
                         </div>
                     </div>
@@ -1159,7 +1161,7 @@
                     </div>
                 </div>
                 <div id="durasiPreview" style="text-align:center;font-family:'Roboto Condensed',sans-serif;
-                     font-size:13px;color:#888;margin-bottom:8px;min-height:20px"></div>
+                             font-size:13px;color:#888;margin-bottom:8px;min-height:20px"></div>
                 <div class="save-bar" style="margin-top:4px">
                     <button class="save-btn-big" onclick="saveEditTime()">💾 Simpan Perubahan</button>
                 </div>
@@ -1290,7 +1292,7 @@
                     btn.onclick = () => reopenLog(id);
                 }
 
-                showToast('✅ Log ditutup — ' + (data.durasi ?? ''), 'success');
+                showToast('✅ Log ditutup  - ' + (data.durasi ?? ''), 'success');
             } catch (e) {
                 showToast('Gagal', 'error');
                 if (btn) { btn.disabled = false; btn.textContent = '✅ Selesai'; }
@@ -1349,7 +1351,7 @@
                 });
                 const data = await res.json();
                 closeSheet('editTimeSheet');
-                showToast('✅ Waktu diupdate — ' + (data.durasi ?? ''), 'success');
+                showToast('✅ Waktu diupdate  - ' + (data.durasi ?? ''), 'success');
                 setTimeout(() => window.location.reload(), 600);
             } catch (e) {
                 showToast('Gagal', 'error');

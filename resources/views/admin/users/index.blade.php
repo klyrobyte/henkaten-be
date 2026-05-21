@@ -12,7 +12,7 @@
         }
 
         .um-header h2 {
-            font-family: 'Orbitron', sans-serif;
+            font-family: 'Roboto Condensed', sans-serif;
             font-size: 14px;
             font-weight: 900;
             color: var(--navy);
@@ -138,6 +138,10 @@
             text-transform: uppercase;
             letter-spacing: .4px;
             color: #fff;
+        }
+
+        .role-superadmin {
+            background: #000;
         }
 
         .role-admin {
@@ -288,6 +292,52 @@
             cursor: not-allowed;
         }
 
+        /* Factory Checkbox List */
+        .factory-checklist {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            padding: 12px;
+            border: 1.5px solid #e0e0e0;
+            border-radius: 10px;
+            background: #fcfcfc;
+        }
+
+        .factory-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            padding: 4px 0;
+        }
+
+        .factory-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .factory-item label {
+            font-family: 'Roboto Condensed', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            color: #444;
+            text-transform: none;
+            letter-spacing: 0;
+            cursor: pointer;
+            margin: 0;
+        }
+
+        .factory-item.disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        .factory-item.disabled input,
+        .factory-item.disabled label {
+            cursor: not-allowed;
+        }
+
         /* Role description info box */
         .role-info-grid {
             display: grid;
@@ -343,11 +393,20 @@
         <div class="section-title" style="margin-bottom:10px">👥 User Management</div>
 
         <div class="role-info-grid" style="margin-bottom:16px">
+            @if(auth()->user()->isSuperAdmin())
+                <div class="role-info-card" style="border-color:#ccc;background:#f9f9f9">
+                    <div class="ri-dot" style="background:#000"></div>
+                    <div>
+                        <div class="ri-name" style="color:#000">Super Admin</div>
+                        <div class="ri-desc">Akses penuh ke semua fitur, menu, factory, dan user management.</div>
+                    </div>
+                </div>
+            @endif
             <div class="role-info-card" style="border-color:#fcd0d0;background:#fff5f5">
                 <div class="ri-dot" style="background:#e74c3c"></div>
                 <div>
                     <div class="ri-name" style="color:#e74c3c">Admin</div>
-                    <div class="ri-desc">Full access + kelola user. Akses ke semua factory &amp; shift.</div>
+                    <div class="ri-desc">Akses kelola user &amp; factory sesuai scope yang ditentukan.</div>
                 </div>
             </div>
             <div class="role-info-card" style="border-color:#c5cae9;background:#eef1fa">
@@ -361,13 +420,6 @@
                 <div class="ri-dot" style="background:#2e7d32"></div>
                 <div>
                     <div class="ri-name" style="color:#2e7d32">Group Leader (GL)</div>
-                    <div class="ri-desc">Akses hanya ke factory &amp; shift yang di-assign.</div>
-                </div>
-            </div>
-            <div class="role-info-card" style="border-color:#ffe0b2;background:#fff8ec">
-                <div class="ri-dot" style="background:#f39c12"></div>
-                <div>
-                    <div class="ri-name" style="color:#f39c12">Pengawas</div>
                     <div class="ri-desc">Akses hanya ke factory &amp; shift yang di-assign.</div>
                 </div>
             </div>
@@ -398,15 +450,12 @@
                 <tbody id="umTableBody">
                     @forelse($users as $u)
                         @php
-                            $roleColors = ['admin' => '#e74c3c', 'tl' => '#1f3c88', 'gl' => '#2e7d32', 'pengawas' => '#f39c12', 'tv' => '#6a1b9a'];
-                            $roleLabels = ['admin' => 'Admin', 'tl' => 'Team Leader', 'gl' => 'Group Leader', 'pengawas' => 'Pengawas', 'tv' => 'TV Only'];
-                            $color = $roleColors[$u->role] ?? '#888';
                             $isSelf = $u->id === auth()->id();
                         @endphp
                         <tr id="um-row-{{ $u->id }}">
                             <td>
                                 <div class="um-name-col">
-                                    <div class="um-av" style="background:{{ $color }}">
+                                    <div class="um-av" style="background:{{ $u->role_color }}">
                                         {{ mb_strtoupper(mb_substr($u->name, 0, 1)) }}
                                     </div>
                                     <div>
@@ -423,23 +472,27 @@
                             </td>
                             <td>
                                 <span class="role-badge role-{{ $u->role }}">
-                                    {{ $roleLabels[$u->role] ?? $u->role }}
+                                    {{ $u->role_label }}
                                 </span>
                             </td>
                             <td style="font-size:11px;color:#555;font-family:'Roboto Condensed',sans-serif">
-                                @if($u->factory && $u->shift)
-                                    <strong>{{ $u->factory }}</strong><br>
-                                    <span style="color:#888">Shift {{ $u->shift }}</span>
+                                @if(!empty($u->factory))
+                                    @php
+                                        $facs = (array) $u->factory;
+                                        $displayFacs = count($facs) > 2 ? count($facs) . ' Factories' : implode(', ', $facs);
+                                    @endphp
+                                    <strong title="{{ implode(', ', $facs) }}">{{ $displayFacs }}</strong><br>
+                                    <span style="color:#888">Shift {{ $u->shift ?? ' -' }}</span>
                                 @else
-                                    <span style="color:#ccc">—</span>
+                                    <span style="color:#ccc"> -</span>
                                 @endif
                             </td>
                             <td style="font-size:11px;color:#aaa;font-family:'Roboto Condensed',sans-serif">
-                                {{ $u->created_at?->format('d M Y') ?? '—' }}
+                                {{ $u->created_at?->format('d M Y') ?? ' -' }}
                             </td>
                             <td style="text-align:right;white-space:nowrap">
                                 <button class="um-action-btn um-btn-edit"
-                                    onclick="openUserModal({{ $u->id }}, '{{ addslashes($u->name) }}', '{{ $u->username }}', '{{ $u->role }}', '{{ $u->factory ?? '' }}', '{{ $u->shift ?? '' }}')">
+                                    onclick='openUserModal({{ $u->id }}, "{{ addslashes($u->name) }}", "{{ $u->username }}", "{{ $u->role }}", @json($u->factory), "{{ $u->shift ?? "" }}")'>
                                     ✏️ Edit
                                 </button>
                                 @if($isSelf)
@@ -468,7 +521,7 @@
 
     {{-- ── Add/Edit User Modal ── --}}
     <div class="modal-overlay" id="userModal">
-        <div class="modal-sheet" style="max-height:90vh;overflow-y:auto">
+        <div class="modal-sheet" style="max-height:95vh;overflow-y:auto">
             <div class="modal-sheet-handle"></div>
             <div class="modal-sheet-header">
                 <h3 id="userModalTitle">Tambah User</h3>
@@ -488,26 +541,36 @@
                     <div class="um-field">
                         <label>Role *</label>
                         <select id="umRole">
-                            <option value="">— Pilih Role —</option>
-                            <option value="admin">🔴 Admin (Full + User Mgmt)</option>
+                            <option value=""> - Pilih Role -</option>
+                            @if(auth()->user()->isSuperAdmin())
+                                <option value="superadmin">⚫ Super Admin (Full Access)</option>
+                            @endif
+                            <option value="admin">🔴 Admin (Scoped Access)</option>
                             <option value="tl">🔵 Team Leader (TL)</option>
                             <option value="gl">🟢 Group Leader (GL)</option>
                             <option value="pengawas">🟡 Pengawas</option>
                             <option value="tv">📺 TV Only</option>
                         </select>
                     </div>
-                    <div class="um-field">
-                        <label>Factory</label>
-                        <select id="umFactory">
-                            <option value="">— Pilih Factory —</option>
-                            <option value="Factory 2">Factory 2</option>
-                            <option value="Factory 3 &amp; 4">Factory 3 &amp; 4</option>
-                        </select>
+                    <div class="um-field um-field-full">
+                        <label>Factory (Bisa Pilih Lebih Dari Satu) *</label>
+                        <div class="factory-checklist" id="factoryChecklist">
+                            @php
+                                $isSuper = auth()->user()->isSuperAdmin();
+                                $adminFacs = (array) auth()->user()->factory;
+                            @endphp
+                            @foreach($factories as $f)
+                                <div class="factory-item {{ !$isSuper ? 'disabled' : '' }}">
+                                    <input type="checkbox" id="fac_{{ $f->id }}" value="{{ $f->name }}" class="um-factory-cb" {{ !$isSuper ? 'checked disabled' : '' }}>
+                                    <label for="fac_{{ $f->id }}">{{ $f->name }}</label>
+                                </div>
+                            @endforeach
+                        </div>
                     </div>
                     <div class="um-field">
                         <label>Shift</label>
                         <select id="umShift">
-                            <option value="">— Pilih Shift —</option>
+                            <option value=""> - Pilih Shift -</option>
                             <option value="A">Shift A</option>
                             <option value="B">Shift B</option>
                         </select>
@@ -535,9 +598,9 @@
         const CSRF = '{{ csrf_token() }}';
         let _umEditId = null;
 
-        const RESTRICTED_ROLES = ['tl', 'gl', 'pengawas'];
+        const RESTRICTED_ROLES = ['tl', 'gl', 'pengawas', 'admin'];
 
-        function openUserModal(id = null, name = '', username = '', role = '', factory = '', shift = '') {
+        function openUserModal(id = null, name = '', username = '', role = '', factory = [], shift = '') {
             _umEditId = id;
             const isEdit = !!id;
 
@@ -546,13 +609,26 @@
             document.getElementById('umName').value = name;
             document.getElementById('umUsername').value = username;
             document.getElementById('umRole').value = role;
-            document.getElementById('umFactory').value = factory;
             document.getElementById('umShift').value = shift;
             document.getElementById('umPassword').value = '';
             document.getElementById('umPasswordConfirm').value = '';
             document.getElementById('umPwHint').textContent = isEdit
                 ? 'Kosongkan jika tidak ingin mengubah password.'
                 : 'Minimal 6 karakter.';
+
+            // Reset checkboxes
+            const cbs = document.querySelectorAll('.um-factory-cb');
+            const isSuper = {{ auth()->user()->isSuperAdmin() ? 'true' : 'false' }};
+
+            cbs.forEach(cb => {
+                if (isSuper) {
+                    cb.checked = Array.isArray(factory) ? factory.includes(cb.value) : (factory == cb.value);
+                } else {
+                    // Normal admin: always checked and disabled (locked to their own factories)
+                    cb.checked = true;
+                    cb.disabled = true;
+                }
+            });
 
             openSheet('userModal');
             setTimeout(() => document.getElementById('umName').focus(), 200);
@@ -563,16 +639,19 @@
             const name = document.getElementById('umName').value.trim();
             const username = document.getElementById('umUsername').value.trim();
             const role = document.getElementById('umRole').value;
-            const factory = document.getElementById('umFactory').value;
             const shift = document.getElementById('umShift').value;
             const password = document.getElementById('umPassword').value;
             const confirm = document.getElementById('umPasswordConfirm').value;
 
+            // Get checked factories
+            const factory = [];
+            document.querySelectorAll('.um-factory-cb:checked').forEach(cb => factory.push(cb.value));
+
             if (!name) { showToast('Nama tidak boleh kosong.', 'error'); return; }
             if (!username) { showToast('Username tidak boleh kosong.', 'error'); return; }
             if (!role) { showToast('Pilih role terlebih dahulu.', 'error'); return; }
-            if (RESTRICTED_ROLES.includes(role) && !factory) { showToast('Pilih factory untuk role ini.', 'error'); return; }
-            if (RESTRICTED_ROLES.includes(role) && !shift) { showToast('Pilih shift untuk role ini.', 'error'); return; }
+            if (RESTRICTED_ROLES.includes(role) && factory.length === 0) { showToast('Pilih minimal satu factory.', 'error'); return; }
+            if (['tl', 'gl', 'pengawas'].includes(role) && !shift) { showToast('Pilih shift untuk role ini.', 'error'); return; }
             if (!id && !password) { showToast('Password wajib diisi.', 'error'); return; }
             if (password && password.length < 6) { showToast('Password minimal 6 karakter.', 'error'); return; }
             if (password && password !== confirm) { showToast('Konfirmasi password tidak cocok.', 'error'); return; }

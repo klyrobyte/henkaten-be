@@ -10,7 +10,7 @@ class Machine extends Model
     protected $fillable = ['factory', 'name', 'photo'];
 
     /**
-     * URL foto mesin — null jika belum ada foto
+     * URL foto mesin  - null jika belum ada foto
      */
     public function getPhotoUrlAttribute(): ?string
     {

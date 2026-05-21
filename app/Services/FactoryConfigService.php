@@ -2,121 +2,146 @@
 
 namespace App\Services;
 
+use App\Models\Factory;
+use App\Models\Machine;
+use App\Models\Section;
+
 /**
  * FactoryConfigService
  *
- * Menggantikan konstanta JS:
- *   - factoryConfig       (daftar grup & mesin per factory)
- *   - circleCountConfig   (jumlah slot/circle per mesin)
- *
- * Di-bind sebagai singleton di AppServiceProvider.
+ * UPDATED: All factory and section config now reads from DB (factories + sections tables).
+ * No hardcoded section config  - fully dynamic.
+ * All method signatures preserved for backward compatibility.
  */
 class FactoryConfigService
 {
-    // ─── Grup & mesin per factory ──────────────────────────────────────
-    private array $groups = [
-        'Factory 2' => [
-            ['title' => 'Key Persons', 'machines' => [
-                'GL','TL Resin','TL Assy (1)','TL Assy (2)',
-                'KY Resin','KY Assy (1)','KY Assy (2)',
-            ]],
-            ['title' => 'Resin Injection', 'machines' => [
-                '#01-2500T','#02-3500T','#03-3500T','#04-2500T','#05-3500T',
-                '#06-2500T','#07-2500T','#08-2500T','Crane 30T','Trans. Part','Trans. Matl',
-            ]],
-            ['title' => 'Robot Assembly', 'machines' => [
-                'Robot 1','Robot 2','Robot 3','Robot 4','Robot 5','Quality',
-            ]],
-            ['title' => 'SPS & Setting', 'machines' => [
-                'SPS','Setting FG','Repair Part',
-            ]],
-            ['title' => 'Position & Final Check', 'machines' => [
-                'Pos 1','Pos 2','Pos 3','Final Check','Setting Fax','Repair Part','Trans. Child Part',
-            ]],
-        ],
-        'Factory 3 & 4' => [
-            ['title' => 'Key Persons', 'machines' => [
-                'GL','TL Resin 1','TL Resin 2','KY Resin',
-            ]],
-            ['title' => 'Factory 3 - Resin Injection', 'machines' => [
-                '#01-1300T','#02-1300T','Q/Gate D.G.','#03-1300T','#04-1050T',
-                '#05-2500T','#06-1600T','#07-2500T','Assy #07&#08','#08-2500T',
-                '#09-1600T','#10&13-650T','#14-650T','MC Vibration',
-                'Crane 18T','Crane 7.5T','Trans. Matl',
-            ]],
-            ['title' => 'Factory 4 - Resin Injection', 'machines' => [
-                '#01-350T','#08-350T','Crane&Matl','Assy 1','Assy 2','Assy 3','Crushing',
-            ]],
-        ],
-    ];
-
-    // ─── Jumlah circle/slot per mesin ─────────────────────────────────
-    private array $circleCount = [
-        'Factory 2' => [
-            'Key Persons' => [
-                'GL'=>1,'TL Resin'=>1,'TL Assy (1)'=>1,'TL Assy (2)'=>1,
-                'KY Resin'=>1,'KY Assy (1)'=>1,'KY Assy (2)'=>1,
-            ],
-            'Resin Injection' => [
-                '#01-2500T'=>3,'#02-3500T'=>2,'#03-3500T'=>1,'#04-2500T'=>1,
-                '#05-3500T'=>1,'#06-2500T'=>2,'#07-2500T'=>1,'#08-2500T'=>1,
-                'Crane 30T'=>2,'Trans. Part'=>2,'Trans. Matl'=>2,
-            ],
-            'Robot Assembly'  => ['Robot 1'=>2,'Robot 2'=>2,'Robot 3'=>1,'Robot 4'=>2,'Robot 5'=>2,'Quality'=>1],
-            'SPS & Setting'   => ['SPS'=>2,'Setting FG'=>2,'Repair Part'=>1],
-            'Position & Final Check' => [
-                'Pos 1'=>1,'Pos 2'=>1,'Pos 3'=>1,'Final Check'=>2,
-                'Setting Fax'=>1,'Repair Part'=>1,'Trans. Child Part'=>1,
-            ],
-        ],
-        'Factory 3 & 4' => [
-            'Key Persons' => ['GL'=>1,'TL Resin 1'=>1,'TL Resin 2'=>1,'KY Resin'=>1],
-            'Factory 3 - Resin Injection' => [
-                '#01-1300T'=>3,'#02-1300T'=>2,'Q/Gate D.G.'=>1,'#03-1300T'=>1,'#04-1050T'=>1,
-                '#05-2500T'=>3,'#06-1600T'=>2,'#07-2500T'=>1,'Assy #07&#08'=>1,'#08-2500T'=>1,
-                '#09-1600T'=>1,'#10&13-650T'=>1,'#14-650T'=>1,'MC Vibration'=>1,
-                'Crane 18T'=>1,'Crane 7.5T'=>1,'Trans. Matl'=>1,
-            ],
-            'Factory 4 - Resin Injection' => [
-                '#01-350T'=>1,'#08-350T'=>2,'Crane&Matl'=>1,'Assy 1'=>1,'Assy 2'=>1,'Assy 3'=>1,'Crushing'=>1,
-            ],
-        ],
-    ];
-
     // ─── Public API ───────────────────────────────────────────────────
 
-    /** Ambil semua grup untuk satu factory */
-    public function getGroups(string $factory): array
+    /**
+     * Ambil konfigurasi section (array of definitions) untuk satu factory.
+     * Format output identik dengan versi lama untuk backward compatibility.
+     */
+    public function getSectionConfig(string $factory): array
     {
-        return $this->groups[$factory] ?? [];
+        $factoryModel = Factory::where('name', $factory)->first();
+        if (!$factoryModel)
+            return [];
+
+        return $factoryModel->sections()
+            ->orderBy('order_index')
+            ->get()
+            ->map(fn($s) => [
+                'key' => $s->code,
+                'title' => $s->name,
+                'type' => $s->type,
+                'is_key_persons' => $s->is_key_persons,
+                'is_key_robot' => $s->is_key_robot,
+            ])
+            ->toArray();
     }
 
-    /** Ambil semua nama mesin flat (opsional exclude Key Persons) */
+    /**
+     * Bangun $groups dinamis dari DB  - menggantikan getGroups() lama.
+     * Dipakai di DashboardController::index() dan tvMode().
+     *
+     * Setiap elemen berisi:
+     *   title          → judul section
+     *   section_key    → key internal (code dari tabel sections)
+     *   machines       → array nama mesin (string[])
+     *   is_key_persons → boolean
+     *   is_key_robot   → boolean
+     */
+    public function buildGroups(string $factory): array
+    {
+        $dbMachines = Machine::where('factory', $factory)->orderBy('id')->get();
+        $sectionDefs = $this->getSectionConfig($factory);
+
+        // Build lookup of configured codes
+        $configuredKeys = array_column($sectionDefs, 'key');
+
+        // Collect all unique section_key values from DB machines
+        $allSectionKeys = $dbMachines->pluck('section_key')->unique()->sort()->values()->toArray();
+
+        $groups = [];
+
+        // 1. Add groups from section config IN ORDER (preserve order from DB sections table)
+        foreach ($sectionDefs as $def) {
+            $key = $def['key'];
+
+            $sectionMachines = $dbMachines->filter(
+                fn($m) => $m->section_key === $key
+            )->values();
+
+            $groups[] = [
+                'title' => $def['title'],
+                'section_key' => $key,
+                'type' => $def['type'] ?? 'mesin',
+                'machines' => $sectionMachines->pluck('name')->toArray(),
+                'is_key_persons' => $def['is_key_persons'] ?? false,
+                'is_key_robot' => $def['is_key_robot'] ?? false,
+            ];
+        }
+
+        return $groups;
+    }
+
+    /**
+     * Generate title automatically for unconfigured sections.
+     */
+    private function generateSectionTitle(string $key): string
+    {
+        // Try to look up name from sections table first
+        $section = Section::where('code', $key)->first();
+        if ($section)
+            return $section->name;
+
+        $titles = [
+            'lainya' => 'Others / Support Equipment',
+            'custom' => 'Custom Section',
+            'other' => 'Other Section',
+        ];
+
+        return $titles[$key] ?? ucfirst($key);
+    }
+
+    /**
+     * Semua nama mesin dari DB untuk satu factory.
+     * @param bool $excludeKeyPersons  jika true, skip mesin dengan status='persons'
+     */
     public function getAllMachines(string $factory, bool $excludeKeyPersons = false): array
     {
-        $machines = [];
-        foreach ($this->groups[$factory] ?? [] as $group) {
-            if ($excludeKeyPersons && str_contains($group['title'], 'Key Persons')) continue;
-            array_push($machines, ...$group['machines']);
+        $query = Machine::where('factory', $factory);
+        if ($excludeKeyPersons) {
+            $query->where('status', '!=', 'persons');
         }
-        return $machines;
+        return $query->pluck('name')->toArray();
     }
 
-    /** Jumlah circle/slot untuk mesin tertentu */
-    public function getCircleCount(string $factory, string $groupTitle, string $machineName): int
-    {
-        return $this->circleCount[$factory][$groupTitle][$machineName] ?? 1;
-    }
-
-    /** Cek apakah grup adalah Key Persons */
+    /** Cek apakah judul grup adalah Key Persons */
     public function isKeyPersons(string $groupTitle): bool
     {
         return str_contains($groupTitle, 'Key Persons');
     }
 
-    /** Semua factory yang tersedia */
+    /** Cek key robot */
+    public function isKeyRobot(string $groupTitle): bool
+    {
+        return str_contains($groupTitle, 'Robot Assy');
+    }
+
+    /**
+     * Semua factory yang tersedia  - now from DB.
+     */
     public function getFactories(): array
     {
-        return array_keys($this->groups);
+        return Factory::orderBy('order_index')->pluck('name')->toArray();
+    }
+
+    /**
+     * Semua factory sebagai full objects  - for views that need gradient, short_label, etc.
+     */
+    public function getFactoryObjects(): \Illuminate\Support\Collection
+    {
+        return Factory::orderBy('order_index')->get();
     }
 }

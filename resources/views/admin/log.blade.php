@@ -21,7 +21,7 @@
         }
 
         .lsb-val {
-            font-family: 'Orbitron', sans-serif;
+            font-family: 'Roboto Condensed', sans-serif;
             font-size: 22px;
             font-weight: 700;
             line-height: 1;
@@ -441,7 +441,7 @@
     <div class="date-bar"
         style="display:flex;align-items:center;background:#fff;border-radius:50px;padding:10px 18px;box-shadow:0 1px 4px rgba(0,0,0,0.08);gap:12px;">
 
-        {{-- Icon kalender — klik ini untuk buka date picker --}}
+        {{-- Icon kalender - klik ini untuk buka date picker --}}
         <div class="date-label" onclick="document.getElementById('tanggalHari').showPicker()"
             style="width:36px;height:36px;background:#2E7D32;border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff"
@@ -459,15 +459,15 @@
             {{ \Carbon\Carbon::parse($tanggal)->format('d / m / Y') }}
         </span>
 
-        {{-- Input date tersembunyi — hanya trigger via icon --}}
+        {{-- Input date tersembunyi - hanya trigger via icon --}}
         <input type="date" id="tanggalHari" value="{{ $tanggal }}" onchange="onDateChange(this.value)"
             style="position:absolute;opacity:0;pointer-events:none;width:0;height:0;">
 
         {{-- Factory badge --}}
         <button onclick="showFactoryPicker()" style="background:#2E7D32;border:none;border-radius:20px;padding:7px 18px;color:#fff;
-                       font-family:'Roboto Condensed',sans-serif;font-weight:700;font-size:12px;
-                       letter-spacing:1px;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:6px;
-                       transition:all .2s ease;" onmouseover="this.style.filter='brightness(1.15)'"
+                           font-family:'Roboto Condensed',sans-serif;font-weight:700;font-size:12px;
+                           letter-spacing:1px;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:6px;
+                           transition:all .2s ease;" onmouseover="this.style.filter='brightness(1.15)'"
             onmouseout="this.style.filter='brightness(1)'">
             <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff"
                 stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
@@ -480,16 +480,17 @@
                 <line x1="16" y1="16" x2="16" y2="16" />
                 <line x1="12" y1="16" x2="12" y2="16" />
             </svg>
-            FACTORY {{ session('factory', 'Factory 2') === 'Factory 2' ? '2' : '3&4' }}
+            {{ strtoupper(\App\Models\Factory::where('name', session('factory', 'Factory 2'))->value('short_label') ?? session('factory', 'Factory 2')) }}
         </button>
     </div>
     <div class="shift-toggle-bar">
-        @php $userShift = auth()->user()->shift; $isAdmin = auth()->user()->role === 'admin'; @endphp
+        @php $userShift = auth()->user()->shift;
+        $isAdmin = auth()->user()->role === 'admin'; @endphp
         @if($isAdmin || !$userShift || $userShift === 'A')
-        <button class="shift-toggle-btn {{ $shift === 'A' ? 'active' : '' }}" onclick="switchShift('A')">SHIFT A</button>
+            <button class="shift-toggle-btn {{ $shift === 'A' ? 'active' : '' }}" onclick="switchShift('A')">SHIFT A</button>
         @endif
         @if($isAdmin || !$userShift || $userShift === 'B')
-        <button class="shift-toggle-btn {{ $shift === 'B' ? 'active' : '' }}" onclick="switchShift('B')">SHIFT B</button>
+            <button class="shift-toggle-btn {{ $shift === 'B' ? 'active' : '' }}" onclick="switchShift('B')">SHIFT B</button>
         @endif
     </div>
 
@@ -520,15 +521,16 @@
 
     {{-- Action bar --}}
     <div style="display:flex;justify-content:flex-end;margin-bottom:14px;gap:8px">
-        <a href="{{ route('admin.reports.export', ['tanggal' => $tanggal, 'factory' => $factory, 'shift' => $shift]) }}" style="display:flex;align-items:center;gap:5px;font-size:12px;padding:8px 14px;border-radius:8px;
-                  background:#f5f5f5;color:#666;text-decoration:none;border:1.5px solid #ddd;
-                  font-family:'Roboto Condensed',sans-serif;font-weight:700">
+        <a href="{{ route('admin.reports.export', ['tanggal' => $tanggal, 'factory' => $factory, 'shift' => $shift]) }}"
+            style="display:flex;align-items:center;gap:5px;font-size:12px;padding:8px 14px;border-radius:8px;
+                      background:#f5f5f5;color:#666;text-decoration:none;border:1.5px solid #ddd;
+                      font-family:'Roboto Condensed',sans-serif;font-weight:700">
             📤 Export CSV
         </a>
         <button onclick="openSheet('addLogSheet')" style="display:flex;align-items:center;gap:6px;padding:8px 18px;border-radius:8px;
-                       background:var(--orange);color:#fff;border:none;font-weight:800;cursor:pointer;
-                       font-size:13px;font-family:'Roboto Condensed',sans-serif;letter-spacing:.3px;
-                       box-shadow:0 3px 10px rgba(230,81,0,.3)">
+                           background:var(--orange);color:#fff;border:none;font-weight:800;cursor:pointer;
+                           font-size:13px;font-family:'Roboto Condensed',sans-serif;letter-spacing:.3px;
+                           box-shadow:0 3px 10px rgba(230,81,0,.3)">
             ➕ Tambah Log
         </button>
     </div>
@@ -561,6 +563,9 @@
                     @endif
                     @if($log->pic)
                         <div class="log-meta">👤 <strong>PIC:</strong> {{ $log->pic }}</div>
+                    @endif
+                    @if($log->departemen_perbaikan)
+                        <div class="log-meta">🏢 <strong>Dept. Perbaikan:</strong> {{ $log->departemen_perbaikan }}</div>
                     @endif
                 </div>
                 <div class="log-card-actions">
@@ -644,13 +649,24 @@
                                 placeholder="Contoh: ganti bearing, reset PLC..."></div>
                     </div>
                     <div class="form-row">
+                        <div class="field-group">
+                            <label>Departemen Perbaikan</label>
+                            <select id="m-dept">
+                                <option value="">-- Pilih Departemen --</option>
+                                @foreach($repairDepartments as $rd)
+                                    <option value="{{ $rd->name }}">{{ $rd->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
                         <div class="field-group"><label>Teknisi / PIC</label><input type="text" id="m-pic"
                                 placeholder="Nama teknisi yang handle"></div>
+                    </div>
+                    <div class="form-row">
                         <div class="field-group">
                             <label>Status</label>
                             <select id="m-status" onchange="toggleSelesai('m', this.value)">
-                                <option value="open">Open — belum selesai</option>
-                                <option value="closed">Closed — sudah selesai</option>
+                                <option value="open">Open - belum selesai</option>
+                                <option value="closed">Closed - sudah selesai</option>
                             </select>
                         </div>
                     </div>
@@ -692,13 +708,24 @@
                                 placeholder="Contoh: ganti lot, kembalikan ke gudang..."></div>
                     </div>
                     <div class="form-row">
+                        <div class="field-group">
+                            <label>Departemen Perbaikan</label>
+                            <select id="mat-dept">
+                                <option value="">-- Pilih Departemen --</option>
+                                @foreach($repairDepartments as $rd)
+                                    <option value="{{ $rd->name }}">{{ $rd->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
                         <div class="field-group"><label>PIC</label><input type="text" id="mat-pic"
                                 placeholder="Nama penanggung jawab"></div>
+                    </div>
+                    <div class="form-row">
                         <div class="field-group">
                             <label>Status</label>
                             <select id="mat-status" onchange="toggleSelesai('mat', this.value)">
-                                <option value="open">Open — belum selesai</option>
-                                <option value="closed">Closed — sudah selesai</option>
+                                <option value="open">Open - belum selesai</option>
+                                <option value="closed">Closed - sudah selesai</option>
                             </select>
                         </div>
                     </div>
@@ -740,13 +767,24 @@
                                 placeholder="Contoh: re-training, update SOP..."></div>
                     </div>
                     <div class="form-row">
+                        <div class="field-group">
+                            <label>Departemen Perbaikan</label>
+                            <select id="met-dept">
+                                <option value="">-- Pilih Departemen --</option>
+                                @foreach($repairDepartments as $rd)
+                                    <option value="{{ $rd->name }}">{{ $rd->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
                         <div class="field-group"><label>PIC</label><input type="text" id="met-pic"
                                 placeholder="Nama penanggung jawab"></div>
+                    </div>
+                    <div class="form-row">
                         <div class="field-group">
                             <label>Status</label>
                             <select id="met-status" onchange="toggleSelesai('met', this.value)">
-                                <option value="open">Open — belum selesai</option>
-                                <option value="closed">Closed — sudah selesai</option>
+                                <option value="open">Open - belum selesai</option>
+                                <option value="closed">Closed - sudah selesai</option>
                             </select>
                         </div>
                     </div>
@@ -787,7 +825,7 @@
                     </div>
                 </div>
                 <div id="durasiPreview" style="text-align:center;font-family:'Roboto Condensed',sans-serif;
-                     font-size:13px;color:#888;margin-bottom:8px;min-height:20px"></div>
+                         font-size:13px;color:#888;margin-bottom:8px;min-height:20px"></div>
                 <div class="save-bar" style="margin-top:4px">
                     <button class="save-btn-big" onclick="saveEditTime()">💾 Simpan Perubahan</button>
                 </div>
@@ -800,19 +838,18 @@
         <div class="modal-sheet" style="max-height:380px">
             <div class="modal-sheet-handle"></div>
             <div style="display:flex;align-items:center;justify-content:space-between;
-                        padding:14px 16px 12px;border-bottom:1.5px solid #f0f0f0">
+                            padding:14px 16px 12px;border-bottom:1.5px solid #f0f0f0">
                 <div style="display:flex;align-items:center;gap:10px">
                     <div style="width:36px;height:36px;border-radius:10px;
-                                background:linear-gradient(135deg,#2e7d32,#43a047);
-                                color:#fff;font-size:18px;display:flex;align-items:center;
-                                justify-content:center;box-shadow:0 3px 8px rgba(46,125,50,.3);
-                                flex-shrink:0">✅</div>
+                                    background:linear-gradient(135deg,#2e7d32,#43a047);
+                                    color:#fff;font-size:18px;display:flex;align-items:center;
+                                    justify-content:center;box-shadow:0 3px 8px rgba(46,125,50,.3);
+                                    flex-shrink:0">✅</div>
                     <div>
                         <div style="font-family:'Roboto Condensed',sans-serif;font-size:14px;
-                                    font-weight:900;color:#222;text-transform:uppercase;
-                                    letter-spacing:.5px">Selesaikan Log</div>
-                        <div id="closeLogSubtitle"
-                             style="font-size:11px;color:#aaa;margin-top:1px"></div>
+                                        font-weight:900;color:#222;text-transform:uppercase;
+                                        letter-spacing:.5px">Selesaikan Log</div>
+                        <div id="closeLogSubtitle" style="font-size:11px;color:#aaa;margin-top:1px"></div>
                     </div>
                 </div>
                 <button class="modal-sheet-close" onclick="closeSheet('closeLogSheet')">✕</button>
@@ -820,29 +857,26 @@
             <div class="modal-sheet-body">
                 <input type="hidden" id="closeLogId">
 
-                {{-- Countermeasure — WAJIB --}}
+                {{-- Countermeasure - WAJIB --}}
                 <div style="margin-bottom:14px">
                     <label style="font-family:'Roboto Condensed',sans-serif;font-size:11px;
-                                  font-weight:900;text-transform:uppercase;letter-spacing:.5px;
-                                  color:#2e7d32;display:flex;align-items:center;
-                                  gap:6px;margin-bottom:7px">
+                                      font-weight:900;text-transform:uppercase;letter-spacing:.5px;
+                                      color:#2e7d32;display:flex;align-items:center;
+                                      gap:6px;margin-bottom:7px">
                         🔧 Countermeasure
                         <span style="background:#e74c3c;color:#fff;font-size:9px;
-                                     padding:2px 7px;border-radius:4px;font-weight:900">WAJIB</span>
+                                         padding:2px 7px;border-radius:4px;font-weight:900">WAJIB</span>
                     </label>
-                    <textarea id="closeCM" rows="4"
-                              placeholder="Tindakan yang dilakukan untuk menyelesaikan masalah..."
-                              style="width:100%;padding:11px 12px;border:2px solid #e0e0e0;
-                                     border-radius:10px;font-family:inherit;font-size:13px;
-                                     resize:none;box-sizing:border-box;outline:none;
-                                     transition:border-color .2s,box-shadow .2s;line-height:1.5"
-                              oninput="onCMInput()"
-                              onfocus="this.style.borderColor='#2e7d32';this.style.boxShadow='0 0 0 3px rgba(46,125,50,.12)'"
-                              onblur="this.style.boxShadow='none';this.style.borderColor=this.value.trim()?'#a5d6a7':'#e0e0e0'">
-                    </textarea>
-                    <div id="cmError"
-                         style="display:none;color:#e74c3c;font-size:11px;font-weight:700;
-                                font-family:'Roboto Condensed',sans-serif;margin-top:5px">
+                    <textarea id="closeCM" rows="4" placeholder="Tindakan yang dilakukan untuk menyelesaikan masalah..."
+                        style="width:100%;padding:11px 12px;border:2px solid #e0e0e0;
+                                         border-radius:10px;font-family:inherit;font-size:13px;
+                                         resize:none;box-sizing:border-box;outline:none;
+                                         transition:border-color .2s,box-shadow .2s;line-height:1.5" oninput="onCMInput()"
+                        onfocus="this.style.borderColor='#2e7d32';this.style.boxShadow='0 0 0 3px rgba(46,125,50,.12)'"
+                        onblur="this.style.boxShadow='none';this.style.borderColor=this.value.trim()?'#a5d6a7':'#e0e0e0'">
+                        </textarea>
+                    <div id="cmError" style="display:none;color:#e74c3c;font-size:11px;font-weight:700;
+                                    font-family:'Roboto Condensed',sans-serif;margin-top:5px">
                         ⚠️ Countermeasure wajib diisi
                     </div>
                 </div>
@@ -850,29 +884,24 @@
                 {{-- Waktu selesai opsional --}}
                 <div style="margin-bottom:16px">
                     <label style="font-family:'Roboto Condensed',sans-serif;font-size:11px;
-                                  font-weight:700;text-transform:uppercase;letter-spacing:.4px;
-                                  color:#aaa;display:flex;align-items:center;
-                                  gap:5px;margin-bottom:6px">
+                                      font-weight:700;text-transform:uppercase;letter-spacing:.4px;
+                                      color:#aaa;display:flex;align-items:center;
+                                      gap:5px;margin-bottom:6px">
                         ⏰ Waktu Selesai
                         <span style="font-weight:400;color:#ccc">(opsional)</span>
                     </label>
-                    <input type="time" id="closeWaktuSelesai"
-                           style="width:100%;padding:10px 12px;border:1.5px solid #e0e0e0;
-                                  border-radius:10px;font-family:inherit;font-size:13px;
-                                  box-sizing:border-box;outline:none;transition:border-color .2s"
-                           onfocus="this.style.borderColor='#888'"
-                           onblur="this.style.borderColor='#e0e0e0'">
+                    <input type="time" id="closeWaktuSelesai" style="width:100%;padding:10px 12px;border:1.5px solid #e0e0e0;
+                                      border-radius:10px;font-family:inherit;font-size:13px;
+                                      box-sizing:border-box;outline:none;transition:border-color .2s"
+                        onfocus="this.style.borderColor='#888'" onblur="this.style.borderColor='#e0e0e0'">
                 </div>
 
                 <div class="save-bar">
-                    <button id="btnConfirmClose"
-                            onclick="confirmCloseLog()"
-                            style="width:100%;padding:14px;border-radius:12px;border:none;
-                                   background:#ccc;color:#fff;cursor:not-allowed;
-                                   font-family:'Roboto Condensed',sans-serif;
-                                   font-size:14px;font-weight:900;letter-spacing:.5px;
-                                   text-transform:uppercase;transition:all .2s;opacity:.6"
-                            disabled>
+                    <button id="btnConfirmClose" onclick="confirmCloseLog()" style="width:100%;padding:14px;border-radius:12px;border:none;
+                                       background:#ccc;color:#fff;cursor:not-allowed;
+                                       font-family:'Roboto Condensed',sans-serif;
+                                       font-size:14px;font-weight:900;letter-spacing:.5px;
+                                       text-transform:uppercase;transition:all .2s;opacity:.6" disabled>
                         ✅ Konfirmasi Selesai
                     </button>
                 </div>
@@ -943,7 +972,7 @@
             btn.disabled = true; btn.textContent = '⏳ Menyimpan...';
 
             try {
-                const res = await fetch('/admin/logs', {
+                const res = await fetch('/api/logs', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' },
                     body: JSON.stringify({
@@ -954,6 +983,7 @@
                         cause: document.getElementById(`${p}-cause`)?.value || null,
                         countermeasure: document.getElementById(`${p}-cm`)?.value || null,
                         pic: document.getElementById(`${p}-pic`)?.value || null,
+                        departemen_perbaikan: document.getElementById(`${p}-dept`)?.value || null,
                     }),
                 });
                 const data = await res.json().catch(() => ({}));
@@ -974,15 +1004,15 @@
             document.getElementById('closeCM').value = '';
             document.getElementById('closeWaktuSelesai').value = '';
             document.getElementById('cmError').style.display = 'none';
-            
+
             const btn = document.getElementById('btnConfirmClose');
             btn.disabled = true;
             btn.style.background = '#ccc';
             btn.style.cursor = 'not-allowed';
-            
+
             const subtitle = document.getElementById('closeLogSubtitle');
             if (subtitle) subtitle.textContent = 'ID Log: ' + id;
-            
+
             openSheet('closeLogSheet');
         }
 
@@ -1007,7 +1037,7 @@
             const cm = document.getElementById('closeCM').value.trim();
             const waktu = document.getElementById('closeWaktuSelesai').value;
             const btn = document.getElementById('btnConfirmClose');
-            
+
             if (!cm) {
                 document.getElementById('cmError').style.display = 'block';
                 return;
@@ -1015,22 +1045,22 @@
 
             btn.disabled = true;
             btn.textContent = '⏳ Menyimpan...';
-            
+
             try {
                 const payload = { countermeasure: cm };
                 if (waktu) payload.waktu_selesai = waktu;
-                
-                const res = await fetch(`/admin/logs/${id}/close`, {
+
+                const res = await fetch(`/api/logs/${id}/close`, {
                     method: 'PATCH',
                     headers: { 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json', 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
                 const data = await res.json();
-                
+
                 if (res.ok) {
                     showToast('✅ Log diselesaikan', 'success');
                     closeSheet('closeLogSheet');
-                    
+
                     const card = document.getElementById(`logcard-${id}`);
                     const timeEl = document.getElementById(`time-${id}`);
                     const durEl = document.getElementById(`dur-${id}`);
@@ -1067,7 +1097,7 @@
 
         async function reopenLog(id) {
             try {
-                await fetch(`/admin/logs/${id}/reopen`, {
+                await fetch(`/api/logs/${id}/reopen`, {
                     method: 'PATCH',
                     headers: { 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json', 'Content-Type': 'application/json' },
                 });
@@ -1110,14 +1140,14 @@
             const btn = document.querySelector('#editTimeSheet .save-btn-big');
             if (btn) { btn.disabled = true; btn.textContent = '⏳ Menyimpan...'; }
             try {
-                const res = await fetch(`/admin/logs/${id}`, {
+                const res = await fetch(`/api/logs/${id}`, {
                     method: 'PATCH',
                     headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' },
                     body: JSON.stringify({ waktu_mulai: mulai, waktu_selesai: selesai || null }),
                 });
                 const data = await res.json();
                 closeSheet('editTimeSheet');
-                showToast('✅ Waktu diupdate — ' + (data.durasi ?? ''), 'success');
+                showToast('✅ Waktu diupdate  - ' + (data.durasi ?? ''), 'success');
                 setTimeout(() => window.location.reload(), 600);
             } catch (e) {
                 showToast('Gagal', 'error');
@@ -1129,7 +1159,7 @@
         async function deleteLog(id) {
             if (!confirm('Hapus log ini? Tindakan tidak bisa dibatalkan.')) return;
             try {
-                await fetch(`/admin/logs/${id}`, {
+                await fetch(`/api/logs/${id}`, {
                     method: 'DELETE',
                     headers: { 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json', 'Content-Type': 'application/json' },
                 });

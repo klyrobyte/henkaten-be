@@ -26,7 +26,7 @@
         }
 
         .sum-num {
-            font-family: 'Orbitron', sans-serif;
+            font-family: 'Roboto Condensed', sans-serif;
             font-size: 22px;
             font-weight: 800;
             line-height: 1;
@@ -159,16 +159,16 @@
         }
 
         /* ══ ID CARD grid ════════════════════════════════════════════════
-                       Setiap mesin = satu kartu ID card:
-                       ┌──────────────────┐
-                       │ ● NAMA MESIN     │  ← header, dot bisa diklik jika merah
-                       ├──────────────────┤
-                       │    [FOTO]        │  ← avatar member
-                       │   Nama Member    │
-                       │   [tag Hadir]    │
-                       │  [btn Absen/🔍]  │
-                       └──────────────────┘
-                       ════════════════════════════════════════════════════════════════ */
+                           Setiap mesin = satu kartu ID card:
+                           ┌──────────────────┐
+                           │ ● NAMA MESIN     │  ← header, dot bisa diklik jika merah
+                           ├──────────────────┤
+                           │    [FOTO]        │  ← avatar member
+                           │   Nama Member    │
+                           │   [tag Hadir]    │
+                           │  [btn Absen/🔍]  │
+                           └──────────────────┘
+                           ════════════════════════════════════════════════════════════════ */
         .machine-grid {
             padding: 12px;
             display: grid;
@@ -221,7 +221,7 @@
             border-bottom-color: #f4a8a8;
         }
 
-        /* ── Status dot — DOT MERAH BISA DIKLIK ──────────────────────── */
+        /* ── Status dot  - DOT MERAH BISA DIKLIK ──────────────────────── */
         .mc-dot {
             width: 10px;
             height: 10px;
@@ -555,7 +555,7 @@
         }
 
         .sub-ph h2 {
-            font-family: 'Orbitron', sans-serif;
+            font-family: 'Roboto Condensed', sans-serif;
             font-size: 13px;
             font-weight: 900;
             margin: 0 0 2px;
@@ -594,7 +594,7 @@
         }
 
         .sub-idle h3 {
-            font-family: 'Orbitron', sans-serif;
+            font-family: 'Roboto Condensed', sans-serif;
             font-size: 12px;
             font-weight: 800;
             color: #ccc;
@@ -877,7 +877,7 @@
         }
 
         .modal-hdr2 h3 {
-            font-family: 'Orbitron', sans-serif;
+            font-family: 'Roboto Condensed', sans-serif;
             font-size: 13px;
             font-weight: 900;
             color: #fff;
@@ -957,7 +957,7 @@
     <div class="date-bar"
         style="display:flex;align-items:center;background:#fff;border-radius:50px;padding:10px 18px;box-shadow:0 1px 4px rgba(0,0,0,0.08);gap:12px;">
 
-        {{-- Icon kalender — klik ini untuk buka date picker --}}
+        {{-- Icon kalender - klik ini untuk buka date picker --}}
         <div class="date-label" onclick="document.getElementById('tanggalHari').showPicker()"
             style="width:36px;height:36px;background:#2E7D32;border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff"
@@ -975,15 +975,15 @@
             {{ \Carbon\Carbon::parse($tanggal)->format('d / m / Y') }}
         </span>
 
-        {{-- Input date tersembunyi — hanya trigger via icon --}}
+        {{-- Input date tersembunyi - hanya trigger via icon --}}
         <input type="date" id="tanggalHari" value="{{ $tanggal }}" onchange="onDateChange(this.value)"
             style="position:absolute;opacity:0;pointer-events:none;width:0;height:0;">
 
         {{-- Factory badge --}}
         <button onclick="showFactoryPicker()" style="background:#2E7D32;border:none;border-radius:20px;padding:7px 18px;color:#fff;
-                                       font-family:'Orbitron', sans-serif;font-weight:700;font-size:12px;
-                                       letter-spacing:1px;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:6px;
-                                       transition:all .2s ease;" onmouseover="this.style.filter='brightness(1.15)'"
+                                           font-family:'Roboto Condensed', sans-serif;font-weight:700;font-size:12px;
+                                           letter-spacing:1px;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:6px;
+                                           transition:all .2s ease;" onmouseover="this.style.filter='brightness(1.15)'"
             onmouseout="this.style.filter='brightness(1)'">
             <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff"
                 stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
@@ -1009,14 +1009,14 @@
 
     {{-- Legenda --}}
     <div class="legend-4m" style="display:inline-flex;
-                                align-items:center;
-                                gap:16px;
-                                background:#fff;
-                                border-radius:15px;
-                                border:1.5px solid #e0e0e0;
-                                padding:10px 22px;
-                                box-shadow:0 1px 3px rgba(0,0,0,0.05);
-                                transition:box-shadow .2s ease, border-color .2s ease;"
+                                    align-items:center;
+                                    gap:16px;
+                                    background:#fff;
+                                    border-radius:15px;
+                                    border:1.5px solid #e0e0e0;
+                                    padding:10px 22px;
+                                    box-shadow:0 1px 3px rgba(0,0,0,0.05);
+                                    transition:box-shadow .2s ease, border-color .2s ease;"
         onmouseover="this.style.boxShadow='0 4px 16px rgba(0,0,0,0.10)';this.style.borderColor='#bdbdbd';"
         onmouseout="this.style.boxShadow='0 1px 3px rgba(0,0,0,0.05)';this.style.borderColor='#e0e0e0';">
 
@@ -1082,7 +1082,7 @@
 
         <div class="assign-two">
 
-            {{-- LEFT: Papan penugasan — dirender penuh oleh JS --}}
+            {{-- LEFT: Papan penugasan - dirender penuh oleh JS --}}
             <div id="boardRoot"></div>
 
             {{-- RIGHT: Panel cari pengganti --}}
@@ -1197,10 +1197,10 @@
                     : `<span class="g-badge">${group.machines.length} mesin</span>`;
 
                 html += `<div class="group-block">
-                                <div class="group-hdr ${isKP ? 'kp' : ''}">
-                                    ${isKP ? '👑' : '🔧'} ${esc(group.title)} ${badge}
-                                </div>
-                                <div class="machine-grid">`;
+                                    <div class="group-hdr ${isKP ? 'kp' : ''}">
+                                        ${isKP ? '👑' : '🔧'} ${esc(group.title)} ${badge}
+                                    </div>
+                                    <div class="machine-grid">`;
 
                 group.machines.forEach(mac => {
                     html += renderMachineCard(`${group.title}::${mac}`, mac);
@@ -1228,25 +1228,25 @@
             let slotsHtml = '';
             if (!slots.length) {
                 slotsHtml = `<div class="mc-slot-empty" onclick="openFinderEmpty('${esc(key)}',0)">
-                                <span style="font-size:16px">+</span><span>Tambah</span></div>`;
+                                    <span style="font-size:16px">+</span><span>Tambah</span></div>`;
             } else {
                 slots.forEach((slot, idx) => { slotsHtml += renderMemberSlot(key, slot, idx); });
             }
 
             return `<div class="mc-card ${cardCls}">
-                            <div class="mc-card-hdr">
-                                <div class="mc-dot ${dotCls}" ${dotOnClick}></div>
-                                <div class="mc-card-title" title="${esc(macName)}">${esc(macName)}</div>
-                            </div>
-                            <div class="mc-card-body">${slotsHtml}</div>
-                        </div>`;
+                                <div class="mc-card-hdr">
+                                    <div class="mc-dot ${dotCls}" ${dotOnClick}></div>
+                                    <div class="mc-card-title" title="${esc(macName)}">${esc(macName)}</div>
+                                </div>
+                                <div class="mc-card-body">${slotsHtml}</div>
+                            </div>`;
         }
 
         // ── Member slot dalam card ────────────────────────────────────────────────
         function renderMemberSlot(key, slot, idx) {
             if (!slot.memberName) {
                 return `<div class="mc-slot-empty" onclick="openFinderEmpty('${esc(key)}',${idx})">
-                                <span style="font-size:16px">+</span><span>Tambah</span></div>`;
+                                    <span style="font-size:16px">+</span><span>Tambah</span></div>`;
             }
 
             const photo = slot.foto || getPhoto(slot.memberName);
@@ -1272,17 +1272,17 @@
                 ? `<div class="mc-actions"><button class="mc-btn btn-rm" onclick="removeSub('${esc(key)}',${idx})">✕ Hapus</button></div>`
                 : isAb
                     ? `<div class="mc-actions">
-                                    <button class="mc-btn btn-pr"   onclick="markPresent('${esc(key)}',${idx})">✔ Hadir</button>
-                                    <button class="mc-btn btn-find" onclick="openFinder('${esc(key)}',${idx})">🔍</button>
-                                   </div>`
+                                        <button class="mc-btn btn-pr"   onclick="markPresent('${esc(key)}',${idx})">✔ Hadir</button>
+                                        <button class="mc-btn btn-find" onclick="openFinder('${esc(key)}',${idx})">🔍</button>
+                                       </div>`
                     : `<div class="mc-actions"><button class="mc-btn btn-ab" onclick="openAbsenModal('${esc(key)}',${idx},'${esc(slot.memberName)}')">✕ Absen</button></div>`;
 
             return `<div class="mc-member ${memberCls}">
-                            <div class="mc-av ${avCls}">${avContent}</div>
-                            <div class="mc-member-name" title="${esc(slot.memberName)}">${esc(slot.memberName)}</div>
-                            ${tagHtml}
-                            ${btnsHtml}
-                        </div>`;
+                                <div class="mc-av ${avCls}">${avContent}</div>
+                                <div class="mc-member-name" title="${esc(slot.memberName)}">${esc(slot.memberName)}</div>
+                                ${tagHtml}
+                                ${btnsHtml}
+                            </div>`;
         }
 
         // ══ SUMMARY ═══════════════════════════════════════════════════════════════════
@@ -1346,7 +1346,7 @@
 
         // ══ FINDER ════════════════════════════════════════════════════════════════════
         // Dipanggil oleh onclick="openFinderForMachine(this)" pada DOT elemen
-        // Menggunakan data-key dari elemen DOM — tidak ada isu string escaping
+        // Menggunakan data-key dari elemen DOM  - tidak ada isu string escaping
         function openFinderForMachine(dotEl) {
             const key = dotEl.getAttribute('data-key');
             if (!key) return;
@@ -1402,11 +1402,11 @@
                 list.innerHTML = data.map(m => {
                     const av = m.photo ? `<img src="${esc(m.photo)}" alt="">` : `<span>${initials(m.name)}</span>`;
                     return `<div class="cand-card" onclick="assignSub('${esc(m.name)}','${esc(m.photo || '')}')">
-                                    <div class="cand-av ${m.isWorking ? 'av-w' : 'av-n'}">${av}</div>
-                                    <div class="cand-name">${esc(m.name)}</div>
-                                    ${m.isWorking ? '<div class="cand-tag">Sdh Bertugas</div>' : ''}
-                                    <button class="cand-btn" onclick="event.stopPropagation();assignSub('${esc(m.name)}','${esc(m.photo || '')}')">✓ Pilih</button>
-                                </div>`;
+                                        <div class="cand-av ${m.isWorking ? 'av-w' : 'av-n'}">${av}</div>
+                                        <div class="cand-name">${esc(m.name)}</div>
+                                        ${m.isWorking ? '<div class="cand-tag">Sdh Bertugas</div>' : ''}
+                                        <button class="cand-btn" onclick="event.stopPropagation();assignSub('${esc(m.name)}','${esc(m.photo || '')}')">✓ Pilih</button>
+                                    </div>`;
                 }).join('');
             } catch (e) { list.innerHTML = '<div class="cand-empty">Gagal memuat kandidat.</div>'; }
         }

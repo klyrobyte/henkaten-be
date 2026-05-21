@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * AbsenceRecord — detail absen per member per hari
+ * AbsenceRecord  - detail absen per member per hari
  *
  * Menggantikan: localStorage key  henkaten_absen_v2_{date}_{factory}_{shift}
  *               yang berisi object { memberId: { status, reason, name, timestamp } }
@@ -14,7 +14,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class AbsenceRecord extends Model
 {
     protected $fillable = [
-        'tanggal', 'factory', 'shift', 'member_id', 'status', 'reason',
+        'tanggal',
+        'factory',
+        'shift',
+        'member_id',
+        'status',
+        'reason',
     ];
 
     protected $casts = [

@@ -33,7 +33,7 @@
   - Data karyawan, relasi ke absensi, assignment, dsb
 
 ## Service & Helper
-- **AbsenceSummaryService**: Hitung rekap absensi (Operator/SPV, hadir/cuti/sakit/ijin/mangkir)
+- **AbsenceSummaryService**: Hitung rekap absensi (Operator/SPV, hadir/cuti/sakit/ijin/Alpha)
 - **FactoryConfigService**: Konfigurasi mesin & grup per factory, jumlah slot/circle mesin
 
 ## Route Penting (web.php)

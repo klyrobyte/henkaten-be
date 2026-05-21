@@ -10,13 +10,53 @@ use App\Models\AssignmentReplacement;
 use App\Services\FactoryConfigService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
 
+/**
+ * @group Machine
+ * 
+ * APIs for managing Machine.
+ */
 class MachineController extends Controller
 {
-    public function __construct(protected FactoryConfigService $factoryConfig) {}
+    public function __construct(protected FactoryConfigService $factoryConfig)
+    {
+    }
 
     /**
-     * Halaman daftar mesin — redirect ke Dashboard.
+     * Check if the user has access to the given factory.
+     */
+    private function isFactoryInScope(?string $factory): bool
+    {
+        if (!$factory)
+            return false;
+        $user = Auth::user();
+        if (!$user)
+            return false;
+        if ($user->isSuperAdmin()) {
+            return true;
+        }
+
+        $allowedFactories = (array) $user->factory;
+
+        // Exact match
+        if (in_array($factory, $allowedFactories)) {
+            return true;
+        }
+
+        // Case-insensitive match or strtoupper match (common for short labels like F2)
+        $target = strtoupper($factory);
+        foreach ($allowedFactories as $f) {
+            if (strtoupper($f) === $target) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Halaman daftar mesin  - redirect ke Dashboard.
      * Card mesin sudah dipindah ke halaman Dashboard.
      */
     public function index(Request $request)
@@ -33,26 +73,75 @@ class MachineController extends Controller
     public function uploadPhoto(Request $request)
     {
         $request->validate([
-            'factory'      => 'required|string',
+            'factory' => 'required|string',
             'machine_name' => 'required|string',
-            'photo'        => 'required|image|mimes:jpeg,jpg,png,webp|max:3072',
+            'photo' => 'required|image|mimes:jpeg,jpg,png,webp|max:3072',
         ]);
+
+        if (!$this->isFactoryInScope($request->factory)) {
+            return response()->json(['error' => 'Unauthorized factory access'], 403);
+        }
 
         $machine = Machine::firstOrCreate([
             'factory' => $request->factory,
-            'name'    => $request->machine_name,
+            'name' => $request->machine_name,
         ]);
 
-        if ($machine->photo && Storage::disk('public')->exists($machine->photo)) {
-            Storage::disk('public')->delete($machine->photo);
+        // Delete old photo if exists
+        if ($machine->photo) {
+            $delPath = str_starts_with($machine->photo, 'machines/')
+                ? basename($machine->photo)
+                : $machine->photo;
+            if (Storage::disk('machines')->exists($delPath)) {
+                Storage::disk('machines')->delete($delPath);
+            }
         }
 
-        $path = $request->file('photo')->store('machines', 'public');
-        $machine->update(['photo' => $path]);
+        // ── Downscale handler ────────────────────────────────────────────
+        $file = $request->file('photo');
+        $maxWidth = 1280;   // cap longest side to 1280 px
+        $maxHeight = 1280;
+        $jpegQuality = 80;     // 80 % quality  - good balance size vs clarity
+
+        $image = imagecreatefromstring(file_get_contents($file->getRealPath()));
+
+        $origW = imagesx($image);
+        $origH = imagesy($image);
+
+        // Only resize if the image actually exceeds the cap
+        if ($origW > $maxWidth || $origH > $maxHeight) {
+            $ratio = min($maxWidth / $origW, $maxHeight / $origH);
+            $newW = (int) round($origW * $ratio);
+            $newH = (int) round($origH * $ratio);
+
+            $resized = imagecreatetruecolor($newW, $newH);
+
+            // Preserve transparency for PNG
+            imagealphablending($resized, false);
+            imagesavealpha($resized, true);
+
+            imagecopyresampled($resized, $image, 0, 0, 0, 0, $newW, $newH, $origW, $origH);
+            imagedestroy($image);
+            $image = $resized;
+        }
+
+        // Always save as JPEG to keep file size small
+        $filename = pathinfo($file->hashName(), PATHINFO_FILENAME) . '.jpg';
+        $diskPath = Storage::disk('machines')->path('');   // absolute path to disk root
+
+        ob_start();
+        imagejpeg($image, null, $jpegQuality);
+        $imageData = ob_get_clean();
+        imagedestroy($image);
+
+        Storage::disk('machines')->put($filename, $imageData);
+        // ── End downscale handler ────────────────────────────────────────
+
+        $machine->update(['photo' => $filename]);
 
         return response()->json([
-            'ok'        => true,
-            'photo_url' => '/storage/' . $path,
+            'ok' => true,
+            'photo_url' => '/storage/machines/' . $filename,
         ]);
     }
 
@@ -63,17 +152,26 @@ class MachineController extends Controller
     public function deletePhoto(Request $request)
     {
         $request->validate([
-            'factory'      => 'required|string',
+            'factory' => 'required|string',
             'machine_name' => 'required|string',
         ]);
 
+        if (!$this->isFactoryInScope($request->factory)) {
+            return response()->json(['error' => 'Unauthorized factory access'], 403);
+        }
+
         $machine = Machine::where([
             'factory' => $request->factory,
-            'name'    => $request->machine_name,
+            'name' => $request->machine_name,
         ])->first();
 
-        if ($machine?->photo && Storage::disk('public')->exists($machine->photo)) {
-            Storage::disk('public')->delete($machine->photo);
+        if ($machine?->photo) {
+            $delPath = str_starts_with($machine->photo, 'machines/')
+                ? basename($machine->photo)
+                : $machine->photo;
+            if (Storage::disk('machines')->exists($delPath)) {
+                Storage::disk('machines')->delete($delPath);
+            }
             $machine->update(['photo' => null]);
         }
 
@@ -87,18 +185,22 @@ class MachineController extends Controller
     public function updateStatus(Request $request)
     {
         $request->validate([
-            'tanggal'      => 'required|date',
-            'factory'      => 'required|string',
-            'shift'        => 'required|in:A,B',
+            'tanggal' => 'required|date',
+            'factory' => 'required|string',
+            'shift' => 'required|in:A,B',
             'machine_name' => 'required|string',
-            'status'       => 'required|in:normal,man,material,machine,method',
+            'status' => 'required|in:normal,man,material,machine,method',
         ]);
+
+        if (!$this->isFactoryInScope($request->factory)) {
+            return response()->json(['error' => 'Unauthorized factory access'], 403);
+        }
 
         MachineStatus::updateOrCreate(
             [
-                'tanggal'      => $request->tanggal,
-                'factory'      => $request->factory,
-                'shift'        => $request->shift,
+                'tanggal' => $request->tanggal,
+                'factory' => $request->factory,
+                'shift' => $request->shift,
                 'machine_name' => $request->machine_name,
             ],
             ['status' => $request->status]
@@ -112,17 +214,21 @@ class MachineController extends Controller
      */
     public function getStatuses(Request $request)
     {
+        if (!$this->isFactoryInScope($request->factory)) {
+            return response()->json(['error' => 'Unauthorized factory access'], 403);
+        }
+
         $statuses = MachineStatus::where([
             'tanggal' => $request->tanggal,
             'factory' => $request->factory,
-            'shift'   => $request->shift,
+            'shift' => $request->shift,
         ])->get()->keyBy('machine_name');
 
         return response()->json($statuses);
     }
 
     /**
-     * 4M lights data — otomatis berdasarkan:
+     * 4M lights data  - otomatis berdasarkan:
      *   1. MachineStatus manual (override)
      *   2. ProblemLog open
      *   3. AbsenceRecord absen tanpa AssignmentReplacement → auto "man"
@@ -131,7 +237,11 @@ class MachineController extends Controller
     {
         $tanggal = $request->tanggal;
         $factory = $request->factory;
-        $shift   = $request->shift;
+        $shift = $request->shift;
+
+        if (!$this->isFactoryInScope($factory)) {
+            return response()->json(['error' => 'Unauthorized factory access'], 403);
+        }
 
         $statuses = \App\Models\MachineStatus::where(compact('tanggal', 'factory', 'shift'))
             ->where('status', '!=', 'normal')
@@ -179,5 +289,77 @@ class MachineController extends Controller
         }
 
         return response()->json($lights);
+    }
+
+    /**
+     * Update floor plan coordinates for a machine
+     * PATCH /admin/machines/{id}/floor-coordinates
+     */
+    public function updateFloorCoordinates(Request $request, Machine $machine)
+    {
+        $request->validate([
+            'floor_cx' => 'nullable|numeric',
+            'floor_cy' => 'nullable|numeric',
+            'floor_plan' => 'nullable|string',
+        ]);
+
+        if (!$this->isFactoryInScope($machine->factory)) {
+            return response()->json(['error' => 'Unauthorized factory access'], 403);
+        }
+
+        $machine->update([
+            'floor_cx' => $request->floor_cx,
+            'floor_cy' => $request->floor_cy,
+            'floor_plan' => $request->floor_plan,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => $request->floor_cx && $request->floor_cy ? 'Coordinates updated' : 'Coordinates deleted',
+            'machine_name' => $machine->name,
+            'coordinates' => [
+                'cx' => $machine->floor_cx,
+                'cy' => $machine->floor_cy,
+            ]
+        ]);
+    }
+
+    /**
+     * Show floor plan editor
+     * GET /admin/machines/floor-plan-editor
+     */
+    public function showFloorPlanEditor(Request $request)
+    {
+        $factory = $request->get('factory', 'f2');
+
+        if (!$this->isFactoryInScope($factory)) {
+            abort(403);
+        }
+
+        $machines = Machine::where('factory', strtoupper($factory))
+            ->orderBy('name')
+            ->get();
+
+        return view('admin.machines.floor-plan-editor', [
+            'factory' => $factory,
+            'machines' => $machines,
+        ]);
+    }
+
+    /**
+     * Show floor plan display
+     * GET /machines/floor-plan
+     */
+    public function showFloorPlan(Request $request)
+    {
+        $factory = $request->get('factory', 'F2');
+
+        if (!$this->isFactoryInScope($factory)) {
+            abort(403);
+        }
+
+        return view('machines.floor-plan', [
+            'factory' => $factory,
+        ]);
     }
 }

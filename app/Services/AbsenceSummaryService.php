@@ -15,7 +15,7 @@ use App\Models\Member;
  * ─────────────────────────────────────────────────────────────────
  * Setiap member yang absen HANYA masuk ke SATU bucket saja:
  *   - Cek jabatan → Operator atau SPV/Pengawas?
- *   - Cek reason  → cuti / sakit / ijin / mangkir / null
+ *   - Cek reason  → cuti / sakit / ijin / Alpha / null
  *
  * mp_absen = TOTAL semua yang absen (untuk Man summary di dashboard)
  * Diagram detail = op_* + spv_* (tidak ada double count)
@@ -48,33 +48,33 @@ class AbsenceSummaryService
         $records = AbsenceRecord::where([
             'tanggal' => $tanggal,
             'factory' => $factory,
-            'shift'   => $shift,
-            'status'  => 'absen',
+            'shift' => $shift,
+            'status' => 'absen',
         ])->get();
 
         // Init counter
-        $opHadir = $opCuti = $opSakit = $opIjin = $opMangkir = 0;
-        $spvHadir = $spvCuti = $spvSakit = $spvIjin = $spvMangkir = 0;
+        $opHadir = $opCuti = $opSakit = $opIjin = $opAlpha = 0;
+        $spvHadir = $spvCuti = $spvSakit = $spvIjin = $spvAlpha = 0;
 
         foreach ($records as $rec) {
-            $member  = $members[$rec->member_id] ?? null;
+            $member = $members[$rec->member_id] ?? null;
             $jabatan = $member?->jabatan ?? '';
-            $reason  = strtolower($rec->reason ?? 'mangkir');
-            $isSpv   = $this->isSpv($jabatan);
+            $reason = strtolower($rec->reason ?? 'Alpha');
+            $isSpv = $this->isSpv($jabatan);
 
             if ($isSpv) {
                 match ($reason) {
-                    'cuti'   => $spvCuti++,
-                    'sakit'  => $spvSakit++,
-                    'ijin'   => $spvIjin++,
-                    default  => $spvMangkir++,
+                    'cuti' => $spvCuti++,
+                    'sakit' => $spvSakit++,
+                    'ijin' => $spvIjin++,
+                    default => $spvAlpha++,
                 };
             } else {
                 match ($reason) {
-                    'cuti'   => $opCuti++,
-                    'sakit'  => $opSakit++,
-                    'ijin'   => $opIjin++,
-                    default  => $opMangkir++,
+                    'cuti' => $opCuti++,
+                    'sakit' => $opSakit++,
+                    'ijin' => $opIjin++,
+                    default => $opAlpha++,
                 };
             }
         }
@@ -83,32 +83,32 @@ class AbsenceSummaryService
         $mpHadir = $totalMember - $mpAbsen;
 
         // Hitung hadir per grup
-        $totalSpv   = $members->filter(fn($m) => $this->isSpv($m->jabatan ?? ''))->count();
-        $totalOp    = $totalMember - $totalSpv;
-        $spvAbsen   = $spvCuti + $spvSakit + $spvIjin + $spvMangkir;
-        $opAbsen    = $opCuti + $opSakit + $opIjin + $opMangkir;
-        $spvHadirV  = $totalSpv - $spvAbsen;
-        $opHadirV   = $totalOp  - $opAbsen;
+        $totalSpv = $members->filter(fn($m) => $this->isSpv($m->jabatan ?? ''))->count();
+        $totalOp = $totalMember - $totalSpv;
+        $spvAbsen = $spvCuti + $spvSakit + $spvIjin + $spvAlpha;
+        $opAbsen = $opCuti + $opSakit + $opIjin + $opAlpha;
+        $spvHadirV = $totalSpv - $spvAbsen;
+        $opHadirV = $totalOp - $opAbsen;
 
         return AbsenceSummary::updateOrCreate(
             ['tanggal' => $tanggal, 'factory' => $factory, 'shift' => $shift],
             [
                 'total_member' => $totalMember,
-                'mp_hadir'     => max(0, $mpHadir),
-                'mp_absen'     => $mpAbsen,
-                'total_absen'  => $mpAbsen,
+                'mp_hadir' => max(0, $mpHadir),
+                'mp_absen' => $mpAbsen,
+                'total_absen' => $mpAbsen,
 
-                'op_hadir'     => max(0, $opHadirV),
-                'op_cuti'      => $opCuti,
-                'op_sakit'     => $opSakit,
-                'op_ijin'      => $opIjin,
-                'op_mangkir'   => $opMangkir,
+                'op_hadir' => max(0, $opHadirV),
+                'op_cuti' => $opCuti,
+                'op_sakit' => $opSakit,
+                'op_ijin' => $opIjin,
+                'op_Alpha' => $opAlpha,
 
-                'spv_hadir'    => max(0, $spvHadirV),
-                'spv_cuti'     => $spvCuti,
-                'spv_sakit'    => $spvSakit,
-                'spv_ijin'     => $spvIjin,
-                'spv_mangkir'  => $spvMangkir,
+                'spv_hadir' => max(0, $spvHadirV),
+                'spv_cuti' => $spvCuti,
+                'spv_sakit' => $spvSakit,
+                'spv_ijin' => $spvIjin,
+                'spv_Alpha' => $spvAlpha,
             ]
         );
     }

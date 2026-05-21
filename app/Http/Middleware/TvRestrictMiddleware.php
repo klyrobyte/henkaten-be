@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Auth;
  * Middleware ini di-append ke SEMUA route dalam group auth.
  * Khusus untuk role 'tv': hanya boleh akses tv picker & tv board.
  * Semua route lain → redirect ke tv.picker.
+ * Fixed by Rizky
  */
 class TvRestrictMiddleware
 {

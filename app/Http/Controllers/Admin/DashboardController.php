@@ -6,13 +6,20 @@ use App\Http\Controllers\Controller;
 use App\Models\AbsenceSummary;
 use App\Models\AbsenceRecord;
 use App\Models\AssignmentReplacement;
+use App\Models\Factory;
 use App\Models\Machine;
 use App\Models\Member;
 use App\Models\ProblemLog;
 use App\Services\FactoryConfigService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
+/**
+ * @group Dashboard
+ * 
+ * APIs for managing Dashboard.
+ */
 class DashboardController extends Controller
 {
     protected FactoryConfigService $factoryConfig;
@@ -23,39 +30,63 @@ class DashboardController extends Controller
     }
 
     // =========================================================================
-    //  PUBLIC ROUTES
+    //  PUBLIC ROUTES : @rizky
     // =========================================================================
 
     public function index(Request $request)
     {
-        $factory = $request->session()->get('factory', 'Factory 2');
-        $shift   = $request->session()->get('shift', 'A');
+        // Resolve factory from session; fall back to user's assigned factory,
+        // then to the first factory in DB (never hardcode 'Factory 2').
+        $user = Auth::user();
+        $allowedFactories = (!$user->isSuperAdmin() && !empty($user->factory)) ? (array) $user->factory : [];
+
+        $sessionFactory = $request->session()->get('factory');
+
+        // Ensure sessionFactory is allowed if restricted
+        if (!empty($allowedFactories) && !in_array($sessionFactory, $allowedFactories)) {
+            $sessionFactory = $allowedFactories[0];
+            $request->session()->put('factory', $sessionFactory);
+        }
+
+        $factory = $sessionFactory
+            ?? (is_array($user?->factory) ? $user->factory[0] : $user?->factory)
+            ?? Factory::orderBy('order_index')->value('name')
+            ?? 'Factory 2'; // absolute last resort
+
+        // Final safety check for $factory
+        if (!empty($allowedFactories) && !in_array($factory, $allowedFactories)) {
+            $factory = $allowedFactories[0];
+        }
+
+        $shift = $request->session()->get('shift', $user?->shift ?? 'A');
         $tanggal = $request->get('tanggal', today()->toDateString());
 
         $machineStatuses = $this->getMachineStatuses($tanggal, $factory, $shift);
-        $machineSummary  = $this->buildSummary($machineStatuses, $tanggal, $factory, $shift);
+        $machineSummary = $this->buildSummary($machineStatuses, $tanggal, $factory, $shift);
 
         $absenceSummary = AbsenceSummary::where([
             'tanggal' => $tanggal,
             'factory' => $factory,
-            'shift'   => $shift,
+            'shift' => $shift,
         ])->first();
 
         $openLogsCount = ProblemLog::where([
             'tanggal' => $tanggal,
             'factory' => $factory,
-            'shift'   => $shift,
-            'status'  => 'open',
+            'shift' => $shift,
+            'status' => 'open',
         ])->whereIn('jenis', ['Machine', 'Material', 'Method'])->count();
 
-        // Status level kini berbasis totalMan (semua absen) bukan hanya tanpa pengganti
+        // Status level berbasis KY limit vs Total Absen (Task 1 overhaul)
+        $totalAbsen = $machineSummary['man'] ?? 0;
+        $kyTotalCount = $this->calcKyTotalCount($factory, $shift);
         $statusLevel = $this->calcStatusLevel(
-            $machineSummary['man'],
-            $machineSummary['problem'],
+            $totalAbsen,
+            $kyTotalCount,
             $openLogsCount
         );
 
-        $groups  = $this->factoryConfig->getGroups($factory);
+        $groups = $this->factoryConfig->buildGroups($factory);
         $members = Member::where('factory', $factory)
             ->where('shift', $shift)
             ->where('status', 'active')
@@ -63,9 +94,17 @@ class DashboardController extends Controller
 
         $machinePhotos = Machine::where('factory', $factory)->get()->keyBy('name');
 
+        // KODE TOTALMC  - Count only machines with status='mesin' (production machines)
+        // Used for initial page load; frontend updates it via API response (buildSummary)
+        $totalMC = Machine::where('factory', $factory)
+            ->where('status', 'mesin')
+            ->count();
+
         $totalMP = AbsenceRecord::where([
-            'tanggal' => $tanggal, 'factory' => $factory,
-            'shift'   => $shift,   'status'  => 'hadir',
+            'tanggal' => $tanggal,
+            'factory' => $factory,
+            'shift' => $shift,
+            'status' => 'hadir',
         ])->count();
         if ($totalMP === 0) {
             $totalMP = Member::where('factory', $factory)
@@ -73,14 +112,32 @@ class DashboardController extends Controller
                 ->where('status', 'active')->count();
         }
 
+
         $statuses = collect($machineStatuses)->map(fn($s) => (object) $s);
+        $factories = $this->factoryConfig->getFactoryObjects();
+
+        if (!empty($allowedFactories)) {
+            $factories = $factories->whereIn('name', $allowedFactories);
+        }
+
+        $repairDepartments = \App\Models\RepairDepartment::all();
 
         return view('admin.dashboard', compact(
-            'factory', 'shift', 'tanggal',
-            'machineSummary', 'absenceSummary',
-            'openLogsCount', 'statusLevel',
-            'groups', 'statuses', 'members', 'machinePhotos',
-            'totalMP'
+            'factory',
+            'shift',
+            'tanggal',
+            'machineSummary',
+            'absenceSummary',
+            'openLogsCount',
+            'statusLevel',
+            'groups',
+            'statuses',
+            'members',
+            'machinePhotos',
+            'totalMP',
+            'totalMC',
+            'factories',
+            'repairDepartments'
         ));
     }
 
@@ -89,10 +146,10 @@ class DashboardController extends Controller
     // =========================================================================
 
     /**
-     * TV Mode — tampilan read-only fullscreen untuk layar TV di factory floor.
-     *
+     * TV Mode  - tampilan read-only fullscreen untuk layar TV di factory floor.
+     * Designed and developed by @rizky
      * Akses via: GET /admin/tv?factory=Factory+2&shift=A[&tanggal=YYYY-MM-DD]
-     * Dibuka sebagai tab baru dari sidebar drawer — tidak menggunakan session
+     * Dibuka sebagai tab baru dari sidebar drawer  - tidak menggunakan session
      * factory/shift agar setiap TV bisa menampilkan factory berbeda secara mandiri.
      *
      * Data yang dikirim identik dengan index(), sehingga semua logika
@@ -100,48 +157,87 @@ class DashboardController extends Controller
      */
     public function tvMode(Request $request)
     {
-        // TV mode pakai query-string, bukan session — bisa beda per tab/TV
+        // TV mode pakai query-string, bukan session  - bisa beda per tab/TV
+        $user = Auth::user();
+        $allowedFactories = (!$user->isSuperAdmin() && !empty($user->factory)) ? (array) $user->factory : [];
+
         $factory = $request->get('factory', $request->session()->get('factory', 'Factory 2'));
-        $shift   = $request->get('shift',   $request->session()->get('shift', 'A'));
+
+        if (!empty($allowedFactories) && !in_array($factory, $allowedFactories)) {
+            $factory = $allowedFactories[0];
+        }
+
+        $shift = $request->get('shift', $request->session()->get('shift', 'A'));
         $tanggal = $request->get('tanggal', today()->toDateString());
 
         $machineStatuses = $this->getMachineStatuses($tanggal, $factory, $shift);
-        $machineSummary  = $this->buildSummary($machineStatuses, $tanggal, $factory, $shift);
+        $machineSummary = $this->buildSummary($machineStatuses, $tanggal, $factory, $shift);
 
         $absenceSummary = AbsenceSummary::where([
             'tanggal' => $tanggal,
             'factory' => $factory,
-            'shift'   => $shift,
+            'shift' => $shift,
         ])->first();
 
         $openLogsCount = ProblemLog::where([
             'tanggal' => $tanggal,
             'factory' => $factory,
-            'shift'   => $shift,
-            'status'  => 'open',
+            'shift' => $shift,
+            'status' => 'open',
         ])->whereIn('jenis', ['Machine', 'Material', 'Method'])->count();
 
+        // Status level berbasis KY limit vs Total Absen (Task 1 overhaul)
+        $totalAbsen = $absenceSummary->total_absen ?? 0;
+        $kyTotalCount = $this->calcKyTotalCount($factory, $shift);
         $statusLevel = $this->calcStatusLevel(
-            $machineSummary['man'],
-            $machineSummary['problem'],
+            $totalAbsen,
+            $kyTotalCount,
             $openLogsCount
         );
 
-        $groups  = $this->factoryConfig->getGroups($factory);
+        $groups = $this->factoryConfig->buildGroups($factory);
         $members = Member::where('factory', $factory)
             ->where('shift', $shift)
             ->where('status', 'active')
             ->orderBy('id')->get();
 
         $machinePhotos = Machine::where('factory', $factory)->get()->keyBy('name');
-        $statuses      = collect($machineStatuses)->map(fn($s) => (object) $s);
+        $statuses = collect($machineStatuses)->map(fn($s) => (object) $s);
 
-        // Render view terpisah — standalone HTML, tidak extend layouts.admin
+        // Get machines with floor plan coordinates for TV floor plan display
+        // Explicit map: "Factory 2" → "f2", "Factory 3 & 4" → "f34"
+        $factoryCode = match (true) {
+            str_contains($factory, '3') && str_contains($factory, '4') => 'f34',
+            str_contains($factory, '2') => 'f2',
+            default => strtolower(preg_replace('/[^a-z0-9]/i', '', str_replace('Factory ', 'f', $factory))),
+        };
+        $machinesWithCoordinates = Machine::where('factory', $factory)
+            ->whereNotNull('floor_cx')
+            ->whereNotNull('floor_cy')
+            ->get();
+
+        $factories = $this->factoryConfig->getFactoryObjects();
+
+        if (!empty($allowedFactories)) {
+            $factories = $factories->whereIn('name', $allowedFactories);
+        }
+
+        // Render view terpisah  - standalone HTML, tidak extend layouts.admin
         return view('admin.tv', compact(
-            'factory', 'shift', 'tanggal',
-            'machineSummary', 'absenceSummary',
-            'openLogsCount', 'statusLevel',
-            'groups', 'statuses', 'members', 'machinePhotos'
+            'factory',
+            'shift',
+            'tanggal',
+            'machineSummary',
+            'absenceSummary',
+            'openLogsCount',
+            'statusLevel',
+            'groups',
+            'statuses',
+            'members',
+            'machinePhotos',
+            'machinesWithCoordinates',
+            'factoryCode',
+            'factories'
         ));
     }
 
@@ -151,32 +247,53 @@ class DashboardController extends Controller
 
     public function statusApi(Request $request)
     {
+        $user = Auth::user();
+        $allowedFactories = (!$user->isSuperAdmin() && !empty($user->factory)) ? (array) $user->factory : [];
+
         $factory = $request->get('factory', $request->session()->get('factory', 'Factory 2'));
-        $shift   = $request->get('shift',   $request->session()->get('shift', 'A'));
+
+        if (!empty($allowedFactories) && !in_array($factory, $allowedFactories)) {
+            $factory = $allowedFactories[0];
+        }
+
+        $shift = $request->get('shift', $request->session()->get('shift', 'A'));
         $tanggal = $request->get('tanggal', today()->toDateString());
 
         $machineStatuses = $this->getMachineStatuses($tanggal, $factory, $shift);
-        $machineSummary  = $this->buildSummary($machineStatuses, $tanggal, $factory, $shift);
+        $machineSummary = $this->buildSummary($machineStatuses, $tanggal, $factory, $shift);
 
         $absenceSummary = AbsenceSummary::where([
-            'tanggal' => $tanggal, 'factory' => $factory, 'shift' => $shift,
+            'tanggal' => $tanggal,
+            'factory' => $factory,
+            'shift' => $shift,
         ])->first();
 
         $openLogsCount = ProblemLog::where([
-            'tanggal' => $tanggal, 'factory' => $factory,
-            'shift'   => $shift,   'status'  => 'open',
+            'tanggal' => $tanggal,
+            'factory' => $factory,
+            'shift' => $shift,
+            'status' => 'open',
         ])->whereIn('jenis', ['Machine', 'Material', 'Method'])->count();
 
-        $totalAbsen  = $absenceSummary?->total_absen ?? 0;
+        // total_absen = real-time count orang absen (sama dengan man di summary)
+        $totalAbsen = $machineSummary['man'];
+        // Status level berbasis KY limit vs Total Absen (Task 1 overhaul)
+        $kyTotalCount = $this->calcKyTotalCount($factory, $shift);
         $statusLevel = $this->calcStatusLevel(
-            $machineSummary['man'],
-            $machineSummary['problem'],
+            $totalAbsen,
+            $kyTotalCount,
             $openLogsCount
         );
 
+        // Overdue overlay is now computed CLIENT-SIDE from active_problems.
+        // We keep opened_at on each log entry — the TV JS watches for >4h entries
+        // scoped to the current factory+shift (no separate server query needed).
+
         $totalMP = AbsenceRecord::where([
-            'tanggal' => $tanggal, 'factory' => $factory,
-            'shift'   => $shift,   'status'  => 'hadir',
+            'tanggal' => $tanggal,
+            'factory' => $factory,
+            'shift' => $shift,
+            'status' => 'hadir',
         ])->count();
         if ($totalMP === 0) {
             $totalMP = Member::where('factory', $factory)
@@ -184,30 +301,124 @@ class DashboardController extends Controller
                 ->where('status', 'active')->count();
         }
 
+        // Live Announcements Array Logic
+        $announcements = [];
+
+        $absenRecordsApi = AbsenceRecord::where([
+            'tanggal' => $tanggal,
+            'factory' => $factory,
+            'shift' => $shift,
+            'status' => 'absen',
+        ])->get();
+
+        $activeProblems = [];
+
+        foreach ($absenRecordsApi as $recordApi) {
+            $memberObj = Member::find($recordApi->member_id);
+            if ($memberObj) {
+                $memberMesin = $memberObj->mesin ?? 'Tidak diketahui';
+                $reason = strtolower($recordApi->reason ?? '');
+                $absenLabel = 'Absen';
+                if (str_contains($reason, 'sakit'))
+                    $absenLabel = 'SAKIT';
+                elseif (str_contains($reason, 'izin') || str_contains($reason, 'ijin'))
+                    $absenLabel = 'IZIN';
+                elseif (str_contains($reason, 'cuti'))
+                    $absenLabel = 'CUTI';
+
+                $announcements[] = "👷 <b>{$memberObj->nama}</b> ({$memberMesin}) tidak masuk karena <b>{$absenLabel}</b>";
+
+                $activeProblems[] = [
+                    'jenis' => 'Man',
+                    'lokasi' => $memberMesin,
+                    'deskripsi' => "Absen: {$memberObj->nama} karena " . ucfirst($absenLabel),
+                    'cause' => '',
+                    'countermeasure' => '',
+                    'pic' => '',
+                    'waktu_mulai' => null,
+                    'waktu_selesai' => null,
+                    'durasi' => '-',
+                    'tanggal' => $tanggal,
+                    'status' => 'open',
+                    '_source' => 'absen',
+                    'member_id' => $recordApi->member_id
+                ];
+            }
+        }
+
+        $openLogsApi = ProblemLog::where([
+            'tanggal' => $tanggal,
+            'factory' => $factory,
+            'shift' => $shift,
+            'status' => 'open',
+        ])->whereIn('jenis', ['Machine', 'Material', 'Method'])->get();
+
+        foreach ($openLogsApi as $logApi) {
+            $jenis = strtoupper($logApi->jenis ?? 'Problem');
+            $announcements[] = "⚠️ Problem <b>{$jenis}</b> terdeteksi pada <b>{$logApi->lokasi}</b>";
+
+            $activeProblems[] = [
+                'jenis'           => $logApi->jenis,
+                'lokasi'          => $logApi->lokasi,
+                'deskripsi'       => $logApi->deskripsi,
+                'cause'           => $logApi->cause,
+                'countermeasure'  => $logApi->countermeasure,
+                'pic'             => $logApi->pic,
+                'waktu_mulai'     => $logApi->waktu_mulai,
+                'waktu_selesai'   => $logApi->waktu_selesai,
+                'durasi'          => $logApi->durasi,
+                'tanggal'         => $logApi->tanggal,
+                'status'          => 'open',
+                '_source'         => 'log',
+                'opened_at'       => optional($logApi->created_at)->toIso8601String(), // TV overlay uses this
+            ];
+        }
+
         return response()->json([
-            'total_absen'  => $totalAbsen,
-            'problem_mc'   => $machineSummary['problem'],
-            'open_logs'    => $openLogsCount,
-            'status_level' => $statusLevel,
-            'summary'      => $machineSummary,
-            'absence'      => $absenceSummary,
-            'total_mp'     => $totalMP,
-            'updated_at'   => now()->format('H:i:s'),
+            'total_absen'      => $totalAbsen,
+            'ky_absent'        => $kyTotalCount, // keeping the key name for compatibility if needed, but it's now kyTotalCount
+            'problem_mc'       => $machineSummary['problem'],
+            'open_logs'        => $openLogsCount,
+            'status_level'     => $statusLevel,
+            'summary'          => $machineSummary,
+            'absence'          => $absenceSummary,
+            'total_mp'         => $totalMP,
+            'announcements'    => $announcements,
+            'active_problems'  => $activeProblems, // each MC/MM/MT log has `opened_at` for TV watcher
+            'updated_at'       => now()->format('H:i:s'),
         ]);
     }
 
     public function setContext(Request $request)
     {
         $request->validate(['factory' => 'required|string', 'shift' => 'required|in:A,B']);
+
+        $user = Auth::user();
+        $allowedFactories = (!$user->isSuperAdmin() && !empty($user->factory)) ? (array) $user->factory : [];
+
+        if (!empty($allowedFactories) && !in_array($request->factory, $allowedFactories)) {
+            return response()->json(['error' => 'Unauthorized factory scope'], 403);
+        }
+
         $request->session()->put('factory', $request->factory);
-        $request->session()->put('shift',   $request->shift);
-        if ($request->wantsJson()) return response()->json(['ok' => true]);
+        $request->session()->put('shift', $request->shift);
+        if ($request->wantsJson())
+            return response()->json(['ok' => true]);
         return back();
     }
 
     public function tvPicker()
     {
-        return view('admin.tv_picker');
+        $user = Auth::user();
+        $allowedFactories = (!$user->isSuperAdmin() && !empty($user->factory)) ? (array) $user->factory : [];
+
+        $factories = $this->factoryConfig->getFactoryObjects();
+
+        if (!empty($allowedFactories)) {
+            $factories = $factories->whereIn('name', $allowedFactories);
+        }
+
+        return view('admin.tv_picker', compact('factories'));
     }
 
     // =========================================================================
@@ -215,8 +426,8 @@ class DashboardController extends Controller
     // =========================================================================
 
     /**
-     * ══ SINGLE SOURCE OF TRUTH — status visual per mesin ════════════════════
-     *
+     * ══ SINGLE SOURCE OF TRUTH  - status visual per mesin ════════════════════
+     * develop by rizky
      * Dipakai untuk: border card, pip dots, status pills, dot kecil.
      *
      * Aturan 'statuses[]' (untuk visual card & border):
@@ -231,49 +442,68 @@ class DashboardController extends Controller
     private function getMachineStatuses(string $tanggal, string $factory, string $shift): array
     {
         $replacedMesinList = AssignmentReplacement::where([
-            'tanggal' => $tanggal, 'factory' => $factory, 'shift' => $shift,
+            'tanggal' => $tanggal,
+            'factory' => $factory,
+            'shift' => $shift,
         ])->pluck('target_machine')->toArray();
 
         $openLogsByMachine = ProblemLog::where([
-            'tanggal' => $tanggal, 'factory' => $factory,
-            'shift'   => $shift,   'status'  => 'open',
+            'tanggal' => $tanggal,
+            'factory' => $factory,
+            'shift' => $shift,
+            'status' => 'open',
         ])->whereIn('jenis', ['Machine', 'Material', 'Method'])
-          ->get()
-          ->groupBy('lokasi')
-          ->map(fn($logs) => $logs->pluck('jenis')
-              ->map(fn($j) => strtolower($j))
-              ->unique()->values()->toArray());
+            ->get()
+            ->groupBy('lokasi')
+            ->map(fn($logs) => $logs->pluck('jenis')
+                ->map(fn($j) => strtolower($j))
+                ->unique()->values()->toArray());
 
         $absenMemberIds = AbsenceRecord::where([
-            'tanggal' => $tanggal, 'factory' => $factory,
-            'shift'   => $shift,   'status'  => 'absen',
+            'tanggal' => $tanggal,
+            'factory' => $factory,
+            'shift' => $shift,
+            'status' => 'absen',
         ])->pluck('member_id')->toArray();
 
         $absenMesinSet = collect();
         if (!empty($absenMemberIds)) {
-            $absenMesinSet = Member::whereIn('id', $absenMemberIds)
+            $absenMembers = Member::whereIn('id', $absenMemberIds)
                 ->whereNotNull('mesin')
-                ->pluck('mesin');
+                ->get();
+
+            // Collect both primary and secondary machines from absent members
+            foreach ($absenMembers as $member) {
+                if ($member->mesin) {
+                    $absenMesinSet->push($member->mesin);
+                }
+                if ($member->mesin_secondary) {
+                    $absenMesinSet->push($member->mesin_secondary);
+                }
+            }
         }
 
         $result = [];
-        foreach ($this->factoryConfig->getAllMachines($factory) as $machineName) {
+        // ── Gunakan semua mesin dari DB (bukan hardcoded) ──
+        foreach (Machine::where('factory', $factory)->pluck('name') as $machineName) {
             $active = [];
 
             // MAN di statuses[] hanya untuk yang belum ada pengganti
-            // (menentukan border merah & tombol finder)
             if ($absenMesinSet->contains($machineName) && !in_array($machineName, $replacedMesinList)) {
                 $active[] = 'man';
             }
 
             $logTypes = $openLogsByMachine[$machineName] ?? [];
-            if (in_array('machine',  $logTypes)) $active[] = 'machine';
-            if (in_array('material', $logTypes)) $active[] = 'material';
-            if (in_array('method',   $logTypes)) $active[] = 'method';
+            if (in_array('machine', $logTypes))
+                $active[] = 'machine';
+            if (in_array('material', $logTypes))
+                $active[] = 'material';
+            if (in_array('method', $logTypes))
+                $active[] = 'method';
 
             if (!empty($active)) {
                 $result[$machineName] = [
-                    'status'   => $active[0],
+                    'status' => $active[0],
                     'statuses' => $active,
                 ];
             }
@@ -284,74 +514,116 @@ class DashboardController extends Controller
 
     /**
      * ══ BUILD SUMMARY ════════════════════════════════════════════════════════
+     * fixed by rizky
+     * Aturan counter summary:
      *
-     * Aturan counter summary (berbeda dari statuses[]):
+     *   MAN      → Jumlah ORANG yang absen (tidak hadir) pada shift tsb.
+     *              Tidak bergantung pada mesin, tidak turun jika ada pengganti.
+     *              Sumber: AbsenceRecord dengan status = 'absen'.
      *
-     *   MAN      → SEMUA mesin yang ada anggota absen, termasuk yang sudah
-     *              digantikan. Tidak turun ketika ada pengganti.
-     *              (Menggambarkan kondisi aktual: berapa mesin kekurangan orang asli)
-     *
-     *   MACHINE  → mesin dengan open log 'Machine'  (kembali 0 saat log ditutup)
-     *   MATERIAL → mesin dengan open log 'Material' (kembali 0 saat log ditutup)
-     *   METHOD   → mesin dengan open log 'Method'   (kembali 0 saat log ditutup)
+     *   MACHINE  → Jumlah LAPORAN open dengan jenis 'Machine'.
+     *              Berkurang ketika laporan ditutup (status → closed).
+     *   MATERIAL → Jumlah LAPORAN open dengan jenis 'Material'.
+     *              Berkurang ketika laporan ditutup (status → closed).
+     *   METHOD   → Jumlah LAPORAN open dengan jenis 'Method'.
+     *              Berkurang ketika laporan ditutup (status → closed).
      *
      *   NORMAL   → mesin tanpa masalah apapun
      *   PROBLEM  → machine + material + method (tidak termasuk man)
      */
     private function buildSummary(array $machineStatuses, string $tanggal, string $factory, string $shift): array
     {
-        $machinesForTotal = $this->factoryConfig->getAllMachines($factory, excludeKeyPersons: true);
-        $total            = count($machinesForTotal);
-        $machinesForSet   = array_flip($machinesForTotal);
+        // ── Gunakan DB  - hitung HANYA machines dengan status='mesin' (actual production machines) ──
+        // Exclude: persons (key persons), lainya (support), mc_vibration (monitoring), dan status lainnya
+        $machinesForTotal = Machine::where('factory', $factory)
+            ->where('status', 'mesin')
+            ->pluck('name')
+            ->toArray();
+        $total = count($machinesForTotal);
+        $machinesForSet = array_flip($machinesForTotal);
 
-        // ── MAN: hitung semua mesin yang ada absennya (termasuk sudah digantikan) ──
-        $absenMemberIds = AbsenceRecord::where([
-            'tanggal' => $tanggal, 'factory' => $factory,
-            'shift'   => $shift,   'status'  => 'absen',
-        ])->pluck('member_id')->toArray();
+        // ── MAN: hitung JUMLAH ORANG yang absen (bukan per mesin) ──
+        $man = AbsenceRecord::where([
+            'tanggal' => $tanggal,
+            'factory' => $factory,
+            'shift' => $shift,
+            'status' => 'absen',
+        ])->count();
 
-        $man = 0;
-        if (!empty($absenMemberIds)) {
-            $man = Member::whereIn('id', $absenMemberIds)
-                ->whereNotNull('mesin')
-                ->whereIn('mesin', $machinesForTotal)
-                ->distinct('mesin')
-                ->count('mesin');
-        }
+        // ── MACHINE / MATERIAL / METHOD: hitung per LAPORAN open (bukan per mesin) ──
+        $openLogCounts = ProblemLog::where([
+            'tanggal' => $tanggal,
+            'factory' => $factory,
+            'shift' => $shift,
+            'status' => 'open',
+        ])
+            ->whereIn('jenis', ['Machine', 'Material', 'Method'])
+            ->selectRaw('jenis, COUNT(*) as total')
+            ->groupBy('jenis')
+            ->pluck('total', 'jenis');
 
-        // ── MACHINE / MATERIAL / METHOD: dari $machineStatuses (open log saja) ──
-        $machine = $material = $method = 0;
+        $machine = (int) ($openLogCounts['Machine'] ?? 0);
+        $material = (int) ($openLogCounts['Material'] ?? 0);
+        $method = (int) ($openLogCounts['Method'] ?? 0);
+
+        // NORMAL = mesin yang tidak punya masalah (tetap berbasis mesin untuk tampilan kartu)
         $problemSet = [];
-
         foreach ($machineStatuses as $machineName => $s) {
-            if (!isset($machinesForSet[$machineName])) continue;
-
-            if (in_array('machine',  $s['statuses'])) { $machine++; $problemSet[$machineName] = true; }
-            if (in_array('material', $s['statuses'])) { $material++; $problemSet[$machineName] = true; }
-            if (in_array('method',   $s['statuses'])) { $method++;   $problemSet[$machineName] = true; }
+            if (!isset($machinesForSet[$machineName]))
+                continue;
+            if (
+                in_array('machine', $s['statuses']) ||
+                in_array('material', $s['statuses']) ||
+                in_array('method', $s['statuses'])
+            ) {
+                $problemSet[$machineName] = true;
+            }
         }
 
         $problem = $machine + $material + $method;
-        $normal  = $total - count($problemSet);
+        $normal = $total - count($problemSet);
 
         return compact('total', 'normal', 'man', 'machine', 'material', 'method', 'problem');
     }
 
     /**
-     * ══ HITUNG STATUS LEVEL ══════════════════════════════════════════════════
+     * ══ HITUNG STATUS LEVEL — KY Capacity vs Total Absen (Task 1) ═══════════
      *
-     * Level menggunakan $totalMan (semua absen, termasuk sudah digantikan):
-     *
-     *   0 → AMAN    : man = 0, tidak ada problem MC, tidak ada open log
-     *   1 → RINGAN  : man = 1
-     *   2 → KHUSUS  : man 2–3  ATAU ada problem MC  ATAU ada open log
-     *   3 → BAHAYA  : man >= 4 ATAU problem MC >= 2  ATAU open log >= 3
+     * @param int $totalAbsen jumlah total MP yang absen
+     * @param int $kyTotal    jumlah total jabatan KY (kapasitas backup)
+     * @param int $activeMC   jumlah ProblemLog dengan status open
      */
-    private function calcStatusLevel(int $totalMan, int $problemMC, int $openLogs): int
+    private function calcStatusLevel(int $totalAbsen, int $kyTotal, int $activeMC): int
     {
-        if ($totalMan >= 4 || $problemMC >= 2 || $openLogs >= 3) return 3; // BAHAYA
-        if ($totalMan >= 2 || $problemMC >= 1 || $openLogs >= 1) return 2; // KHUSUS
-        if ($totalMan === 1)                                      return 1; // RINGAN
-        return 0;                                                            // AMAN
+        $isAbsenOverLimit = $totalAbsen > $kyTotal;
+
+        if ($isAbsenOverLimit) {
+            if ($activeMC === 0) return 1; // Ringan
+            if ($activeMC === 1) return 2; // Khusus
+            if ($activeMC >= 2)  return 3; // Bahaya
+        } else {
+            // Absen masih dalam limit KY
+            if ($activeMC === 0) return 0; // Normal
+            if ($activeMC === 1) return 2; // Khusus (Machine problem is critical)
+            if ($activeMC >= 2)  return 3; // Bahaya
+        }
+
+        return 0; // Fallback
+    }
+
+    /**
+     * ══ HITUNG KY TOTAL COUNT ════════════════════════════════════════════════
+     * Count how many Key Persons (KY) exist for the given factory and shift
+     */
+    private function calcKyTotalCount(string $factory, string $shift): int
+    {
+        return Member::where('factory', $factory)
+            ->whereIn('shift', [$shift, 'AB'])
+            ->where('status', 'active')
+            ->where(function ($q) {
+                $q->where('mesin', 'like', 'KY%')
+                  ->orWhere('mesin', 'like', 'ky%');
+            })
+            ->count();
     }
 }

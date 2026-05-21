@@ -26,7 +26,7 @@
         }
 
         .sum-num {
-            font-family: 'Orbitron', sans-serif;
+            font-family: 'Roboto Condensed', sans-serif;
             font-size: 22px;
             font-weight: 800;
             line-height: 1;
@@ -221,7 +221,7 @@
             border-bottom-color: #f4a8a8;
         }
 
-        /* ── Status dot — DOT MERAH BISA DIKLIK ──────────────────────── */
+        /* ── Status dot  - DOT MERAH BISA DIKLIK ──────────────────────── */
         .mc-dot {
             width: 10px;
             height: 10px;
@@ -555,7 +555,7 @@
         }
 
         .sub-ph h2 {
-            font-family: 'Orbitron', sans-serif;
+            font-family: 'Roboto Condensed', sans-serif;
             font-size: 13px;
             font-weight: 900;
             margin: 0 0 2px;
@@ -594,7 +594,7 @@
         }
 
         .sub-idle h3 {
-            font-family: 'Orbitron', sans-serif;
+            font-family: 'Roboto Condensed', sans-serif;
             font-size: 12px;
             font-weight: 800;
             color: #ccc;
@@ -847,7 +847,7 @@
         }
 
         .modal-hdr2 h3 {
-            font-family: 'Orbitron', sans-serif;
+            font-family: 'Roboto Condensed', sans-serif;
             font-size: 13px;
             font-weight: 900;
             color: #fff;
@@ -926,7 +926,7 @@
     <div class="date-bar"
         style="display:flex;align-items:center;background:#fff;border-radius:50px;padding:10px 18px;box-shadow:0 1px 4px rgba(0,0,0,0.08);gap:12px;">
 
-        {{-- Icon kalender — klik ini untuk buka date picker --}}
+        {{-- Icon kalender  - klik ini untuk buka date picker --}}
         <div class="date-label" onclick="document.getElementById('tanggalHari').showPicker()"
             style="width:36px;height:36px;background:#2E7D32;border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff"
@@ -944,7 +944,7 @@
             {{ \Carbon\Carbon::parse($tanggal)->format('d / m / Y') }}
         </span>
 
-        {{-- Input date tersembunyi — hanya trigger via icon --}}
+        {{-- Input date tersembunyi  - hanya trigger via icon --}}
         <input type="date" id="tanggalHari" value="{{ $tanggal }}" onchange="onDateChange(this.value)"
             style="position:absolute;opacity:0;pointer-events:none;width:0;height:0;">
 
@@ -965,7 +965,7 @@
                 <line x1="16" y1="16" x2="16" y2="16" />
                 <line x1="12" y1="16" x2="12" y2="16" />
             </svg>
-            FACTORY {{ session('factory', 'Factory 2') === 'Factory 2' ? '2' : '3&4' }}
+            {{ strtoupper(\App\Models\Factory::where('name', session('factory', 'Factory 2'))->value('short_label') ?? session('factory', 'Factory 2')) }}
         </button>
     </div>
 
@@ -1059,7 +1059,7 @@
 
         <div class="assign-two">
 
-            {{-- LEFT: Papan penugasan — dirender penuh oleh JS --}}
+            {{-- LEFT: Papan penugasan  - dirender penuh oleh JS --}}
             <div id="boardRoot"></div>
 
             {{-- RIGHT: Panel cari pengganti --}}
@@ -1323,7 +1323,7 @@
 
         // ══ FINDER ════════════════════════════════════════════════════════════════════
         // Dipanggil oleh onclick="openFinderForMachine(this)" pada DOT elemen
-        // Menggunakan data-key dari elemen DOM — tidak ada isu string escaping
+        // Menggunakan data-key dari elemen DOM  - tidak ada isu string escaping
         function openFinderForMachine(dotEl) {
             const key = dotEl.getAttribute('data-key');
             if (!key) return;
@@ -1422,7 +1422,7 @@
         async function saveAssignments() {
             showLoading();
             try {
-                const res = await fetch('/admin/assignment/save', {
+                const res = await fetch('/api/assignment/save', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' },
                     body: JSON.stringify({ tanggal: TANGGAL, factory: FACTORY, shift: SHIFT, assignments }),
@@ -1463,11 +1463,11 @@
         // ══ SYNC ABSEN ════════════════════════════════════════════════════════════════
         async function syncAbsenFromServer() {
             try {
-                const res = await fetch(`/admin/assignment/sync-absen?tanggal=${TANGGAL}&factory=${encodeURIComponent(FACTORY)}&shift=${SHIFT}`,
+                const res = await fetch(`/api/assignment/sync-absen?tanggal=${TANGGAL}&factory=${encodeURIComponent(FACTORY)}&shift=${SHIFT}`,
                     { method: 'POST', headers: { 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json', 'Content-Type': 'application/json' } });
                 const data = await res.json();
                 if (data.synced > 0) {
-                    const r2 = await fetch(`/admin/assignment/data?tanggal=${TANGGAL}&factory=${encodeURIComponent(FACTORY)}&shift=${SHIFT}`);
+                    const r2 = await fetch(`/api/assignment/data?tanggal=${TANGGAL}&factory=${encodeURIComponent(FACTORY)}&shift=${SHIFT}`);
                     const d2 = await r2.json();
                     assignments = d2.assignments; savedAssignments = JSON.parse(JSON.stringify(assignments));
                     render(); showSync(`📡 ${data.synced} member tersinkronisasi dari Absen`);

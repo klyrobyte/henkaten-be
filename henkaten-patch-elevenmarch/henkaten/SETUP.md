@@ -1,4 +1,4 @@
-# HENKATEN Laravel — Panduan Setup & Fix Login
+# HENKATEN Laravel  - Panduan Setup & Fix Login
 
 ## Masalah: Setelah login tidak redirect ke dashboard
 
@@ -6,7 +6,7 @@ Penyebabnya ada **3 hal yang harus diatur** setelah `composer create-project`:
 
 ---
 
-## LANGKAH 1 — Hapus migration bawaan Laravel
+## LANGKAH 1  - Hapus migration bawaan Laravel
 
 Laravel 11 generate migration default ini yang **konflik** dengan migration kita:
 
@@ -28,7 +28,7 @@ rm database/migrations/0001_01_01_000002_create_jobs_table.php
 
 ---
 
-## LANGKAH 2 — Copy file dari output/
+## LANGKAH 2  - Copy file dari output/
 
 Copy semua file dari folder `output/` ke root project Laravel:
 
@@ -44,7 +44,7 @@ cp -r output/public/assets/     your-laravel-project/public/assets/
 
 ---
 
-## LANGKAH 3 — Jalankan migration + seeder
+## LANGKAH 3  - Jalankan migration + seeder
 
 ```bash
 cd your-laravel-project
@@ -64,7 +64,7 @@ php artisan storage:link
 
 ---
 
-## LANGKAH 4 — Buat user login manual
+## LANGKAH 4  - Buat user login manual
 
 Karena saya skip seeder, buat user via Tinker:
 
@@ -101,7 +101,7 @@ Ketik `exit` untuk keluar Tinker.
 
 ---
 
-## LANGKAH 5 — Test login
+## LANGKAH 5  - Test login
 
 ```bash
 php artisan serve

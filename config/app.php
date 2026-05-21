@@ -123,4 +123,14 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    // ── Security patch 2026-05-10 ─────────────────────────────────────────────
+    // APP_API_SECRET: shared secret for HMAC-based API authentication (non-browser clients)
+    'api_secret' => env('APP_API_SECRET', ''),
+
+    // SCRIBE_ENABLED: controls whether /docs is served at all
+    'scribe_enabled' => (bool) env('SCRIBE_ENABLED', false),
+
+    // SCRIBE_ALLOWED_IPS: comma-separated IP/CIDR allowlist for /docs access
+    'scribe_allowed_ips' => env('SCRIBE_ALLOWED_IPS', ''),
+
 ];

@@ -61,7 +61,7 @@
         }
 
         .rch-title {
-            font-family: 'Orbitron', sans-serif;
+            font-family: 'Roboto Condensed', sans-serif;
             font-size: 12px;
             font-weight: 900;
             letter-spacing: .8px;
@@ -86,7 +86,7 @@
         }
 
         .rbar-val {
-            font-family: 'Orbitron', sans-serif;
+            font-family: 'Roboto Condensed', sans-serif;
             font-size: 20px;
             font-weight: 700;
             line-height: 1;
@@ -221,7 +221,7 @@
                 'Cuti' => '#1F3C88',
                 'Sakit' => '#f39c12',
                 'Ijin' => '#e74c3c',
-                'Mangkir' => '#8e44ad',
+                'Alpha' => '#8e44ad',
                 'Tugas' => '#2ecc71',
             ];
         @endphp
@@ -229,7 +229,7 @@
         @forelse($reports as $r)
             <div class="report-card">
                 <div class="report-card-header">
-                    <div class="rch-title">{{ $r['factory'] }} — Shift {{ $r['shift'] }}</div>
+                    <div class="rch-title">{{ $r['factory'] }} - Shift {{ $r['shift'] }}</div>
                     <div style="font-size:11px;opacity:.8">
                         {{ \Carbon\Carbon::parse($tanggal)->locale('id')->isoFormat('D MMM YYYY') }}
                     </div>
@@ -292,7 +292,7 @@
                                         {{ $m->nama }}
                                     </div>
                                     <div style="font-size:10px;color:#888">
-                                        {{ $m->jabatan }}{{ $m->mesin ? ' — ' . $m->mesin : '' }}
+                                        {{ $m->jabatan }}{{ $m->mesin ? '  - ' . $m->mesin : '' }}
                                     </div>
                                 </div>
                                 <span

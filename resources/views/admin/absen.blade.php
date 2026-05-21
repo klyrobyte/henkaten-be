@@ -14,24 +14,24 @@
                 </div>
                 <div class="field-group" style="flex:1;min-width:100px">
                     <label>Factory</label>
-                    <select name="factory" onchange="document.getElementById('filterForm').submit()">
-                        @php $userRole = auth()->user()->role; $userFactory = auth()->user()->factory; $userShift = auth()->user()->shift; @endphp
-                        @if($userRole === 'admin' || !$userFactory || $userFactory === 'Factory 2')
-                        <option value="Factory 2" {{ $factory === 'Factory 2' ? 'selected' : '' }}>Factory 2</option>
-                        @endif
-                        @if($userRole === 'admin' || !$userFactory || $userFactory === 'Factory 3 & 4')
-                        <option value="Factory 3 &amp; 4" {{ $factory === 'Factory 3 & 4' ? 'selected' : '' }}>Factory 3 &amp;
-                            4</option>
-                        @endif
+                    <select name="factory" onchange="document.getElementById('filterForm').submit()" {{ count($factories) === 1 ? 'disabled' : '' }}>
+                        @foreach($factories as $f)
+                            <option value="{{ $f->name }}" {{ ($factory === $f->name || count($factories) === 1) ? 'selected' : '' }}>{{ $f->name }}</option>
+                        @endforeach
                     </select>
                 </div>
                 <div class="field-group" style="flex:1;min-width:90px">
                     <label>Shift</label>
                     <select name="shift" onchange="document.getElementById('filterForm').submit()">
-                        @if($userRole === 'admin' || !$userShift || $userShift === 'A')
+                        @php 
+                            $user = auth()->user();
+                            $userRole = $user->role; 
+                            $userShift = $user->shift; 
+                        @endphp
+                        @if($user->isSuperAdmin() || $userRole === 'admin' || !$userShift || $userShift === 'A')
                         <option value="A" {{ $shift === 'A' ? 'selected' : '' }}>Shift A</option>
                         @endif
-                        @if($userRole === 'admin' || !$userShift || $userShift === 'B')
+                        @if($user->isSuperAdmin() || $userRole === 'admin' || !$userShift || $userShift === 'B')
                         <option value="B" {{ $shift === 'B' ? 'selected' : '' }}>Shift B</option>
                         @endif
                     </select>
@@ -56,12 +56,19 @@
         </div>
     </div>
 
+    {{-- ── Cari Member ── --}}
+    <div style="margin-bottom:14px">
+        <input type="text" id="searchMember" placeholder="🔍 Cari nama member..."
+            style="width:100%;padding:10px 14px;border:1.5px solid #e0e0e0;border-radius:10px;font-family:inherit;font-size:14px;box-sizing:border-box;outline:none;transition:border-color 0.2s;"
+            onfocus="this.style.borderColor='#2e7d32'" onblur="this.style.borderColor='#e0e0e0'"
+            onkeyup="filterMembers()">
+    </div>
+
     {{-- ── Action buttons ── --}}
     <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
-        <button class="btn btn-sm btn-primary" onclick="saveAbsenData()" style="flex:1">
-            💾 Simpan Absen
+        <button class="btn btn-sm btn-primary" onclick="broadcastAbsen()" style="flex:1">
+            💾 Simpan &amp; Sync
         </button>
-        <button class="btn btn-sm btn-navy" onclick="broadcastAbsen()">📡 Sync ke Board</button>
     </div>
 
     {{-- ── Member list ── --}}
@@ -82,16 +89,16 @@
                 @endphp
                 <div class="absen-member-row" id="arow-{{ $m->id }}">
                     <div class="amr-photo">
-                        @if($m->photo_url)
-                            <img src="{{ $m->photo_url }}" alt="{{ $m->nama }}">
-                        @else
-                            👤
-                        @endif
-                    </div>
+                                                @if($m->photo_url)
+                                                    <img src="{{ $m->photo_url }}" alt="{{ $m->nama }}" loading="lazy">
+                                                @else
+                                                    👤
+                                                @endif
+                                            </div>
                     <div class="amr-info">
                         <div class="amr-name">{{ $m->nama }}</div>
                         <div class="amr-role">
-                            {{ $m->jabatan }}{{ $m->mesin ? ' — ' . $m->mesin : '' }}
+                            {{ $m->jabatan }}{{ $m->mesin ? '  - ' . $m->mesin : '' }}
                         </div>
                     </div>
                     <div style="display:flex;align-items:center;gap:4px;flex-shrink:0;flex-wrap:wrap">
@@ -106,7 +113,7 @@
                             <option value="Cuti" {{ $reason === 'Cuti' ? 'selected' : '' }}>Cuti</option>
                             <option value="Sakit" {{ $reason === 'Sakit' ? 'selected' : '' }}>Sakit</option>
                             <option value="Ijin" {{ $reason === 'Ijin' ? 'selected' : '' }}>Ijin</option>
-                            <option value="Mangkir" {{ $reason === 'Mangkir' ? 'selected' : '' }}>Mangkir</option>
+                            <option value="Alpha" {{ $reason === 'Alpha' ? 'selected' : '' }}>Alpha</option>
                         </select>
                     </div>
                 </div>
@@ -115,13 +122,13 @@
     @endif
 
     {{-- ══════════════════════════════════════════════════════════════ --}}
-    {{-- REKAP — navigasi tanggal + export CSV --}}
+    {{-- REKAP  - navigasi tanggal + export CSV --}}
     {{-- dipindah dari page-report di member management --}}
     {{-- ══════════════════════════════════════════════════════════════ --}}
     <div style="margin-top:24px">
         <div class="report-date-nav">
             <button class="rdn-btn" onclick="changeReportDate(-1)">←</button>
-            <div class="rdn-date" id="reportDateLabel">—</div>
+            <div class="rdn-date" id="reportDateLabel"> -</div>
             <button class="rdn-btn" onclick="changeReportDate(1)">→</button>
         </div>
         <div style="display:flex;gap:8px;margin-bottom:14px">
@@ -157,6 +164,29 @@
                 },
             @endforeach
     };
+
+        // ── Client-Side Search ──
+        function filterMembers() {
+            const query = document.getElementById('searchMember').value.toLowerCase();
+            const rows = document.querySelectorAll('.absen-member-row');
+            let visibleCount = 0;
+            
+            rows.forEach(row => {
+                const nameEl = row.querySelector('.amr-name');
+                if (nameEl) {
+                    const nameStr = nameEl.textContent.toLowerCase();
+                    if (nameStr.includes(query)) {
+                        row.style.display = 'flex';
+                        visibleCount++;
+                    } else {
+                        row.style.display = 'none';
+                    }
+                }
+            });
+
+            // (Opsional) Jika ingin menandai array kosong
+            // Bisa tambahkan state empty-search jika visibleCount === 0
+        }
 
         // ── Toggle hadir / absen ─────────────────────────────────────
         function setAbsenState(memberId, status, reason) {
@@ -200,7 +230,7 @@
             }
             showLoading('Menyimpan data absen...');
             try {
-                const res = await fetch('/admin/absence/save', {
+                const res = await fetch('/api/absence/save', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -291,13 +321,13 @@
             const html = reports.map(r => {
                 const pctColor = r.pct >= 90 ? 'var(--green)' : (r.pct >= 75 ? 'var(--orange)' : 'var(--red)');
                 const absenRows = r.absen_list.map(m => {
-                    const reasonColor = { Cuti: '#2196f3', Sakit: '#ff9800', Ijin: '#9c27b0', Mangkir: 'var(--red)' }[m.reason] ?? '#888';
+                    const reasonColor = { Cuti: '#2196f3', Sakit: '#ff9800', Ijin: '#9c27b0', Alpha: 'var(--red)' }[m.reason] ?? '#888';
                     return `<div style="display:flex;align-items:center;justify-content:space-between;
                                     padding:7px 10px;background:#fff8f8;border-radius:8px;margin-bottom:4px;
                                     border-left:3px solid ${reasonColor}">
                     <div>
                         <div style="font-size:13px;font-weight:500">${m.nama}</div>
-                        <div style="font-size:11px;color:#aaa">${m.jabatan}${m.mesin ? ' — ' + m.mesin : ''}</div>
+                        <div style="font-size:11px;color:#aaa">${m.jabatan}${m.mesin ? '  - ' + m.mesin : ''}</div>
                     </div>
                     <span style="font-size:11px;font-weight:600;color:${reasonColor};
                                  background:${reasonColor}15;padding:2px 8px;border-radius:99px">

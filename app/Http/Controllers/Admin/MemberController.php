@@ -4,77 +4,142 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Member;
+use App\Models\Factory;
 use App\Services\FactoryConfigService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Storage;
 
+/**
+ * @group Member
+ * 
+ * APIs for managing Member.
+ */
 class MemberController extends Controller
 {
-    public function __construct(protected FactoryConfigService $factoryConfig) {}
-
-    // ──────────────────────────────────────────────────────────────────
-    // HALAMAN UTAMA — mengganti page-members + renderMembers() + updateStats()
-    // GET /admin/members
-    // ──────────────────────────────────────────────────────────────────
-    public function index(Request $request)
+    public function __construct(protected FactoryConfigService $factoryConfig)
     {
-        $factory = $request->get('factory', 'all');
-        $shift   = $request->get('shift',   'all');
-        $search  = $request->get('q',       '');
-
-        $query = Member::query();
-        if ($factory !== 'all') $query->where('factory', $factory);
-        if ($shift   !== 'all') $query->where('shift',   $shift);
-        if ($search)            $query->where('nama', 'like', "%{$search}%");
-        $members = $query->orderBy('nama')->get();
-
-        // Stats bar (mengganti updateStats() JS)
-        $stats = [
-            'total'      => Member::count(),
-            'f2'         => Member::where('factory', 'Factory 2')->count(),
-            'f34'        => Member::where('factory', 'Factory 3 & 4')->count(),
-            'absen_today'=> \App\Models\AbsenceRecord::where('tanggal', today())
-                               ->where('status', 'absen')->count(),
-        ];
-
-        // Daftar mesin per factory (mengganti const factoryMachines JS)
-        $mesinList = [
-            'Factory 2'     => $this->factoryConfig->getAllMachines('Factory 2'),
-            'Factory 3 & 4' => $this->factoryConfig->getAllMachines('Factory 3 & 4'),
-        ];
-
-        return view('admin.member.index',
-            compact('members', 'stats', 'factory', 'shift', 'search', 'mesinList'));
     }
 
     // ──────────────────────────────────────────────────────────────────
-    // DETAIL (JSON) — untuk AJAX sheet panel
+    // HALAMAN UTAMA  - mengganti page-members + renderMembers() + updateStats()
+    // GET /admin/member
+    // @rizky
+    // ──────────────────────────────────────────────────────────────────
+    public function index(Request $request)
+    {
+        $user = Auth::user();
+        $isSuperAdmin = $user->isSuperAdmin();
+        $allowedFactories = (array) $user->factory;
+
+        $factory = $request->get('factory', 'all');
+        $shift = $request->get('shift', 'all');
+        $search = $request->get('q', '');
+
+        $query = Member::query();
+
+        if (!$isSuperAdmin) {
+            if ($factory === 'all') {
+                $query->whereIn('factory', $allowedFactories);
+            } else {
+                if (!in_array($factory, $allowedFactories)) {
+                    abort(403, 'Unauthorized factory access.');
+                }
+                $query->where('factory', $factory);
+            }
+        } else {
+            if ($factory !== 'all') {
+                $query->where('factory', $factory);
+            }
+        }
+
+        if ($shift !== 'all')
+            $query->where('shift', $shift);
+        if ($search)
+            $query->where('nama', 'like', "%{$search}%");
+        $members = $query->orderBy('nama')->get();
+
+        // Stats bar
+        $stats = [
+            'total' => !$isSuperAdmin
+                ? Member::whereIn('factory', $allowedFactories)->count()
+                : Member::count(),
+            'absen_today' => \App\Models\AbsenceRecord::where('tanggal', today())
+                ->where('status', 'absen')
+                ->when(!$isSuperAdmin, function ($q) use ($allowedFactories) {
+                    return $q->whereHas('member', function ($mq) use ($allowedFactories) {
+                        $mq->whereIn('factory', $allowedFactories);
+                    });
+                })
+                ->count(),
+        ];
+
+        $factories = Factory::all();
+        if (!$isSuperAdmin) {
+            $factories = $factories->filter(fn($f) => in_array($f->name, $allowedFactories));
+        }
+
+        foreach ($factories as $fac) {
+            $stats['f_' . $fac->id] = [
+                'name' => $fac->short_label,
+                'count' => Member::where('factory', $fac->name)->count(),
+            ];
+        }
+
+        // Daftar mesin per factory (mengganti const factoryMachines JS)
+        $mesinList = [];
+        foreach ($factories as $fac) {
+            $mesinList[$fac->name] = $this->factoryConfig->getAllMachines($fac->name);
+        }
+
+        return view(
+            'admin.member.index',
+            compact('members', 'stats', 'factory', 'shift', 'search', 'mesinList', 'factories')
+        );
+    }
+
+    // ──────────────────────────────────────────────────────────────────
+    // DETAIL (JSON)  - untuk AJAX sheet panel
     // GET /admin/members/{member}
     // ──────────────────────────────────────────────────────────────────
     public function show(Member $member)
     {
+        $user = Auth::user();
+        if (!$user->isSuperAdmin() && !in_array($member->factory, (array) $user->factory)) {
+            abort(403, 'Unauthorized factory access.');
+        }
+
         $history = $member->absenceRecords()
             ->orderByDesc('tanggal')
             ->limit(10)
-            ->get(['tanggal','status','reason']);
+            ->get(['tanggal', 'status', 'reason']);
 
         return response()->json([
-            'member'  => $member,
+            'member' => $member,
             'history' => $history,
         ]);
     }
 
     // ──────────────────────────────────────────────────────────────────
-    // SIMPAN BARU — mengganti saveMember() JS (mode tambah)
+    // SIMPAN BARU  - mengganti saveMember() JS (mode tambah)
     // POST /admin/members
     // ──────────────────────────────────────────────────────────────────
     public function store(Request $request)
     {
+        $user = Auth::user();
         $data = $this->validateMember($request);
 
+        if (!$user->isSuperAdmin() && !in_array($data['factory'], (array) $user->factory)) {
+            abort(403, 'Unauthorized factory access.');
+        }
+
         if ($request->hasFile('photo')) {
-            $data['photo'] = $request->file('photo')->store('members', 'public');
+            $file = $request->file('photo');
+            $data['photo'] = $this->processAndStorePhoto(
+                file_get_contents($file->getRealPath()),
+                $file->hashName()
+            );
         } elseif ($request->filled('photo_base64')) {
             $data['photo'] = $this->storeBase64Photo($request->photo_base64);
         }
@@ -88,18 +153,33 @@ class MemberController extends Controller
     }
 
     // ──────────────────────────────────────────────────────────────────
-    // UPDATE — mengganti saveMember() JS (mode edit)
+    // UPDATE  - mengganti saveMember() JS (mode edit)
     // PUT /admin/members/{member}
     // ──────────────────────────────────────────────────────────────────
     public function update(Request $request, Member $member)
     {
+        $user = Auth::user();
+        if (!$user->isSuperAdmin() && !in_array($member->factory, (array) $user->factory)) {
+            abort(403, 'Unauthorized factory access.');
+        }
+
         $data = $this->validateMember($request);
+
+        if (!$user->isSuperAdmin() && !in_array($data['factory'], (array) $user->factory)) {
+            abort(403, 'Unauthorized factory access.');
+        }
 
         if ($request->hasFile('photo')) {
             if ($member->photo && !str_starts_with($member->photo, 'data:')) {
-                Storage::disk('public')->delete($member->photo);
+                $delPath = str_starts_with($member->photo, 'members/')
+                    ? basename($member->photo) : $member->photo;
+                Storage::disk('members')->delete($delPath);
             }
-            $data['photo'] = $request->file('photo')->store('members', 'public');
+            $file = $request->file('photo');
+            $data['photo'] = $this->processAndStorePhoto(
+                file_get_contents($file->getRealPath()),
+                $file->hashName()
+            );
         } elseif ($request->filled('photo_base64')) {
             $data['photo'] = $this->storeBase64Photo($request->photo_base64);
         }
@@ -113,13 +193,20 @@ class MemberController extends Controller
     }
 
     // ──────────────────────────────────────────────────────────────────
-    // HAPUS — mengganti deleteMember(id) JS
+    // HAPUS  - mengganti deleteMember(id) JS
     // DELETE /admin/members/{member}
     // ──────────────────────────────────────────────────────────────────
     public function destroy(Member $member)
     {
+        $user = Auth::user();
+        if (!$user->isSuperAdmin() && !in_array($member->factory, (array) $user->factory)) {
+            abort(403, 'Unauthorized factory access.');
+        }
+
         if ($member->photo && !str_starts_with($member->photo, 'data:')) {
-            Storage::disk('public')->delete($member->photo);
+            $delPath = str_starts_with($member->photo, 'members/')
+                ? basename($member->photo) : $member->photo;
+            Storage::disk('members')->delete($delPath);
         }
         $member->delete();
 
@@ -130,14 +217,34 @@ class MemberController extends Controller
     }
 
     // ──────────────────────────────────────────────────────────────────
-    // HAPUS SEMUA — mengganti clearAllMembers() JS
+    // HAPUS SEMUA  - mengganti clearAllMembers() JS
     // DELETE /admin/members/clear-all
+    //
+    // Requires explicit confirmation header to prevent accidental or
+    // automated mass-deletion. The client must send:
+    //   X-Confirm-Action: DELETE_ALL_MEMBERS
     // ──────────────────────────────────────────────────────────────────
-    public function clearAll()
+    public function clearAll(Request $request)
     {
-        Member::all()->each(function ($m) {
+        // Guard: require explicit confirmation header to prevent accidental mass-delete
+        if ($request->header('X-Confirm-Action') !== 'DELETE_ALL_MEMBERS') {
+            return response()->json([
+                'ok' => false,
+                'message' => 'Konfirmasi penghapusan tidak valid.',
+            ], 422);
+        }
+
+        $user = Auth::user();
+        $query = Member::query();
+        if (!$user->isSuperAdmin()) {
+            $query->whereIn('factory', (array) $user->factory);
+        }
+
+        $query->get()->each(function ($m) {
             if ($m->photo && !str_starts_with($m->photo, 'data:')) {
-                Storage::disk('public')->delete($m->photo);
+                $delPath = str_starts_with($m->photo, 'members/')
+                    ? basename($m->photo) : $m->photo;
+                Storage::disk('members')->delete($delPath);
             }
             $m->delete();
         });
@@ -145,14 +252,25 @@ class MemberController extends Controller
     }
 
     // ──────────────────────────────────────────────────────────────────
-    // LIST JSON (AJAX) — untuk halaman lain (dailyassignment, dll)
+    // LIST JSON (AJAX)  - untuk halaman lain (dailyassignment, dll)
     // GET /admin/members/list?factory=&shift=
     // ──────────────────────────────────────────────────────────────────
     public function list(Request $request)
     {
-        $members = Member::query()
+        $user = Auth::user();
+        $query = Member::query();
+
+        if (!$user->isSuperAdmin()) {
+            $allowed = (array) $user->factory;
+            $query->whereIn('factory', $allowed);
+            if ($request->factory && !in_array($request->factory, $allowed)) {
+                return response()->json([]);
+            }
+        }
+
+        $members = $query
             ->when($request->factory, fn($q) => $q->where('factory', $request->factory))
-            ->when($request->shift,   fn($q) => $q->where('shift', $request->shift))
+            ->when($request->shift, fn($q) => $q->where('shift', $request->shift))
             ->where('status', 'active')
             ->orderBy('nama')
             ->get(['id', 'nama', 'jabatan', 'shift', 'factory', 'mesin', 'photo']);
@@ -161,30 +279,45 @@ class MemberController extends Controller
     }
 
     // ──────────────────────────────────────────────────────────────────
-    // IMPORT — mengganti confirmImport() + processExcelFile() JS
+    // IMPORT  - mengganti confirmImport() + processExcelFile() JS
     // JS tetap parse Excel di browser, lalu kirim JSON array ke sini
     // POST /admin/members/import
     // ──────────────────────────────────────────────────────────────────
     public function import(Request $request)
     {
+        $user = Auth::user();
+        $isSuperAdmin = $user->isSuperAdmin();
+        $allowedFactories = (array) $user->factory;
+
         $request->validate([
-            'members'           => 'required|array|min:1',
-            'members.*.name'    => 'required|string|max:100',
+            'members' => 'required|array|min:1',
+            'members.*.name' => 'required|string|max:100',
             'members.*.factory' => 'required|string',
-            'members.*.shift'   => 'required|in:A,B',
-            'replace'           => 'boolean',
+            'members.*.shift' => 'required|in:A,B',
+            'replace' => 'boolean',
         ]);
 
-        // replace=true → hapus semua dulu (mengganti mode "Ganti semua" di JS)
-        if ($request->boolean('replace')) {
-            Member::all()->each(fn($m) => $m->delete());
+        foreach ($request->members as $row) {
+            if (!$isSuperAdmin && !in_array($row['factory'], $allowedFactories)) {
+                abort(403, "Unauthorized factory access for: " . $row['factory']);
+            }
         }
 
-        $added = 0; $skipped = 0;
+        // replace=true → hapus semua dulu (hanya yang diijinkan)
+        if ($request->boolean('replace')) {
+            $delQuery = Member::query();
+            if (!$isSuperAdmin) {
+                $delQuery->whereIn('factory', $allowedFactories);
+            }
+            $delQuery->get()->each(fn($m) => $m->delete());
+        }
+
+        $added = 0;
+        $skipped = 0;
         foreach ($request->members as $row) {
             $exists = Member::where('nama', $row['name'])
                 ->where('factory', $row['factory'])
-                ->where('shift',   $row['shift'])
+                ->where('shift', $row['shift'])
                 ->exists();
 
             if ($exists && !$request->boolean('replace')) {
@@ -195,30 +328,36 @@ class MemberController extends Controller
             Member::updateOrCreate(
                 ['nama' => $row['name'], 'factory' => $row['factory'], 'shift' => $row['shift']],
                 [
-                    'jabatan' => $row['role']  ?? 'Operator',
-                    'mesin'   => $row['mesin'] ?? '',
-                    'nik'     => $row['nik']   ?? '',
-                    'status'  => 'active',
+                    'jabatan' => $row['role'] ?? 'Operator',
+                    'mesin' => $row['mesin'] ?? '',
+                    'nik' => $row['nik'] ?? '',
+                    'status' => 'active',
                 ]
             );
             $added++;
         }
 
         return response()->json([
-            'ok'      => true,
-            'added'   => $added,
+            'ok' => true,
+            'added' => $added,
             'skipped' => $skipped,
-            'total'   => Member::count(),
+            'total' => Member::count(),
         ]);
     }
 
     // ──────────────────────────────────────────────────────────────────
-    // EXPORT CSV — mengganti exportMembers() JS (pakai SheetJS)
+    // EXPORT CSV  - mengganti exportMembers() JS (pakai SheetJS)
     // GET /admin/members/export
     // ──────────────────────────────────────────────────────────────────
     public function export()
     {
-        $members  = Member::orderBy('factory')->orderBy('shift')->orderBy('nama')->get();
+        $user = Auth::user();
+        $query = Member::query();
+        if (!$user->isSuperAdmin()) {
+            $query->whereIn('factory', (array) $user->factory);
+        }
+
+        $members = $query->orderBy('factory')->orderBy('shift')->orderBy('nama')->get();
         $filename = 'HENKATEN_Members_' . today()->toDateString() . '.csv';
 
         $rows = [
@@ -233,32 +372,34 @@ class MemberController extends Controller
 
         return Response::stream(function () use ($rows) {
             $h = fopen('php://output', 'w');
-            foreach ($rows as $r) fputcsv($h, $r);
+            foreach ($rows as $r)
+                fputcsv($h, $r);
             fclose($h);
         }, 200, [
-            'Content-Type'        => 'text/csv',
+            'Content-Type' => 'text/csv',
             'Content-Disposition' => "attachment; filename=\"{$filename}\"",
         ]);
     }
 
     // ──────────────────────────────────────────────────────────────────
-    // DOWNLOAD TEMPLATE — mengganti downloadTemplate() JS
+    // DOWNLOAD TEMPLATE  - mengganti downloadTemplate() JS
     // GET /admin/members/template
     // ──────────────────────────────────────────────────────────────────
     public function downloadTemplate()
     {
         $rows = [
             ['Nama', 'Factory', 'Shift', 'Jabatan', 'NIK', 'Mesin'],
-            ['Contoh: Budi Santoso', 'Factory 2',     'A', 'Operator', '12345', 'Robot 1'],
-            ['Contoh: Siti Rahma',   'Factory 3 & 4', 'B', 'SPV',      '67890', '#01-1300T'],
+            ['Contoh: Budi Santoso', 'Factory 2', 'A', 'Operator', '12345', 'Robot 1'],
+            ['Contoh: Siti Rahma', 'Factory 3 & 4', 'B', 'SPV', '67890', '#01-1300T'],
         ];
 
         return Response::stream(function () use ($rows) {
             $h = fopen('php://output', 'w');
-            foreach ($rows as $r) fputcsv($h, $r);
+            foreach ($rows as $r)
+                fputcsv($h, $r);
             fclose($h);
         }, 200, [
-            'Content-Type'        => 'text/csv',
+            'Content-Type' => 'text/csv',
             'Content-Disposition' => 'attachment; filename="HENKATEN_Template_Member.csv"',
         ]);
     }
@@ -268,23 +409,107 @@ class MemberController extends Controller
     private function validateMember(Request $request): array
     {
         return $request->validate([
-            'nama'    => 'required|string|max:100',
-            'nik'     => 'nullable|string|max:50',
+            'nama' => 'required|string|max:100',
+            'nik' => 'nullable|string|max:50',
             'jabatan' => 'required|in:Operator,SPV,TL,GL,KY',
-            'factory' => 'required|in:Factory 2,Factory 3 & 4',
-            'shift'   => 'required|in:A,B',
-            'mesin'   => 'nullable|string|max:100',
-            'status'  => 'required|in:active,inactive',
+            'factory' => 'required|string',
+            'shift' => 'required|in:A,B',
+            'mesin' => 'nullable|string|max:100',
+            'status' => 'required|in:active,inactive',
         ]);
     }
 
     private function storeBase64Photo(string $base64): string
     {
-        if (!str_starts_with($base64, 'data:image')) return $base64;
-        $ext  = explode('/', explode(';', $base64)[0])[1];
+        if (!str_starts_with($base64, 'data:image'))
+            return $base64;
+
+        // Extract declared extension from data URI
+        $ext = explode('/', explode(';', $base64)[0])[1];
         $data = base64_decode(explode(',', $base64)[1]);
-        $path = 'members/' . uniqid() . '.' . $ext;
-        Storage::disk('public')->put($path, $data);
-        return $path;
+
+        // ── Magic-byte MIME validation  - prevent disguised non-image uploads  -
+        // Inspect the first 12 bytes of the decoded binary to verify it is
+        // actually an image, regardless of what the data URI header claims.
+        $allowedMimes = [
+            'image/jpeg' => ["\xFF\xD8\xFF"],
+            'image/png' => ["\x89PNG\r\n\x1a\n"],
+            'image/gif' => ['GIF87a', 'GIF89a'],
+            'image/webp' => ['RIFF'],  // RIFF....WEBP checked below
+        ];
+        $header = substr($data, 0, 12);
+        $validImage = false;
+        foreach ($allowedMimes as $mime => $signatures) {
+            foreach ($signatures as $sig) {
+                if (str_starts_with($header, $sig)) {
+                    // Extra check for WebP: bytes 8-11 must be 'WEBP'
+                    if ($mime === 'image/webp' && substr($header, 8, 4) !== 'WEBP') {
+                        continue;
+                    }
+                    $validImage = true;
+                    break 2;
+                }
+            }
+        }
+
+        if (!$validImage) {
+            \Log::warning('MemberController: rejected invalid base64 photo upload (magic byte check failed)', [
+                'declared_ext' => $ext,
+                'header_hex' => bin2hex($header),
+            ]);
+            abort(422, 'Format foto tidak valid.');
+        }
+
+        $allowedExts = ['jpeg', 'jpg', 'png', 'gif', 'webp'];
+        if (!in_array(strtolower($ext), $allowedExts)) {
+            abort(422, 'Ekstensi foto tidak diizinkan.');
+        }
+
+        return $this->processAndStorePhoto($data, uniqid() . '.' . $ext);
+    }
+
+    private function processAndStorePhoto(string $imageData, string $filename): string
+    {
+        $maxWidth = 300;
+        $maxHeight = 300;
+        $jpegQuality = 80;
+
+        $image = @imagecreatefromstring($imageData);
+        if (!$image) {
+            // Fallback if imagecreatefromstring fails but magic bytes passed
+            $filename = pathinfo($filename, PATHINFO_FILENAME) . '.jpg';
+            Storage::disk('members')->put($filename, $imageData);
+            return $filename;
+        }
+
+        $origW = imagesx($image);
+        $origH = imagesy($image);
+
+        $ratio = min($maxWidth / $origW, $maxHeight / $origH);
+        // Only downscale if needed, but always process to JPEG
+        $newW = $origW;
+        $newH = $origH;
+        if ($ratio < 1) {
+            $newW = (int) round($origW * $ratio);
+            $newH = (int) round($origH * $ratio);
+        }
+
+        $resized = imagecreatetruecolor($newW, $newH);
+        $white = imagecolorallocate($resized, 255, 255, 255);
+        imagefill($resized, 0, 0, $white);
+
+        imagecopyresampled($resized, $image, 0, 0, 0, 0, $newW, $newH, $origW, $origH);
+
+        ob_start();
+        imagejpeg($resized, null, $jpegQuality);
+        $processedData = ob_get_clean();
+
+        imagedestroy($image);
+        imagedestroy($resized);
+
+        $filename = pathinfo($filename, PATHINFO_FILENAME) . '.jpg';
+        Storage::disk('members')->put($filename, $processedData);
+
+        return $filename;
     }
 }

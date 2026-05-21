@@ -11,45 +11,52 @@ use Illuminate\Support\Facades\Storage;
 
 class MemberController extends Controller
 {
-    public function __construct(protected FactoryConfigService $factoryConfig) {}
+    public function __construct(protected FactoryConfigService $factoryConfig)
+    {
+    }
 
     // ──────────────────────────────────────────────────────────────────
-    // HALAMAN UTAMA — mengganti page-members + renderMembers() + updateStats()
+    // HALAMAN UTAMA  - mengganti page-members + renderMembers() + updateStats()
     // GET /admin/members
     // ──────────────────────────────────────────────────────────────────
     public function index(Request $request)
     {
         $factory = $request->get('factory', 'all');
-        $shift   = $request->get('shift',   'all');
-        $search  = $request->get('q',       '');
+        $shift = $request->get('shift', 'all');
+        $search = $request->get('q', '');
 
         $query = Member::query();
-        if ($factory !== 'all') $query->where('factory', $factory);
-        if ($shift   !== 'all') $query->where('shift',   $shift);
-        if ($search)            $query->where('nama', 'like', "%{$search}%");
+        if ($factory !== 'all')
+            $query->where('factory', $factory);
+        if ($shift !== 'all')
+            $query->where('shift', $shift);
+        if ($search)
+            $query->where('nama', 'like', "%{$search}%");
         $members = $query->orderBy('nama')->get();
 
         // Stats bar (mengganti updateStats() JS)
         $stats = [
-            'total'      => Member::count(),
-            'f2'         => Member::where('factory', 'Factory 2')->count(),
-            'f34'        => Member::where('factory', 'Factory 3 & 4')->count(),
-            'absen_today'=> \App\Models\AbsenceRecord::where('tanggal', today())
-                               ->where('status', 'absen')->count(),
+            'total' => Member::count(),
+            'f2' => Member::where('factory', 'Factory 2')->count(),
+            'f34' => Member::where('factory', 'Factory 3 & 4')->count(),
+            'absen_today' => \App\Models\AbsenceRecord::where('tanggal', today())
+                ->where('status', 'absen')->count(),
         ];
 
         // Daftar mesin per factory (mengganti const factoryMachines JS)
         $mesinList = [
-            'Factory 2'     => $this->factoryConfig->getAllMachines('Factory 2'),
+            'Factory 2' => $this->factoryConfig->getAllMachines('Factory 2'),
             'Factory 3 & 4' => $this->factoryConfig->getAllMachines('Factory 3 & 4'),
         ];
 
-        return view('admin.member.index',
-            compact('members', 'stats', 'factory', 'shift', 'search', 'mesinList'));
+        return view(
+            'admin.member.index',
+            compact('members', 'stats', 'factory', 'shift', 'search', 'mesinList')
+        );
     }
 
     // ──────────────────────────────────────────────────────────────────
-    // DETAIL (JSON) — untuk AJAX sheet panel
+    // DETAIL (JSON)  - untuk AJAX sheet panel
     // GET /admin/members/{member}
     // ──────────────────────────────────────────────────────────────────
     public function show(Member $member)
@@ -57,16 +64,16 @@ class MemberController extends Controller
         $history = $member->absenceRecords()
             ->orderByDesc('tanggal')
             ->limit(10)
-            ->get(['tanggal','status','reason']);
+            ->get(['tanggal', 'status', 'reason']);
 
         return response()->json([
-            'member'  => $member,
+            'member' => $member,
             'history' => $history,
         ]);
     }
 
     // ──────────────────────────────────────────────────────────────────
-    // SIMPAN BARU — mengganti saveMember() JS (mode tambah)
+    // SIMPAN BARU  - mengganti saveMember() JS (mode tambah)
     // POST /admin/members
     // ──────────────────────────────────────────────────────────────────
     public function store(Request $request)
@@ -88,7 +95,7 @@ class MemberController extends Controller
     }
 
     // ──────────────────────────────────────────────────────────────────
-    // UPDATE — mengganti saveMember() JS (mode edit)
+    // UPDATE  - mengganti saveMember() JS (mode edit)
     // PUT /admin/members/{member}
     // ──────────────────────────────────────────────────────────────────
     public function update(Request $request, Member $member)
@@ -113,7 +120,7 @@ class MemberController extends Controller
     }
 
     // ──────────────────────────────────────────────────────────────────
-    // HAPUS — mengganti deleteMember(id) JS
+    // HAPUS  - mengganti deleteMember(id) JS
     // DELETE /admin/members/{member}
     // ──────────────────────────────────────────────────────────────────
     public function destroy(Member $member)
@@ -130,7 +137,7 @@ class MemberController extends Controller
     }
 
     // ──────────────────────────────────────────────────────────────────
-    // HAPUS SEMUA — mengganti clearAllMembers() JS
+    // HAPUS SEMUA  - mengganti clearAllMembers() JS
     // DELETE /admin/members/clear-all
     // ──────────────────────────────────────────────────────────────────
     public function clearAll()
@@ -145,14 +152,14 @@ class MemberController extends Controller
     }
 
     // ──────────────────────────────────────────────────────────────────
-    // LIST JSON (AJAX) — untuk halaman lain (dailyassignment, dll)
+    // LIST JSON (AJAX)  - untuk halaman lain (dailyassignment, dll)
     // GET /admin/members/list?factory=&shift=
     // ──────────────────────────────────────────────────────────────────
     public function list(Request $request)
     {
         $members = Member::query()
             ->when($request->factory, fn($q) => $q->where('factory', $request->factory))
-            ->when($request->shift,   fn($q) => $q->where('shift', $request->shift))
+            ->when($request->shift, fn($q) => $q->where('shift', $request->shift))
             ->where('status', 'active')
             ->orderBy('nama')
             ->get(['id', 'nama', 'jabatan', 'shift', 'factory', 'mesin', 'photo']);
@@ -161,18 +168,18 @@ class MemberController extends Controller
     }
 
     // ──────────────────────────────────────────────────────────────────
-    // IMPORT — mengganti confirmImport() + processExcelFile() JS
+    // IMPORT  - mengganti confirmImport() + processExcelFile() JS
     // JS tetap parse Excel di browser, lalu kirim JSON array ke sini
     // POST /admin/members/import
     // ──────────────────────────────────────────────────────────────────
     public function import(Request $request)
     {
         $request->validate([
-            'members'           => 'required|array|min:1',
-            'members.*.name'    => 'required|string|max:100',
+            'members' => 'required|array|min:1',
+            'members.*.name' => 'required|string|max:100',
             'members.*.factory' => 'required|string',
-            'members.*.shift'   => 'required|in:A,B',
-            'replace'           => 'boolean',
+            'members.*.shift' => 'required|in:A,B',
+            'replace' => 'boolean',
         ]);
 
         // replace=true → hapus semua dulu (mengganti mode "Ganti semua" di JS)
@@ -180,11 +187,12 @@ class MemberController extends Controller
             Member::all()->each(fn($m) => $m->delete());
         }
 
-        $added = 0; $skipped = 0;
+        $added = 0;
+        $skipped = 0;
         foreach ($request->members as $row) {
             $exists = Member::where('nama', $row['name'])
                 ->where('factory', $row['factory'])
-                ->where('shift',   $row['shift'])
+                ->where('shift', $row['shift'])
                 ->exists();
 
             if ($exists && !$request->boolean('replace')) {
@@ -195,30 +203,30 @@ class MemberController extends Controller
             Member::updateOrCreate(
                 ['nama' => $row['name'], 'factory' => $row['factory'], 'shift' => $row['shift']],
                 [
-                    'jabatan' => $row['role']  ?? 'Operator',
-                    'mesin'   => $row['mesin'] ?? '',
-                    'nik'     => $row['nik']   ?? '',
-                    'status'  => 'active',
+                    'jabatan' => $row['role'] ?? 'Operator',
+                    'mesin' => $row['mesin'] ?? '',
+                    'nik' => $row['nik'] ?? '',
+                    'status' => 'active',
                 ]
             );
             $added++;
         }
 
         return response()->json([
-            'ok'      => true,
-            'added'   => $added,
+            'ok' => true,
+            'added' => $added,
             'skipped' => $skipped,
-            'total'   => Member::count(),
+            'total' => Member::count(),
         ]);
     }
 
     // ──────────────────────────────────────────────────────────────────
-    // EXPORT CSV — mengganti exportMembers() JS (pakai SheetJS)
+    // EXPORT CSV  - mengganti exportMembers() JS (pakai SheetJS)
     // GET /admin/members/export
     // ──────────────────────────────────────────────────────────────────
     public function export()
     {
-        $members  = Member::orderBy('factory')->orderBy('shift')->orderBy('nama')->get();
+        $members = Member::orderBy('factory')->orderBy('shift')->orderBy('nama')->get();
         $filename = 'HENKATEN_Members_' . today()->toDateString() . '.csv';
 
         $rows = [
@@ -233,32 +241,34 @@ class MemberController extends Controller
 
         return Response::stream(function () use ($rows) {
             $h = fopen('php://output', 'w');
-            foreach ($rows as $r) fputcsv($h, $r);
+            foreach ($rows as $r)
+                fputcsv($h, $r);
             fclose($h);
         }, 200, [
-            'Content-Type'        => 'text/csv',
+            'Content-Type' => 'text/csv',
             'Content-Disposition' => "attachment; filename=\"{$filename}\"",
         ]);
     }
 
     // ──────────────────────────────────────────────────────────────────
-    // DOWNLOAD TEMPLATE — mengganti downloadTemplate() JS
+    // DOWNLOAD TEMPLATE  - mengganti downloadTemplate() JS
     // GET /admin/members/template
     // ──────────────────────────────────────────────────────────────────
     public function downloadTemplate()
     {
         $rows = [
             ['Nama', 'Factory', 'Shift', 'Jabatan', 'NIK', 'Mesin'],
-            ['Contoh: Budi Santoso', 'Factory 2',     'A', 'Operator', '12345', 'Robot 1'],
-            ['Contoh: Siti Rahma',   'Factory 3 & 4', 'B', 'SPV',      '67890', '#01-1300T'],
+            ['Contoh: Budi Santoso', 'Factory 2', 'A', 'Operator', '12345', 'Robot 1'],
+            ['Contoh: Siti Rahma', 'Factory 3 & 4', 'B', 'SPV', '67890', '#01-1300T'],
         ];
 
         return Response::stream(function () use ($rows) {
             $h = fopen('php://output', 'w');
-            foreach ($rows as $r) fputcsv($h, $r);
+            foreach ($rows as $r)
+                fputcsv($h, $r);
             fclose($h);
         }, 200, [
-            'Content-Type'        => 'text/csv',
+            'Content-Type' => 'text/csv',
             'Content-Disposition' => 'attachment; filename="HENKATEN_Template_Member.csv"',
         ]);
     }
@@ -268,20 +278,21 @@ class MemberController extends Controller
     private function validateMember(Request $request): array
     {
         return $request->validate([
-            'nama'    => 'required|string|max:100',
-            'nik'     => 'nullable|string|max:50',
+            'nama' => 'required|string|max:100',
+            'nik' => 'nullable|string|max:50',
             'jabatan' => 'required|in:Operator,SPV,TL,GL,KY',
             'factory' => 'required|in:Factory 2,Factory 3 & 4',
-            'shift'   => 'required|in:A,B',
-            'mesin'   => 'nullable|string|max:100',
-            'status'  => 'required|in:active,inactive',
+            'shift' => 'required|in:A,B',
+            'mesin' => 'nullable|string|max:100',
+            'status' => 'required|in:active,inactive',
         ]);
     }
 
     private function storeBase64Photo(string $base64): string
     {
-        if (!str_starts_with($base64, 'data:image')) return $base64;
-        $ext  = explode('/', explode(';', $base64)[0])[1];
+        if (!str_starts_with($base64, 'data:image'))
+            return $base64;
+        $ext = explode('/', explode(';', $base64)[0])[1];
         $data = base64_decode(explode(',', $base64)[1]);
         $path = 'members/' . uniqid() . '.' . $ext;
         Storage::disk('public')->put($path, $data);

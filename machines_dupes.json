@@ -1,0 +1,100 @@
+[
+    {
+        "id": 12,
+        "name": "#07-2500T",
+        "status": "mesin",
+        "section": "f2-resin",
+        "factory": "Factory 2"
+    },
+    {
+        "id": 13,
+        "name": "#08-2500T",
+        "status": "mesin",
+        "section": "f2-resin",
+        "factory": "Factory 2"
+    },
+    {
+        "id": 31,
+        "name": "#01-1300T",
+        "status": "mesin",
+        "section": "f3-resin",
+        "factory": "Factory 3 & 4"
+    },
+    {
+        "id": 32,
+        "name": "#02-1300T",
+        "status": "mesin",
+        "section": "f3-resin",
+        "factory": "Factory 3 & 4"
+    },
+    {
+        "id": 33,
+        "name": "#03-1300T",
+        "status": "mesin",
+        "section": "f3-resin",
+        "factory": "Factory 3 & 4"
+    },
+    {
+        "id": 34,
+        "name": "#04-1050T",
+        "status": "mesin",
+        "section": "f3-resin",
+        "factory": "Factory 3 & 4"
+    },
+    {
+        "id": 35,
+        "name": "#05-2500T",
+        "status": "mesin",
+        "section": "f3-resin",
+        "factory": "Factory 3 & 4"
+    },
+    {
+        "id": 36,
+        "name": "#06-1600T",
+        "status": "mesin",
+        "section": "f3-resin",
+        "factory": "Factory 3 & 4"
+    },
+    {
+        "id": 37,
+        "name": "#07-2500T",
+        "status": "mesin",
+        "section": "f3-resin",
+        "factory": "Factory 3 & 4"
+    },
+    {
+        "id": 38,
+        "name": "#08-2500T",
+        "status": "mesin",
+        "section": "f3-resin",
+        "factory": "Factory 3 & 4"
+    },
+    {
+        "id": 39,
+        "name": "#09-1600T",
+        "status": "mesin",
+        "section": "f3-resin",
+        "factory": "Factory 3 & 4"
+    },
+    {
+        "id": 40,
+        "name": "#10&13-650T",
+        "status": "mesin",
+        "section": "f3-resin",
+        "factory": "Factory 3 & 4"
+    },
+    {
+        "id": 41,
+        "name": "#14-650T",
+        "status": "mesin",
+        "section": "f3-resin",
+        "factory": "Factory 3 & 4"
+    },
+    {
+        "id": 81,
+        "name": "#10-650T",
+        "status": "mesin",
+        "section": "f3-resin",
+        "factory": "Factory 3 & 4"
+    }
+]

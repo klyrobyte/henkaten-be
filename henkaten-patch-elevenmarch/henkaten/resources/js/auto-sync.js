@@ -53,7 +53,7 @@
         /** Paksa poll sekarang (misal: setelah save) */
         poll: pollNow,
 
-        /** Trigger auto-save absen (debounced) — dipanggil dari absen.blade */
+        /** Trigger auto-save absen (debounced)  - dipanggil dari absen.blade */
         triggerSave: triggerSave,
 
         /** Tampilkan indikator sync di pojok kanan atas */

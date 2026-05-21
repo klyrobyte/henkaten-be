@@ -1,0 +1,28 @@
+/* Floor Plan CSS - TV Mode Styles */
+/* Note: Most styles are embedded in tv-floor-plan.blade.php */
+
+:root {
+    --green: #2e7d32;
+    --yellow: #f39c12;
+    --orange: #f97316;
+    --red: #e74c3c;
+}
+
+/* Machine indicator colors */
+.tv-status-safe circle {
+    fill: var(--green);
+}
+
+.tv-status-problem circle {
+    fill: var(--red);
+}
+
+.tv-status-warning circle {
+    fill: var(--yellow);
+}
+
+.tv-status-caution circle {
+    fill: var(--orange);
+}
+
+/* Empty placeholder - actual styles are in tv-floor-plan.blade.php <style> tag */

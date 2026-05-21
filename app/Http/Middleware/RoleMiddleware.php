@@ -10,11 +10,13 @@ class RoleMiddleware
 {
     /**
      * Roles (dari paling tinggi):
-     *   admin    → full access + user management
+     *   superadmin → full access to everything
+     *   admin    → access scoped to assigned factories
      *   tl       → Team Leader
      *   gl       → Group Leader
      *   pengawas → Pengawas/Supervisor
-     *   tv       → TV Only — hanya bisa akses /admin/tv
+     *   tv       → TV Only  - hanya bisa akses /admin/tv
+     *   develop by rizky daffy
      */
     public function handle(Request $request, Closure $next, string ...$roles): mixed
     {
@@ -22,7 +24,13 @@ class RoleMiddleware
             return redirect()->route('login');
         }
 
-        $userRole = Auth::user()->role;
+        $user = Auth::user();
+        $userRole = $user->role;
+
+        // Superadmin bypasses all role checks
+        if ($userRole === 'superadmin') {
+            return $next($request);
+        }
 
         // Role tv hanya boleh akses route admin.tv dan admin.status (untuk auto-refresh)
         // Jika coba akses halaman lain → redirect ke TV picker
@@ -42,7 +50,9 @@ class RoleMiddleware
             if ($request->wantsJson()) {
                 return response()->json(['message' => 'Akses ditolak.'], 403);
             }
-            abort(403, 'Akses ditolak.');
+            // Redirect ke dashboard  - halaman seolah tidak ada untuk role ini
+            return redirect()->route('admin.dashboard')
+                ->with('toast_error', 'Halaman tidak tersedia untuk role Anda.');
         }
 
         return $next($request);

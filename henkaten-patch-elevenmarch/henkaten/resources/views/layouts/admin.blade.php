@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="utf-8">
-    <title>@yield('title', 'HENKATEN BOARD') — Admin</title>
+    <title>@yield('title', 'HENKATEN BOARD') - Admin</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -63,7 +63,7 @@
     <div class="drawer-menu" id="drawerMenu">
         <div class="drawer-header">
             <div class="dh-logo"
-                style="font-family:'Orbitron',sans-serif;font-weight:900;font-size:16px;letter-spacing:1.5px;color:#f5a623;text-shadow:0 0 12px rgba(245,166,35,.4);">
+                style="font-family:'Roboto Condensed',sans-serif;font-weight:900;font-size:16px;letter-spacing:1.5px;color:#f5a623;text-shadow:0 0 12px rgba(245,166,35,.4);">
                 HENKATEN BOARD</div>
             <div class="dh-user">{{ auth()->user()->name }} ({{ auth()->user()->role }})</div>
         </div>
@@ -109,7 +109,7 @@
                 style="height:36px;width:auto;object-fit:contain;flex-shrink:0;" onerror="this.style.display='none'">
             <div style="display:flex;flex-direction:column;line-height:1.2;min-width:0;">
                 <span
-                    style="font-family:'Orbitron',sans-serif;font-weight:900;font-size:16px;letter-spacing:2px;color:#f5a623;text-shadow:0 0 14px rgba(245,166,35,.5);white-space:nowrap;">HENKATEN
+                    style="font-family:'Roboto Condensed',sans-serif;font-weight:900;font-size:16px;letter-spacing:2px;color:#f5a623;text-shadow:0 0 14px rgba(245,166,35,.5);white-space:nowrap;">HENKATEN
                     BOARD</span>
                 <span
                     style="font-family:'Roboto Condensed',sans-serif;font-weight:700;font-size:11px;letter-spacing:1.2px;color:rgba(255,255,255,.85);text-transform:uppercase;white-space:nowrap;">
@@ -120,7 +120,7 @@
 
         <div class="header-clock" id="headerClock">00:00:00</div>
 
-        {{-- Factory switcher — tombol pill keren --}}
+        {{-- Factory switcher - tombol pill keren --}}
         <button onclick="showFactoryPicker()" id="headerFactory" style="background:rgba(255,255,255,.12);
                    border:1.5px solid rgba(255,255,255,.25);
                    border-radius:20px;
@@ -191,7 +191,7 @@
         </button>
         <button class="nav-btn {{ request()->routeIs('admin.reports.*') ? 'active' : '' }}"
             onclick="window.location='{{ route('admin.reports.index') }}'">
-            <span class="nav-icon">📊</span>Laporan
+            <span class="nav-icon">📊</span>History 4M
         </button>
     </nav>
 

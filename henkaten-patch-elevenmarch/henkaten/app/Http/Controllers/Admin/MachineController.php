@@ -13,10 +13,12 @@ use Illuminate\Support\Facades\Storage;
 
 class MachineController extends Controller
 {
-    public function __construct(protected FactoryConfigService $factoryConfig) {}
+    public function __construct(protected FactoryConfigService $factoryConfig)
+    {
+    }
 
     /**
-     * Halaman daftar mesin — redirect ke Dashboard.
+     * Halaman daftar mesin  - redirect ke Dashboard.
      * Card mesin sudah dipindah ke halaman Dashboard.
      */
     public function index(Request $request)
@@ -33,26 +35,60 @@ class MachineController extends Controller
     public function uploadPhoto(Request $request)
     {
         $request->validate([
-            'factory'      => 'required|string',
+            'factory' => 'required|string',
             'machine_name' => 'required|string',
-            'photo'        => 'required|image|mimes:jpeg,jpg,png,webp|max:3072',
+            'photo' => 'required|image|mimes:jpeg,jpg,png,webp|max:3072',
         ]);
 
         $machine = Machine::firstOrCreate([
             'factory' => $request->factory,
-            'name'    => $request->machine_name,
+            'name' => $request->machine_name,
         ]);
 
+        // Delete old photo if exists
         if ($machine->photo && Storage::disk('public')->exists($machine->photo)) {
             Storage::disk('public')->delete($machine->photo);
         }
 
-        $path = $request->file('photo')->store('machines', 'public');
-        $machine->update(['photo' => $path]);
+        // ── Downscale handler ────────────────────────────────────────────
+        $file = $request->file('photo');
+        $maxWidth = 1280;
+        $maxHeight = 1280;
+        $jpegQuality = 80;
+
+        $image = imagecreatefromstring(file_get_contents($file->getRealPath()));
+
+        $origW = imagesx($image);
+        $origH = imagesy($image);
+
+        if ($origW > $maxWidth || $origH > $maxHeight) {
+            $ratio = min($maxWidth / $origW, $maxHeight / $origH);
+            $newW = (int) round($origW * $ratio);
+            $newH = (int) round($origH * $ratio);
+
+            $resized = imagecreatetruecolor($newW, $newH);
+            imagealphablending($resized, false);
+            imagesavealpha($resized, true);
+            imagecopyresampled($resized, $image, 0, 0, 0, 0, $newW, $newH, $origW, $origH);
+            imagedestroy($image);
+            $image = $resized;
+        }
+
+        $filename = 'machines/' . pathinfo($file->hashName(), PATHINFO_FILENAME) . '.jpg';
+
+        ob_start();
+        imagejpeg($image, null, $jpegQuality);
+        $imageData = ob_get_clean();
+        imagedestroy($image);
+
+        Storage::disk('public')->put($filename, $imageData);
+        // ── End downscale handler ────────────────────────────────────────
+
+        $machine->update(['photo' => $filename]);
 
         return response()->json([
-            'ok'        => true,
-            'photo_url' => Storage::url($path),
+            'ok' => true,
+            'photo_url' => Storage::url($filename),
         ]);
     }
 
@@ -63,13 +99,13 @@ class MachineController extends Controller
     public function deletePhoto(Request $request)
     {
         $request->validate([
-            'factory'      => 'required|string',
+            'factory' => 'required|string',
             'machine_name' => 'required|string',
         ]);
 
         $machine = Machine::where([
             'factory' => $request->factory,
-            'name'    => $request->machine_name,
+            'name' => $request->machine_name,
         ])->first();
 
         if ($machine?->photo && Storage::disk('public')->exists($machine->photo)) {
@@ -87,18 +123,18 @@ class MachineController extends Controller
     public function updateStatus(Request $request)
     {
         $request->validate([
-            'tanggal'      => 'required|date',
-            'factory'      => 'required|string',
-            'shift'        => 'required|in:A,B',
+            'tanggal' => 'required|date',
+            'factory' => 'required|string',
+            'shift' => 'required|in:A,B',
             'machine_name' => 'required|string',
-            'status'       => 'required|in:normal,man,material,machine,method',
+            'status' => 'required|in:normal,man,material,machine,method',
         ]);
 
         MachineStatus::updateOrCreate(
             [
-                'tanggal'      => $request->tanggal,
-                'factory'      => $request->factory,
-                'shift'        => $request->shift,
+                'tanggal' => $request->tanggal,
+                'factory' => $request->factory,
+                'shift' => $request->shift,
                 'machine_name' => $request->machine_name,
             ],
             ['status' => $request->status]
@@ -115,14 +151,14 @@ class MachineController extends Controller
         $statuses = MachineStatus::where([
             'tanggal' => $request->tanggal,
             'factory' => $request->factory,
-            'shift'   => $request->shift,
+            'shift' => $request->shift,
         ])->get()->keyBy('machine_name');
 
         return response()->json($statuses);
     }
 
     /**
-     * 4M lights data — otomatis berdasarkan:
+     * 4M lights data  - otomatis berdasarkan:
      *   1. MachineStatus manual (override)
      *   2. ProblemLog open
      *   3. AbsenceRecord absen tanpa AssignmentReplacement → auto "man"
@@ -131,7 +167,7 @@ class MachineController extends Controller
     {
         $tanggal = $request->tanggal;
         $factory = $request->factory;
-        $shift   = $request->shift;
+        $shift = $request->shift;
 
         $statuses = \App\Models\MachineStatus::where(compact('tanggal', 'factory', 'shift'))
             ->where('status', '!=', 'normal')

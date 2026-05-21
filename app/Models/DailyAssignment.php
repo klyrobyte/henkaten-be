@@ -11,22 +11,31 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * Menggantikan struktur localStorage:
  *   henkaten_assign_{date}_{factory}_{shift}
  *   → assignments['GroupTitle::MachineName'][slotIndex] = { memberName, status, ... }
+ * Bug fixed by Rizky
  */
 class DailyAssignment extends Model
 {
     protected $fillable = [
-        'tanggal', 'factory', 'shift',
-        'group_title', 'machine_name', 'slot_index',
-        'member_id', 'member_name',
-        'status', 'absent_reason',
-        'is_substitute', 'substitute_for', 'synced_from_mm',
+        'tanggal',
+        'factory',
+        'shift',
+        'group_title',
+        'machine_name',
+        'slot_index',
+        'member_id',
+        'member_name',
+        'status',
+        'absent_reason',
+        'is_substitute',
+        'substitute_for',
+        'synced_from_mm',
     ];
 
     protected $casts = [
-        'tanggal'        => 'date',
-        'is_substitute'  => 'boolean',
+        'tanggal' => 'date',
+        'is_substitute' => 'boolean',
         'synced_from_mm' => 'boolean',
-        'slot_index'     => 'integer',
+        'slot_index' => 'integer',
         'substitute_for' => 'integer',
     ];
 
@@ -61,22 +70,22 @@ class DailyAssignment extends Model
         $rows = static::where([
             'tanggal' => $tanggal,
             'factory' => $factory,
-            'shift'   => $shift,
+            'shift' => $shift,
         ])->with('member')->orderBy('slot_index')->get();
 
         $assignments = [];
         foreach ($rows as $row) {
             $key = "{$row->group_title}::{$row->machine_name}";
             $assignments[$key][] = [
-                'memberName'    => $row->member_name ?? ($row->member?->nama ?? ''),
-                'foto'          => $row->member?->photo_url,
-                'status'        => $row->status,
-                'absentReason'  => $row->absent_reason ?? '',
-                'isSubstitute'  => $row->is_substitute,
+                'memberName' => $row->member_name ?? ($row->member?->nama ?? ''),
+                'foto' => $row->member?->photo_url,
+                'status' => $row->status,
+                'absentReason' => $row->absent_reason ?? '',
+                'isSubstitute' => $row->is_substitute,
                 'substituteFor' => $row->substitute_for,
-                'syncedFromMM'  => $row->synced_from_mm,
-                'memberId'      => $row->member_id,
-                'dbId'          => $row->id,
+                'syncedFromMM' => $row->synced_from_mm,
+                'memberId' => $row->member_id,
+                'dbId' => $row->id,
             ];
         }
 

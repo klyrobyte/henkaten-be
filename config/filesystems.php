@@ -41,10 +41,26 @@ return [
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),
-            'url' => rtrim(env('APP_URL', 'http://localhost'), '/').'/storage',
+            'url' => rtrim(env('APP_URL', 'http://localhost'), '/') . '/storage',
             'visibility' => 'public',
             'throw' => false,
             'report' => false,
+        ],
+
+        'members' => [
+            'driver' => 'local',
+            'root' => public_path('storage/members'),
+            'url' => rtrim(env('APP_URL', 'http://localhost'), '/') . '/storage/members',
+            'visibility' => 'public',
+            'throw' => false,
+        ],
+
+        'machines' => [
+            'driver' => 'local',
+            'root' => public_path('storage/machines'),
+            'url' => rtrim(env('APP_URL', 'http://localhost'), '/') . '/storage/machines',
+            'visibility' => 'public',
+            'throw' => false,
         ],
 
         's3' => [
@@ -75,6 +91,8 @@ return [
 
     'links' => [
         public_path('storage') => storage_path('app/public'),
+        public_path('storage/members') => storage_path('members'),
+        public_path('storage/machines') => storage_path('machines'),
     ],
 
 ];

@@ -4,15 +4,18 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     public function up(): void
     {
         Schema::table('absence_summaries', function (Blueprint $table) {
             // Hapus kolom lama yang tidak relevan
             $table->dropColumn([
-                'p_cuti', 'p_sakit', 'p_ijin',   // SPV (lama)
-                'o_cuti', 'o_sakit', 'o_ijin',   // Operator (lama)
+                'p_cuti',
+                'p_sakit',
+                'p_ijin',   // SPV (lama)
+                'o_cuti',
+                'o_sakit',
+                'o_ijin',   // Operator (lama)
             ]);
 
             // Tambah kolom baru yang lebih jelas
@@ -21,14 +24,14 @@ return new class extends Migration
             $table->unsignedSmallInteger('op_cuti')->default(0)->after('op_hadir');
             $table->unsignedSmallInteger('op_sakit')->default(0)->after('op_cuti');
             $table->unsignedSmallInteger('op_ijin')->default(0)->after('op_sakit');
-            $table->unsignedSmallInteger('op_mangkir')->default(0)->after('op_ijin');
+            $table->unsignedSmallInteger('op_Alpha')->default(0)->after('op_ijin');
 
             // Supervisor / Pengawas (jabatan berisi 'SPV', 'Supervisor', 'Pengawas', 'GL', 'TL', 'KY')
-            $table->unsignedSmallInteger('spv_hadir')->default(0)->after('op_mangkir');
+            $table->unsignedSmallInteger('spv_hadir')->default(0)->after('op_Alpha');
             $table->unsignedSmallInteger('spv_cuti')->default(0)->after('spv_hadir');
             $table->unsignedSmallInteger('spv_sakit')->default(0)->after('spv_cuti');
             $table->unsignedSmallInteger('spv_ijin')->default(0)->after('spv_sakit');
-            $table->unsignedSmallInteger('spv_mangkir')->default(0)->after('spv_ijin');
+            $table->unsignedSmallInteger('spv_Alpha')->default(0)->after('spv_ijin');
         });
     }
 
@@ -36,8 +39,16 @@ return new class extends Migration
     {
         Schema::table('absence_summaries', function (Blueprint $table) {
             $table->dropColumn([
-                'op_hadir', 'op_cuti', 'op_sakit', 'op_ijin', 'op_mangkir',
-                'spv_hadir', 'spv_cuti', 'spv_sakit', 'spv_ijin', 'spv_mangkir',
+                'op_hadir',
+                'op_cuti',
+                'op_sakit',
+                'op_ijin',
+                'op_Alpha',
+                'spv_hadir',
+                'spv_cuti',
+                'spv_sakit',
+                'spv_ijin',
+                'spv_Alpha',
             ]);
 
             // Restore kolom lama

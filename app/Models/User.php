@@ -28,6 +28,7 @@ class User extends Authenticatable
 
     protected $casts = [
         'password' => 'hashed',
+        'factory' => 'array',
     ];
 
     /**
@@ -41,14 +42,19 @@ class User extends Authenticatable
 
     // ─── Role helpers ────────────────────────────────────────────────
 
+    public function isSuperAdmin(): bool
+    {
+        return $this->role === 'superadmin';
+    }
+
     public function isAdmin(): bool
     {
-        return $this->role === 'admin';
+        return in_array($this->role, ['superadmin', 'admin']);
     }
 
     public function isSupervisor(): bool
     {
-        return in_array($this->role, ['admin', 'tl', 'gl', 'pengawas']);
+        return in_array($this->role, ['superadmin', 'admin', 'tl', 'gl', 'pengawas']);
     }
 
     public function isTvOnly(): bool
@@ -62,6 +68,7 @@ class User extends Authenticatable
     public function getRoleLabelAttribute(): string
     {
         return match($this->role) {
+            'superadmin' => 'Super Admin',
             'admin'    => 'Administrator',
             'tl'       => 'Team Leader',
             'gl'       => 'Group Leader',
@@ -76,6 +83,7 @@ class User extends Authenticatable
     public function getRoleColorAttribute(): string
     {
         return match($this->role) {
+            'superadmin' => '#000000',
             'admin'    => '#e74c3c',
             'tl'       => '#1f3c88',
             'gl'       => '#2e7d32',

@@ -6,7 +6,13 @@ use App\Http\Controllers\Controller;
 use App\Models\ProblemLog;
 use App\Services\FactoryConfigService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
+/**
+ * @group Log
+ * 
+ * APIs for managing Log.
+ */
 class LogController extends Controller
 {
     public function __construct(protected FactoryConfigService $factoryConfig)
@@ -15,7 +21,16 @@ class LogController extends Controller
 
     public function index(Request $request)
     {
+        $user = Auth::user();
         $factory = $request->session()->get('factory', 'Factory 2');
+
+        if (!$user->isSuperAdmin() && !empty($user->factory)) {
+            $allowedFactories = (array) $user->factory;
+            if (!in_array($factory, $allowedFactories)) {
+                $factory = $allowedFactories[0];
+            }
+        }
+
         $shift = $request->session()->get('shift', 'A');
         $tanggal = $request->get('tanggal', today()->toDateString());
 
@@ -26,12 +41,21 @@ class LogController extends Controller
         ])->latest()->get();
 
         $mesinList = $this->factoryConfig->getAllMachines($factory);
+        $repairDepartments = \App\Models\RepairDepartment::all();
 
-        return view('admin.log', compact('logs', 'mesinList', 'factory', 'shift', 'tanggal'));
+        return view('admin.log', compact('logs', 'mesinList', 'factory', 'shift', 'tanggal', 'repairDepartments'));
     }
 
     public function store(Request $request)
     {
+        $user = Auth::user();
+        if (!$user->isSuperAdmin() && !empty($user->factory)) {
+            $allowedFactories = (array) $user->factory;
+            if (!in_array($request->factory, $allowedFactories)) {
+                $request->merge(['factory' => $allowedFactories[0]]);
+            }
+        }
+
         $request->validate([
             'tanggal' => 'required|date',
             'factory' => 'required|string',
@@ -45,6 +69,7 @@ class LogController extends Controller
             'cause' => 'nullable|string',
             'countermeasure' => 'nullable|string',
             'pic' => 'nullable|string',
+            'departemen_perbaikan' => 'nullable|string',
         ]);
 
         $waktuSelesai = $request->waktu_selesai;
@@ -71,7 +96,8 @@ class LogController extends Controller
             'countermeasure' => $request->countermeasure ?: null,
             'pic' => $request->pic ?: null,
             'durasi' => $durasi,
-            'created_by' => auth()->id() ? (int)auth()->id() : null,
+            'created_by' => auth()->id() ? (int) auth()->id() : null,
+            'departemen_perbaikan' => $request->departemen_perbaikan ?: null,
         ]);
 
         if ($request->wantsJson()) {
@@ -83,6 +109,13 @@ class LogController extends Controller
 
     public function close(Request $request, ProblemLog $log)
     {
+        $user = Auth::user();
+        if (!$user->isSuperAdmin() && !empty($user->factory)) {
+            if (!in_array($log->factory, (array) $user->factory)) {
+                return response()->json(['ok' => false, 'message' => 'Unauthorized'], 403);
+            }
+        }
+
         $request->validate([
             'countermeasure' => 'required|string|max:1000',
             'waktu_selesai' => 'nullable|date_format:H:i',
@@ -108,6 +141,13 @@ class LogController extends Controller
 
     public function reopen(ProblemLog $log)
     {
+        $user = Auth::user();
+        if (!$user->isSuperAdmin() && !empty($user->factory)) {
+            if (!in_array($log->factory, (array) $user->factory)) {
+                return response()->json(['ok' => false, 'message' => 'Unauthorized'], 403);
+            }
+        }
+
         $log->update([
             'waktu_selesai' => null,
             'status' => 'open',
@@ -119,6 +159,13 @@ class LogController extends Controller
 
     public function update(Request $request, ProblemLog $log)
     {
+        $user = Auth::user();
+        if (!$user->isSuperAdmin() && !empty($user->factory)) {
+            if (!in_array($log->factory, (array) $user->factory)) {
+                return response()->json(['ok' => false, 'message' => 'Unauthorized'], 403);
+            }
+        }
+
         $request->validate([
             'waktu_mulai' => 'required|date_format:H:i',
             'waktu_selesai' => 'nullable|date_format:H:i',
@@ -140,19 +187,196 @@ class LogController extends Controller
 
     public function destroy(ProblemLog $log)
     {
+        $user = Auth::user();
+        if (!$user->isSuperAdmin() && !empty($user->factory)) {
+            if (!in_array($log->factory, (array) $user->factory)) {
+                return response()->json(['ok' => false, 'message' => 'Unauthorized'], 403);
+            }
+        }
+
         $log->delete();
         return response()->json(['ok' => true]);
     }
 
     public function list(Request $request)
     {
-        $logs = ProblemLog::where([
-            'tanggal' => $request->tanggal,
-            'factory' => $request->factory,
-            'shift' => $request->shift,
-        ])->orderBy('waktu_mulai')->get();
+        $user = Auth::user();
+        $factory = $request->factory;
+
+        if (!$user->isSuperAdmin() && !empty($user->factory)) {
+            $allowedFactories = (array) $user->factory;
+            if (!in_array($factory, $allowedFactories)) {
+                $factory = $allowedFactories[0];
+            }
+        }
+
+        $query = ProblemLog::where('factory', $factory);
+
+        if ($request->has('history') && $request->history === '3months') {
+            // TV Mode: All active (open) for factory + closed for last 3 months
+            $startDate = now()->subMonths(2)->startOfMonth()->toDateString();
+
+            $logs = $query->where(function ($q) use ($startDate) {
+                $q->where('status', 'open')
+                    ->orWhere(function ($sub) use ($startDate) {
+                        $sub->where('status', 'closed')
+                            ->where('tanggal', '>=', $startDate);
+                    });
+            })->orderBy('status', 'desc')->orderBy('waktu_mulai', 'desc')->get();
+        } else {
+            // Default Mode: Strict tanggal & shift filtering (for Dashboard etc.)
+            $logs = $query->where([
+                'tanggal' => $request->tanggal,
+                'shift' => $request->shift,
+            ])->orderBy('waktu_mulai')->get();
+        }
 
         return response()->json($logs);
+    }
+
+    /**
+     * Combined problem list for TV panel:
+     * 3M ProblemLog rows PLUS Man (absen) rows.
+     * Logic mirrors the report CSV / ReportController:
+     *   - Absen WITHOUT replacement → status = open   (OPEN GOING)
+     *   - Absen WITH    replacement → status = closed (DONE)
+     *   - 3M logs pass through as-is
+     * Returned rows shape:
+     *   id, jenis, lokasi, waktu_mulai, waktu_selesai, durasi,
+     *   deskripsi, status, cause, countermeasure, pic, _source (log|absen)
+     * Bug Fixed by rizky
+     */
+    public function combined(Request $request)
+    {
+        $user = Auth::user();
+        $factory = $request->factory;
+
+        if (!$user->isSuperAdmin() && !empty($user->factory)) {
+            $allowedFactories = (array) $user->factory;
+            if (!in_array($factory, $allowedFactories)) {
+                $factory = $allowedFactories[0];
+            }
+        }
+
+        // Determine if TV mode (history=3months)
+        $isTvMode = $request->has('history') && $request->history === '3months';
+        $startDate = now()->subMonths(2)->startOfMonth()->toDateString();
+
+        // ── 3M Problem Logs ──────────────────────────────────────────────
+        $logQuery = ProblemLog::where('factory', $factory)->whereIn('jenis', ['Machine', 'Material', 'Method']);
+
+        if ($isTvMode) {
+            $logQuery->where(function ($q) use ($startDate) {
+                $q->where('status', 'open') // ALL ongoing open problems MUST be kept until closed
+                    ->orWhere(function ($sub) use ($startDate) {
+                        $sub->where('status', 'closed')->where('tanggal', '>=', $startDate);
+                    });
+            });
+        } else {
+            $logQuery->where(['tanggal' => $request->tanggal, 'shift' => $request->shift]);
+        }
+
+        $logs = $logQuery->orderBy('tanggal', 'desc')->orderBy('waktu_mulai', 'desc')->get()->map(fn($l) => [
+            'id' => $l->id,
+            'jenis' => $l->jenis,
+            'lokasi' => $l->lokasi,
+            'tanggal' => $l->tanggal,
+            'waktu_mulai' => $l->waktu_mulai,
+            'waktu_selesai' => $l->waktu_selesai,
+            'durasi' => $l->durasi,
+            'deskripsi' => $l->deskripsi,
+            'status' => $l->status,          // 'open' | 'closed'
+            'cause' => $l->cause,
+            'countermeasure' => $l->countermeasure,
+            'pic' => $l->pic,
+            '_source' => 'log',
+        ]);
+
+        // ── Man (Absen) rows ─────────────────────────────────────────────
+        $absenQuery = \App\Models\AbsenceRecord::where('factory', $factory)->where('status', 'absen');
+        $replQuery = \App\Models\AssignmentReplacement::where('factory', $factory)->with('member');
+
+        if ($isTvMode) {
+            // For TV mode, we need open absences (today only? or any day? absences usually reset daily)
+            // But History should show past month's absences!
+            $absenQuery->where('tanggal', '>=', $startDate);
+            $replQuery->where('tanggal', '>=', $startDate);
+        } else {
+            $absenQuery->where(['tanggal' => $request->tanggal, 'shift' => $request->shift]);
+            $replQuery->where(['tanggal' => $request->tanggal, 'shift' => $request->shift]);
+        }
+
+        $absenRecords = $absenQuery->get();
+        $replacementsData = $replQuery->get();
+
+        // Map: tanggal_shift_target_machine => [replacement member names]
+        $replacementMap = [];
+        foreach ($replacementsData as $repl) {
+            $tReplStr = $repl->tanggal instanceof \Carbon\Carbon ? $repl->tanggal->toDateString() : substr((string) $repl->tanggal, 0, 10);
+            $key = $isTvMode ? "{$tReplStr}_{$repl->shift}_{$repl->target_machine}" : $repl->target_machine;
+            $name = $repl->member?->nama ?? 'Pengganti';
+            $replacementMap[$key][] = $name;
+        }
+
+        $absenRows = collect();
+        foreach ($absenRecords as $record) {
+            $member = \App\Models\Member::find($record->member_id);
+            if (!$member)
+                continue;
+
+            $reason = strtolower($record->reason ?? '');
+            $absenLabel = match (true) {
+                str_contains($reason, 'sakit') => 'SAKIT',
+                str_contains($reason, 'izin') || str_contains($reason, 'ijin') => 'IZIN',
+                str_contains($reason, 'cuti') => 'CUTI',
+                default => 'ABSEN',
+            };
+
+            $mesinArr = array_filter([trim((string) ($member->mesin ?? '')), trim((string) ($member->mesin_secondary ?? ''))]);
+            $mesinList = empty($mesinArr) ? ['-'] : $mesinArr;
+
+            foreach ($mesinList as $mesin) {
+                $tAbsStr = $record->tanggal instanceof \Carbon\Carbon ? $record->tanggal->toDateString() : substr((string) $record->tanggal, 0, 10);
+                $key = $isTvMode ? "{$tAbsStr}_{$record->shift}_{$mesin}" : $mesin;
+                $backupNames = $replacementMap[$key] ?? [];
+                $hasReplacement = !empty($backupNames);
+                $backupLabel = $hasReplacement ? implode(', ', $backupNames) : null;
+                $status = 'open';
+                if ($isTvMode) {
+                    if ($tAbsStr !== $request->tanggal || $record->shift !== $request->shift) {
+                        $status = 'closed';
+                    }
+                } elseif ($hasReplacement) {
+                    $status = 'closed';
+                }
+
+                $absenRows->push([
+                    'id' => 'absen-' . $record->id . '-' . $mesin,
+                    'jenis' => 'Man',
+                    'lokasi' => $mesin,
+                    'tanggal' => $tAbsStr,
+                    'waktu_mulai' => null,
+                    'waktu_selesai' => null,
+                    'durasi' => null,
+                    'deskripsi' => "{$member->nama}  - {$absenLabel}",
+                    'status' => $status,
+                    'cause' => $absenLabel,
+                    'countermeasure' => $hasReplacement ? "Backup: {$backupLabel}" : null,
+                    'pic' => null,
+                    '_source' => 'absen',
+                    '_backup_name' => $backupLabel,
+                    '_has_replacement' => $hasReplacement,
+                ]);
+            }
+        }
+
+        $combined = $logs->concat($absenRows)
+            ->sortByDesc(function ($r) {
+                return $r['status'] === 'open' ? '9999-99-99' : $r['tanggal'] . ' ' . ($r['waktu_mulai'] ?? '00:00');
+            })
+            ->values();
+
+        return response()->json($combined);
     }
 
     /**

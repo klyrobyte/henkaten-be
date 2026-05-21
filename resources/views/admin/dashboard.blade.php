@@ -20,7 +20,7 @@
             color: #fff;
             padding: 6px 16px 6px 12px;
             border-radius: 0 20px 20px 0;
-            font-family: 'Orbitron', sans-serif;
+            font-family: 'Roboto Condensed', sans-serif;
             font-size: 11px;
             font-weight: 700;
             letter-spacing: .8px;
@@ -85,6 +85,10 @@
         .mc-card.mc-status-method {
             border-color: #2e7d32;
             box-shadow: 0 3px 14px rgba(46, 125, 50, .22);
+        }
+
+        .mc-card.mc-status-method:hover {
+            border-color: #afcb1f !important;
         }
 
         .mc-card.mc-has-absen {
@@ -484,9 +488,9 @@
         }
 
         .mc-status-pill.p-method.active {
-            background: #e8f5e9;
-            border-color: #2e7d32;
-            color: #2e7d32;
+            background: #eeff82 !important;
+            border-color: #afcb1f !important;
+            color: #afcb1f !important;
         }
 
         .pill-dot.dn {
@@ -648,7 +652,7 @@
         }
 
         .finder-ph h2 {
-            font-family: 'Orbitron', sans-serif;
+            font-family: 'Roboto Condensed', sans-serif;
             font-size: 13px;
             font-weight: 900;
             margin: 0 0 2px;
@@ -1134,6 +1138,54 @@
             opacity: .55;
             cursor: not-allowed;
         }
+
+        /* ── Empty section state ───────────────────────────────────── */
+        .mc-empty-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 32px 20px;
+            background: #fafafa;
+            border: 2px dashed #d0ddc0;
+            border-radius: 14px;
+            text-align: center;
+            gap: 8px;
+            margin: 4px 0;
+        }
+        .mc-empty-section-ico {
+            font-size: 32px;
+            opacity: .35;
+        }
+        .mc-empty-section-txt {
+            font-family: 'Roboto Condensed', sans-serif;
+            font-size: 13px;
+            font-weight: 800;
+            color: #888;
+        }
+        .mc-empty-section-hint {
+            font-family: 'Roboto Condensed', sans-serif;
+            font-size: 11px;
+            color: #aaa;
+            max-width: 300px;
+            line-height: 1.5;
+        }
+        .mc-empty-section-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 7px 18px;
+            border-radius: 20px;
+            background: linear-gradient(135deg, #2E7D32, #4caf50);
+            color: #fff;
+            font-family: 'Roboto Condensed', sans-serif;
+            font-size: 11px;
+            font-weight: 800;
+            text-decoration: none;
+            margin-top: 4px;
+            transition: opacity .15s;
+        }
+        .mc-empty-section-link:hover { opacity: .88; }
     </style>
 @endpush
 
@@ -1142,7 +1194,7 @@
     <div class="date-bar"
         style="display:flex;align-items:center;background:#fff;border-radius:50px;padding:10px 18px;box-shadow:0 1px 4px rgba(0,0,0,0.08);gap:12px;">
 
-        {{-- Icon kalender — klik ini untuk buka date picker --}}
+        {{-- Icon kalender  - klik ini untuk buka date picker --}}
         <div class="date-label" onclick="document.getElementById('tanggalHari').showPicker()"
             style="width:36px;height:36px;background:#2E7D32;border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff"
@@ -1160,13 +1212,13 @@
             {{ \Carbon\Carbon::parse($tanggal)->format('d / m / Y') }}
         </span>
 
-        {{-- Input date tersembunyi — hanya trigger via icon --}}
+        {{-- Input date tersembunyi  - hanya trigger via icon --}}
         <input type="date" id="tanggalHari" value="{{ $tanggal }}" onchange="onDateChange(this.value)"
             style="position:absolute;opacity:0;pointer-events:none;width:0;height:0;">
 
         {{-- Factory badge --}}
         <button onclick="showFactoryPicker()" style="background:#2E7D32;border:none;border-radius:20px;padding:7px 18px;color:#fff;
-                                                   font-family:'Orbitron', sans-serif;font-weight:700;font-size:12px;
+                                                   font-family:'Roboto Condensed', sans-serif;font-weight:700;font-size:12px;
                                                    letter-spacing:1px;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:6px;
                                                    transition:all .2s ease;"
             onmouseover="this.style.filter='brightness(1.15)'" onmouseout="this.style.filter='brightness(1)'">
@@ -1181,7 +1233,7 @@
                 <line x1="16" y1="16" x2="16" y2="16" />
                 <line x1="12" y1="16" x2="12" y2="16" />
             </svg>
-            FACTORY {{ session('factory', 'Factory 2') === 'Factory 2' ? '2' : '3&4' }}
+            {{ strtoupper(\App\Models\Factory::where('name', session('factory', 'Factory 2'))->value('short_label') ?? session('factory', 'Factory 2')) }}
         </button>
     </div>
 
@@ -1243,7 +1295,7 @@
         <div class="status-panel-title">STATUS KESELURUHAN</div>
         <div class="auto-refresh-bar">
             <div class="ar-left">
-                <div class="ar-dot" id="arDot"></div>
+                <div class="ar-dot" id="arDot" style="display: none; background: #ffffff;"></div>
                 <span id="arLabel">Auto Refresh</span>
             </div>
             <span class="ar-countdown" id="arCountdown">15s</span>
@@ -1253,7 +1305,7 @@
         <div class="status-emot-row">
             <div class="emot-card {{ $statusLevel === 0 ? 'active-green' : '' }}" id="ec-green">
                 <span class="emot-icon"></span>
-                <div class="emot-label">AMAN</div>
+                <div class="emot-label">OKE</div>
             </div>
             <div class="emot-card {{ $statusLevel === 1 ? 'active-yellowgreen' : '' }}" id="ec-yg">
                 <span class="emot-icon"></span>
@@ -1271,10 +1323,10 @@
         @php
             $chipMap = ['chip-green', 'chip-yellowgreen', 'chip-yellow', 'chip-red'];
             $chipTxt = [
-                'AMAN — Semua Normal',
-                'PERHATIAN RINGAN — Absen 1',
-                'PERHATIAN KHUSUS — Absen 2–3 / Ada Problem',
-                'BAHAYA — Absen ≥4 / MC Problem ≥2',
+                '🟢 OKE  - Semua Normal',
+                '🟡 PERHATIAN RINGAN  - Absen 1',
+                '⚠️ PERHATIAN KHUSUS  - Absen 2–3 / Ada Problem',
+                '🔴 BAHAYA  - Absen ≥4 / MC Problem ≥2',
             ];
         @endphp
         <div class="status-chip {{ $chipMap[$statusLevel] }}" id="statusChip">{{ $chipTxt[$statusLevel] }}</div>
@@ -1297,12 +1349,12 @@
     <div class="section-title">Report Summary</div>
     <div class="summary-grid">
         <div class="summary-card">
-            <div class="s-val" id="sTotalMC">{{ $machineSummary['total'] }}</div>
+            <div class="s-val" id="sTotalMC">{{ $totalMC }}</div>
             <div class="s-lbl">Total MC</div>
         </div>
         <div class="summary-card">
             <div class="s-val" id="sTotalMP">{{ $totalMP }}</div>
-            <div class="s-lbl">Total MP</div>
+            <div class="s-lbl">MP Hadir</div>
         </div>
         <div class="summary-card" style="border-bottom-color:var(--red)">
             <div class="s-val" id="sMan" style="color:var(--red)">{{ $machineSummary['man'] }}</div>
@@ -1335,12 +1387,17 @@
         </div>
         <div class="legend-grid">
             <div class="legend-item"><span class="leg-dot" style="background:#729E3F"></span>MP Hadir</div>
-            <div class="legend-item"><span class="leg-dot" style="background:#ff69b4"></span>OP Cuti</div>
+            <div class="legend-item"><span class="leg-dot" style="background:#f1c40f"></span>OP Izin</div>
+            <div class="legend-item"><span class="leg-dot" style="background:#FF8F1F"></span>Pengawas Izin</div>
             <div class="legend-item"><span class="leg-dot" style="background:#8e44ad"></span>OP Sakit</div>
-            <div class="legend-item"><span class="leg-dot" style="background:#f1c40f"></span>OP Ijin</div>
-            <div class="legend-item"><span class="leg-dot" style="background:#1F3C88"></span>Pengawas Cuti</div>
             <div class="legend-item"><span class="leg-dot" style="background:#5dade2"></span>Pengawas Sakit</div>
-            <div class="legend-item"><span class="leg-dot" style="background:#FF8F1F"></span>Pengawas Ijin</div>
+            <div class="legend-item"><span class="leg-dot" style="background:#ff69b4"></span>OP Cuti</div>
+            <div class="legend-item"><span class="leg-dot" style="background:#1F3C88"></span>Pengawas Cuti</div>
+            {{-- Task 4: Red Absen indicator --}}
+            <div class="legend-item" id="legendAbsen">
+                <span class="leg-dot" style="background:#EF4444"></span>
+                <strong style="color:#EF4444">Absen</strong>
+            </div>
         </div>
         <div style="width:100%">
             <div class="absen-bar">
@@ -1374,7 +1431,8 @@
 
     <div class="machines-wrap">
         @php
-            $absenRecords = \App\Models\AbsenceRecord::where([
+        
+           $absenRecords = \App\Models\AbsenceRecord::where([
                 'tanggal' => $tanggal,
                 'factory' => $factory,
                 'shift' => $shift,
@@ -1399,32 +1457,66 @@
                 'shift' => $shift,
             ])->pluck('target_machine')->toArray();
 
+
             $pipColors = [
-                'man' => '#e74c3c',
-                'machine' => '#1f3c88',
+                'man'      => '#e74c3c',
+                'machine'  => '#1f3c88',
                 'material' => '#f39c12',
-                'method' => '#2e7d32',
+                'method'   => '#2e7d32',
             ];
 
             $pillDefs = [
-                'normal' => ['dot' => null, 'label' => 'Normal'],
-                'man' => ['dot' => 'dm', 'label' => 'Man'],
+                'normal'   => ['dot' => null, 'label' => 'Normal'],
+                'man'      => ['dot' => 'dm', 'label' => 'Man'],
                 'material' => ['dot' => 'dt', 'label' => 'Matl'],
-                'machine' => ['dot' => 'dc', 'label' => 'Mchn'],
-                'method' => ['dot' => 'dme', 'label' => 'Mthd'],
+                'machine'  => ['dot' => 'dc', 'label' => 'Mchn'],
+                'method'   => ['dot' => 'dme', 'label' => 'Mthd'],
             ];
         @endphp
+
+        
 
         @foreach($groups as $group)
             @php
                 $absenMesinCount = 0;
                 foreach ($group['machines'] as $mac) {
-                    $assigned = $members->filter(fn($m) => $m->mesin === $mac);
+                    $assigned = $members->filter(fn($m) => $m->mesin === $mac || $m->mesin_secondary === $mac);
                     $macHasAbsen = $assigned->whereIn('id', $absenIds)->isNotEmpty();
                     $macHasReplacement = in_array($mac, $replacedMachines);
                     if ($macHasAbsen && !$macHasReplacement)
                         $absenMesinCount++;
                 }
+                // Badge otomatis  - hitung dari jumlah mesin di DB
+                $isKeyPersons = $group['is_key_persons'] ?? false;
+                $isKeyRobot = $group['is_key_robot'] ?? false;
+                $sectionKey   = $group['section_key'] ?? '';
+                
+                // Count only primary status for each section, EXCLUDE lainya and mc_vibration
+                // Primary status mapping: f3/f4 → mesin, line → line, pos → pos, persons → persons, etc.
+                $statusCount  = collect($group['machines'])->filter(function($machine) use ($machinePhotos) {
+                    $machineObj = $machinePhotos[$machine] ?? null;
+                    if (!$machineObj) return false;
+                    
+                    // Jangan hitung status 'lainya' dan 'mc_vibration' pada badge 
+                    if ($machineObj->status === 'lainya' || $machineObj->status === 'mc_vibration') {
+                        return false;
+                    }
+                    
+                    // Hitung semua mesin lain yang memang masuk ke grup ini
+                    return true;
+                })->count();
+                
+                $gType = $group['type'] ?? 'mesin';
+                $unitLabel = match($gType) {
+                    'persons'      => 'person',
+                    'robot'        => 'robot',
+                    'line'         => 'line',
+                    'pos'          => 'pos',
+                    'lainya'       => 'support',
+                    'mc_vibration' => 'vibration',
+                    default        => 'mesin',
+                };
+                $displayCount = $statusCount;
             @endphp
 
             <div class="machine-group-section">
@@ -1433,168 +1525,176 @@
                     @if($absenMesinCount > 0)
                         <span class="mg-badge warn">⚠ {{ $absenMesinCount }} absen</span>
                     @else
-                        <span class="mg-badge">{{ count($group['machines']) }} mesin</span>
+                        <span class="mg-badge" data-default="{{ $displayCount }} {{ $unitLabel }}">{{ $displayCount }} {{ $unitLabel }}</span>
                     @endif
                 </div>
 
-                <div class="machine-cards-row">
-                    @foreach($group['machines'] as $machine)
-                        @php
-                            $st = $statuses[$machine] ?? null;
-                            $stVal = $st?->status ?? 'normal';
-                            $stAll = $st?->statuses ?? [];
+                @if(empty($group['machines']))
+                    <div class="mc-empty-section">
+                        <div class="mc-empty-section-ico">⚙️</div>
+                        <div class="mc-empty-section-txt">Belum ada mesin di section ini</div>
+                        <div class="mc-empty-section-hint">Silahkan input atau buat mesin terlebih dahulu dan kaitkan ke section dan factory yang sama.</div>
+                        <a href="/admin/mesinmg" class="mc-empty-section-link">+ Tambah Mesin</a>
+                    </div>
+                @else
+                    <div class="machine-cards-row">
+                        @foreach($group['machines'] as $machine)
+                            @php
+                                $st = $statuses[$machine] ?? null;
+                                $stVal = $st?->status ?? 'normal';
+                                $stAll = $st?->statuses ?? [];
 
-                            $assigned = $members->filter(fn($m) => $m->mesin === $machine);
-                            $absenMemberIds = $assigned->whereIn('id', $absenIds)->pluck('id');
-                            $machineHasRepl = in_array($machine, $replacedMachines);
-                            $hasAbsen = $absenMemberIds->isNotEmpty();
-                            $needsFinder = $hasAbsen && !$machineHasRepl;
+                                $assigned = $members->filter(fn($m) => $m->mesin === $machine || $m->mesin_secondary === $machine);
+                                $absenMemberIds = $assigned->whereIn('id', $absenIds)->pluck('id');
+                                $machineHasRepl = in_array($machine, $replacedMachines);
+                                $hasAbsen = $absenMemberIds->isNotEmpty();
 
-                            $cardCls = $needsFinder
-                                ? 'mc-has-absen'
-                                : (!$hasAbsen && $stVal !== 'normal' ? 'mc-status-' . $stVal : '');
+                                $cardCls = $hasAbsen
+                                    ? 'mc-has-absen'
+                                    : (!$hasAbsen && $stVal !== 'normal' ? 'mc-status-' . $stVal : '');
 
-                            $machineRecord = $machinePhotos[$machine] ?? null;
-                            $machinePhoto = $machineRecord?->photo_url ?? null;
-                            $machineSlug = Str::slug($machine);
+                                $machineRecord = $machinePhotos[$machine] ?? null;
+                                $machinePhoto = $machineRecord?->photo_url ?? null;
+                                $factorySlug  = Str::slug($factory);
+                                $machineSlug  = $factorySlug . '-' . Str::slug($machine);
 
-                            $initPips = [];
-                            if ($hasAbsen)
-                                $initPips[] = 'man';
-                            foreach ($stAll as $s) {
-                                if ($s !== 'man' && !in_array($s, $initPips))
-                                    $initPips[] = $s;
-                            }
+                                $initPips = [];
+                                if ($hasAbsen)
+                                    $initPips[] = 'man';
+                                foreach ($stAll as $s) {
+                                    if ($s !== 'man' && !in_array($s, $initPips))
+                                        $initPips[] = $s;
+                                }
 
-                            $dotInitClass = $hasAbsen ? 'd-absen' : ($stVal !== 'normal' ? 'd-visible' : '');
-                            $dotInitBg = (!$hasAbsen && $stVal !== 'normal') ? ($pipColors[$stVal] ?? '') : '';
+                                $dotInitClass = $hasAbsen ? 'd-absen' : ($stVal !== 'normal' ? 'd-visible' : '');
+                                $dotInitBg = (!$hasAbsen && $stVal !== 'normal') ? ($pipColors[$stVal] ?? '') : '';
 
-                            $activePills = [];
-                            if ($hasAbsen)
-                                $activePills[] = 'man';
-                            foreach ($stAll as $s) {
-                                if (!in_array($s, $activePills))
-                                    $activePills[] = $s;
-                            }
-                            if (empty($activePills))
-                                $activePills[] = 'normal';
-                        @endphp
+                                $activePills = [];
+                                if ($hasAbsen)
+                                    $activePills[] = 'man';
+                                foreach ($stAll as $s) {
+                                    if (!in_array($s, $activePills))
+                                        $activePills[] = $s;
+                                }
+                                if (empty($activePills))
+                                    $activePills[] = 'normal';
+                            @endphp
 
-                        <div class="mc-card {{ $cardCls }}" data-machine="{{ $machine }}" data-status="{{ $stVal }}"
-                            onclick="handleCardClick(event,'{{ addslashes($machine) }}','{{ $stVal }}')">
+                            <div class="mc-card {{ $cardCls }}" data-machine="{{ $machine }}" data-status="{{ $stVal }}"
+                                onclick="handleCardClick(event,'{{ addslashes($machine) }}','{{ $stVal }}')">
 
-                            <div class="mc-photo-wrap" id="photo-wrap-{{ $machineSlug }}">
-                                @if($machinePhoto)
-                                    <img src="{{ $machinePhoto }}" alt="{{ $machine }}" loading="lazy"
-                                        id="photo-img-{{ $machineSlug }}">
-                                @else
-                                    <div class="mc-photo-placeholder" id="photo-img-{{ $machineSlug }}">
-                                        <div class="ph-ico">📷</div>
-                                        <div class="ph-txt">Foto Mesin</div>
-                                    </div>
-                                @endif
-
-                                <div class="mc-photo-upload-overlay"
-                                    onclick="event.stopPropagation(); triggerPhotoUpload('{{ addslashes($machine) }}','{{ $machineSlug }}')"
-                                    title="Ganti foto mesin">
-                                    <span class="upload-ico">📷</span>
-                                    <span class="upload-txt">{{ $machinePhoto ? 'Ganti Foto' : 'Upload Foto' }}</span>
-                                </div>
-
-                                <input type="file" accept="image/*" id="file-{{ $machineSlug }}" style="display:none"
-                                    onchange="uploadMachinePhoto(event,'{{ addslashes($machine) }}','{{ $machineSlug }}')">
-
-                                <div class="mc-name-badge">
-                                    <span class="mc-name-txt">{{ $machine }}</span>
-                                    <div style="display:flex;align-items:center;gap:4px">
-                                        <div class="mc-4m-row" id="lights-{{ $machineSlug }}">
-                                            @foreach($initPips as $pip)
-                                                <div class="mc-4m-pip" style="background:{{ $pipColors[$pip] ?? '#ccc' }}"
-                                                    title="{{ $pip }}"></div>
-                                            @endforeach
-                                        </div>
-                                        <div class="mc-dot {{ $dotInitClass }}" id="dot-{{ $machineSlug }}" @if($dotInitBg)
-                                        style="background:{{ $dotInitBg }}" @endif @if($hasAbsen && $needsFinder)
-                                                onclick="event.stopPropagation();openFinderModal('{{ addslashes($machine) }}')"
-                                            @elseif(!$hasAbsen && $stVal !== 'normal')
-                                                onclick="event.stopPropagation();openMachineDetail('{{ addslashes($machine) }}','{{ $stVal }}')"
-                                            @endif></div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="mc-card-body">
-                                <div class="mc-members-row">
-                                    @if($assigned->isEmpty())
-                                        <div class="mc-empty-slot">+</div>
+                                <div class="mc-photo-wrap" id="photo-wrap-{{ $machineSlug }}">
+                                    @if($machinePhoto)
+                                        <img src="{{ $machinePhoto }}" alt="{{ $machine }}" loading="lazy"
+                                            id="photo-img-{{ $machineSlug }}">
                                     @else
-                                        @foreach($assigned as $m)
-                                            @php
-                                                $isAbsen = in_array($m->id, $absenIds);
-                                                $isDipinjam = !$isAbsen && isset($replacements[$m->id]);
-                                                $destMachine = $isDipinjam ? ($replacements[$m->id]->target_machine ?? '?') : null;
-                                                $itemCls = $isAbsen ? 'mi-absen' : ($isDipinjam ? 'mi-dipinjam' : '');
-                                                $avCls = $isAbsen ? 'av-absen' : 'av-ok';
-                                            @endphp
-                                            <div class="mc-member-item {{ $itemCls }}" data-member-id="{{ $m->id }}">
-                                                <div class="mc-av {{ $avCls }}">
-                                                    @if($m->photo_url)
-                                                        <img src="{{ $m->photo_url }}" alt="{{ $m->nama }}" @if($isAbsen)
-                                                        style="filter:grayscale(.5) brightness(.8)" @elseif($isDipinjam)
-                                                            style="filter:grayscale(.55) brightness(.72)" @endif>
+                                        <div class="mc-photo-placeholder" id="photo-img-{{ $machineSlug }}">
+                                            <div class="ph-ico">📷</div>
+                                            <div class="ph-txt">Foto Mesin</div>
+                                        </div>
+                                    @endif
+
+                                    <div class="mc-photo-upload-overlay"
+                                        onclick="event.stopPropagation(); triggerPhotoUpload('{{ addslashes($machine) }}','{{ $machineSlug }}','{{ addslashes($factory) }}')"
+                                        title="Ganti foto mesin">
+                                        <span class="upload-ico">📷</span>
+                                        <span class="upload-txt">{{ $machinePhoto ? 'Ganti Foto' : 'Upload Foto' }}</span>
+                                    </div>
+
+                                    <input type="file" accept="image/*" id="file-{{ $machineSlug }}" style="display:none"
+                                        onchange="uploadMachinePhoto(event,'{{ addslashes($machine) }}','{{ $machineSlug }}','{{ addslashes($factory) }}')">
+
+                                    <div class="mc-name-badge">
+                                        <span class="mc-name-txt">{{ $machine }}</span>
+                                        <div style="display:flex;align-items:center;gap:4px">
+                                            <div class="mc-4m-row" id="lights-{{ $machineSlug }}">
+                                                @foreach($initPips as $pip)
+                                                    <div class="mc-4m-pip" style="background:{{ $pipColors[$pip] ?? '#ccc' }}"
+                                                        title="{{ $pip }}"></div>
+                                                @endforeach
+                                            </div>
+                                            <div class="mc-dot {{ $dotInitClass }}" id="dot-{{ $machineSlug }}" @if($dotInitBg)
+                                            style="background:{{ $dotInitBg }}" @endif @if($hasAbsen)
+                                                    onclick="event.stopPropagation();openFinderModal('{{ addslashes($machine) }}')"
+                                                @elseif(!$hasAbsen && $stVal !== 'normal')
+                                                    onclick="event.stopPropagation();openMachineDetail('{{ addslashes($machine) }}','{{ $stVal }}')"
+                                                @endif></div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mc-card-body">
+                                    <div class="mc-members-row">
+                                        @if($assigned->isEmpty())
+                                            <div class="mc-empty-slot">+</div>
+                                        @else
+                                            @foreach($assigned as $m)
+                                                @php
+                                                    $isAbsen = in_array($m->id, $absenIds);
+                                                    $isDipinjam = !$isAbsen && isset($replacements[$m->id]);
+                                                    $destMachine = $isDipinjam ? ($replacements[$m->id]->target_machine ?? '?') : null;
+                                                    $itemCls = $isAbsen ? 'mi-absen' : ($isDipinjam ? 'mi-dipinjam' : '');
+                                                    $avCls = $isAbsen ? 'av-absen' : 'av-ok';
+                                                @endphp
+                                                <div class="mc-member-item {{ $itemCls }}" data-member-id="{{ $m->id }}">
+                                                    <div class="mc-av {{ $avCls }}">
+                                                        @if($m->photo_url)
+                                                            <img src="{{ $m->photo_url }}" alt="{{ $m->nama }}" loading="lazy" @if($isAbsen)
+                                                            style="filter:grayscale(.5) brightness(.8)" @elseif($isDipinjam)
+                                                                style="filter:grayscale(.55) brightness(.72)" @endif>
+                                                        @else
+                                                            {{ mb_strtoupper(mb_substr($m->nama, 0, 1)) . (str_contains($m->nama, ' ') ? mb_strtoupper(mb_substr(explode(' ', $m->nama)[1], 0, 1)) : '') }}
+                                                        @endif
+                                                    </div>
+                                                    <div class="mc-member-name" title="{{ $m->nama }}">
+                                                        {{ $m->nama }}
+                                                    </div>
+                                                    @if($isAbsen)
+                                                        @php
+                                                            $absenReason = strtolower($absenReasons[$m->id] ?? '');
+                                                            $absenLabel = match (true) {
+                                                                str_contains($absenReason, 'sakit') => 'SAKIT',
+                                                                str_contains($absenReason, 'izin') || str_contains($absenReason, 'ijin') => 'IZIN',
+                                                                str_contains($absenReason, 'cuti') => 'CUTI',
+                                                                default => 'Absen',
+                                                            };
+                                                        @endphp
+                                                        <span class="mc-member-tag tag-absen">{{ $absenLabel }}</span>
+                                                    @elseif($isDipinjam)
+                                                        <span class="mc-member-tag tag-dipinjam">Tugas Lain</span>
+                                                        <div class="mi-dipinjam-dest" title="Bertugas di: {{ $destMachine }}">
+                                                            ↗ {{ Str::limit($destMachine, 8) }}
+                                                        </div>
                                                     @else
-                                                        {{ mb_strtoupper(mb_substr($m->nama, 0, 1)) . (str_contains($m->nama, ' ') ? mb_strtoupper(mb_substr(explode(' ', $m->nama)[1], 0, 1)) : '') }}
+                                                        <span class="mc-member-tag tag-hadir">Hadir</span>
                                                     @endif
                                                 </div>
-                                                {{-- CHANGE: Nama lengkap penuh tanpa singkatan --}}
-                                                <div class="mc-member-name" title="{{ $m->nama }}">
-                                                    {{ $m->nama }}
-                                                </div>
-                                                @if($isAbsen)
-                                                    @php
-                                                        $absenReason = strtolower($absenReasons[$m->id] ?? '');
-                                                        $absenLabel = match (true) {
-                                                            str_contains($absenReason, 'sakit') => 'SAKIT',
-                                                            str_contains($absenReason, 'izin') || str_contains($absenReason, 'ijin') => 'IZIN',
-                                                            str_contains($absenReason, 'cuti') => 'CUTI',
-                                                            default => 'Absen',
-                                                        };
-                                                    @endphp
-                                                    <span class="mc-member-tag tag-absen">{{ $absenLabel }}</span>
-                                                @elseif($isDipinjam)
-                                                    <span class="mc-member-tag tag-dipinjam">Tugas Lain</span>
-                                                    <div class="mi-dipinjam-dest" title="Bertugas di: {{ $destMachine }}">
-                                                        ↗ {{ Str::limit($destMachine, 8) }}
-                                                    </div>
-                                                @else
-                                                    <span class="mc-member-tag tag-hadir">Hadir</span>
+                                            @endforeach
+                                        @endif
+                                    </div>
+
+                                    <div class="mc-status-row">
+                                        @foreach($pillDefs as $pKey => $pDef)
+                                            <span class="mc-status-pill p-{{ $pKey }} {{ in_array($pKey, $activePills) ? 'active' : '' }}"
+                                                data-status="{{ $pKey }}">
+                                                @if($pDef['dot'])
+                                                    <span class="pill-dot {{ $pDef['dot'] }}"></span>
                                                 @endif
-                                            </div>
+                                                {{ $pDef['label'] }}
+                                            </span>
                                         @endforeach
-                                    @endif
-                                </div>
+                                    </div>
 
-                                <div class="mc-status-row">
-                                    @foreach($pillDefs as $pKey => $pDef)
-                                        <span class="mc-status-pill p-{{ $pKey }} {{ in_array($pKey, $activePills) ? 'active' : '' }}"
-                                            data-status="{{ $pKey }}">
-                                            @if($pDef['dot'])
-                                                <span class="pill-dot {{ $pDef['dot'] }}"></span>
-                                            @endif
-                                            {{ $pDef['label'] }}
-                                        </span>
-                                    @endforeach
-                                </div>
-
-                                <div class="mc-addlog-bar" onclick="event.stopPropagation()">
-                                    <button class="mc-addlog-btn" onclick="openQuickLog('{{ addslashes($machine) }}')">
-                                        + Log
-                                    </button>
+                                    <div class="mc-addlog-bar" onclick="event.stopPropagation()">
+                                        <button class="mc-addlog-btn" onclick="openQuickLog('{{ addslashes($machine) }}')">
+                                            + Log
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    @endforeach
-                </div>
+                        @endforeach
+                    </div>
+                @endif
             </div>
         @endforeach
     </div>
@@ -1622,7 +1722,7 @@
                     <div class="ql-header-icon">＋</div>
                     <div>
                         <div class="ql-header-title">Tambah Problem Log</div>
-                        <div class="ql-header-sub" id="qlMesinLabel">—</div>
+                        <div class="ql-header-sub" id="qlMesinLabel"> -</div>
                     </div>
                 </div>
                 <button class="modal-sheet-close" onclick="closeQuickLog()">✕</button>
@@ -1650,8 +1750,8 @@
                         <div class="field-group">
                             <label>Status</label>
                             <select id="ql-m-status" onchange="qlToggleSelesai('m',this.value)">
-                                <option value="open">Open — belum selesai</option>
-                                <option value="closed">Closed — sudah selesai</option>
+                                <option value="open">Open  - belum selesai</option>
+                                <option value="closed">Closed  - sudah selesai</option>
                             </select>
                         </div>
                     </div>
@@ -1667,6 +1767,17 @@
                     <div class="form-row">
                         <div class="field-group"><label>Root Cause</label><input type="text" id="qlCause"
                                 placeholder="Contoh: bearing aus…"></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="field-group">
+                            <label>Departemen Perbaikan</label>
+                            <select id="qlDept">
+                                <option value="">-- Pilih Departemen --</option>
+                                @foreach($repairDepartments as $rd)
+                                    <option value="{{ $rd->name }}">{{ $rd->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
                         <div class="field-group"><label>Teknisi / PIC</label><input type="text" id="qlPIC"
                                 placeholder="Nama teknisi"></div>
                     </div>
@@ -1679,8 +1790,8 @@
                         <div class="field-group">
                             <label>Status</label>
                             <select id="ql-mat-status" onchange="qlToggleSelesai('mat',this.value)">
-                                <option value="open">Open — belum selesai</option>
-                                <option value="closed">Closed — sudah selesai</option>
+                                <option value="open">Open  - belum selesai</option>
+                                <option value="closed">Closed  - sudah selesai</option>
                             </select>
                         </div>
                     </div>
@@ -1697,6 +1808,17 @@
                     <div class="form-row">
                         <div class="field-group"><label>No. Lot / Batch</label><input type="text" id="ql-mat-cause"
                                 placeholder="No. lot material bermasalah"></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="field-group">
+                            <label>Departemen Perbaikan</label>
+                            <select id="ql-mat-dept">
+                                <option value="">-- Pilih Departemen --</option>
+                                @foreach($repairDepartments as $rd)
+                                    <option value="{{ $rd->name }}">{{ $rd->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
                         <div class="field-group"><label>PIC</label><input type="text" id="ql-mat-pic"
                                 placeholder="Nama penanggung jawab"></div>
                     </div>
@@ -1709,8 +1831,8 @@
                         <div class="field-group">
                             <label>Status</label>
                             <select id="ql-met-status" onchange="qlToggleSelesai('met',this.value)">
-                                <option value="open">Open — belum selesai</option>
-                                <option value="closed">Closed — sudah selesai</option>
+                                <option value="open">Open  - belum selesai</option>
+                                <option value="closed">Closed  - sudah selesai</option>
                             </select>
                         </div>
                     </div>
@@ -1727,6 +1849,17 @@
                     <div class="form-row">
                         <div class="field-group"><label>Standar yang Dilanggar</label><input type="text" id="ql-met-cause"
                                 placeholder="Contoh: suhu resin, cycle time SOP…"></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="field-group">
+                            <label>Departemen Perbaikan</label>
+                            <select id="ql-met-dept">
+                                <option value="">-- Pilih Departemen --</option>
+                                @foreach($repairDepartments as $rd)
+                                    <option value="{{ $rd->name }}">{{ $rd->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
                         <div class="field-group"><label>PIC</label><input type="text" id="ql-met-pic"
                                 placeholder="Nama penanggung jawab"></div>
                     </div>
@@ -1748,7 +1881,7 @@
                 <button class="finder-close-btn" onclick="closeFinderModal()">✕</button>
                 <h2>🔍 Cari Pengganti</h2>
                 <p>Pilih member untuk menggantikan di mesin:</p>
-                <div class="finder-ph-machine" id="finderMachineName">—</div>
+                <div class="finder-ph-machine" id="finderMachineName"> -</div>
             </div>
             <div class="finder-search-wrap">
                 <input type="text" id="finderSearch" placeholder="🔍 Cari nama member…" oninput="renderFinderCandidates()">
@@ -1804,12 +1937,13 @@
                 const ids = ['ec-green', 'ec-yg', 'ec-yellow', 'ec-red'];
                 const cls = ['active-green', 'active-yellowgreen', 'active-yellow', 'active-red'];
                 const lbls = [
-                    '🟢 AMAN — Semua Normal',
-                    '🟡 PERHATIAN RINGAN — Absen 1',
-                    '⚠️ PERHATIAN KHUSUS — Absen 2–3 / Ada Problem',
-                    '🔴 BAHAYA — Absen ≥4 / MC Problem ≥2',
+                    '🟢 OKE  - Semua Normal',
+                    '🟡 PERHATIAN RINGAN  - Absen 1',
+                    '⚠️ PERHATIAN KHUSUS  - Absen 2–3 / Ada Problem',
+                    '🔴 BAHAYA  - Absen ≥4 / MC Problem ≥2',
                 ];
                 ids.forEach((id, i) => { const e = $id(id); if (!e) return; e.classList.remove(...cls); if (i === lv) e.classList.add(cls[i]); });
+                const chips = ['chip-green', 'chip-yellowgreen', 'chip-yellow', 'chip-red'];
                 const chip = $id('statusChip');
                 if (chip) { chip.className = `status-chip ${chips[lv]}`; chip.textContent = lbls[lv]; }
                 if (data.absence) renderChart(data.absence);
@@ -1826,9 +1960,9 @@
             try {
                 const qs = `tanggal=${TANGGAL}&factory=${encodeURIComponent(FACTORY)}&shift=${SHIFT}`;
                 const [absRes, replRes, logRes] = await Promise.all([
-                    fetch(`/admin/absence/data?${qs}`, { headers: { Accept: 'application/json' } }),
-                    fetch(`/admin/replacements?${qs}`, { headers: { Accept: 'application/json' } }),
-                    fetch(`/admin/logs/list?${qs}`, { headers: { Accept: 'application/json' } }),
+                    fetch(`/api/absence/data?${qs}`, { headers: { Accept: 'application/json' } }),
+                    fetch(`/api/replacements?${qs}`, { headers: { Accept: 'application/json' } }),
+                    fetch(`/api/logs/list?${qs}`, { headers: { Accept: 'application/json' } }),
                 ]);
                 const absData = absRes.ok ? await absRes.json() : {};
                 const replData = replRes.ok ? await replRes.json() : [];
@@ -1856,7 +1990,8 @@
                     const cardHasAbsen = absenItems.length > 0;
                     const hasReplacement = card.querySelectorAll('.mc-member-item[data-replacement="1"]').length > 0
                         || replacedMachines.has(machine);
-                    const cardNeedsFinder = cardHasAbsen && !hasReplacement;
+                    // Feature 3: dot stays active whenever cardHasAbsen, regardless of replacement
+                    const cardNeedsFinder = cardHasAbsen;
 
                     if (!cardHasAbsen) card.querySelectorAll('.mc-member-item[data-replacement="1"]').forEach(el => el.remove());
 
@@ -1874,7 +2009,7 @@
                                 div.dataset.memberId = r.member_id;
                                 div.dataset.replacement = '1';
                                 const avContent = r.member_photo
-                                    ? `<img src="${esc(r.member_photo)}" alt="${esc(r.member_name)}">`
+                                    ? `<img src="${esc(r.member_photo)}" alt="${esc(r.member_name)}" loading="lazy">`
                                     : `<span>${initials(r.member_name)}</span>`;
                                 div.innerHTML = `<div class="mc-av av-ok">${avContent}</div>`
                                     + `<div class="mc-member-name">${esc(r.member_name || '')}</div>`
@@ -1941,13 +2076,11 @@
                     else if (!cardHasAbsen && primaryStatus !== 'normal' && borderCls[primaryStatus]) card.classList.add(borderCls[primaryStatus]);
 
                     const dot = card.querySelector('.mc-dot'); if (!dot) return;
-                    if (cardHasAbsen && cardNeedsFinder) {
-                        // Ada absen, belum ada pengganti → dot merah blink, bisa klik cari pengganti
+                    if (cardHasAbsen) {
+                        // Feature 3: always keep dot red + clickable when there's an absence,
+                        // even after a replacement has been assigned (allow multiple pengganti)
                         dot.className = 'mc-dot d-absen'; dot.style.background = '';
                         dot.onclick = e => { e.stopPropagation(); openFinderModal(machine); };
-                    } else if (cardHasAbsen && !cardNeedsFinder) {
-                        // Ada absen, sudah ada pengganti → dot hilang
-                        dot.className = 'mc-dot'; dot.style.background = ''; dot.onclick = null;
                     } else if (primaryStatus !== 'normal' && colorMap[primaryStatus]) {
                         dot.className = 'mc-dot d-visible'; dot.style.background = colorMap[primaryStatus];
                         dot.onclick = e => { e.stopPropagation(); openMachineDetail(machine, primaryStatus); };
@@ -2021,7 +2154,7 @@
             wrap.style.display = 'block';
             try {
                 const qs = `tanggal=${TANGGAL}&factory=${encodeURIComponent(FACTORY)}&shift=${SHIFT}`;
-                const res = await fetch(`/admin/logs/list?${qs}`, { headers: { Accept: 'application/json' } });
+                const res = await fetch(`/api/logs/list?${qs}`, { headers: { Accept: 'application/json' } });
                 const all = res.ok ? await res.json() : [];
                 const logs = all.filter(l => l.lokasi === machine);
                 if (!logs.length) { wrap.innerHTML = '<div style="text-align:center;padding:12px;color:#ccc;font-size:11px">Belum ada log untuk mesin ini hari ini.</div>'; return; }
@@ -2040,6 +2173,7 @@
                             <div class="ql-log-desc">${esc(l.deskripsi)}</div>
                             ${l.cause ? `<div class="ql-log-meta">🔍 ${esc(l.cause)}</div>` : ''}
                             ${l.pic ? `<div class="ql-log-meta">👤 ${esc(l.pic)}</div>` : ''}
+                            ${l.departemen_perbaikan ? `<div class="ql-log-meta">🏢 ${esc(l.departemen_perbaikan)}</div>` : ''}
                             <div class="ql-log-actions" id="qlactions-${l.id}">
                                 ${isOpen ? `<button class="ql-btn ql-btn-done" onclick="qlShowCloseInput(${l.id})">✅ Selesai</button>` : `<button class="ql-btn ql-btn-reopen" onclick="qlReopenLog(${l.id},this)">🔄 Buka Ulang</button>`}
                                 <button class="ql-btn ql-btn-del" onclick="qlDeleteLog(${l.id},this)">🗑️</button>
@@ -2064,6 +2198,7 @@
             const deskId = jenis === 'Machine' ? 'qlDeskripsi' : `ql-${p}-deskripsi`;
             const causeId = jenis === 'Machine' ? 'qlCause' : `ql-${p}-cause`;
             const picId = jenis === 'Machine' ? 'qlPIC' : `ql-${p}-pic`;
+            const deptId = jenis === 'Machine' ? 'qlDept' : `ql-${p}-dept`;
             const mulai = $id(mulaiId)?.value;
             const desk = $id(deskId)?.value?.trim();
             const status = $id(`ql-${p}-status`)?.value || 'open';
@@ -2073,15 +2208,29 @@
             if (!desk) { showToast('Isi deskripsi masalah', 'error'); return; }
             const btn = $id('qlSubmitBtn'); if (btn) { btn.disabled = true; btn.textContent = '⏳ Menyimpan…'; }
             try {
-                const res = await fetch('/admin/logs', {
+                const res = await fetch('/api/logs', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' },
-                    body: JSON.stringify({ tanggal: TANGGAL, factory: FACTORY, shift: SHIFT, jenis, lokasi, waktu_mulai: mulai, waktu_selesai: waktuSel, status, deskripsi: desk, cause: $id(causeId)?.value || null, countermeasure: null, pic: $id(picId)?.value || null }),
+                    body: JSON.stringify({ 
+                        tanggal: TANGGAL, 
+                        factory: FACTORY, 
+                        shift: SHIFT, 
+                        jenis, 
+                        lokasi, 
+                        waktu_mulai: mulai, 
+                        waktu_selesai: waktuSel, 
+                        status, 
+                        deskripsi: desk, 
+                        cause: $id(causeId)?.value || null, 
+                        countermeasure: null, 
+                        pic: $id(picId)?.value || null,
+                        departemen_perbaikan: $id(deptId)?.value || null
+                    }),
                 });
                 const data = await res.json().catch(() => ({}));
                 if (!res.ok) { showToast('Gagal: ' + (data?.message?.slice(0, 60) ?? 'error'), 'error'); return; }
-                showToast(`✅ Log ${jenis} ditambah — ${lokasi}`, 'success');
-                [$id(deskId), $id(causeId), $id(picId)].forEach(el => { if (el) el.value = ''; });
+                showToast(`✅ Log ${jenis} ditambah  - ${lokasi}`, 'success');
+                [$id(deskId), $id(causeId), $id(picId), $id(deptId)].forEach(el => { if (el) el.value = ''; });
                 renderLogList(lokasi); syncAll();
             } catch (e) { showToast('Gagal: ' + e.message, 'error'); }
             finally { if (btn) { btn.disabled = false; btn.textContent = '💾 Simpan Log'; } }
@@ -2127,7 +2276,7 @@
                     actWrap.innerHTML = `<button class="ql-btn ql-btn-reopen" onclick="qlReopenLog(${id},this)">🔄 Buka Ulang</button> <button class="ql-btn ql-btn-del" onclick="qlDeleteLog(${id},this)">🗑️</button>`;
                 }
 
-                showToast(`✅ Selesai — ${data.durasi ?? ''}`, 'success'); syncAll();
+                showToast(`✅ Selesai  - ${data.durasi ?? ''}`, 'success'); syncAll();
             } catch (e) { showToast('Gagal', 'error'); if (btn) { btn.disabled = false; btn.textContent = '💾 Simpan Selesai'; } }
         }
 
@@ -2162,7 +2311,7 @@
             $id('machineSheetTitle').textContent = machine;
             const body = $id('machineSheetBody');
             if (body) body.innerHTML = '<div style="text-align:center;padding:24px;color:#aaa">Memuat...</div>';
-            fetch(`/admin/logs/list?tanggal=${TANGGAL}&factory=${encodeURIComponent(FACTORY)}&shift=${SHIFT}`)
+            fetch(`/api/logs/list?tanggal=${TANGGAL}&factory=${encodeURIComponent(FACTORY)}&shift=${SHIFT}`)
                 .then(r => r.json())
                 .then(logs => {
                     const ml = logs.filter(l => l.lokasi === machine && l.status === 'open');
@@ -2176,6 +2325,9 @@
 
         /* ── 5. FINDER PENGGANTI ── */
         let activeMachine = null;
+        // memberId → { replacementId, targetMachine, name, sourceMachine }
+        let _penggantiMap = new Map();
+
         function openFinderModal(machine) {
             activeMachine = machine;
             $id('finderMachineName').textContent = machine;
@@ -2193,19 +2345,33 @@
             list.innerHTML = '<div class="cand-empty">⏳ Memuat…</div>';
             try {
                 const params = new URLSearchParams({ tanggal: TANGGAL, factory: FACTORY, shift: SHIFT, q });
-                const res = await fetch(`/admin/assignment/candidates?${params}`, { headers: { Accept: 'application/json', 'X-CSRF-TOKEN': CSRF } });
+                const res = await fetch(`/api/assignment/candidates?${params}`, { headers: { Accept: 'application/json', 'X-CSRF-TOKEN': CSRF } });
                 if (!res.ok) { list.innerHTML = `<div class="cand-empty">⚠️ Error ${res.status}</div>`; return; }
-                const data = await res.json();
+                let data = await res.json();
                 if (!Array.isArray(data) || !data.length) { list.innerHTML = '<div class="cand-empty">🔍 Tidak ada member tersedia.</div>'; return; }
+
+                // Mark candidates already acting as Pengganti on another machine
+                data = data.map(m => ({ ...m, isAlreadyPengganti: _penggantiMap.has(m.id) }));
+
                 list.innerHTML = data.map(m => {
-                    const av = m.photo ? `<img src="${esc(m.photo)}" alt="">` : `<span>${initials(m.name)}</span>`;
+                    const av = m.photo ? `<img src="${esc(m.photo)}" alt="" loading="lazy">` : `<span>${initials(m.name)}</span>`;
+                    const alreadyPengganti = m.isAlreadyPengganti;
+                    const tag = alreadyPengganti
+                        ? `<div style="font-size:8px;color:#e74c3c;font-family:'Roboto Condensed',sans-serif;font-weight:800;background:#fdeaea;padding:1px 5px;border-radius:3px;border:1px solid #f4a8a8">Sdh Pengganti</div>`
+                        : (m.isWorking ? '<div class="cand-tag">Sdh Bertugas</div>' : '');
+                    const info = _penggantiMap.get(m.id);
+                    const replId = info?.replacementId ?? '';
+                    const replMachine = info?.targetMachine ?? '';
+                    const actionBtn = alreadyPengganti
+                        ? `<button class="cand-btn" style="background:#e74c3c;font-size:9px;padding:4px 0" onclick="cancelPengganti(${m.id},${replId},'${esc(m.name)}','${esc(replMachine)}','${esc(info?.sourceMachine||'')}',this)">✕ Batal Pengganti</button>`
+                        : `<button class="cand-btn" onclick="pickCandidate(${m.id},'${esc(m.name)}','${esc(m.photo || '')}','${esc(m.mesin || '')}')">✓ Pilih</button>`;
                     return `<div class="cand-card">
-                                                <div class="cand-av ${m.isWorking ? 'cav-w' : 'cav-n'}">${av}</div>
+                                                <div class="cand-av ${m.isWorking && !alreadyPengganti ? 'cav-w' : 'cav-n'}">${av}</div>
                                                 <div class="cand-name">${esc(m.name)}</div>
                                                 ${m.jabatan ? `<div style="font-size:9px;color:#aaa;font-family:'Roboto Condensed',sans-serif">${esc(m.jabatan)}</div>` : ''}
                                                 ${m.mesin ? `<div style="font-size:9px;color:#aaa;font-family:'Roboto Condensed',sans-serif">${esc(m.mesin)}</div>` : ''}
-                                                ${m.isWorking ? '<div class="cand-tag">Sdh Bertugas</div>' : ''}
-                                                <button class="cand-btn" onclick="pickCandidate(${m.id},'${esc(m.name)}','${esc(m.photo || '')}','${esc(m.mesin || '')}')">✓ Pilih</button>
+                                                ${tag}
+                                                ${actionBtn}
                                             </div>`;
                 }).join('');
             } catch (e) { list.innerHTML = '<div class="cand-empty">Gagal memuat kandidat.</div>'; }
@@ -2213,13 +2379,31 @@
 
         async function pickCandidate(memberId, name, photo, sourceMachine) {
             if (!activeMachine) return;
+
+            // Block double-assignment as Pengganti
+            if (_penggantiMap.has(memberId)) {
+                showToast(`⛔ ${name} sudah menjadi pengganti di mesin lain`, 'error');
+                return;
+            }
+
             const targetMachine = activeMachine; // simpan sebelum closeFinderModal() reset
             event?.target?.setAttribute('disabled', true);
             try {
-                const res = await fetch('/admin/replacements', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' }, body: JSON.stringify({ tanggal: TANGGAL, factory: FACTORY, shift: SHIFT, target_machine: targetMachine, member_id: memberId }) });
-                if (!res.ok) { const err = await res.json().catch(() => ({})); showToast(err.message || 'Gagal menyimpan pengganti', 'error'); event?.target?.removeAttribute('disabled'); return; }
+                const res = await fetch('/api/replacements', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' }, body: JSON.stringify({ tanggal: TANGGAL, factory: FACTORY, shift: SHIFT, target_machine: targetMachine, member_id: memberId }) });
+                const respData = await res.json().catch(() => ({}));
+                if (!res.ok) { showToast(respData.message || 'Gagal menyimpan pengganti', 'error'); event?.target?.removeAttribute('disabled'); return; }
 
                 showToast(`✅ ${name} → ${targetMachine}`, 'success');
+                // Register this member in the pengganti map  - store replacement IDs from response
+                const replIds = Array.isArray(respData?.replacements) ? respData.replacements : [];
+                // Primary replacement for targetMachine
+                const primaryRepl = replIds.find(r => r.target_machine === targetMachine) || replIds[0];
+                if (primaryRepl) {
+                    _penggantiMap.set(memberId, { replacementId: primaryRepl.id, targetMachine, name, sourceMachine });
+                } else {
+                    // Fallback if response shape differs
+                    _penggantiMap.set(memberId, { replacementId: null, targetMachine, name, sourceMachine });
+                }
                 closeFinderModal();
 
                 // ── 1. Inject card pengganti langsung ke DOM (tanpa tunggu full reload) ──
@@ -2233,7 +2417,7 @@
                         div.dataset.memberId = memberId;
                         div.dataset.replacement = '1';
                         const avContent = photo
-                            ? `<img src="${esc(photo)}" alt="${esc(name)}">`
+                            ? `<img src="${esc(photo)}" alt="${esc(name)}" loading="lazy">`
                             : `<span>${initials(name)}</span>`;
                         div.innerHTML = `<div class="mc-av av-ok">${avContent}</div>`
                             + `<div class="mc-member-name">${esc(name)}</div>`
@@ -2241,10 +2425,10 @@
                             + `padding:1px 4px;border-radius:3px;text-transform:uppercase;font-weight:800">Pengganti</span>`;
                         row.appendChild(div);
                     }
-                    // Hilangkan border + dot merah — sudah ada pengganti
-                    tc.classList.remove('mc-has-absen');
+                    // Feature 3: keep border red + keep dot active after replacement
+                    tc.classList.add('mc-has-absen');
                     const dot = tc.querySelector('.mc-dot');
-                    if (dot) { dot.className = 'mc-dot d-absen'; dot.style.background = ''; dot.onclick = null; }
+                    if (dot) { dot.className = 'mc-dot d-absen'; dot.style.background = ''; dot.onclick = e => { e.stopPropagation(); openFinderModal(targetMachine); }; }
                 }
 
                 // ── 2. Update source card (member yg "dipinjam") ──
@@ -2277,9 +2461,19 @@
         async function loadReplacements() {
             try {
                 const params = new URLSearchParams({ tanggal: TANGGAL, factory: FACTORY, shift: SHIFT });
-                const res = await fetch(`/admin/replacements?${params}`, { headers: { Accept: 'application/json', 'X-CSRF-TOKEN': CSRF } });
+                const res = await fetch(`/api/replacements?${params}`, { headers: { Accept: 'application/json', 'X-CSRF-TOKEN': CSRF } });
                 if (!res.ok) return;
                 const data = await res.json();
+
+                // Populate map of already-assigned Pengganti on load (member_id → {replacementId, targetMachine, ...})
+                _penggantiMap.clear();
+                data.forEach(r => _penggantiMap.set(r.member_id, {
+                    replacementId: r.id,
+                    targetMachine: r.target_machine,
+                    name: r.member_name,
+                    sourceMachine: r.source_machine,
+                }));
+
                 data.forEach(r => {
                     const tc = document.querySelector(`.mc-card[data-machine="${CSS.escape(r.target_machine)}"]`);
                     if (tc) {
@@ -2288,11 +2482,12 @@
                         if (row && !exists) {
                             row.querySelector('.mc-empty-slot')?.remove();
                             const div = document.createElement('div'); div.className = 'mc-member-item'; div.dataset.memberId = r.member_id; div.dataset.replacement = '1';
-                            div.innerHTML = `<div class="mc-av av-ok">${r.member_photo ? `<img src="${esc(r.member_photo)}" alt="${esc(r.member_name)}">` : `<span>${initials(r.member_name)}</span>`}</div><div class="mc-member-name">${esc(r.member_name || '')}</div><span class="mc-member-tag" style="background:#e65100;color:#fff;font-size:7px;padding:1px 4px;border-radius:3px;text-transform:uppercase;font-weight:800">Pengganti</span>`;
+                            div.innerHTML = `<div class="mc-av av-ok">${r.member_photo ? `<img src="${esc(r.member_photo)}" alt="${esc(r.member_name)}" loading="lazy">` : `<span>${initials(r.member_name)}</span>`}</div><div class="mc-member-name">${esc(r.member_name || '')}</div><span class="mc-member-tag" style="background:#e65100;color:#fff;font-size:7px;padding:1px 4px;border-radius:3px;text-transform:uppercase;font-weight:800">Pengganti</span>`;
                             row.appendChild(div);
                         }
-                        tc.classList.remove('mc-has-absen');
-                        const dot = tc.querySelector('.mc-dot'); if (dot) { dot.className = 'mc-dot d-absen'; dot.style.background = ''; dot.onclick = null; }
+                        // Feature 3: keep border + dot active even after replacement is loaded
+                        tc.classList.add('mc-has-absen');
+                        const dot = tc.querySelector('.mc-dot'); if (dot) { dot.className = 'mc-dot d-absen'; dot.style.background = ''; dot.onclick = e => { e.stopPropagation(); openFinderModal(r.target_machine); }; }
                     }
                     if (r.source_machine) {
                         const sc = document.querySelector(`.mc-card[data-machine="${CSS.escape(r.source_machine)}"]`);
@@ -2313,24 +2508,114 @@
             } catch (e) { console.error('loadReplacements', e); }
         }
 
-        /* ── 6. CHART KEHADIRAN ── */
+        /* ── Cancel Pengganti (hapus dari DB + update DOM) ── */
+        async function cancelPengganti(memberId, replacementId, name, targetMachine, sourceMachine, btn) {
+            if (btn) { btn.disabled = true; btn.textContent = '⏳…'; }
+            try {
+                // Jika replacementId ada, hapus langsung by ID; jika tidak, hapus by member+machine
+                let ok = false;
+                if (replacementId) {
+                    const res = await fetch(`/admin/replacements/${replacementId}`, {
+                        method: 'DELETE',
+                        headers: { 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' },
+                    });
+                    ok = res.ok;
+                }
+                if (!ok) {
+                    // Fallback: re-fetch replacements list and delete all matching this member
+                    const params = new URLSearchParams({ tanggal: TANGGAL, factory: FACTORY, shift: SHIFT });
+                    const listRes = await fetch(`/api/replacements?${params}`, { headers: { Accept: 'application/json', 'X-CSRF-TOKEN': CSRF } });
+                    const list = listRes.ok ? await listRes.json() : [];
+                    const matching = list.filter(r => r.member_id === memberId);
+                    await Promise.all(matching.map(r =>
+                        fetch(`/admin/replacements/${r.id}`, { method: 'DELETE', headers: { 'X-CSRF-TOKEN': CSRF } })
+                    ));
+                    ok = true;
+                }
+
+                // Remove from tracking map
+                _penggantiMap.delete(memberId);
+
+                // Remove pengganti card from the target machine's row
+                if (targetMachine) {
+                    const tc = document.querySelector(`.mc-card[data-machine="${CSS.escape(targetMachine)}"]`);
+                    if (tc) {
+                        const replItem = tc.querySelector(`.mc-member-item[data-member-id="${memberId}"][data-replacement="1"]`);
+                        replItem?.remove();
+                        // If no more replacements remain, the card stays red (absence still exists)
+                    }
+                }
+
+                // Revert source member's "dipinjam" state
+                if (sourceMachine) {
+                    const sc = document.querySelector(`.mc-card[data-machine="${CSS.escape(sourceMachine)}"]`);
+                    if (sc) {
+                        const mi = sc.querySelector(`.mc-member-item[data-member-id="${memberId}"]`);
+                        if (mi && mi.classList.contains('mi-dipinjam')) {
+                            mi.classList.remove('mi-dipinjam');
+                            const av = mi.querySelector('.mc-av');
+                            const img = mi.querySelector('.mc-av img');
+                            const tag = mi.querySelector('.mc-member-tag');
+                            av?.classList.replace('av-absen', 'av-ok');
+                            if (img) img.style.filter = '';
+                            if (tag) { tag.className = 'mc-member-tag tag-hadir'; tag.textContent = 'Hadir'; }
+                            mi.querySelector('.mi-dipinjam-dest')?.remove();
+                        }
+                    }
+                }
+
+                showToast(`❌ Pengganti ${name} dibatalkan`, 'info');
+
+                // Re-render finder list to reflect change
+                renderFinderCandidates();
+
+                // Full sync after short delay
+                _syncing = false;
+                await new Promise(r => setTimeout(r, 300));
+                await syncCards();
+
+            } catch (e) {
+                showToast('Gagal membatalkan pengganti', 'error');
+                if (btn) { btn.disabled = false; btn.textContent = '✕ Batal Pengganti'; }
+            }
+        }
+
+        /* ── 6. CHART KEHADIRAN (Task 4: includes red Absen segment) ── */
         function renderChart(data) {
             if (!data) return;
-            const values = [data.mp_hadir ?? 0, data.op_cuti ?? 0, data.op_sakit ?? 0, data.op_ijin ?? 0, data.spv_cuti ?? 0, data.spv_sakit ?? 0, data.spv_ijin ?? 0];
-            const total = data.total_member ?? values.reduce((a, b) => a + b, 0); if (!total) return;
+            // Task 4: total_absen = orang yang tidak hadir (absen/sakit/izin/cuti dikurangi hadir)
+            const absenCount = Math.max(0, (data.total_member ?? 0) - (data.mp_hadir ?? 0) - (data.op_cuti ?? 0) - (data.op_sakit ?? 0) - (data.op_ijin ?? 0) - (data.spv_cuti ?? 0) - (data.spv_sakit ?? 0) - (data.spv_ijin ?? 0));
+            const showAbsen = absenCount > 0;
+            const values = [
+                data.mp_hadir    ?? 0,
+                data.op_cuti     ?? 0,
+                data.op_sakit    ?? 0,
+                data.op_ijin     ?? 0,
+                data.spv_cuti    ?? 0,
+                data.spv_sakit   ?? 0,
+                data.spv_ijin    ?? 0,
+                showAbsen ? absenCount : 0, // Task 4: red Absen segment
+            ];
+            const labels = ['MP Hadir', 'OP Cuti', 'OP Sakit', 'OP Izin', 'Pengawas Cuti', 'Pengawas Sakit', 'Pengawas Izin', 'Absen'];
+            const colors = ['#729E3F', '#ff69b4', '#8e44ad', '#f1c40f', '#1F3C88', '#5dade2', '#FF8F1F', '#EF4444'];
+            const total = data.total_member ?? values.reduce((a, b) => a + b, 0);
+            if (!total) return;
             const hadir = data.mp_hadir ?? 0, pct = ((hadir / total) * 100).toFixed(1);
             const cv = $id('centerValue'), af = $id('absenFill');
             if (cv) cv.textContent = `${hadir}/${total}`;
             if (af) { af.style.width = pct + '%'; af.textContent = pct + '%'; }
+            // Show/hide Absen legend entry
+            const legendAbsen = $id('legendAbsen');
+            if (legendAbsen) legendAbsen.style.display = showAbsen ? '' : 'none';
             if (dashChart) dashChart.destroy();
             dashChart = new Chart($id('myChart'), {
                 type: 'doughnut',
-                data: { labels: ['MP Hadir', 'OP Cuti', 'OP Sakit', 'OP Ijin', 'Pengawas Cuti', 'Pengawas Sakit', 'Pengawas Ijin'], datasets: [{ data: values, backgroundColor: ['#729E3F', '#ff69b4', '#8e44ad', '#f1c40f', '#1F3C88', '#5dade2', '#FF8F1F'], borderWidth: 0 }] },
+                data: { labels, datasets: [{ data: values, backgroundColor: colors, borderWidth: 0 }] },
                 options: { cutout: '75%', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, datalabels: { display: false }, tooltip: { callbacks: { label: ctx => { const v = ctx.parsed; return v ? `${ctx.label}: ${v} (${((v / total) * 100).toFixed(1)}%)` : null; } } } } },
             });
         }
 
-        /* ── 7. AUTO REFRESH — CHANGE: interval 15 detik ── */
+        /* ── 7. AUTO REFRESH  - CHANGE: interval 15 detik ── */
         let _arInterval = null, _arCountdown = 15, _arPaused = false;
         function startAutoRefresh() {
             if (_arInterval) clearInterval(_arInterval);
@@ -2351,16 +2636,18 @@
         function onDateChange(val) { const url = new URL(window.location); url.searchParams.set('tanggal', val); window.location = url; }
 
         /* ── 8. FOTO MESIN ── */
-        function triggerPhotoUpload(machine, slug) { document.getElementById('file-' + slug)?.click(); }
-        async function uploadMachinePhoto(event, machine, slug) {
+        function triggerPhotoUpload(machine, slug, factory) { document.getElementById('file-' + slug)?.click(); }
+        async function uploadMachinePhoto(event, machine, slug, factory) {
             const file = event.target.files?.[0]; if (!file) return;
             const wrap = document.getElementById('photo-wrap-' + slug);
             if (file.size > 3 * 1024 * 1024) { showToast('Foto terlalu besar (maks 3MB)', 'error'); event.target.value = ''; return; }
             wrap?.classList.add('uploading');
             const ot = wrap?.querySelector('.upload-txt'); if (ot) ot.textContent = '⏳ Mengupload...';
             try {
-                const fd = new FormData(); fd.append('factory', FACTORY); fd.append('machine_name', machine); fd.append('photo', file); fd.append('_token', CSRF);
-                const res = await fetch('/admin/machines/photo', { method: 'POST', body: fd }); const data = await res.json();
+                // Gunakan factory spesifik yang dikirim, bukan FACTORY global
+                const factoryToUse = factory || FACTORY;
+                const fd = new FormData(); fd.append('factory', factoryToUse); fd.append('machine_name', machine); fd.append('photo', file); fd.append('_token', CSRF);
+                const res = await fetch('/api/machines/photo', { method: 'POST', body: fd }); const data = await res.json();
                 if (!res.ok || !data.ok) { showToast(data.message || 'Gagal upload foto', 'error'); return; }
                 const imgEl = document.getElementById('photo-img-' + slug);
                 if (imgEl) {

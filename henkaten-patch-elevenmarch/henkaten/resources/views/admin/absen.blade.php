@@ -82,7 +82,7 @@
                     <div class="amr-info">
                         <div class="amr-name">{{ $m->nama }}</div>
                         <div class="amr-role">
-                            {{ $m->jabatan }}{{ $m->mesin ? ' — ' . $m->mesin : '' }}
+                            {{ $m->jabatan }}{{ $m->mesin ? '  - ' . $m->mesin : '' }}
                         </div>
                     </div>
                     <div style="display:flex;align-items:center;gap:4px;flex-shrink:0;flex-wrap:wrap">
@@ -97,7 +97,7 @@
                             <option value="Cuti" {{ $reason === 'Cuti' ? 'selected' : '' }}>Cuti</option>
                             <option value="Sakit" {{ $reason === 'Sakit' ? 'selected' : '' }}>Sakit</option>
                             <option value="Ijin" {{ $reason === 'Ijin' ? 'selected' : '' }}>Ijin</option>
-                            <option value="Mangkir" {{ $reason === 'Mangkir' ? 'selected' : '' }}>Mangkir</option>
+                            <option value="Alpha" {{ $reason === 'Alpha' ? 'selected' : '' }}>Alpha</option>
                         </select>
                     </div>
                 </div>
@@ -106,13 +106,13 @@
     @endif
 
     {{-- ══════════════════════════════════════════════════════════════ --}}
-    {{-- REKAP — navigasi tanggal + export CSV --}}
+    {{-- REKAP - navigasi tanggal + export CSV --}}
     {{-- dipindah dari page-report di member management --}}
     {{-- ══════════════════════════════════════════════════════════════ --}}
     <div style="margin-top:24px">
         <div class="report-date-nav">
             <button class="rdn-btn" onclick="changeReportDate(-1)">←</button>
-            <div class="rdn-date" id="reportDateLabel">—</div>
+            <div class="rdn-date" id="reportDateLabel"> -</div>
             <button class="rdn-btn" onclick="changeReportDate(1)">→</button>
         </div>
         <div style="display:flex;gap:8px;margin-bottom:14px">
@@ -141,13 +141,13 @@
         // ── State absen (init dari server) ───────────────────────────
         let absenState = {
             @foreach($members as $m)
-                                @php $rec = $records[$m->id] ?? null; @endphp
-                                {{ $m->id }}: {
+                                                @php $rec = $records[$m->id] ?? null; @endphp
+                                                {{ $m->id }}: {
                     status: '{{ $rec ? $rec->status : 'hadir' }}',
                     reason: '{{ $rec?->reason ?? '' }}',
                 },
             @endforeach
-            };
+                    };
 
         // ── Toggle hadir / absen ─────────────────────────────────────
         function setAbsenState(memberId, status, reason) {
@@ -270,58 +270,58 @@
             const html = reports.map(r => {
                 const pctColor = r.pct >= 90 ? 'var(--green)' : (r.pct >= 75 ? 'var(--orange)' : 'var(--red)');
                 const absenRows = r.absen_list.map(m => {
-                    const reasonColor = { Cuti: '#2196f3', Sakit: '#ff9800', Ijin: '#9c27b0', Mangkir: 'var(--red)' }[m.reason] ?? '#888';
+                    const reasonColor = { Cuti: '#2196f3', Sakit: '#ff9800', Ijin: '#9c27b0', Alpha: 'var(--red)' }[m.reason] ?? '#888';
                     return `<div style="display:flex;align-items:center;justify-content:space-between;
-                                            padding:7px 10px;background:#fff8f8;border-radius:8px;margin-bottom:4px;
-                                            border-left:3px solid ${reasonColor}">
-                            <div>
-                                <div style="font-size:13px;font-weight:500">${m.nama}</div>
-                                <div style="font-size:11px;color:#aaa">${m.jabatan}${m.mesin ? ' — ' + m.mesin : ''}</div>
-                            </div>
-                            <span style="font-size:11px;font-weight:600;color:${reasonColor};
-                                         background:${reasonColor}15;padding:2px 8px;border-radius:99px">
-                                ${m.reason ?? '-'}
-                            </span>
-                        </div>`;
+                                                    padding:7px 10px;background:#fff8f8;border-radius:8px;margin-bottom:4px;
+                                                    border-left:3px solid ${reasonColor}">
+                                    <div>
+                                        <div style="font-size:13px;font-weight:500">${m.nama}</div>
+                                        <div style="font-size:11px;color:#aaa">${m.jabatan}${m.mesin ? '  - ' + m.mesin : ''}</div>
+                                    </div>
+                                    <span style="font-size:11px;font-weight:600;color:${reasonColor};
+                                                 background:${reasonColor}15;padding:2px 8px;border-radius:99px">
+                                        ${m.reason ?? '-'}
+                                    </span>
+                                </div>`;
                 }).join('');
 
                 const reasonTags = Object.entries(r.reasons ?? {}).map(([reason, count]) =>
                     `<span style="font-size:11px;padding:3px 10px;border-radius:99px;background:#f0f0f0;color:#555">
-                            ${reason}: ${count}
-                        </span>`
+                                    ${reason}: ${count}
+                                </span>`
                 ).join('');
 
                 return `<div class="card" style="margin-bottom:14px">
-                        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-                            <div>
-                                <div style="font-size:14px;font-weight:700;color:var(--navy)">${r.factory}</div>
-                                <div style="font-size:12px;color:#888">Shift ${r.shift}</div>
-                            </div>
-                            <div style="text-align:right">
-                                <div style="font-size:22px;font-weight:800;color:${pctColor}">${r.pct}%</div>
-                                <div style="font-size:11px;color:#aaa">Kehadiran</div>
-                            </div>
-                        </div>
-                        <div style="background:#f0f0f0;border-radius:99px;height:6px;margin-bottom:12px">
-                            <div style="background:${pctColor};width:${r.pct}%;height:6px;border-radius:99px"></div>
-                        </div>
-                        <div style="display:flex;gap:8px;margin-bottom:12px">
-                            <div style="flex:1;text-align:center;padding:8px;background:#f9f9f9;border-radius:8px">
-                                <div style="font-size:18px;font-weight:700;color:var(--navy)">${r.total}</div>
-                                <div style="font-size:10px;color:#aaa">Total</div>
-                            </div>
-                            <div style="flex:1;text-align:center;padding:8px;background:#f0fff4;border-radius:8px">
-                                <div style="font-size:18px;font-weight:700;color:var(--green)">${r.hadir}</div>
-                                <div style="font-size:10px;color:#aaa">Hadir</div>
-                            </div>
-                            <div style="flex:1;text-align:center;padding:8px;background:#fff0f0;border-radius:8px">
-                                <div style="font-size:18px;font-weight:700;color:var(--red)">${r.absen}</div>
-                                <div style="font-size:10px;color:#aaa">Absen</div>
-                            </div>
-                        </div>
-                        ${absenRows || '<div style="text-align:center;padding:10px;color:#aaa;font-size:12px">🎉 Semua hadir!</div>'}
-                        ${reasonTags ? `<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px">${reasonTags}</div>` : ''}
-                    </div>`;
+                                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+                                    <div>
+                                        <div style="font-size:14px;font-weight:700;color:var(--navy)">${r.factory}</div>
+                                        <div style="font-size:12px;color:#888">Shift ${r.shift}</div>
+                                    </div>
+                                    <div style="text-align:right">
+                                        <div style="font-size:22px;font-weight:800;color:${pctColor}">${r.pct}%</div>
+                                        <div style="font-size:11px;color:#aaa">Kehadiran</div>
+                                    </div>
+                                </div>
+                                <div style="background:#f0f0f0;border-radius:99px;height:6px;margin-bottom:12px">
+                                    <div style="background:${pctColor};width:${r.pct}%;height:6px;border-radius:99px"></div>
+                                </div>
+                                <div style="display:flex;gap:8px;margin-bottom:12px">
+                                    <div style="flex:1;text-align:center;padding:8px;background:#f9f9f9;border-radius:8px">
+                                        <div style="font-size:18px;font-weight:700;color:var(--navy)">${r.total}</div>
+                                        <div style="font-size:10px;color:#aaa">Total</div>
+                                    </div>
+                                    <div style="flex:1;text-align:center;padding:8px;background:#f0fff4;border-radius:8px">
+                                        <div style="font-size:18px;font-weight:700;color:var(--green)">${r.hadir}</div>
+                                        <div style="font-size:10px;color:#aaa">Hadir</div>
+                                    </div>
+                                    <div style="flex:1;text-align:center;padding:8px;background:#fff0f0;border-radius:8px">
+                                        <div style="font-size:18px;font-weight:700;color:var(--red)">${r.absen}</div>
+                                        <div style="font-size:10px;color:#aaa">Absen</div>
+                                    </div>
+                                </div>
+                                ${absenRows || '<div style="text-align:center;padding:10px;color:#aaa;font-size:12px">🎉 Semua hadir!</div>'}
+                                ${reasonTags ? `<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px">${reasonTags}</div>` : ''}
+                            </div>`;
             }).join('');
 
             document.getElementById('reportContent').innerHTML = html;

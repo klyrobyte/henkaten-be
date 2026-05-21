@@ -104,7 +104,7 @@
                 @endforelse
             </div>
 
-            {{-- Kelola Data — tetap di page members, bawah grid --}}
+            {{-- Kelola Data - tetap di page members, bawah grid --}}
             <div class="card" style="margin-top:20px">
                 <h3>🗑️ Kelola Data</h3>
                 <div style="display:flex;flex-direction:column;gap:10px">
@@ -314,7 +314,7 @@
                 const badgeClass = { Operator: 'op', SPV: 'spv', TL: 'tl', GL: 'gl', KY: 'ky' }[m.jabatan] ?? 'op';
                 const histHTML = hist.length
                     ? hist.map(h => {
-                        const sc = { hadir: 'hi-hadir', Cuti: 'hi-cuti', Sakit: 'hi-sakit', Ijin: 'hi-ijin', Mangkir: 'hi-ijin' }[h.status === 'hadir' ? 'hadir' : (h.reason || 'hadir')] ?? 'hi-hadir';
+                        const sc = { hadir: 'hi-hadir', Cuti: 'hi-cuti', Sakit: 'hi-sakit', Ijin: 'hi-ijin', Alpha: 'hi-ijin' }[h.status === 'hadir' ? 'hadir' : (h.reason || 'hadir')] ?? 'hi-hadir';
                         const lbl = h.status === 'hadir' ? 'Hadir' : (h.reason || 'Absen');
                         const tgl = new Date(h.tanggal + 'T00:00:00').toLocaleDateString('id-ID', { weekday: 'short', day: 'numeric', month: 'short' });
                         return `<div class="history-item"><span class="hi-date">${tgl}</span><span class="hi-badge ${sc}">${lbl}</span></div>`;
@@ -322,24 +322,24 @@
                     : '<div style="text-align:center;padding:16px;color:#bbb;font-size:12px">Belum ada riwayat absen</div>';
 
                 document.getElementById('memberSheetBody').innerHTML = `
-                <div class="member-detail-hero">
-                    <div class="member-detail-photo">${photoHTML}</div>
-                    <div class="member-detail-info">
-                        <h4>${m.nama}</h4>
-                        <div style="font-size:12px;color:#888;margin-bottom:6px">
-                            ${m.factory} | Shift ${m.shift}${m.mesin ? ' | ' + m.mesin : ''}
+                        <div class="member-detail-hero">
+                            <div class="member-detail-photo">${photoHTML}</div>
+                            <div class="member-detail-info">
+                                <h4>${m.nama}</h4>
+                                <div style="font-size:12px;color:#888;margin-bottom:6px">
+                                    ${m.factory} | Shift ${m.shift}${m.mesin ? ' | ' + m.mesin : ''}
+                                </div>
+                                <span class="mc-badge ${badgeClass}">${m.jabatan}</span>
+                                ${m.nik ? `<span style="font-size:11px;color:#aaa;margin-left:8px">NIK: ${m.nik}</span>` : ''}
+                            </div>
                         </div>
-                        <span class="mc-badge ${badgeClass}">${m.jabatan}</span>
-                        ${m.nik ? `<span style="font-size:11px;color:#aaa;margin-left:8px">NIK: ${m.nik}</span>` : ''}
-                    </div>
-                </div>
-                <div style="display:flex;gap:8px;margin-bottom:16px">
-                    <button class="btn btn-sm btn-orange" style="flex:1"
-                        onclick="closeSheet('memberSheet');loadEditMember(${m.id})">✏️ Edit</button>
-                    <button class="btn btn-sm btn-danger" onclick="deleteMember(${m.id})">🗑️</button>
-                </div>
-                <div class="section-title">Riwayat Absen (10 Terakhir)</div>
-                <div class="history-list">${histHTML}</div>`;
+                        <div style="display:flex;gap:8px;margin-bottom:16px">
+                            <button class="btn btn-sm btn-orange" style="flex:1"
+                                onclick="closeSheet('memberSheet');loadEditMember(${m.id})">✏️ Edit</button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteMember(${m.id})">🗑️</button>
+                        </div>
+                        <div class="section-title">Riwayat Absen (10 Terakhir)</div>
+                        <div class="history-list">${histHTML}</div>`;
             } catch (e) {
                 document.getElementById('memberSheetBody').innerHTML =
                     `<div style="text-align:center;padding:24px;color:var(--red)">Gagal memuat: ${e.message}</div>`;

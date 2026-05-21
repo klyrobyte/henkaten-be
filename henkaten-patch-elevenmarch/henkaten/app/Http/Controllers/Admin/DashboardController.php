@@ -28,23 +28,25 @@ class DashboardController extends Controller
     public function index(Request $request)
     {
         $factory = $request->session()->get('factory', 'Factory 2');
-        $shift   = $request->session()->get('shift', 'A');
+        $shift = $request->session()->get('shift', 'A');
         $tanggal = $request->get('tanggal', today()->toDateString());
 
         $machineStatuses = $this->getMachineStatuses($tanggal, $factory, $shift);
-        $machineSummary  = $this->buildSummary($machineStatuses, $tanggal, $factory, $shift);
+        $machineSummary = $this->buildSummary($machineStatuses, $tanggal, $factory, $shift);
+
+        $totMachineF34 = Machine::whereIn('factory', ['Factory 3', 'Factory 4', 'Factory 3 & 4'])->where('status', 'mesin')->count();
 
         $absenceSummary = AbsenceSummary::where([
             'tanggal' => $tanggal,
             'factory' => $factory,
-            'shift'   => $shift,
+            'shift' => $shift,
         ])->first();
 
         $openLogsCount = ProblemLog::where([
             'tanggal' => $tanggal,
             'factory' => $factory,
-            'shift'   => $shift,
-            'status'  => 'open',
+            'shift' => $shift,
+            'status' => 'open',
         ])->whereIn('jenis', ['Machine', 'Material', 'Method'])->count();
 
         // Status level kini berbasis totalMan (semua absen) bukan hanya tanpa pengganti
@@ -54,7 +56,7 @@ class DashboardController extends Controller
             $openLogsCount
         );
 
-        $groups  = $this->factoryConfig->getGroups($factory);
+        $groups = $this->factoryConfig->getGroups($factory);
         $members = Member::where('factory', $factory)
             ->where('shift', $shift)
             ->where('status', 'active')
@@ -63,8 +65,10 @@ class DashboardController extends Controller
         $machinePhotos = Machine::where('factory', $factory)->get()->keyBy('name');
 
         $totalMP = AbsenceRecord::where([
-            'tanggal' => $tanggal, 'factory' => $factory,
-            'shift'   => $shift,   'status'  => 'hadir',
+            'tanggal' => $tanggal,
+            'factory' => $factory,
+            'shift' => $shift,
+            'status' => 'hadir',
         ])->count();
         if ($totalMP === 0) {
             $totalMP = Member::where('factory', $factory)
@@ -75,10 +79,17 @@ class DashboardController extends Controller
         $statuses = collect($machineStatuses)->map(fn($s) => (object) $s);
 
         return view('admin.dashboard', compact(
-            'factory', 'shift', 'tanggal',
-            'machineSummary', 'absenceSummary',
-            'openLogsCount', 'statusLevel',
-            'groups', 'statuses', 'members', 'machinePhotos',
+            'factory',
+            'shift',
+            'tanggal',
+            'machineSummary',
+            'absenceSummary',
+            'openLogsCount',
+            'statusLevel',
+            'groups',
+            'statuses',
+            'members',
+            'machinePhotos',
             'totalMP'
         ));
     }
@@ -86,22 +97,26 @@ class DashboardController extends Controller
     public function statusApi(Request $request)
     {
         $factory = $request->get('factory', $request->session()->get('factory', 'Factory 2'));
-        $shift   = $request->get('shift',   $request->session()->get('shift', 'A'));
+        $shift = $request->get('shift', $request->session()->get('shift', 'A'));
         $tanggal = $request->get('tanggal', today()->toDateString());
 
         $machineStatuses = $this->getMachineStatuses($tanggal, $factory, $shift);
-        $machineSummary  = $this->buildSummary($machineStatuses, $tanggal, $factory, $shift);
+        $machineSummary = $this->buildSummary($machineStatuses, $tanggal, $factory, $shift);
 
         $absenceSummary = AbsenceSummary::where([
-            'tanggal' => $tanggal, 'factory' => $factory, 'shift' => $shift,
+            'tanggal' => $tanggal,
+            'factory' => $factory,
+            'shift' => $shift,
         ])->first();
 
         $openLogsCount = ProblemLog::where([
-            'tanggal' => $tanggal, 'factory' => $factory,
-            'shift'   => $shift,   'status'  => 'open',
+            'tanggal' => $tanggal,
+            'factory' => $factory,
+            'shift' => $shift,
+            'status' => 'open',
         ])->whereIn('jenis', ['Machine', 'Material', 'Method'])->count();
 
-        $totalAbsen  = $absenceSummary?->total_absen ?? 0;
+        $totalAbsen = $absenceSummary?->total_absen ?? 0;
         $statusLevel = $this->calcStatusLevel(
             $machineSummary['man'],
             $machineSummary['problem'],
@@ -109,8 +124,10 @@ class DashboardController extends Controller
         );
 
         $totalMP = AbsenceRecord::where([
-            'tanggal' => $tanggal, 'factory' => $factory,
-            'shift'   => $shift,   'status'  => 'hadir',
+            'tanggal' => $tanggal,
+            'factory' => $factory,
+            'shift' => $shift,
+            'status' => 'hadir',
         ])->count();
         if ($totalMP === 0) {
             $totalMP = Member::where('factory', $factory)
@@ -118,15 +135,18 @@ class DashboardController extends Controller
                 ->where('status', 'active')->count();
         }
 
+        $totMachineF34 = Machine::whereIn('factory', ['Factory 3', 'Factory 4', 'Factory 3 & 4'])->where('status', 'mesin')->count();
+
         return response()->json([
-            'total_absen'  => $totalAbsen,
-            'problem_mc'   => $machineSummary['problem'],
-            'open_logs'    => $openLogsCount,
+            'total_absen' => $totalAbsen,
+            'problem_mc' => $machineSummary['problem'],
+            'open_logs' => $openLogsCount,
             'status_level' => $statusLevel,
-            'summary'      => $machineSummary,
-            'absence'      => $absenceSummary,
-            'total_mp'     => $totalMP,
-            'updated_at'   => now()->format('H:i:s'),
+            'summary' => $machineSummary,
+            'absence' => $absenceSummary,
+            'total_mp' => $totalMP,
+            'total_mesinf34' => $totMachineF34,
+            'updated_at' => now()->format('H:i:s'),
         ]);
     }
 
@@ -134,8 +154,9 @@ class DashboardController extends Controller
     {
         $request->validate(['factory' => 'required|string', 'shift' => 'required|in:A,B']);
         $request->session()->put('factory', $request->factory);
-        $request->session()->put('shift',   $request->shift);
-        if ($request->wantsJson()) return response()->json(['ok' => true]);
+        $request->session()->put('shift', $request->shift);
+        if ($request->wantsJson())
+            return response()->json(['ok' => true]);
         return back();
     }
 
@@ -144,7 +165,7 @@ class DashboardController extends Controller
     // =========================================================================
 
     /**
-     * ══ SINGLE SOURCE OF TRUTH — status visual per mesin ════════════════════
+     * ══ SINGLE SOURCE OF TRUTH  - status visual per mesin ════════════════════
      *
      * Dipakai untuk: border card, pip dots, status pills, dot kecil.
      *
@@ -160,22 +181,28 @@ class DashboardController extends Controller
     private function getMachineStatuses(string $tanggal, string $factory, string $shift): array
     {
         $replacedMesinList = AssignmentReplacement::where([
-            'tanggal' => $tanggal, 'factory' => $factory, 'shift' => $shift,
+            'tanggal' => $tanggal,
+            'factory' => $factory,
+            'shift' => $shift,
         ])->pluck('target_machine')->toArray();
 
         $openLogsByMachine = ProblemLog::where([
-            'tanggal' => $tanggal, 'factory' => $factory,
-            'shift'   => $shift,   'status'  => 'open',
+            'tanggal' => $tanggal,
+            'factory' => $factory,
+            'shift' => $shift,
+            'status' => 'open',
         ])->whereIn('jenis', ['Machine', 'Material', 'Method'])
-          ->get()
-          ->groupBy('lokasi')
-          ->map(fn($logs) => $logs->pluck('jenis')
-              ->map(fn($j) => strtolower($j))
-              ->unique()->values()->toArray());
+            ->get()
+            ->groupBy('lokasi')
+            ->map(fn($logs) => $logs->pluck('jenis')
+                ->map(fn($j) => strtolower($j))
+                ->unique()->values()->toArray());
 
         $absenMemberIds = AbsenceRecord::where([
-            'tanggal' => $tanggal, 'factory' => $factory,
-            'shift'   => $shift,   'status'  => 'absen',
+            'tanggal' => $tanggal,
+            'factory' => $factory,
+            'shift' => $shift,
+            'status' => 'absen',
         ])->pluck('member_id')->toArray();
 
         $absenMesinSet = collect();
@@ -196,13 +223,16 @@ class DashboardController extends Controller
             }
 
             $logTypes = $openLogsByMachine[$machineName] ?? [];
-            if (in_array('machine',  $logTypes)) $active[] = 'machine';
-            if (in_array('material', $logTypes)) $active[] = 'material';
-            if (in_array('method',   $logTypes)) $active[] = 'method';
+            if (in_array('machine', $logTypes))
+                $active[] = 'machine';
+            if (in_array('material', $logTypes))
+                $active[] = 'material';
+            if (in_array('method', $logTypes))
+                $active[] = 'method';
 
             if (!empty($active)) {
                 $result[$machineName] = [
-                    'status'   => $active[0],
+                    'status' => $active[0],
                     'statuses' => $active,
                 ];
             }
@@ -230,15 +260,17 @@ class DashboardController extends Controller
     private function buildSummary(array $machineStatuses, string $tanggal, string $factory, string $shift): array
     {
         $machinesForTotal = $this->factoryConfig->getAllMachines($factory, excludeKeyPersons: true);
-        $total            = count($machinesForTotal);
-        $machinesForSet   = array_flip($machinesForTotal);
+        $total = count($machinesForTotal);
+        $machinesForSet = array_flip($machinesForTotal);
 
         // ── MAN: hitung semua mesin yang ada absennya (termasuk sudah digantikan) ──
-        // Query langsung — tidak tergantung pada $machineStatuses yang hanya
+        // Query langsung  - tidak tergantung pada $machineStatuses yang hanya
         // menyimpan 'man' untuk yang belum digantikan.
         $absenMemberIds = AbsenceRecord::where([
-            'tanggal' => $tanggal, 'factory' => $factory,
-            'shift'   => $shift,   'status'  => 'absen',
+            'tanggal' => $tanggal,
+            'factory' => $factory,
+            'shift' => $shift,
+            'status' => 'absen',
         ])->pluck('member_id')->toArray();
 
         $man = 0;
@@ -256,15 +288,25 @@ class DashboardController extends Controller
         $problemSet = [];
 
         foreach ($machineStatuses as $machineName => $s) {
-            if (!isset($machinesForSet[$machineName])) continue;
+            if (!isset($machinesForSet[$machineName]))
+                continue;
 
-            if (in_array('machine',  $s['statuses'])) { $machine++; $problemSet[$machineName] = true; }
-            if (in_array('material', $s['statuses'])) { $material++; $problemSet[$machineName] = true; }
-            if (in_array('method',   $s['statuses'])) { $method++;   $problemSet[$machineName] = true; }
+            if (in_array('machine', $s['statuses'])) {
+                $machine++;
+                $problemSet[$machineName] = true;
+            }
+            if (in_array('material', $s['statuses'])) {
+                $material++;
+                $problemSet[$machineName] = true;
+            }
+            if (in_array('method', $s['statuses'])) {
+                $method++;
+                $problemSet[$machineName] = true;
+            }
         }
 
         $problem = $machine + $material + $method;
-        $normal  = $total - count($problemSet);
+        $normal = $total - count($problemSet);
 
         return compact('total', 'normal', 'man', 'machine', 'material', 'method', 'problem');
     }
@@ -281,9 +323,12 @@ class DashboardController extends Controller
      */
     private function calcStatusLevel(int $totalMan, int $problemMC, int $openLogs): int
     {
-        if ($totalMan >= 4 || $problemMC >= 2 || $openLogs >= 3) return 3; // BAHAYA
-        if ($totalMan >= 2 || $problemMC >= 1 || $openLogs >= 1) return 2; // KHUSUS
-        if ($totalMan === 1)                                      return 1; // RINGAN
+        if ($totalMan >= 4 || $problemMC >= 2 || $openLogs >= 3)
+            return 3; // BAHAYA
+        if ($totalMan >= 2 || $problemMC >= 1 || $openLogs >= 1)
+            return 2; // KHUSUS
+        if ($totalMan === 1)
+            return 1; // RINGAN
         return 0;                                                            // AMAN
     }
 }

@@ -1,0 +1,416 @@
+name: User
+description: |-
+
+  APIs for managing User.
+endpoints:
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: api/users
+    metadata:
+      custom: []
+      groupName: User
+      groupDescription: |-
+
+        APIs for managing User.
+      subgroup: ''
+      subgroupDescription: ''
+      title: ''
+      description: ''
+      authenticated: true
+      deprecated: false
+    headers:
+      X-App-Secret: '{HMAC_SHA256_TOKEN}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 401
+        content: '{"message":"Unauthenticated."}'
+        headers:
+          cache-control: 'no-cache, private'
+          content-type: application/json
+          access-control-allow-origin: '*'
+          set-cookie: 'henkaten-session=eyJpdiI6InYzU1BnUmFjeERLWWhHTlh1Y0dNREE9PSIsInZhbHVlIjoiUmxxOHhlZUd0ajFZa0NpYkVHcGNCM0JRMVZiNEFnMTVjMEUwOHRMYWxXeUUxMmtlR2dYRWNRU2Q1eHcxR2FYTEJtV1hqbjk0RUNCUm00TDhxQVA4dnd4dnZoT0JId3NJTjhWdkgwcjM0RmRGOVEzWUVHay9YK2VIUW95SEt0OGciLCJtYWMiOiI4MDU3YjZkMGQ3NTBhYjRjODEwNDQwYzE5YjQ4NjgwZTZmN2JjODE4ZDI0MzdmM2Q3N2U1NDFjMmM3YjVhZjBmIiwidGFnIjoiIn0%3D; expires=Wed, 20 May 2026 07:58:46 GMT; Max-Age=7200; path=/; httponly; samesite=lax'
+        description: null
+    responseFields: []
+    auth:
+      - headers
+      - X-App-Secret
+      - a50876f597456c68eeac891dc55ed31c46a4deaea8baba84c0641a1efea6c38b
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: 'api/users/{user_id}'
+    metadata:
+      custom: []
+      groupName: User
+      groupDescription: |-
+
+        APIs for managing User.
+      subgroup: ''
+      subgroupDescription: ''
+      title: ''
+      description: ''
+      authenticated: true
+      deprecated: false
+    headers:
+      X-App-Secret: '{HMAC_SHA256_TOKEN}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      user_id:
+        custom: []
+        name: user_id
+        description: 'The ID of the user.'
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      user_id: 1
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 401
+        content: '{"message":"Unauthenticated."}'
+        headers:
+          cache-control: 'no-cache, private'
+          content-type: application/json
+          access-control-allow-origin: '*'
+          set-cookie: 'henkaten-session=eyJpdiI6IkZ6R1hzVjdCRXdWV2RkWG8vVXh3dXc9PSIsInZhbHVlIjoiUlF3T0YzUXN4TXRvU1RVVnM4dmlNTVlQM1BjUjdGQzNwdnExU0N2cHdQR1cvcFNERUlqK1V0a1o1WGdyY1FVUzdnZ0Irc3BsYTZna0RzZGhkUVRURzJkOFJvbWdBQ1JOMjBxak5FVGlMRktjdEYwUnB0RDY3OWJJZ0x4VmJkOXgiLCJtYWMiOiJhNTE5ODJlMDViMWNkNzAxNjhjYzc0MDQyYzU4ZTcyMzUzOTQ3YzRiMTgxODg1NDE5MGNlN2MzYjBhNWIyNzNiIiwidGFnIjoiIn0%3D; expires=Wed, 20 May 2026 07:58:46 GMT; Max-Age=7200; path=/; httponly; samesite=lax'
+        description: null
+    responseFields: []
+    auth:
+      - headers
+      - X-App-Secret
+      - a50876f597456c68eeac891dc55ed31c46a4deaea8baba84c0641a1efea6c38b
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: api/users
+    metadata:
+      custom: []
+      groupName: User
+      groupDescription: |-
+
+        APIs for managing User.
+      subgroup: ''
+      subgroupDescription: ''
+      title: ''
+      description: ''
+      authenticated: true
+      deprecated: false
+    headers:
+      X-App-Secret: '{HMAC_SHA256_TOKEN}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      name:
+        custom: []
+        name: name
+        description: 'Must not be greater than 100 characters.'
+        required: true
+        example: b
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      username:
+        custom: []
+        name: username
+        description: 'Must contain only letters, numbers, dashes and underscores. Must not be greater than 50 characters.'
+        required: true
+        example: 'n'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      password:
+        custom: []
+        name: password
+        description: 'Must be at least 6 characters.'
+        required: true
+        example: '|{+-0pBNvYgx'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      role:
+        custom: []
+        name: role
+        description: ''
+        required: true
+        example: architecto
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      factory:
+        custom: []
+        name: factory
+        description: ''
+        required: false
+        example: null
+        type: object
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      shift:
+        custom: []
+        name: shift
+        description: ''
+        required: false
+        example: null
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+    cleanBodyParameters:
+      name: b
+      username: 'n'
+      password: '|{+-0pBNvYgx'
+      role: architecto
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 401
+        content: '{"message":"Unauthenticated."}'
+        headers:
+          cache-control: 'no-cache, private'
+          content-type: application/json
+          access-control-allow-origin: '*'
+          set-cookie: 'henkaten-session=eyJpdiI6InVlcTNYdXpEd2dUY3B2YmNjaU1sUlE9PSIsInZhbHVlIjoiVjdleHJyZTNlMmxtTGZHK0FHNXUxbXVtL2Z5WE9lck5oZDFCSk5rZXlPZmFtOXUxenFIdWNZZ0w2cngwYXJ4QjRyR04va3loeHNrUlNEYyswU2JvRHJWSm50aUs1b1pja2lDUDNzcjNia2IxWGQrZHJiWVdwUzVOcFV3Nm0rTGoiLCJtYWMiOiI2ZjQ3NDE4ZDQ4ZWY2OTY2OWVkOTE4YWQ1ZWY3Yzc3ZDEwYWJlZDM1YjgzYTFhZDljMTEzODgzNmY0MjM1ZGNhIiwidGFnIjoiIn0%3D; expires=Wed, 20 May 2026 07:58:46 GMT; Max-Age=7200; path=/; httponly; samesite=lax'
+        description: null
+    responseFields: []
+    auth:
+      - headers
+      - X-App-Secret
+      - a50876f597456c68eeac891dc55ed31c46a4deaea8baba84c0641a1efea6c38b
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - PUT
+    uri: 'api/users/{user_id}'
+    metadata:
+      custom: []
+      groupName: User
+      groupDescription: |-
+
+        APIs for managing User.
+      subgroup: ''
+      subgroupDescription: ''
+      title: ''
+      description: ''
+      authenticated: true
+      deprecated: false
+    headers:
+      X-App-Secret: '{HMAC_SHA256_TOKEN}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      user_id:
+        custom: []
+        name: user_id
+        description: 'The ID of the user.'
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      user_id: 1
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      name:
+        custom: []
+        name: name
+        description: 'Must not be greater than 100 characters.'
+        required: true
+        example: b
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      username:
+        custom: []
+        name: username
+        description: 'Must contain only letters, numbers, dashes and underscores. Must not be greater than 50 characters.'
+        required: true
+        example: 'n'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      role:
+        custom: []
+        name: role
+        description: ''
+        required: true
+        example: architecto
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      password:
+        custom: []
+        name: password
+        description: 'Must be at least 6 characters.'
+        required: false
+        example: ']|{+-0pBNvYg'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      factory:
+        custom: []
+        name: factory
+        description: ''
+        required: false
+        example: null
+        type: object
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      shift:
+        custom: []
+        name: shift
+        description: ''
+        required: false
+        example: null
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+    cleanBodyParameters:
+      name: b
+      username: 'n'
+      role: architecto
+      password: ']|{+-0pBNvYg'
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 401
+        content: '{"message":"Unauthenticated."}'
+        headers:
+          cache-control: 'no-cache, private'
+          content-type: application/json
+          access-control-allow-origin: '*'
+          set-cookie: 'henkaten-session=eyJpdiI6IjhQa0xGeXV0ZGJkNjQ0bzIxMEl1d2c9PSIsInZhbHVlIjoiWEwzcjc0bWF1czRVcWV4eCtocXdOempKeWw0QjBMWmxHcU5ZSFg0WDR6TTVFS2M4TzhZQzRYdHh0T1lMSmZjS051cjZSSjI0SmpJZWdkb3hDbHR5Y2ZoT3R0R25UdUlPbjlyNHpyZXdsclYxbGtjUGJ1VjFLbG9IRDk2clZIT2IiLCJtYWMiOiI0Y2I4OGJmNThhOTA2MWY0ZGU2OTlhZmNmYmM0OWE1MmVkZmI1MGRiNGI3YmVjZmRiNDdmNGVhNDg2NDYzMTQwIiwidGFnIjoiIn0%3D; expires=Wed, 20 May 2026 07:58:46 GMT; Max-Age=7200; path=/; httponly; samesite=lax'
+        description: null
+    responseFields: []
+    auth:
+      - headers
+      - X-App-Secret
+      - a50876f597456c68eeac891dc55ed31c46a4deaea8baba84c0641a1efea6c38b
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - DELETE
+    uri: 'api/users/{user_id}'
+    metadata:
+      custom: []
+      groupName: User
+      groupDescription: |-
+
+        APIs for managing User.
+      subgroup: ''
+      subgroupDescription: ''
+      title: ''
+      description: ''
+      authenticated: true
+      deprecated: false
+    headers:
+      X-App-Secret: '{HMAC_SHA256_TOKEN}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      user_id:
+        custom: []
+        name: user_id
+        description: 'The ID of the user.'
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      user_id: 1
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 401
+        content: '{"message":"Unauthenticated."}'
+        headers:
+          cache-control: 'no-cache, private'
+          content-type: application/json
+          access-control-allow-origin: '*'
+          set-cookie: 'henkaten-session=eyJpdiI6ImkwUkF5RExhU3NpVmh4dE5vbjlPa0E9PSIsInZhbHVlIjoidjl3aCt6MTJUcVNudWNHUVY0a0p6OXoyYUZxakxpUWlRVmYvajhXUXVacE9DMzJNc0tvKzNaNUlNU1ppdUFZNm44MzlhcW1MT3I1RlYwZERLaERzTHY5MVFISUJxcUYyQ2pzdnNZQldkTjFhVi9xYUNZT1NsR1Yxclh6QzA1MXgiLCJtYWMiOiJjZGMxYzNhZDA1ZGQ2ZTA2OWU1N2UwY2I2MjNlYThhMDM3NmUyZjg4MTNiZDVlNTAyY2E5NTk1MDNiYjgyNDBjIiwidGFnIjoiIn0%3D; expires=Wed, 20 May 2026 07:58:46 GMT; Max-Age=7200; path=/; httponly; samesite=lax'
+        description: null
+    responseFields: []
+    auth:
+      - headers
+      - X-App-Secret
+      - a50876f597456c68eeac891dc55ed31c46a4deaea8baba84c0641a1efea6c38b
+    controller: null
+    method: null
+    route: null
