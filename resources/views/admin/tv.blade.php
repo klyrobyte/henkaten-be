@@ -35,36 +35,72 @@ Header = app-header hijau dari admin.blade, semua komponen konten = copy 1:1 das
     @endphp
     <style>
         :root {
-            --navbar-bg: {{ $navbarBg }};
-            --brand-primary: {{ $primaryColor }};
-            --brand-secondary: {{ $secondaryColor }};
+            --navbar-bg:
+                {{ $navbarBg }}
+            ;
+            --brand-primary:
+                {{ $primaryColor }}
+            ;
+            --brand-secondary:
+                {{ $secondaryColor }}
+            ;
         }
-        
+
         /* Navbar dynamic colors */
-        .app-header { background: var(--navbar-bg) !important; }
-        .tv-footer { background: var(--navbar-bg) !important; }
-        
+        .app-header {
+            background: var(--navbar-bg) !important;
+        }
+
+        .tv-footer {
+            background: var(--navbar-bg) !important;
+        }
+
         /* Brand primary overrides */
-        .section-title-box, .stat-card, .machine-group-title {
+        .section-title-box,
+        .stat-card,
+        .machine-group-title {
             border-color: var(--brand-primary) !important;
         }
-        
-        .machine-group-title { background: var(--brand-primary) !important; }
+
+        .machine-group-title {
+            background: var(--brand-primary) !important;
+        }
 
         /* 1. Dynamic Primary Theme Mapping (TV Mode) */
-        .statusChip { background: var(--brand-primary) !important; color: #fff !important; }
-        .leg-dot[style*="background: #729E3F"], .leg-dot[style*="background:#729E3F"] { background: var(--brand-primary) !important; }
-        
-        .tv-ticker { background: var(--brand-primary) !important; color: #fff !important; }
-        .tv-fs { background: var(--brand-primary) !important; color: #fff !important; }
-        .absen-bar, .absenFill { background: var(--brand-primary) !important; }
+        .statusChip {
+            background: var(--brand-primary) !important;
+            color: #fff !important;
+        }
+
+        .leg-dot[style*="background: #729E3F"],
+        .leg-dot[style*="background:#729E3F"] {
+            background: var(--brand-primary) !important;
+        }
+
+        .tv-ticker {
+            background: var(--brand-primary) !important;
+            color: #fff !important;
+        }
+
+        .tv-fs {
+            background: var(--brand-primary) !important;
+            color: #fff !important;
+        }
+
+        .absen-bar,
+        .absenFill {
+            background: var(--brand-primary) !important;
+        }
 
         /* Glossy Effect */
         @if($themeEffect === 'glossy')
-        .app-header, .tv-footer, .machine-group-title {
-            background-image: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 50%, rgba(0,0,0,0.05) 100%) !important;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.2) !important;
-        }
+            .app-header,
+            .tv-footer,
+            .machine-group-title {
+                background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0) 50%, rgba(0, 0, 0, 0.05) 100%) !important;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+            }
+
         @endif
     </style>
 
@@ -816,7 +852,7 @@ Header = app-header hijau dari admin.blade, semua komponen konten = copy 1:1 das
         }
 
         .tv-body .tv-chart-section .attendance-chart-wrap .absen-fill {
-            background: linear-gradient(90deg, #4caf50, #2e7d32) !important;
+            background: var(--green-light) !important;
             height: 100% !important;
             border-radius: 20px !important;
             display: flex !important;
@@ -911,7 +947,7 @@ Header = app-header hijau dari admin.blade, semua komponen konten = copy 1:1 das
         }
 
         .tv-body .mg-badge {
-            background: rgba(255, 255, 255, .2);
+            background: var(--brand-secondary);
             padding: 2px 8px;
             border-radius: 8px;
             font-size: 11px;
@@ -1477,11 +1513,12 @@ Header = app-header hijau dari admin.blade, semua komponen konten = copy 1:1 das
                 style="height:36px;width:auto;object-fit:contain;flex-shrink:0;" onerror="this.style.display='none'">
             <div style="display:flex;flex-direction:column;line-height:1.2;min-width:0;">
                 <span
-                    style="font-family:'Roboto Condensed',sans-serif;font-weight:900;font-size:25px;letter-spacing:2px;color:#f5a623;text-shadow:0 0 14px rgba(245,166,35,.5);white-space:nowrap;">HENKATEN
+                    style="font-family:'Roboto Condensed',sans-serif;font-weight:900;font-size:25px;letter-spacing:2px;color:#fff;text-shadow:0 0 14px rgba(245,166,35,.5);white-space:nowrap;-webkit-text-stroke: 1px rgba(255, 255, 255, 0.6);">HENKATEN
                     BOARD</span>
                 <span
-                    style="font-family:'Roboto Condensed',sans-serif;font-weight:700;font-size:14px;letter-spacing:1.2px;color:rgba(255,255,255,.85);text-transform:uppercase;white-space:nowrap;">{{ $factory }}
-                    - Resin Injection Departemen</span>
+                    style="font-family:'Roboto Condensed',sans-serif;font-weight:700;font-size:14px;letter-spacing:1.2px;color:rgba(255,255,255,.85);text-transform:uppercase;white-space:nowrap;">
+                    {{ $factory }} @if(!empty($factoryDetails)) - {{ $factoryDetails }} @endif
+                </span>
             </div>
         </div>
 
@@ -1513,13 +1550,8 @@ Header = app-header hijau dari admin.blade, semua komponen konten = copy 1:1 das
             {{-- ── date-bar ── --}}
             <div class="date-bar">
                 <div class="date-label">📅</div>
-                <span
-                    style="font-family:'Roboto Condensed',sans-serif;font-size:15px;font-weight:700;color:#444;flex:1;">
-                    {{ \Carbon\Carbon::parse($tanggal)->isoFormat('dddd, D MMMM YYYY') }}
-                </span>
-                <span
-                    style="background:var(--green-light,#8bc34a);color:#fff;padding:4px 10px;border-radius:20px;font-family:'Roboto Condensed',sans-serif;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;">
-                    🏭 {{ $factory === 'Factory 2' ? 'F2' : 'F3&4' }}
+                <span style="flex:1;font-family:'Roboto Condensed',sans-serif;font-weight:600;font-size:16px;color:#222;letter-spacing:.5px;">
+                    {{ \Carbon\Carbon::parse($tanggal)->format('d / m / Y') }}
                 </span>
             </div>
 
@@ -1670,13 +1702,15 @@ Header = app-header hijau dari admin.blade, semua komponen konten = copy 1:1 das
 
             @php
                 use App\Models\Machine;
+                use App\Models\Member;
 
+                // TOTAL MP: counts active members only — NOT affected by absence/attendance data
                 if ($factory === 'Factory 2') {
-                    $totMpF2 = Machine::where('factory', 'Factory 2')->count();
+                    $totMpF2 = Member::where('factory', 'Factory 2')->where('status', 'active')->count();
                     $totMcF2 = Machine::where('factory', 'Factory 2')->where('status', 'mesin')->count();
                     $totRobotF2 = Machine::where('factory', 'Factory 2')->where('status', 'line')->count();
                 } else {
-                    $totMpF34 = Machine::where('factory', 'Factory 3 & 4')->count();
+                    $totMpF34 = Member::where('factory', 'Factory 3 & 4')->where('status', 'active')->count();
                     $totalMcF34 = Machine::where('factory', 'Factory 3 & 4')->where('status', 'mesin')->count();
                     $totMcF3 = Machine::where('factory', 'Factory 3 & 4')->where('section', 'f3-resin')->where('status', 'mesin')->count();
                     $totMcF4 = Machine::where('factory', 'Factory 3 & 4')->where('section', 'f4-resin')->where('status', 'mesin')->count();

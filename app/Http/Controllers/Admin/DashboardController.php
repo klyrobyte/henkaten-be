@@ -61,6 +61,9 @@ class DashboardController extends Controller
         $shift = $request->session()->get('shift', $user?->shift ?? 'A');
         $tanggal = $request->get('tanggal', today()->toDateString());
 
+        $factoryObj = \App\Models\Factory::where('name', $factory)->first();
+        $factoryDetails = $factoryObj?->detail_departemen;
+
         $machineStatuses = $this->getMachineStatuses($tanggal, $factory, $shift);
         $machineSummary = $this->buildSummary($machineStatuses, $tanggal, $factory, $shift);
 
@@ -94,23 +97,16 @@ class DashboardController extends Controller
 
         $machinePhotos = Machine::where('factory', $factory)->get()->keyBy('name');
 
-        // KODE TOTALMC  - Count only machines with status='mesin' (production machines)
+        // KODE total_mc  - Count only machines with status='mesin' (production machines)
         // Used for initial page load; frontend updates it via API response (buildSummary)
-        $totalMC = Machine::where('factory', $factory)
+        $total_mc = Machine::where('factory', $factory)
             ->where('status', 'mesin')
             ->count();
 
-        $totalMP = AbsenceRecord::where([
-            'tanggal' => $tanggal,
-            'factory' => $factory,
-            'shift' => $shift,
-            'status' => 'hadir',
-        ])->count();
-        if ($totalMP === 0) {
-            $totalMP = Member::where('factory', $factory)
-                ->whereIn('shift', [$shift, 'AB'])
-                ->where('status', 'active')->count();
-        }
+        // TOTAL MP: counts active members only — NOT affected by absence/attendance data
+        $total_mp = Member::where('factory', $factory)
+            ->whereIn('shift', [$shift, 'AB'])
+            ->where('status', 'active')->count();
 
 
         $statuses = collect($machineStatuses)->map(fn($s) => (object) $s);
@@ -134,12 +130,15 @@ class DashboardController extends Controller
             'statuses',
             'members',
             'machinePhotos',
-            'totalMP',
-            'totalMC',
+            'total_mp',
+            'total_mc',
             'factories',
-            'repairDepartments'
-        ));
-    }
+            'repairDepartments',
+            'factoryDetails'
+            ));
+
+            }
+
 
     // =========================================================================
     //  TV MODE
@@ -169,6 +168,9 @@ class DashboardController extends Controller
 
         $shift = $request->get('shift', $request->session()->get('shift', 'A'));
         $tanggal = $request->get('tanggal', today()->toDateString());
+
+        $factoryObj = Factory::where('name', $factory)->first();
+        $factoryDetails = $factoryObj?->detail_departemen;
 
         $machineStatuses = $this->getMachineStatuses($tanggal, $factory, $shift);
         $machineSummary = $this->buildSummary($machineStatuses, $tanggal, $factory, $shift);
@@ -222,6 +224,15 @@ class DashboardController extends Controller
             $factories = $factories->whereIn('name', $allowedFactories);
         }
 
+        // TOTAL MP for TV
+        $total_mp = Member::where('factory', $factory)
+            ->whereIn('shift', [$shift, 'AB'])
+            ->where('status', 'active')->count();
+        
+        $total_mc = Machine::where('factory', $factory)
+            ->where('status', 'mesin')
+            ->count();
+
         // Render view terpisah  - standalone HTML, tidak extend layouts.admin
         return view('admin.tv', compact(
             'factory',
@@ -237,7 +248,10 @@ class DashboardController extends Controller
             'machinePhotos',
             'machinesWithCoordinates',
             'factoryCode',
-            'factories'
+            'factories',
+            'factoryDetails',
+            'total_mp',
+            'total_mc'
         ));
     }
 
@@ -258,6 +272,9 @@ class DashboardController extends Controller
 
         $shift = $request->get('shift', $request->session()->get('shift', 'A'));
         $tanggal = $request->get('tanggal', today()->toDateString());
+
+        $factoryObj = Factory::where('name', $factory)->first();
+        $factoryDetails = $factoryObj?->detail_departemen;
 
         $machineStatuses = $this->getMachineStatuses($tanggal, $factory, $shift);
         $machineSummary = $this->buildSummary($machineStatuses, $tanggal, $factory, $shift);
@@ -289,17 +306,10 @@ class DashboardController extends Controller
         // We keep opened_at on each log entry — the TV JS watches for >4h entries
         // scoped to the current factory+shift (no separate server query needed).
 
-        $totalMP = AbsenceRecord::where([
-            'tanggal' => $tanggal,
-            'factory' => $factory,
-            'shift' => $shift,
-            'status' => 'hadir',
-        ])->count();
-        if ($totalMP === 0) {
-            $totalMP = Member::where('factory', $factory)
-                ->whereIn('shift', [$shift, 'AB'])
-                ->where('status', 'active')->count();
-        }
+        // TOTAL MP: counts active members only — NOT affected by absence/attendance data
+        $total_mp = Member::where('factory', $factory)
+            ->whereIn('shift', [$shift, 'AB'])
+            ->where('status', 'active')->count();
 
         // Live Announcements Array Logic
         $announcements = [];
@@ -382,7 +392,7 @@ class DashboardController extends Controller
             'status_level'     => $statusLevel,
             'summary'          => $machineSummary,
             'absence'          => $absenceSummary,
-            'total_mp'         => $totalMP,
+            'total_mp'         => $total_mp,
             'announcements'    => $announcements,
             'active_problems'  => $activeProblems, // each MC/MM/MT log has `opened_at` for TV watcher
             'updated_at'       => now()->format('H:i:s'),

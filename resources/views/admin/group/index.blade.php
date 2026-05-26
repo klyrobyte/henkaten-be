@@ -364,10 +364,13 @@
                     <div class="gm-card-body">
                         <div class="gm-card-meta">🔗 Slug: {{ $f->slug }}</div>
                         <div class="gm-card-meta">📋 Sections: <strong id="gm-sec-count-{{ $f->id }}"> -</strong></div>
+                        @if($f->detail_departemen)
+                            <div class="gm-card-meta">🏢 Dept: <strong>{{ $f->detail_departemen }}</strong></div>
+                        @endif
                     </div>
                     <div class="gm-card-actions">
                         <button class="gm-act-btn gm-act-edit"
-                            onclick="openGroupModal({{ $f->id }}, '{{ addslashes($f->name) }}', '{{ addslashes($f->short_label) }}', '{{ addslashes($f->gradient) }}')">
+                            onclick="openGroupModal({{ $f->id }}, '{{ addslashes($f->name) }}', '{{ addslashes($f->short_label) }}', '{{ addslashes($f->gradient) }}', '{{ addslashes($f->detail_departemen) }}')">
                             ✏️ Edit
                         </button>
                         <button class="gm-act-btn gm-act-del"
@@ -400,6 +403,11 @@
                 <div class="gm-field">
                     <label>Nama Factory *</label>
                     <input type="text" id="gmName" placeholder="Contoh: Factory 5" autocomplete="off">
+                </div>
+
+                <div class="gm-field">
+                    <label>Detail Departemen</label>
+                    <input type="text" id="gmDetailDept" placeholder="e.g., Resin Injection Departemen" autocomplete="off">
                 </div>
 
                 <div class="gm-field">
@@ -537,7 +545,7 @@
             } catch (e) { /* silent */ }
         });
 
-        function openGroupModal(id = null, name = '', shortLabel = '', gradient = '') {
+        function openGroupModal(id = null, name = '', shortLabel = '', gradient = '', detailDept = '') {
             _gmEditId = id;
             const isEdit = !!id;
             document.getElementById('groupModalTitle').textContent = isEdit ? '✏️ Edit Factory' : '➕ Tambah Factory';
@@ -545,6 +553,7 @@
             document.getElementById('gmName').value = name;
             document.getElementById('gmShortLabel').value = shortLabel;
             document.getElementById('gmGradient').value = gradient;
+            document.getElementById('gmDetailDept').value = detailDept;
             // Reset chip selection, then auto-select matching chip
             document.querySelectorAll('#gmChipGrid .gm-chip').forEach(c => c.classList.remove('active'));
             document.getElementById('gmCustomPickerWrap')?.classList.remove('show');
@@ -558,6 +567,7 @@
             const name = document.getElementById('gmName').value.trim();
             const short = document.getElementById('gmShortLabel').value.trim();
             const grad = document.getElementById('gmGradient').value.trim();
+            const detailDept = document.getElementById('gmDetailDept').value.trim();
 
             if (!name) { showToast('Nama factory tidak boleh kosong.', 'error'); return; }
 
@@ -570,6 +580,7 @@
                 const body = { name };
                 if (short) body.short_label = short;
                 if (grad) body.gradient = grad;
+                if (detailDept) body.detail_departemen = detailDept;
 
                 const res = await fetch(url, {
                     method,

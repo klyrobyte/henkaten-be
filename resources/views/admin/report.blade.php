@@ -513,7 +513,7 @@
         }
 
         .dmb-btn.active {
-            background: #2E7D32;
+            background: #ffffffff;
             color: #fff;
             box-shadow: 0 2px 6px rgba(46, 125, 50, .3);
         }

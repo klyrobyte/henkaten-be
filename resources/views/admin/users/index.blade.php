@@ -270,7 +270,7 @@
             padding: 13px;
             border-radius: 12px;
             border: none;
-            background: #2E7D32;
+            background: var(--brand-primary);
             color: #fff;
             font-family: 'Roboto Condensed', sans-serif;
             font-size: 14px;
