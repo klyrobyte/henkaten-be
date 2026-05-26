@@ -7,7 +7,7 @@
 :root {
    --brand-primary: #2E7D32;
    --brand-secondary: #729E3F;
-   --status-green: #2E7D32;
+   --status-theme: var(--brand-primary);
    --green: var(--brand-primary);
    --green-light: var(--brand-secondary);
    --green-pale: #A4C814;
@@ -663,7 +663,7 @@ body {
 }
 
 .chip-green {
-   background: #2E7D32;
+   background: var(--brand-primary);
    color: #fff;
 }
 
@@ -2794,7 +2794,7 @@ body {
 :root {
    --brand-primary: #2E7D32;
    --brand-secondary: #729E3F;
-   --status-green: #2E7D32;
+   --status-theme: var(--brand-primary);
    --purple: #8e44ad;
 }
 
@@ -2939,7 +2939,7 @@ body {
 
 .mc-status-method {
    background: rgba(114, 158, 63, .15);
-   color: var(--status-green)
+   color: var(--status-theme)
 }
 
 .mc-status-sel {
@@ -3009,7 +3009,7 @@ body {
 }
 
 .log-card.closed {
-   border-left-color: var(--status-green)
+   border-left-color: var(--status-theme)
 }
 
 .log-card-top {
@@ -3045,7 +3045,7 @@ body {
 
 .log-method {
    background: rgba(114, 158, 63, .12);
-   color: var(--status-green)
+   color: var(--status-theme)
 }
 
 .log-status-dot {
@@ -3060,7 +3060,7 @@ body {
 }
 
 .dot-closed {
-   background: var(--status-green)
+   background: var(--status-theme)
 }
 
 .log-time {
@@ -3138,11 +3138,11 @@ body {
 
 .log-btn-close {
    background: rgba(46, 125, 50, .1);
-   color: var(--status-green)
+   color: var(--status-theme)
 }
 
 .log-btn-close:active {
-   background: var(--status-green);
+   background: var(--status-theme);
    color: #fff
 }
 

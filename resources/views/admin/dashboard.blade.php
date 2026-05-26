@@ -30,7 +30,7 @@
         }
 
         .mg-badge {
-            background: rgba(255, 255, 255, .2);
+            background: var(--brand-secondary);
             padding: 2px 8px;
             border-radius: 8px;
             font-size: 10px;
@@ -1349,11 +1349,11 @@
     <div class="section-title">Report Summary</div>
     <div class="summary-grid">
         <div class="summary-card">
-            <div class="s-val" id="sTotalMC">{{ $totalMC }}</div>
+            <div class="s-val" id="sTotalMC">{{ $total_mc }}</div>
             <div class="s-lbl">Total MC</div>
         </div>
         <div class="summary-card">
-            <div class="s-val" id="sTotalMP">{{ $totalMP }}</div>
+            <div class="s-val" id="sTotalMP">{{ $total_mp }}</div>
             <div class="s-lbl">MP Hadir</div>
         </div>
         <div class="summary-card" style="border-bottom-color:var(--red)">

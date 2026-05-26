@@ -34,6 +34,7 @@ class FactoryController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:100|unique:factories,name',
+            'detail_departemen' => 'nullable|string|max:255',
         ]);
 
         $name = trim($request->name);
@@ -47,6 +48,7 @@ class FactoryController extends Controller
             'short_label' => $request->short_label ?? $short,
             'gradient' => $request->gradient ?? 'linear-gradient(135deg,#546e7a,#78909c)',
             'order_index' => $maxOrder + 1,
+            'detail_departemen' => $request->detail_departemen,
         ]);
 
         return response()->json(['ok' => true, 'factory' => $factory], 201);
@@ -57,6 +59,7 @@ class FactoryController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:100|unique:factories,name,' . $factory->id,
+            'detail_departemen' => 'nullable|string|max:255',
         ]);
 
         $name = trim($request->name);
@@ -65,6 +68,7 @@ class FactoryController extends Controller
             'slug' => Factory::makeSlug($name),
             'short_label' => $request->short_label ?? Factory::makeShortLabel($name),
             'gradient' => $request->gradient ?? $factory->gradient,
+            'detail_departemen' => $request->detail_departemen,
         ]);
 
         return response()->json(['ok' => true, 'factory' => $factory->fresh()]);

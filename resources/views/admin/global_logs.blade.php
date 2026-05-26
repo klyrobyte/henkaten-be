@@ -108,7 +108,7 @@
 
         .btn-gl-filter {
             padding: 8px 20px;
-            background: #0f3460;
+            background: var(--brand-primary);
             color: #fff;
             border: none;
             border-radius: 8px;
@@ -161,7 +161,7 @@
         }
 
         .gl-table th {
-            background: #0f3460;
+            background: var(--brand-primary);
             color: #fff;
             padding: 10px 12px;
             font-size: 10px;

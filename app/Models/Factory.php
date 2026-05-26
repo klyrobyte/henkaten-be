@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Factory extends Model
 {
-    protected $fillable = ['name', 'slug', 'short_label', 'gradient', 'order_index'];
+    protected $fillable = ['name', 'slug', 'short_label', 'gradient', 'order_index', 'detail_departemen'];
 
     public function sections(): HasMany
     {

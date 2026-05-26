@@ -70,6 +70,16 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
                  ->middleware('throttle:5,1'); // rate-limit CSV export
         });
 
+    // ── Master Data (Super Admin Only) ───────────────────────────────────────
+    Route::middleware(['role:superadmin', 'global.log'])->prefix('master-data')->name('master-data.')
+        ->group(function () {
+            Route::get('/',              [\App\Http\Controllers\Admin\MasterDataController::class, 'index'])->name('index');
+            Route::get('/{id}',          [\App\Http\Controllers\Admin\MasterDataController::class, 'show'])->name('show');
+            Route::put('/{id}',          [\App\Http\Controllers\Admin\MasterDataController::class, 'update'])->name('update');
+            Route::delete('/delete-all', [\App\Http\Controllers\Admin\MasterDataController::class, 'destroyAll'])->name('destroy-all');
+            Route::delete('/{id}',       [\App\Http\Controllers\Admin\MasterDataController::class, 'destroy'])->name('destroy');
+        });
+
 
     // â”€â”€ Mesin â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     Route::get('machines',          [MachineController::class, 'index'])->name('machines.index');
