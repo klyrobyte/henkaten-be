@@ -85,7 +85,7 @@ body {
    /* 56-64px */
    padding: 0 16px;
    /* 16-20px */
-   background: #1a5c2a !important;
+   background: var(--navbar-bg) !important;
    /* solid dark green */
 }
 
@@ -103,9 +103,11 @@ body {
    width: 36px;
    height: 36px;
    border-radius: 6px;
-   background: rgba(255, 255, 255, 0.1);
+   background: rgba(255, 255, 255, .15);
    border: none;
    padding: 8px;
+   font-size: 20px;
+   color: #fff;
    cursor: pointer;
    display: flex;
    align-items: center;
@@ -115,7 +117,7 @@ body {
 }
 
 .mobile-menu-btn:hover {
-   background: rgba(255, 255, 255, 0.2);
+   background: rgba(255, 255, 255, .15);
 }
 
 .mobile-brand-container {
@@ -597,9 +599,9 @@ body {
 
 /* Default: semua icon gray & faded */
 .status-emot-row .emot-card .emot-icon {
-    filter: grayscale(100%);
-    opacity: 0.35;
-    transition: filter 0.3s ease, opacity 0.3s ease;
+   filter: grayscale(100%);
+   opacity: 0.35;
+   transition: filter 0.3s ease, opacity 0.3s ease;
 }
 
 /* Active state: icon kembali ke warna normal */
@@ -607,8 +609,8 @@ body {
 .status-emot-row .emot-card.active-yellowgreen .emot-icon,
 .status-emot-row .emot-card.active-yellow .emot-icon,
 .status-emot-row .emot-card.active-red .emot-icon {
-    filter: grayscale(0%);
-    opacity: 1;
+   filter: grayscale(0%);
+   opacity: 1;
 }
 
 .emot-card.active-yellowgreen .emot-label {

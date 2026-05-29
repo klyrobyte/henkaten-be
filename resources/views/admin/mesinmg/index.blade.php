@@ -863,7 +863,7 @@
             if (!confirm(`Hapus mesin "${name}"?\n\nAksi ini tidak bisa dibatalkan.`)) return;
 
             try {
-                const res = await fetch(`/api/mesinmg/${id}`, {
+                const res = await fetch(`/admin/mesinmg/${id}`, {
                     method: 'DELETE',
                     headers: {
                         'X-CSRF-TOKEN': CSRF,
