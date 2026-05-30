@@ -7,7 +7,12 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Factory extends Model
 {
-    protected $fillable = ['name', 'slug', 'short_label', 'gradient', 'order_index', 'detail_departemen'];
+    protected $fillable = ['sc_id', 'name', 'slug', 'short_label', 'gradient', 'order_index', 'detail_departemen'];
+
+    public function sc()
+    {
+        return $this->belongsTo(Sc::class, 'sc_id');
+    }
 
     public function sections(): HasMany
     {

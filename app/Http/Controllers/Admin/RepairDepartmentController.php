@@ -18,7 +18,8 @@ class RepairDepartmentController extends Controller
      */
     public function index()
     {
-        $departments = RepairDepartment::orderBy('id')->get();
+        $scId = auth()->user()->sc_id ?? 1;
+        $departments = RepairDepartment::where('sc_id', $scId)->orderBy('id')->get();
         return view('admin.repair_departments.index', compact('departments'));
     }
 
@@ -27,11 +28,13 @@ class RepairDepartmentController extends Controller
      */
     public function store(Request $request)
     {
+        $scId = auth()->user()->sc_id ?? 1;
         $request->validate([
-            'name' => 'required|string|max:100|unique:repair_departments,name',
+            'name' => "required|string|max:100|unique:repair_departments,name,NULL,id,sc_id,{$scId}",
         ]);
 
         $department = RepairDepartment::create([
+            'sc_id' => $scId,
             'name' => trim($request->name),
         ]);
 
@@ -43,8 +46,9 @@ class RepairDepartmentController extends Controller
      */
     public function update(Request $request, RepairDepartment $department)
     {
+        $scId = auth()->user()->sc_id ?? 1;
         $request->validate([
-            'name' => 'required|string|max:100|unique:repair_departments,name,' . $department->id,
+            'name' => "required|string|max:100|unique:repair_departments,name,{$department->id},id,sc_id,{$scId}",
         ]);
 
         $department->update([

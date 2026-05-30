@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Factory;
+use App\Models\Sc;
 use App\Models\Section;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -16,33 +17,59 @@ use Illuminate\Support\Facades\DB;
 class FactoryController extends Controller
 {
     /** GET /admin/group  - management page */
-    public function index()
+    public function index(Request $request)
     {
-        $factories = Factory::orderBy('order_index')->get();
-        return view('admin.group.index', compact('factories'));
+        $user = auth()->user();
+
+        if ($user->isSuperAdmin()) {
+            // Super Admin: show SC dropdown and filter by chosen SC
+            $scs = Sc::orderBy('order_index')->get();
+            // Default to the SC ID from query param, or fall back to SC1
+            $activeSc = (int) ($request->query('sc_id', 1));
+            $factories = Factory::where('sc_id', $activeSc)->orderBy('order_index')->get();
+        } else {
+            // Regular admin: scoped to their own SC only
+            $scs = collect();
+            $activeSc = $user->sc_id ?? 1;
+            $factories = Factory::where('sc_id', $activeSc)->orderBy('order_index')->get();
+        }
+
+        return view('admin.group.index', compact('factories', 'scs', 'activeSc'));
     }
 
     /** GET /admin/api/factories  - list for dropdowns */
     public function apiList()
     {
-        $factories = Factory::orderBy('order_index')->get();
+        $scId = auth()->user()->sc_id ?? 1;
+        $factories = Factory::where('sc_id', $scId)->orderBy('order_index')->get();
         return response()->json(['ok' => true, 'factories' => $factories]);
     }
 
     /** POST /admin/api/factories */
     public function store(Request $request)
     {
+        $user = auth()->user();
+
+        // Super Admin can supply sc_id to create a factory for another SC.
+        // Regular admins are always scoped to their own SC.
+        if ($user->isSuperAdmin() && $request->filled('sc_id')) {
+            $scId = (int) $request->sc_id;
+        } else {
+            $scId = $user->sc_id ?? 1;
+        }
+
         $request->validate([
-            'name' => 'required|string|max:100|unique:factories,name',
+            'name' => "required|string|max:100|unique:factories,name,NULL,id,sc_id,{$scId}",
             'detail_departemen' => 'nullable|string|max:255',
         ]);
 
         $name = trim($request->name);
         $slug = Factory::makeSlug($name);
         $short = Factory::makeShortLabel($name);
-        $maxOrder = Factory::max('order_index') ?? 0;
+        $maxOrder = Factory::where('sc_id', $scId)->max('order_index') ?? 0;
 
         $factory = Factory::create([
+            'sc_id' => $scId,
             'name' => $name,
             'slug' => $slug,
             'short_label' => $request->short_label ?? $short,
@@ -57,8 +84,9 @@ class FactoryController extends Controller
     /** PUT /admin/api/factories/{factory} */
     public function update(Request $request, Factory $factory)
     {
+        $scId = $factory->sc_id;
         $request->validate([
-            'name' => 'required|string|max:100|unique:factories,name,' . $factory->id,
+            'name' => "required|string|max:100|unique:factories,name,{$factory->id},id,sc_id,{$scId}",
             'detail_departemen' => 'nullable|string|max:255',
         ]);
 

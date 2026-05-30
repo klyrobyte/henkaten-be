@@ -38,6 +38,7 @@ class DashboardController extends Controller
         // Resolve factory from session; fall back to user's assigned factory,
         // then to the first factory in DB (never hardcode 'Factory 2').
         $user = Auth::user();
+        $scId = $user->getActiveScId();
         $allowedFactories = (!$user->isSuperAdmin() && !empty($user->factory)) ? (array) $user->factory : [];
 
         $sessionFactory = $request->session()->get('factory');
@@ -50,7 +51,7 @@ class DashboardController extends Controller
 
         $factory = $sessionFactory
             ?? (is_array($user?->factory) ? $user->factory[0] : $user?->factory)
-            ?? Factory::orderBy('order_index')->value('name')
+            ?? Factory::where('sc_id', $scId)->orderBy('order_index')->value('name')
             ?? 'Factory 2'; // absolute last resort
 
         // Final safety check for $factory
@@ -61,19 +62,21 @@ class DashboardController extends Controller
         $shift = $request->session()->get('shift', $user?->shift ?? 'A');
         $tanggal = $request->get('tanggal', today()->toDateString());
 
-        $factoryObj = \App\Models\Factory::where('name', $factory)->first();
+        $factoryObj = \App\Models\Factory::where('sc_id', $scId)->where('name', $factory)->first();
         $factoryDetails = $factoryObj?->detail_departemen;
 
         $machineStatuses = $this->getMachineStatuses($tanggal, $factory, $shift);
         $machineSummary = $this->buildSummary($machineStatuses, $tanggal, $factory, $shift);
 
         $absenceSummary = AbsenceSummary::where([
+            'sc_id' => $scId,
             'tanggal' => $tanggal,
             'factory' => $factory,
             'shift' => $shift,
         ])->first();
 
         $openLogsCount = ProblemLog::where([
+            'sc_id' => $scId,
             'tanggal' => $tanggal,
             'factory' => $factory,
             'shift' => $shift,
@@ -90,21 +93,24 @@ class DashboardController extends Controller
         );
 
         $groups = $this->factoryConfig->buildGroups($factory);
-        $members = Member::where('factory', $factory)
+        $members = Member::where('sc_id', $scId)
+            ->where('factory', $factory)
             ->where('shift', $shift)
             ->where('status', 'active')
             ->orderBy('id')->get();
 
-        $machinePhotos = Machine::where('factory', $factory)->get()->keyBy('name');
+        $machinePhotos = Machine::where('sc_id', $scId)->where('factory', $factory)->get()->keyBy('name');
 
         // KODE total_mc  - Count only machines with status='mesin' (production machines)
         // Used for initial page load; frontend updates it via API response (buildSummary)
-        $total_mc = Machine::where('factory', $factory)
+        $total_mc = Machine::where('sc_id', $scId)
+            ->where('factory', $factory)
             ->where('status', 'mesin')
             ->count();
 
         // TOTAL MP: counts active members only — NOT affected by absence/attendance data
-        $total_mp = Member::where('factory', $factory)
+        $total_mp = Member::where('sc_id', $scId)
+            ->where('factory', $factory)
             ->whereIn('shift', [$shift, 'AB'])
             ->where('status', 'active')->count();
 
@@ -116,7 +122,7 @@ class DashboardController extends Controller
             $factories = $factories->whereIn('name', $allowedFactories);
         }
 
-        $repairDepartments = \App\Models\RepairDepartment::all();
+        $repairDepartments = \App\Models\RepairDepartment::where('sc_id', $scId)->get();
 
         return view('admin.dashboard', compact(
             'factory',
@@ -158,6 +164,7 @@ class DashboardController extends Controller
     {
         // TV mode pakai query-string, bukan session  - bisa beda per tab/TV
         $user = Auth::user();
+        $scId = $user->sc_id ?? 1;
         $allowedFactories = (!$user->isSuperAdmin() && !empty($user->factory)) ? (array) $user->factory : [];
 
         $factory = $request->get('factory', $request->session()->get('factory', 'Factory 2'));
@@ -169,19 +176,21 @@ class DashboardController extends Controller
         $shift = $request->get('shift', $request->session()->get('shift', 'A'));
         $tanggal = $request->get('tanggal', today()->toDateString());
 
-        $factoryObj = Factory::where('name', $factory)->first();
+        $factoryObj = Factory::where('sc_id', $scId)->where('name', $factory)->first();
         $factoryDetails = $factoryObj?->detail_departemen;
 
         $machineStatuses = $this->getMachineStatuses($tanggal, $factory, $shift);
         $machineSummary = $this->buildSummary($machineStatuses, $tanggal, $factory, $shift);
 
         $absenceSummary = AbsenceSummary::where([
+            'sc_id' => $scId,
             'tanggal' => $tanggal,
             'factory' => $factory,
             'shift' => $shift,
         ])->first();
 
         $openLogsCount = ProblemLog::where([
+            'sc_id' => $scId,
             'tanggal' => $tanggal,
             'factory' => $factory,
             'shift' => $shift,
@@ -198,12 +207,13 @@ class DashboardController extends Controller
         );
 
         $groups = $this->factoryConfig->buildGroups($factory);
-        $members = Member::where('factory', $factory)
+        $members = Member::where('sc_id', $scId)
+            ->where('factory', $factory)
             ->where('shift', $shift)
             ->where('status', 'active')
             ->orderBy('id')->get();
 
-        $machinePhotos = Machine::where('factory', $factory)->get()->keyBy('name');
+        $machinePhotos = Machine::where('sc_id', $scId)->where('factory', $factory)->get()->keyBy('name');
         $statuses = collect($machineStatuses)->map(fn($s) => (object) $s);
 
         // Get machines with floor plan coordinates for TV floor plan display
@@ -213,7 +223,8 @@ class DashboardController extends Controller
             str_contains($factory, '2') => 'f2',
             default => strtolower(preg_replace('/[^a-z0-9]/i', '', str_replace('Factory ', 'f', $factory))),
         };
-        $machinesWithCoordinates = Machine::where('factory', $factory)
+        $machinesWithCoordinates = Machine::where('sc_id', $scId)
+            ->where('factory', $factory)
             ->whereNotNull('floor_cx')
             ->whereNotNull('floor_cy')
             ->get();
@@ -225,11 +236,13 @@ class DashboardController extends Controller
         }
 
         // TOTAL MP for TV
-        $total_mp = Member::where('factory', $factory)
+        $total_mp = Member::where('sc_id', $scId)
+            ->where('factory', $factory)
             ->whereIn('shift', [$shift, 'AB'])
             ->where('status', 'active')->count();
         
-        $total_mc = Machine::where('factory', $factory)
+        $total_mc = Machine::where('sc_id', $scId)
+            ->where('factory', $factory)
             ->where('status', 'mesin')
             ->count();
 
@@ -262,6 +275,7 @@ class DashboardController extends Controller
     public function statusApi(Request $request)
     {
         $user = Auth::user();
+        $scId = $user->sc_id ?? 1;
         $allowedFactories = (!$user->isSuperAdmin() && !empty($user->factory)) ? (array) $user->factory : [];
 
         $factory = $request->get('factory', $request->session()->get('factory', 'Factory 2'));
@@ -273,19 +287,21 @@ class DashboardController extends Controller
         $shift = $request->get('shift', $request->session()->get('shift', 'A'));
         $tanggal = $request->get('tanggal', today()->toDateString());
 
-        $factoryObj = Factory::where('name', $factory)->first();
+        $factoryObj = Factory::where('sc_id', $scId)->where('name', $factory)->first();
         $factoryDetails = $factoryObj?->detail_departemen;
 
         $machineStatuses = $this->getMachineStatuses($tanggal, $factory, $shift);
         $machineSummary = $this->buildSummary($machineStatuses, $tanggal, $factory, $shift);
 
         $absenceSummary = AbsenceSummary::where([
+            'sc_id' => $scId,
             'tanggal' => $tanggal,
             'factory' => $factory,
             'shift' => $shift,
         ])->first();
 
         $openLogsCount = ProblemLog::where([
+            'sc_id' => $scId,
             'tanggal' => $tanggal,
             'factory' => $factory,
             'shift' => $shift,
@@ -307,7 +323,8 @@ class DashboardController extends Controller
         // scoped to the current factory+shift (no separate server query needed).
 
         // TOTAL MP: counts active members only — NOT affected by absence/attendance data
-        $total_mp = Member::where('factory', $factory)
+        $total_mp = Member::where('sc_id', $scId)
+            ->where('factory', $factory)
             ->whereIn('shift', [$shift, 'AB'])
             ->where('status', 'active')->count();
 
@@ -315,6 +332,7 @@ class DashboardController extends Controller
         $announcements = [];
 
         $absenRecordsApi = AbsenceRecord::where([
+            'sc_id' => $scId,
             'tanggal' => $tanggal,
             'factory' => $factory,
             'shift' => $shift,
@@ -324,7 +342,7 @@ class DashboardController extends Controller
         $activeProblems = [];
 
         foreach ($absenRecordsApi as $recordApi) {
-            $memberObj = Member::find($recordApi->member_id);
+            $memberObj = Member::where('sc_id', $scId)->find($recordApi->member_id);
             if ($memberObj) {
                 $memberMesin = $memberObj->mesin ?? 'Tidak diketahui';
                 $reason = strtolower($recordApi->reason ?? '');
@@ -357,6 +375,7 @@ class DashboardController extends Controller
         }
 
         $openLogsApi = ProblemLog::where([
+            'sc_id' => $scId,
             'tanggal' => $tanggal,
             'factory' => $factory,
             'shift' => $shift,
@@ -417,6 +436,33 @@ class DashboardController extends Controller
         return back();
     }
 
+    /**
+     * Set the active SC context for SuperAdmin session-based switching.
+     * POST /admin/set-sc
+     * Body: { sc_id: int }
+     */
+    public function setScContext(Request $request)
+    {
+        $user = Auth::user();
+
+        // Only Super Admins may switch SC context
+        if (!$user->isSuperAdmin()) {
+            return response()->json(['error' => 'Forbidden'], 403);
+        }
+
+        $request->validate(['sc_id' => 'required|integer|exists:scs,id']);
+
+        $request->session()->put('active_sc_id', (int) $request->sc_id);
+
+        // Also reset the factory session so dashboard re-resolves to the new SC's first factory
+        $request->session()->forget('factory');
+
+        if ($request->wantsJson()) {
+            return response()->json(['ok' => true, 'active_sc_id' => (int) $request->sc_id]);
+        }
+        return redirect()->route('admin.dashboard');
+    }
+
     public function tvPicker()
     {
         $user = Auth::user();
@@ -451,13 +497,16 @@ class DashboardController extends Controller
      */
     private function getMachineStatuses(string $tanggal, string $factory, string $shift): array
     {
+        $scId = auth()->check() ? auth()->user()->getActiveScId() : 1;
         $replacedMesinList = AssignmentReplacement::where([
+            'sc_id' => $scId,
             'tanggal' => $tanggal,
             'factory' => $factory,
             'shift' => $shift,
         ])->pluck('target_machine')->toArray();
 
         $openLogsByMachine = ProblemLog::where([
+            'sc_id' => $scId,
             'tanggal' => $tanggal,
             'factory' => $factory,
             'shift' => $shift,
@@ -470,6 +519,7 @@ class DashboardController extends Controller
                 ->unique()->values()->toArray());
 
         $absenMemberIds = AbsenceRecord::where([
+            'sc_id' => $scId,
             'tanggal' => $tanggal,
             'factory' => $factory,
             'shift' => $shift,
@@ -478,7 +528,8 @@ class DashboardController extends Controller
 
         $absenMesinSet = collect();
         if (!empty($absenMemberIds)) {
-            $absenMembers = Member::whereIn('id', $absenMemberIds)
+            $absenMembers = Member::where('sc_id', $scId)
+                ->whereIn('id', $absenMemberIds)
                 ->whereNotNull('mesin')
                 ->get();
 
@@ -495,7 +546,7 @@ class DashboardController extends Controller
 
         $result = [];
         // ── Gunakan semua mesin dari DB (bukan hardcoded) ──
-        foreach (Machine::where('factory', $factory)->pluck('name') as $machineName) {
+        foreach (Machine::where('sc_id', $scId)->where('factory', $factory)->pluck('name') as $machineName) {
             $active = [];
 
             // MAN di statuses[] hanya untuk yang belum ada pengganti
@@ -543,9 +594,11 @@ class DashboardController extends Controller
      */
     private function buildSummary(array $machineStatuses, string $tanggal, string $factory, string $shift): array
     {
+        $scId = auth()->check() ? auth()->user()->getActiveScId() : 1;
         // ── Gunakan DB  - hitung HANYA machines dengan status='mesin' (actual production machines) ──
         // Exclude: persons (key persons), lainya (support), mc_vibration (monitoring), dan status lainnya
-        $machinesForTotal = Machine::where('factory', $factory)
+        $machinesForTotal = Machine::where('sc_id', $scId)
+            ->where('factory', $factory)
             ->where('status', 'mesin')
             ->pluck('name')
             ->toArray();
@@ -554,6 +607,7 @@ class DashboardController extends Controller
 
         // ── MAN: hitung JUMLAH ORANG yang absen (bukan per mesin) ──
         $man = AbsenceRecord::where([
+            'sc_id' => $scId,
             'tanggal' => $tanggal,
             'factory' => $factory,
             'shift' => $shift,
@@ -562,6 +616,7 @@ class DashboardController extends Controller
 
         // ── MACHINE / MATERIAL / METHOD: hitung per LAPORAN open (bukan per mesin) ──
         $openLogCounts = ProblemLog::where([
+            'sc_id' => $scId,
             'tanggal' => $tanggal,
             'factory' => $factory,
             'shift' => $shift,
@@ -627,7 +682,9 @@ class DashboardController extends Controller
      */
     private function calcKyTotalCount(string $factory, string $shift): int
     {
-        return Member::where('factory', $factory)
+        $scId = auth()->check() ? auth()->user()->getActiveScId() : 1;
+        return Member::where('sc_id', $scId)
+            ->where('factory', $factory)
             ->whereIn('shift', [$shift, 'AB'])
             ->where('status', 'active')
             ->where(function ($q) {

@@ -22,7 +22,8 @@ class LogController extends Controller
     public function index(Request $request)
     {
         $user = Auth::user();
-        $factory = $request->session()->get('factory', 'Factory 2');
+        $scId = $user->sc_id ?? 1;
+        $factory = $request->session()->get('factory', \App\Models\Factory::where('sc_id', $scId)->orderBy('order_index')->value('name') ?? 'Factory 2');
 
         if (!$user->isSuperAdmin() && !empty($user->factory)) {
             $allowedFactories = (array) $user->factory;
@@ -35,13 +36,14 @@ class LogController extends Controller
         $tanggal = $request->get('tanggal', today()->toDateString());
 
         $logs = ProblemLog::where([
+            'sc_id' => $scId,
             'tanggal' => $tanggal,
             'factory' => $factory,
             'shift' => $shift,
         ])->latest()->get();
 
         $mesinList = $this->factoryConfig->getAllMachines($factory);
-        $repairDepartments = \App\Models\RepairDepartment::all();
+        $repairDepartments = \App\Models\RepairDepartment::where('sc_id', $scId)->get();
 
         return view('admin.log', compact('logs', 'mesinList', 'factory', 'shift', 'tanggal', 'repairDepartments'));
     }
@@ -49,6 +51,7 @@ class LogController extends Controller
     public function store(Request $request)
     {
         $user = Auth::user();
+        $scId = $user->sc_id ?? 1;
         if (!$user->isSuperAdmin() && !empty($user->factory)) {
             $allowedFactories = (array) $user->factory;
             if (!in_array($request->factory, $allowedFactories)) {
@@ -83,6 +86,7 @@ class LogController extends Controller
         }
 
         $log = ProblemLog::create([
+            'sc_id' => $scId,
             'tanggal' => $request->tanggal,
             'factory' => $request->factory,
             'shift' => $request->shift,
@@ -110,6 +114,12 @@ class LogController extends Controller
     public function close(Request $request, ProblemLog $log)
     {
         $user = Auth::user();
+        $scId = $user->sc_id ?? 1;
+
+        if ($log->sc_id != $scId) {
+             return response()->json(['ok' => false, 'message' => 'Unauthorized SC access.'], 403);
+        }
+
         if (!$user->isSuperAdmin() && !empty($user->factory)) {
             if (!in_array($log->factory, (array) $user->factory)) {
                 return response()->json(['ok' => false, 'message' => 'Unauthorized'], 403);
@@ -142,6 +152,12 @@ class LogController extends Controller
     public function reopen(ProblemLog $log)
     {
         $user = Auth::user();
+        $scId = $user->sc_id ?? 1;
+
+        if ($log->sc_id != $scId) {
+             return response()->json(['ok' => false, 'message' => 'Unauthorized SC access.'], 403);
+        }
+
         if (!$user->isSuperAdmin() && !empty($user->factory)) {
             if (!in_array($log->factory, (array) $user->factory)) {
                 return response()->json(['ok' => false, 'message' => 'Unauthorized'], 403);
@@ -160,6 +176,12 @@ class LogController extends Controller
     public function update(Request $request, ProblemLog $log)
     {
         $user = Auth::user();
+        $scId = $user->sc_id ?? 1;
+
+        if ($log->sc_id != $scId) {
+             return response()->json(['ok' => false, 'message' => 'Unauthorized SC access.'], 403);
+        }
+
         if (!$user->isSuperAdmin() && !empty($user->factory)) {
             if (!in_array($log->factory, (array) $user->factory)) {
                 return response()->json(['ok' => false, 'message' => 'Unauthorized'], 403);
@@ -188,6 +210,12 @@ class LogController extends Controller
     public function destroy(ProblemLog $log)
     {
         $user = Auth::user();
+        $scId = $user->sc_id ?? 1;
+
+        if ($log->sc_id != $scId) {
+             return response()->json(['ok' => false, 'message' => 'Unauthorized SC access.'], 403);
+        }
+
         if (!$user->isSuperAdmin() && !empty($user->factory)) {
             if (!in_array($log->factory, (array) $user->factory)) {
                 return response()->json(['ok' => false, 'message' => 'Unauthorized'], 403);
@@ -201,6 +229,7 @@ class LogController extends Controller
     public function list(Request $request)
     {
         $user = Auth::user();
+        $scId = $user->sc_id ?? 1;
         $factory = $request->factory;
 
         if (!$user->isSuperAdmin() && !empty($user->factory)) {
@@ -210,7 +239,7 @@ class LogController extends Controller
             }
         }
 
-        $query = ProblemLog::where('factory', $factory);
+        $query = ProblemLog::where('sc_id', $scId)->where('factory', $factory);
 
         if ($request->has('history') && $request->history === '3months') {
             // TV Mode: All active (open) for factory + closed for last 3 months
@@ -249,6 +278,7 @@ class LogController extends Controller
     public function combined(Request $request)
     {
         $user = Auth::user();
+        $scId = $user->sc_id ?? 1;
         $factory = $request->factory;
 
         if (!$user->isSuperAdmin() && !empty($user->factory)) {
@@ -263,7 +293,7 @@ class LogController extends Controller
         $startDate = now()->subMonths(2)->startOfMonth()->toDateString();
 
         // ── 3M Problem Logs ──────────────────────────────────────────────
-        $logQuery = ProblemLog::where('factory', $factory)->whereIn('jenis', ['Machine', 'Material', 'Method']);
+        $logQuery = ProblemLog::where('sc_id', $scId)->where('factory', $factory)->whereIn('jenis', ['Machine', 'Material', 'Method']);
 
         if ($isTvMode) {
             $logQuery->where(function ($q) use ($startDate) {
@@ -293,8 +323,8 @@ class LogController extends Controller
         ]);
 
         // ── Man (Absen) rows ─────────────────────────────────────────────
-        $absenQuery = \App\Models\AbsenceRecord::where('factory', $factory)->where('status', 'absen');
-        $replQuery = \App\Models\AssignmentReplacement::where('factory', $factory)->with('member');
+        $absenQuery = \App\Models\AbsenceRecord::where('sc_id', $scId)->where('factory', $factory)->where('status', 'absen');
+        $replQuery = \App\Models\AssignmentReplacement::where('sc_id', $scId)->where('factory', $factory)->with('member');
 
         if ($isTvMode) {
             // For TV mode, we need open absences (today only? or any day? absences usually reset daily)
@@ -320,7 +350,7 @@ class LogController extends Controller
 
         $absenRows = collect();
         foreach ($absenRecords as $record) {
-            $member = \App\Models\Member::find($record->member_id);
+            $member = \App\Models\Member::where('sc_id', $scId)->find($record->member_id);
             if (!$member)
                 continue;
 

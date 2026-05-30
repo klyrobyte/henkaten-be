@@ -17,30 +17,34 @@ class StatusController extends Controller
     /** GET /admin/status  - management page */
     public function index()
     {
-        $statuses = Status::orderBy('order_index')->get();
+        $scId = auth()->user()->sc_id ?? 1;
+        $statuses = Status::where('sc_id', $scId)->orderBy('order_index')->get();
         return view('admin.status.index', compact('statuses'));
     }
 
     /** GET /admin/api/statuses */
     public function apiList()
     {
-        $statuses = Status::orderBy('order_index')->get();
+        $scId = auth()->user()->sc_id ?? 1;
+        $statuses = Status::where('sc_id', $scId)->orderBy('order_index')->get();
         return response()->json(['ok' => true, 'statuses' => $statuses]);
     }
 
     /** POST /admin/api/statuses */
     public function store(Request $request)
     {
+        $scId = auth()->user()->sc_id ?? 1;
         $request->validate([
-            'key' => 'required|string|max:50|unique:statuses,key',
+            'key' => "required|string|max:50|unique:statuses,key,NULL,id,sc_id,{$scId}",
             'label' => 'required|string|max:100',
             'icon' => 'nullable|string|max:10',
             'color' => 'nullable|string|max:30',
         ]);
 
-        $maxOrder = Status::max('order_index') ?? 0;
+        $maxOrder = Status::where('sc_id', $scId)->max('order_index') ?? 0;
 
         $status = Status::create([
+            'sc_id' => $scId,
             'key' => strtolower(trim($request->key)),
             'label' => $request->label,
             'icon' => $request->icon ?? '⚙️',
@@ -54,8 +58,9 @@ class StatusController extends Controller
     /** PUT /admin/api/statuses/{status} */
     public function update(Request $request, Status $status)
     {
+        $scId = auth()->user()->sc_id ?? 1;
         $request->validate([
-            'key' => 'required|string|max:50|unique:statuses,key,' . $status->id,
+            'key' => "required|string|max:50|unique:statuses,key,{$status->id},id,sc_id,{$scId}",
             'label' => 'required|string|max:100',
             'icon' => 'nullable|string|max:10',
             'color' => 'nullable|string|max:30',

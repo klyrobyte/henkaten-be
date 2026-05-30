@@ -6,5 +6,5 @@ use Illuminate\Database\Eloquent\Model;
 
 class Status extends Model
 {
-    protected $fillable = ['key', 'label', 'icon', 'color', 'order_index'];
+    protected $fillable = ['sc_id', 'key', 'label', 'icon', 'color', 'order_index'];
 }

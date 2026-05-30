@@ -16,6 +16,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class DailyAssignment extends Model
 {
     protected $fillable = [
+        'sc_id',
         'tanggal',
         'factory',
         'shift',
@@ -67,7 +68,9 @@ class DailyAssignment extends Model
      */
     public static function toAssignmentsArray(string $tanggal, string $factory, string $shift): array
     {
+        $scId = auth()->check() ? (auth()->user()->sc_id ?? 1) : 1;
         $rows = static::where([
+            'sc_id' => $scId,
             'tanggal' => $tanggal,
             'factory' => $factory,
             'shift' => $shift,

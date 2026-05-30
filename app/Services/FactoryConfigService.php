@@ -23,7 +23,8 @@ class FactoryConfigService
      */
     public function getSectionConfig(string $factory): array
     {
-        $factoryModel = Factory::where('name', $factory)->first();
+        $scId = auth()->check() ? (auth()->user()->sc_id ?? 1) : 1;
+        $factoryModel = Factory::where('sc_id', $scId)->where('name', $factory)->first();
         if (!$factoryModel)
             return [];
 
@@ -134,7 +135,8 @@ class FactoryConfigService
      */
     public function getFactories(): array
     {
-        return Factory::orderBy('order_index')->pluck('name')->toArray();
+        $scId = auth()->check() ? (auth()->user()->sc_id ?? 1) : 1;
+        return Factory::where('sc_id', $scId)->orderBy('order_index')->pluck('name')->toArray();
     }
 
     /**
@@ -142,6 +144,7 @@ class FactoryConfigService
      */
     public function getFactoryObjects(): \Illuminate\Support\Collection
     {
-        return Factory::orderBy('order_index')->get();
+        $scId = auth()->check() ? (auth()->user()->sc_id ?? 1) : 1;
+        return Factory::where('sc_id', $scId)->orderBy('order_index')->get();
     }
 }

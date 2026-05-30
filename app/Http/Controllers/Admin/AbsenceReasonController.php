@@ -10,26 +10,33 @@ class AbsenceReasonController extends Controller
 {
     public function index()
     {
-        $reasons = AbsenceReason::orderBy('name')->get();
+        $scId = auth()->user()->sc_id ?? 1;
+        $reasons = AbsenceReason::where('sc_id', $scId)->orderBy('name')->get();
         return view('admin.absence_reasons.index', compact('reasons'));
     }
 
     public function store(Request $request)
     {
+        $scId = auth()->user()->sc_id ?? 1;
         $request->validate([
-            'name' => 'required|string|unique:absence_reasons,name',
+            'name' => "required|string|unique:absence_reasons,name,NULL,id,sc_id,{$scId}",
             'color' => 'required|string',
         ]);
 
-        AbsenceReason::create($request->only(['name', 'color']));
+        AbsenceReason::create([
+            'sc_id' => $scId,
+            'name' => $request->name,
+            'color' => $request->color,
+        ]);
 
         return back()->with('success', 'Alasan absen berhasil ditambahkan');
     }
 
     public function update(Request $request, AbsenceReason $absenceReason)
     {
+        $scId = auth()->user()->sc_id ?? 1;
         $request->validate([
-            'name' => 'required|string|unique:absence_reasons,name,' . $absenceReason->id,
+            'name' => "required|string|unique:absence_reasons,name,{$absenceReason->id},id,sc_id,{$scId}",
             'color' => 'required|string',
         ]);
 

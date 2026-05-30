@@ -21,7 +21,8 @@ class SectionController extends Controller
     public function index()
     {
         $user = Auth::user();
-        $query = Factory::orderBy('order_index')->with('sections');
+        $scId = $user->sc_id ?? 1;
+        $query = Factory::where('sc_id', $scId)->orderBy('order_index')->with('sections');
 
         if (!$user->isSuperAdmin()) {
             $allowedFactories = (array) $user->factory;
@@ -36,7 +37,10 @@ class SectionController extends Controller
     public function apiList(Request $request)
     {
         $user = Auth::user();
-        $query = Section::orderBy('order_index');
+        $scId = $user->sc_id ?? 1;
+        $query = Section::whereHas('factory', function($q) use ($scId) {
+            $q->where('sc_id', $scId);
+        })->orderBy('order_index');
 
         if (!$user->isSuperAdmin()) {
             $allowedFactories = (array) $user->factory;
@@ -53,7 +57,7 @@ class SectionController extends Controller
             if (!$user->isSuperAdmin() && !in_array($request->factory_name, (array) $user->factory)) {
                 return response()->json(['ok' => true, 'sections' => []]);
             }
-            $factory = Factory::where('name', $request->factory_name)->first();
+            $factory = Factory::where('sc_id', $scId)->where('name', $request->factory_name)->first();
             if ($factory) {
                 $query->where('factory_id', $factory->id);
             }

@@ -36,7 +36,8 @@ class ReportController extends Controller
     public function index(Request $request)
     {
         $user = Auth::user();
-        $factories = $this->factoryConfig->getFactoryObjects();
+        $scId = $user->sc_id ?? 1;
+        $factories = Factory::where('sc_id', $scId)->orderBy('order_index')->get();
 
         if (!$user->isSuperAdmin()) {
             $allowedFactories = (array) $user->factory;
@@ -88,7 +89,8 @@ class ReportController extends Controller
         $isRange = ($dari !== $sampai); // true for month/rentang multi-day
 
         // ── Problem Logs (supports range) ─────────────────────────────
-        $logsQuery = ProblemLog::where('factory', $factory)
+        $logsQuery = ProblemLog::where('sc_id', $scId)
+            ->where('factory', $factory)
             ->where('shift', $shift)
             ->whereIn('jenis', $jenisList)
             ->whereBetween('tanggal', [$dari, $sampai])
@@ -99,6 +101,7 @@ class ReportController extends Controller
 
         // ── Absences (for display  - use first day or aggregate) ───────
         $absenceSummary = AbsenceSummary::where([
+            'sc_id' => $scId,
             'tanggal' => $tanggal,
             'factory' => $factory,
             'shift' => $shift,
@@ -108,7 +111,8 @@ class ReportController extends Controller
             ? $this->getAbsenDetailRange($dari, $sampai, $factory, $shift)
             : $this->getAbsenDetail($tanggal, $factory, $shift);
 
-        $replacements = AssignmentReplacement::where('factory', $factory)
+        $replacements = AssignmentReplacement::where('sc_id', $scId)
+            ->where('factory', $factory)
             ->where('shift', $shift)
             ->whereBetween('tanggal', [$dari, $sampai])
             ->with('member')
@@ -142,7 +146,8 @@ class ReportController extends Controller
     public function exportExcel(Request $request)
     {
         $user = Auth::user();
-        $factories = $this->factoryConfig->getFactoryObjects();
+        $scId = $user->sc_id ?? 1;
+        $factories = Factory::where('sc_id', $scId)->orderBy('order_index')->get();
 
         if (!$user->isSuperAdmin()) {
             $allowedFactories = (array) $user->factory;
@@ -186,13 +191,15 @@ class ReportController extends Controller
         $jenisList = $this->getDynamicJenis();
 
         $logs = ProblemLog::where([
+            'sc_id' => $scId,
             'factory' => $factory,
             'shift' => $shift,
         ])->whereBetween('tanggal', [$dari, $sampai])
             ->whereIn('jenis', $jenisList)
             ->orderBy('waktu_mulai')->get();
 
-        $members = Member::where('factory', $factory)
+        $members = Member::where('sc_id', $scId)
+            ->where('factory', $factory)
             ->whereIn('shift', [$shift, 'AB'])
             ->where('status', 'active')
             ->orderBy('nama')
@@ -200,6 +207,7 @@ class ReportController extends Controller
 
         // For absences in a range, we grab only 'absen' records so they aren't overwritten by 'hadir' when keyed by member_id
         $recordsQuery = AbsenceRecord::where([
+            'sc_id' => $scId,
             'factory' => $factory,
             'shift' => $shift,
         ])->whereBetween('tanggal', [$dari, $sampai]);
@@ -210,6 +218,7 @@ class ReportController extends Controller
         $records = $recordsQuery->get()->keyBy('member_id');
 
         $replacements = AssignmentReplacement::where([
+            'sc_id' => $scId,
             'factory' => $factory,
             'shift' => $shift,
         ])->whereBetween('tanggal', [$dari, $sampai])->with('member')->get();
@@ -237,7 +246,8 @@ class ReportController extends Controller
     public function exportJson(Request $request)
     {
         $user = Auth::user();
-        $factories = $this->factoryConfig->getFactoryObjects();
+        $scId = $user->sc_id ?? 1;
+        $factories = Factory::where('sc_id', $scId)->orderBy('order_index')->get();
 
         if (!$user->isSuperAdmin()) {
             $allowedFactories = (array) $user->factory;
@@ -277,19 +287,19 @@ class ReportController extends Controller
 
         $jenisList = $this->getDynamicJenis();
 
-        $logs = ProblemLog::where(['factory' => $factory, 'shift' => $shift])
+        $logs = ProblemLog::where(['sc_id' => $scId, 'factory' => $factory, 'shift' => $shift])
             ->whereBetween('tanggal', [$dari, $sampai])
             ->whereIn('jenis', $jenisList)->get();
 
         // Use the first record if multi-day, or compute average. For simplicity, just get one if exists
-        $absenceSummary = AbsenceSummary::where(['factory' => $factory, 'shift' => $shift])
+        $absenceSummary = AbsenceSummary::where(['sc_id' => $scId, 'factory' => $factory, 'shift' => $shift])
             ->whereBetween('tanggal', [$dari, $sampai])->first();
 
         $absenMembers = $dari === $sampai
             ? $this->getAbsenDetail($dari, $factory, $shift)
             : $this->getAbsenDetailRange($dari, $sampai, $factory, $shift);
 
-        $replacements = AssignmentReplacement::where(['factory' => $factory, 'shift' => $shift])
+        $replacements = AssignmentReplacement::where(['sc_id' => $scId, 'factory' => $factory, 'shift' => $shift])
             ->whereBetween('tanggal', [$dari, $sampai])->get();
 
         $payload = [
@@ -311,26 +321,30 @@ class ReportController extends Controller
 
     private function getAbsenDetail(string $tanggal, string $factory, string $shift)
     {
+        $scId = Auth::user()->sc_id ?? 1;
         $absenMemberIds = AbsenceRecord::where([
+            'sc_id' => $scId,
             'tanggal' => $tanggal,
             'factory' => $factory,
             'shift' => $shift,
             'status' => 'absen',
         ])->pluck('member_id');
 
-        return Member::whereIn('id', $absenMemberIds)->get();
+        return Member::where('sc_id', $scId)->whereIn('id', $absenMemberIds)->get();
     }
 
     private function getAbsenDetailRange(string $dari, string $sampai, string $factory, string $shift)
     {
-        $absenMemberIds = AbsenceRecord::where('factory', $factory)
+        $scId = Auth::user()->sc_id ?? 1;
+        $absenMemberIds = AbsenceRecord::where('sc_id', $scId)
+            ->where('factory', $factory)
             ->where('shift', $shift)
             ->where('status', 'absen')
             ->whereBetween('tanggal', [$dari, $sampai])
             ->pluck('member_id')
             ->unique();
 
-        return Member::whereIn('id', $absenMemberIds)->get();
+        return Member::where('sc_id', $scId)->whereIn('id', $absenMemberIds)->get();
     }
 
     private function getAbsenTanpaPenggantiDetail($absenMembers, $replacements): array

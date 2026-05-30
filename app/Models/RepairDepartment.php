@@ -6,5 +6,5 @@ use Illuminate\Database\Eloquent\Model;
 
 class RepairDepartment extends Model
 {
-    protected $fillable = ['name'];
+    protected $fillable = ['sc_id', 'name'];
 }

@@ -1176,7 +1176,7 @@
             gap: 4px;
             padding: 7px 18px;
             border-radius: 20px;
-            background: linear-gradient(135deg, #2E7D32, #4caf50);
+            background: var(--brand-primary) !important;
             color: #fff;
             font-family: 'Roboto Condensed', sans-serif;
             font-size: 11px;

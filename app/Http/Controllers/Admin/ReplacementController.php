@@ -35,6 +35,7 @@ class ReplacementController extends Controller
         ]);
 
         $user = Auth::user();
+        $scId = $user->sc_id ?? 1;
         $factory = $request->factory;
 
         if ($user && !$user->isSuperAdmin()) {
@@ -44,10 +45,11 @@ class ReplacementController extends Controller
             }
         }
 
-        $replacementMember = Member::find($request->member_id);
+        $replacementMember = Member::where('sc_id', $scId)->find($request->member_id);
         $replacementSourceMachine = $replacementMember?->mesin ?? null;
 
-        $originalMember = Member::where('factory', $request->factory)
+        $originalMember = Member::where('sc_id', $scId)
+            ->where('factory', $request->factory)
             ->where('shift', $request->shift)
             ->where(function ($q) use ($request) {
                 $q->where('mesin', $request->target_machine)
@@ -70,13 +72,14 @@ class ReplacementController extends Controller
                     $targetMachines[] = $pairedMachine;
                 }
             }
-        }  // ← pastikan ini ada
+        }  
 
         $createdReplacements = [];
 
         foreach ($targetMachines as $targetMachine) {
             $replacement = AssignmentReplacement::updateOrCreate(
                 [
+                    'sc_id' => $scId,
                     'tanggal' => $request->tanggal,
                     'factory' => $request->factory,
                     'shift' => $request->shift,
@@ -112,6 +115,8 @@ class ReplacementController extends Controller
         $shift = $request->shift;
 
         $user = Auth::user();
+        $scId = $user->sc_id ?? 1;
+
         if ($user && !$user->isSuperAdmin()) {
             $allowedFactories = (array) $user->factory;
             if (!empty($allowedFactories) && !in_array($factory, $allowedFactories)) {
@@ -119,7 +124,8 @@ class ReplacementController extends Controller
             }
         }
 
-        $replacements = AssignmentReplacement::with('member')
+        $replacements = AssignmentReplacement::where('sc_id', $scId)
+            ->with('member')
             ->where([
                 'tanggal' => $tanggal,
                 'factory' => $factory,
@@ -134,7 +140,8 @@ class ReplacementController extends Controller
         foreach ($replacements as $r) {
             // Cari member asli yang operate target_machine (either primary or secondary)
             // Exclude si pengganti itu sendiri (id != member_id)
-            $originalMembers = Member::where('factory', $factory)
+            $originalMembers = Member::where('sc_id', $scId)
+                ->where('factory', $factory)
                 ->where('shift', $shift)
                 ->where('id', '!=', $r->member_id)
                 ->where(function ($q) use ($r) {
@@ -148,7 +155,8 @@ class ReplacementController extends Controller
                 continue;
 
             // Cek apakah SEMUA member asli sudah hadir (tidak ada yg absen)
-            $stillAbsen = AbsenceRecord::where('tanggal', $tanggal)
+            $stillAbsen = AbsenceRecord::where('sc_id', $scId)
+                ->where('tanggal', $tanggal)
                 ->where('shift', $shift)
                 ->whereIn('member_id', $originalMembers)
                 ->where('status', 'absen')
@@ -185,6 +193,12 @@ class ReplacementController extends Controller
     public function destroy(AssignmentReplacement $replacement)
     {
         $user = Auth::user();
+        $scId = $user->sc_id ?? 1;
+
+        if ($replacement->sc_id != $scId) {
+             abort(403, 'Unauthorized SC access.');
+        }
+
         if ($user && !$user->isSuperAdmin()) {
             $allowedFactories = (array) $user->factory;
             if (!in_array($replacement->factory, $allowedFactories)) {

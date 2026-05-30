@@ -7,7 +7,12 @@ use Illuminate\Support\Facades\Storage;
 
 class Machine extends Model
 {
-    protected $fillable = ['factory', 'name', 'photo', 'status', 'section', 'floor_cx', 'floor_cy', 'floor_plan'];
+    protected $fillable = ['sc_id', 'factory', 'name', 'photo', 'status', 'section', 'floor_cx', 'floor_cy', 'floor_plan'];
+
+    public function sc()
+    {
+        return $this->belongsTo(Sc::class, 'sc_id');
+    }
 
     /**
      * URL foto mesin  - null jika belum ada foto

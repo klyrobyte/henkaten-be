@@ -49,7 +49,9 @@ class AbsenceController extends Controller
 
     private function membersFor(string $factory, string $shift)
     {
-        return Member::where('factory', $factory)
+        $scId = auth()->check() ? (auth()->user()->sc_id ?? 1) : 1;
+        return Member::where('sc_id', $scId)
+            ->where('factory', $factory)
             ->whereIn('shift', [$shift, 'AB'])
             ->where('status', 'active')
             ->orderBy('nama')
@@ -60,12 +62,13 @@ class AbsenceController extends Controller
     public function index(Request $request)
     {
         $user = Auth::user();
+        $scId = $user->sc_id ?? 1;
         $userFactories = (array) $user->factory;
 
         if ($user->isSuperAdmin()) {
-            $factories = Factory::all();
+            $factories = Factory::where('sc_id', $scId)->get();
         } else {
-            $factories = Factory::whereIn('name', $userFactories)->get();
+            $factories = Factory::where('sc_id', $scId)->whereIn('name', $userFactories)->get();
         }
 
         $tanggal = $request->get('tanggal', today()->toDateString());
@@ -80,6 +83,7 @@ class AbsenceController extends Controller
         $members = $this->membersFor($factory, $shift);
 
         $records = AbsenceRecord::where([
+            'sc_id' => $scId,
             'tanggal' => $tanggal,
             'factory' => $factory,
             'shift' => $shift,
@@ -88,7 +92,7 @@ class AbsenceController extends Controller
         $hadir = $members->filter(fn($m) => ($records[$m->id]?->status ?? 'hadir') === 'hadir')->count();
         $absen = $members->count() - $hadir;
 
-        $absenceReasons = AbsenceReason::orderBy('name')->get();
+        $absenceReasons = AbsenceReason::where('sc_id', $scId)->orderBy('name')->get();
 
         return view(
             'admin.absen',
@@ -110,6 +114,7 @@ class AbsenceController extends Controller
         $factory = $this->normalizeFactory($request->factory);
 
         $user = Auth::user();
+        $scId = $user->sc_id ?? 1;
         $userFactories = (array) $user->factory;
         if (!$user->isSuperAdmin() && !in_array($factory, $userFactories)) {
             $factory = $userFactories[0] ?? 'Factory 2';
@@ -119,25 +124,25 @@ class AbsenceController extends Controller
 
         $validIds = $this->membersFor($factory, $shift)->pluck('id')->toArray();
 
-        DB::transaction(function () use ($request, $tanggal, $factory, $shift, $validIds) {
+        DB::transaction(function () use ($request, $tanggal, $factory, $shift, $validIds, $scId) {
             foreach ($request->records as $memberId => $rec) {
                 if (!in_array((int) $memberId, $validIds))
                     continue;
 
                 AbsenceRecord::updateOrCreate(
-                    ['tanggal' => $tanggal, 'factory' => $factory, 'shift' => $shift, 'member_id' => (int) $memberId],
+                    ['sc_id' => $scId, 'tanggal' => $tanggal, 'factory' => $factory, 'shift' => $shift, 'member_id' => (int) $memberId],
                     [
                         'status' => $rec['status'] ?? 'hadir',
                         'reason' => ($rec['status'] ?? '') === 'absen' ? ($rec['reason'] ?? null) : null,
                     ]
                 );
             }
-            $this->summaryService->recalculate($tanggal, $factory, $shift);
+            $this->summaryService->recalculate($tanggal, $factory, $shift, $scId);
         });
 
         if ($request->wantsJson()) {
-            $hadir = AbsenceRecord::where(['tanggal' => $tanggal, 'factory' => $factory, 'shift' => $shift, 'status' => 'hadir'])->count();
-            $absen = AbsenceRecord::where(['tanggal' => $tanggal, 'factory' => $factory, 'shift' => $shift, 'status' => 'absen'])->count();
+            $hadir = AbsenceRecord::where(['sc_id' => $scId, 'tanggal' => $tanggal, 'factory' => $factory, 'shift' => $shift, 'status' => 'hadir'])->count();
+            $absen = AbsenceRecord::where(['sc_id' => $scId, 'tanggal' => $tanggal, 'factory' => $factory, 'shift' => $shift, 'status' => 'absen'])->count();
             return response()->json(['ok' => true, 'hadir' => $hadir, 'absen' => $absen]);
         }
         return back()->with('success', '✅ Data absen tersimpan!');

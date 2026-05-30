@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class ProblemLog extends Model
 {
     protected $fillable = [
+        'sc_id',
         'tanggal',
         'factory',
         'shift',

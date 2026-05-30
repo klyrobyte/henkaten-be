@@ -30,23 +30,24 @@
 
     {{-- Dynamic Theme Styles --}}
     @php
-        $siteConfigs = \App\Models\SiteConfig::all()->pluck('value', 'key');
+        $scId = auth()->check() ? (auth()->user()->sc_id ?? 1) : 1;
+        $siteConfigs = \App\Models\SiteConfig::where('sc_id', $scId)->get()->pluck('value', 'key');
         $navbarBg = $siteConfigs['navbar_color'] ?? '#2E7D32';
         $primaryColor = $siteConfigs['primary_color'] ?? '#2E7D32';
         $secondaryColor = $siteConfigs['secondary_color'] ?? '#729E3F';
         $themeEffect = $siteConfigs['theme_effect'] ?? 'normal';
 
         // Helper to convert hex to RGB for translucent colors
-        $hexToRgb = function($hex) {
+        $hexToRgb = function ($hex) {
             $hex = str_replace('#', '', $hex);
-            if(strlen($hex) == 3) {
-                $r = hexdec(substr($hex,0,1).substr($hex,0,1));
-                $g = hexdec(substr($hex,1,1).substr($hex,1,1));
-                $b = hexdec(substr($hex,2,1).substr($hex,2,1));
+            if (strlen($hex) == 3) {
+                $r = hexdec(substr($hex, 0, 1) . substr($hex, 0, 1));
+                $g = hexdec(substr($hex, 1, 1) . substr($hex, 1, 1));
+                $b = hexdec(substr($hex, 2, 1) . substr($hex, 2, 1));
             } else {
-                $r = hexdec(substr($hex,0,2));
-                $g = hexdec(substr($hex,2,2));
-                $b = hexdec(substr($hex,4,2));
+                $r = hexdec(substr($hex, 0, 2));
+                $g = hexdec(substr($hex, 2, 2));
+                $b = hexdec(substr($hex, 4, 2));
             }
             return "$r, $g, $b";
         };
@@ -60,23 +61,42 @@
     @endphp
     <style>
         :root {
-            --navbar-bg: {{ $navbarBg }};
-            --brand-primary: {{ $primaryColor }};
-            --brand-primary-rgb: {{ $primaryRgb }};
-            --brand-secondary: {{ $secondaryColor }};
-            --warna-header: {{ $factoryGradient }};
+            --navbar-bg:
+                {{ $navbarBg }}
+            ;
+            --brand-primary:
+                {{ $primaryColor }}
+            ;
+            --brand-primary-rgb:
+                {{ $primaryRgb }}
+            ;
+            --brand-secondary:
+                {{ $secondaryColor }}
+            ;
+            --warna-header:
+                {{ $factoryGradient }}
+            ;
         }
 
         /* Navbar dynamic colors */
-        .app-header.desktop-header { background: var(--navbar-bg) !important; }
-        
+        .app-header.desktop-header {
+            background: var(--navbar-bg) !important;
+        }
+
 
         /* 1. Dynamic Primary Theme Mapping */
-        .statusChip { background: var(--brand-primary) !important; color: #fff !important; }
-        .leg-dot[style*="background: #729E3F"], .leg-dot[style*="background:#729E3F"] { background: var(--brand-primary) !important; }
-        
+        .statusChip {
+            background: var(--brand-primary) !important;
+            color: #fff !important;
+        }
+
+        .leg-dot[style*="background: #729E3F"],
+        .leg-dot[style*="background:#729E3F"] {
+            background: var(--brand-primary) !important;
+        }
+
         /* Apply Primary Branding Color */
-        .date-label, 
+        .date-label,
         button[onclick*="showFactoryPicker"] {
             background: var(--brand-primary) !important;
             color: #fff !important;
@@ -86,17 +106,32 @@
         .mobile-factory-badge,
         .machine-group-title,
         .shift-toggle-btn.active,
-        .dmb-btn.active, 
+        .dmb-btn.active,
         .dmb-apply,
-        .absenFill { 
-            background: var(--brand-primary) !important; 
+        .absenFill {
+            background: var(--brand-primary) !important;
             color: #fff !important;
         }
 
-        .um-add-btn { background: var(--brand-primary) !important; color: #fff !important; }
-        .um-table thead tr { background: var(--brand-primary) !important; color: #fff !important; }
-        .um-table tr { border-left: 3px solid transparent; transition: all 0.2s; }
-        .um-table tr:hover { background-color: rgba(var(--brand-primary-rgb), 0.05); border-left-color: var(--brand-primary) !important; }
+        .um-add-btn {
+            background: var(--brand-primary) !important;
+            color: #fff !important;
+        }
+
+        .um-table thead tr {
+            background: var(--brand-primary) !important;
+            color: #fff !important;
+        }
+
+        .um-table tr {
+            border-left: 3px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .um-table tr:hover {
+            background-color: rgba(var(--brand-primary-rgb), 0.05);
+            border-left-color: var(--brand-primary) !important;
+        }
 
         /* 2. Exception Rules (Warna Header mapping in Modals) */
         .modal-sheet-body .btn-primary,
@@ -115,35 +150,61 @@
             -webkit-backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.5) !important;
             color: #fff !important;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
         }
 
         /* Brand primary overrides */
-        .btn-primary, .ar-save-btn, .ar-add-btn, .mobile-menu-btn, .save-btn-big {
+        .btn-primary,
+        .ar-save-btn,
+        .ar-add-btn,
+        .mobile-menu-btn,
+        .save-btn-big {
             background: var(--brand-primary) !important;
         }
-        
-        .shift-toggle-btn.active { background: var(--brand-primary) !important; }
-        .drawer-item.active .di-icon { background: var(--brand-primary) !important; }
-        .drawer-header { background: var(--brand-primary) !important; }
-        .tv-mode-btn { background: var(--brand-primary) !important; }
+
+        .shift-toggle-btn.active {
+            background: var(--brand-primary) !important;
+        }
+
+        .drawer-item.active .di-icon {
+            background: var(--brand-primary) !important;
+        }
+
+        .drawer-header {
+            background: var(--brand-primary) !important;
+        }
+
+        .tv-mode-btn {
+            background: var(--brand-primary) !important;
+        }
 
         /* Secondary color overrides */
-        .mg-badge:not(.warn) { background: var(--brand-secondary) !important; }
+        .mg-badge:not(.warn) {
+            background: var(--brand-secondary) !important;
+        }
 
         /* Glossy Effect */
         @if($themeEffect === 'glossy')
-        .btn-primary, .ar-save-btn, .ar-add-btn, .save-btn-big, .app-header, .bottom-nav, .shift-toggle-btn.active, .tv-mode-btn {
-            background-image: linear-gradient(to bottom, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.05) 50%, rgba(0,0,0,0.05) 100%) !important;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.3) !important;
-            border: 1px solid rgba(0,0,0,0.1) !important;
-        }
+            .btn-primary,
+            .ar-save-btn,
+            .ar-add-btn,
+            .save-btn-big,
+            .app-header,
+            .bottom-nav,
+            .shift-toggle-btn.active,
+            .tv-mode-btn {
+                background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.05) 50%, rgba(0, 0, 0, 0.05) 100%) !important;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+                border: 1px solid rgba(0, 0, 0, 0.1) !important;
+            }
+
         @endif
 
         /* Sidebar Factory Switcher */
         .sidebar-factory-switcher {
             padding: 16px 16px 8px 16px;
         }
+
         .sfs-track {
             display: flex;
             position: relative;
@@ -152,6 +213,7 @@
             padding: 4px;
             border: 1px solid #d1d5db;
         }
+
         .sfs-slider {
             position: absolute;
             top: 4px;
@@ -161,9 +223,10 @@
             border-radius: 8px;
             transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             transform: translateX(calc(100% * var(--active-index)));
-            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
             z-index: 1;
         }
+
         .sfs-btn {
             flex: 1;
             position: relative;
@@ -182,9 +245,11 @@
             overflow: hidden;
             text-overflow: ellipsis;
         }
+
         .sfs-btn.active {
             color: #fff;
         }
+
         .sfs-btn:not(.active):hover {
             color: #555;
         }
@@ -225,32 +290,32 @@
         {{-- Nav --}}
         <div class="drawer-nav">
 
-            <div class="sidebar-factory-switcher">
+            @if(auth()->user()->isSuperAdmin())
                 @php
-                    $allowedFactories = $factories->filter(function($fac) {
-                        return auth()->user()->isSuperAdmin() || (is_array(auth()->user()->factory) && in_array($fac->name, auth()->user()->factory));
-                    })->values();
-                    
-                    $currentIndex = $allowedFactories->search(function($fac) {
-                        return $fac->name === session('factory', 'Factory 2');
+                    $allScs = \App\Models\Sc::orderBy('order_index')->get();
+                    $activeScId = auth()->user()->getActiveScId();
+                    $scIndex = $allScs->search(function ($scItem) use ($activeScId) {
+                        return $scItem->id === $activeScId;
                     });
-                    
-                    if ($currentIndex === false) $currentIndex = 0;
-                    $totalAllowed = $allowedFactories->count();
+                    if ($scIndex === false)
+                        $scIndex = 0;
+                    $totalScs = $allScs->count();
                 @endphp
 
-                @if($totalAllowed > 0)
-                    <div class="sfs-track" style="--total: {{ $totalAllowed }}; --active-index: {{ $currentIndex }};">
-                        <div class="sfs-slider"></div>
-                        @foreach($allowedFactories as $index => $fac)
-                            <button class="sfs-btn {{ $currentIndex === $index ? 'active' : '' }}" 
-                                    onclick="setFactory('{{ addslashes($fac->name) }}')">
-                                {{ $fac->short_label ?? $fac->name }}
-                            </button>
-                        @endforeach
+                @if($totalScs > 0)
+                    <div class="sidebar-sc-switcher" style="padding: 16px 16px 0 16px;">
+                        <div class="sfs-track" style="--total: {{ $totalScs }}; --active-index: {{ $scIndex }};">
+                            <div class="sfs-slider"></div>
+                            @foreach($allScs as $index => $scItem)
+                                <button class="sfs-btn {{ $activeScId === $scItem->id ? 'active' : '' }}"
+                                    onclick="switchSc({{ $scItem->id }})">
+                                    {{ $scItem->short_label ?? $scItem->name }}
+                                </button>
+                            @endforeach
+                        </div>
                     </div>
                 @endif
-            </div>
+            @endif
 
             {{-- Dashboard --}}
             <button class="drawer-item {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}"
@@ -404,8 +469,7 @@
                 <div class="drawer-divider"></div>
                 <div class="drawer-section-label">Konfigurasi Admin</div>
 
-                @if(auth()->user()->isSuperAdmin())
-                    <button class="drawer-item {{ request()->routeIs('admin.group.*') ? 'active' : '' }}"
+                <button class="drawer-item {{ request()->routeIs('admin.group.*') ? 'active' : '' }}"
                         onclick="window.location='{{ route('admin.group.index') }}'">
                         <span class="di-icon">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2"
@@ -416,8 +480,6 @@
                         </span>
                         Group (Factory)
                     </button>
-                @endif
-
                 <button class="drawer-item {{ request()->routeIs('admin.section.*') ? 'active' : '' }}"
                     onclick="window.location='{{ route('admin.section.index') }}'">
                     <span class="di-icon">
@@ -481,7 +543,19 @@
             @if(auth()->user()->isSuperAdmin())
                 <div class="drawer-divider"></div>
                 <div class="drawer-section-label">Konfigurasi Master</div>
-                
+
+                <button class="drawer-item {{ request()->routeIs('admin.sc.*') ? 'active' : '' }}"
+                    onclick="window.location='{{ route('admin.sc.index') }}'">
+                    <span class="di-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="2" y="7" width="20" height="14" rx="2" />
+                            <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" />
+                        </svg>
+                    </span>
+                    SC Management
+                </button>
+
                 <button class="drawer-item {{ request()->routeIs('admin.master-data.*') ? 'active' : '' }}"
                     onclick="window.location='{{ route('admin.master-data.index') }}'">
                     <span class="di-icon">
@@ -759,7 +833,7 @@
                             </div>
                             {{-- Shift buttons --}}
                             @php 
-                                $warna_header = $fac->gradient ?: 'var(--brand-primary)'; 
+                                                            $warna_header = $fac->gradient ?: 'var(--brand-primary)';
                                 preg_match('/#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})/', $warna_header, $matches);
                                 $baseTint = $matches[0] ?? '#2E7D32';
                                 $hoverTint = $baseTint . '1a'; // ~10% opacity hex
@@ -915,6 +989,31 @@
                 window.location.href = '{{ route('admin.absence.index') }}?' + params.toString();
             } else {
                 window.location.reload();
+            }
+        }
+
+        async function switchSc(scId) {
+            showLoading('Switching Service Center...');
+            try {
+                const res = await fetch('{{ route("admin.set-sc") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({ sc_id: scId })
+                });
+                const data = await res.json();
+                if (data.ok) {
+                    window.location.href = '{{ route("admin.dashboard") }}';
+                } else {
+                    hideLoading();
+                    showToast(data.error || 'Failed to switch Service Center', 'error');
+                }
+            } catch (err) {
+                hideLoading();
+                showToast('Error: ' + err.message, 'error');
             }
         }
 
