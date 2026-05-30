@@ -139,6 +139,55 @@
             border: 1px solid rgba(0,0,0,0.1) !important;
         }
         @endif
+
+        /* Sidebar Factory Switcher */
+        .sidebar-factory-switcher {
+            padding: 16px 16px 8px 16px;
+        }
+        .sfs-track {
+            display: flex;
+            position: relative;
+            background: #fff;
+            border-radius: 12px;
+            padding: 4px;
+            border: 1px solid #d1d5db;
+        }
+        .sfs-slider {
+            position: absolute;
+            top: 4px;
+            bottom: 4px;
+            width: calc((100% - 8px) / var(--total));
+            background: var(--brand-primary) !important;
+            border-radius: 8px;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transform: translateX(calc(100% * var(--active-index)));
+            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+            z-index: 1;
+        }
+        .sfs-btn {
+            flex: 1;
+            position: relative;
+            z-index: 2;
+            background: transparent;
+            border: none;
+            padding: 10px 4px;
+            font-family: 'Roboto Condensed', sans-serif;
+            font-weight: 600;
+            font-size: 14px;
+            color: #888;
+            cursor: pointer;
+            transition: color 0.3s ease;
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .sfs-btn.active {
+            color: #fff;
+        }
+        .sfs-btn:not(.active):hover {
+            color: #555;
+        }
     </style>
 
     @stack('styles')
@@ -175,6 +224,33 @@
 
         {{-- Nav --}}
         <div class="drawer-nav">
+
+            <div class="sidebar-factory-switcher">
+                @php
+                    $allowedFactories = $factories->filter(function($fac) {
+                        return auth()->user()->isSuperAdmin() || (is_array(auth()->user()->factory) && in_array($fac->name, auth()->user()->factory));
+                    })->values();
+                    
+                    $currentIndex = $allowedFactories->search(function($fac) {
+                        return $fac->name === session('factory', 'Factory 2');
+                    });
+                    
+                    if ($currentIndex === false) $currentIndex = 0;
+                    $totalAllowed = $allowedFactories->count();
+                @endphp
+
+                @if($totalAllowed > 0)
+                    <div class="sfs-track" style="--total: {{ $totalAllowed }}; --active-index: {{ $currentIndex }};">
+                        <div class="sfs-slider"></div>
+                        @foreach($allowedFactories as $index => $fac)
+                            <button class="sfs-btn {{ $currentIndex === $index ? 'active' : '' }}" 
+                                    onclick="setFactory('{{ addslashes($fac->name) }}')">
+                                {{ $fac->short_label ?? $fac->name }}
+                            </button>
+                        @endforeach
+                    </div>
+                @endif
+            </div>
 
             {{-- Dashboard --}}
             <button class="drawer-item {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}"
@@ -295,50 +371,51 @@
                 </button>
             @endif
 
+            {{-- Input Absen --}}
+            <button class="drawer-item {{ request()->routeIs('admin.absence.*') ? 'active' : '' }}"
+                onclick="window.location='{{ route('admin.absence.index', ['factory' => session('factory', 'Factory 2'), 'shift' => session('shift', 'A')]) }}'">
+                <span class="di-icon">
+                    {{-- Lucide CheckSquare --}}
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="9 11 12 14 22 4" />
+                        <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+                    </svg>
+                </span>
+                Input Absen
+            </button>
+
+            {{-- Laporan --}}
+            <button class="drawer-item {{ request()->routeIs('admin.reports.*') ? 'active' : '' }}"
+                onclick="window.location='{{ route('admin.reports.index') }}'">
+                <span class="di-icon">
+                    {{-- Lucide BarChart2 --}}
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="20" x2="18" y2="10" />
+                        <line x1="12" y1="20" x2="12" y2="4" />
+                        <line x1="6" y1="20" x2="6" y2="14" />
+                    </svg>
+                </span>
+                Laporan
+            </button>
+
             @if(auth()->user()->isSuperAdmin() || auth()->user()->role === 'admin')
-                {{-- Konfigurasi: Group / Section / Status --}}
                 <div class="drawer-divider"></div>
-                <div class="drawer-section-label">Konfigurasi</div>
+                <div class="drawer-section-label">Konfigurasi Admin</div>
 
                 @if(auth()->user()->isSuperAdmin())
-                    @if(auth()->user()->isSuperAdmin())
-                        <button class="drawer-item {{ request()->routeIs('admin.group.*') ? 'active' : '' }}"
-                            onclick="window.location='{{ route('admin.group.index') }}'">
-                            <span class="di-icon">
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2"
-                                    stroke-linecap="round" stroke-linejoin="round">
-                                    <rect x="2" y="7" width="20" height="14" rx="2" />
-                                    <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" />
-                                </svg>
-                            </span>
-                            Group (Factory)
-                        </button>
-
-                        <button class="drawer-item {{ request()->routeIs('admin.absence-reasons.*') ? 'active' : '' }}"
-                            onclick="window.location='{{ route('admin.absence-reasons.index') }}'">
-                            <span class="di-icon">
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2"
-                                    stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                                    <polyline points="14 2 14 8 20 8" />
-                                    <line x1="16" y1="13" x2="8" y2="13" />
-                                    <line x1="16" y1="17" x2="8" y2="17" />
-                                    <polyline points="10 9 9 9 8 9" />
-                                </svg>
-                            </span>
-                            Absence Detail
-                        </button>
-
-                        <button class="drawer-item {{ request()->routeIs('admin.site-config.*') ? 'active' : '' }}"
-                            onclick="window.location='{{ route('admin.site-config.index') }}'">
-                            <span class="di-icon">
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2"
-                                    stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
-                                </svg>
-                            </span>
-                            Site Config
-                        </button>                    @endif
+                    <button class="drawer-item {{ request()->routeIs('admin.group.*') ? 'active' : '' }}"
+                        onclick="window.location='{{ route('admin.group.index') }}'">
+                        <span class="di-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="2" y="7" width="20" height="14" rx="2" />
+                                <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" />
+                            </svg>
+                        </span>
+                        Group (Factory)
+                    </button>
                 @endif
 
                 <button class="drawer-item {{ request()->routeIs('admin.section.*') ? 'active' : '' }}"
@@ -383,60 +460,27 @@
                     </span>
                     Departemen Perbaikan
                 </button>
+
+                @if(auth()->user()->isAdmin())
+                    {{-- User Management --}}
+                    <button class="drawer-item {{ request()->routeIs('admin.users.*') ? 'active' : '' }}"
+                        onclick="window.location='{{ route('admin.users.index') }}'">
+                        <span class="di-icon">
+                            {{-- Lucide ShieldCheck --}}
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                                <polyline points="9 12 11 14 15 10" />
+                            </svg>
+                        </span>
+                        User Management
+                    </button>
+                @endif
             @endif
 
-            {{-- Input Absen --}}
-            <button class="drawer-item {{ request()->routeIs('admin.absence.*') ? 'active' : '' }}"
-                onclick="window.location='{{ route('admin.absence.index', ['factory' => session('factory', 'Factory 2'), 'shift' => session('shift', 'A')]) }}'">
-                <span class="di-icon">
-                    {{-- Lucide CheckSquare --}}
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2"
-                        stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="9 11 12 14 22 4" />
-                        <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
-                    </svg>
-                </span>
-                Input Absen
-            </button>
-
-            {{-- Laporan --}}
-            <button class="drawer-item {{ request()->routeIs('admin.reports.*') ? 'active' : '' }}"
-                onclick="window.location='{{ route('admin.reports.index') }}'">
-                <span class="di-icon">
-                    {{-- Lucide BarChart2 --}}
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2"
-                        stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="18" y1="20" x2="18" y2="10" />
-                        <line x1="12" y1="20" x2="12" y2="4" />
-                        <line x1="6" y1="20" x2="6" y2="14" />
-                    </svg>
-                </span>
-                Laporan
-            </button>
-
-            @if(auth()->user()->isAdmin())
-                <div class="drawer-divider"></div>
-                <div class="drawer-section-label">Admin</div>
-
-                {{-- User Management --}}
-                <button class="drawer-item {{ request()->routeIs('admin.users.*') ? 'active' : '' }}"
-                    onclick="window.location='{{ route('admin.users.index') }}'">
-                    <span class="di-icon">
-                        {{-- Lucide ShieldCheck --}}
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                            <polyline points="9 12 11 14 15 10" />
-                        </svg>
-                    </span>
-                    User Management
-                </button>
-            @endif
-
-            {{-- Task 6: Global Logs — Super Admin Only --}}
             @if(auth()->user()->isSuperAdmin())
                 <div class="drawer-divider"></div>
-                <div class="drawer-section-label">Super Admin</div>
+                <div class="drawer-section-label">Konfigurasi Master</div>
                 
                 <button class="drawer-item {{ request()->routeIs('admin.master-data.*') ? 'active' : '' }}"
                     onclick="window.location='{{ route('admin.master-data.index') }}'">
@@ -450,6 +494,32 @@
                         </svg>
                     </span>
                     Master Data
+                </button>
+
+                <button class="drawer-item {{ request()->routeIs('admin.site-config.*') ? 'active' : '' }}"
+                    onclick="window.location='{{ route('admin.site-config.index') }}'">
+                    <span class="di-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                        </svg>
+                    </span>
+                    Site Config
+                </button>
+
+                <button class="drawer-item {{ request()->routeIs('admin.absence-reasons.*') ? 'active' : '' }}"
+                    onclick="window.location='{{ route('admin.absence-reasons.index') }}'">
+                    <span class="di-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                            <polyline points="14 2 14 8 20 8" />
+                            <line x1="16" y1="13" x2="8" y2="13" />
+                            <line x1="16" y1="17" x2="8" y2="17" />
+                            <polyline points="10 9 9 9 8 9" />
+                        </svg>
+                    </span>
+                    Absence Detail
                 </button>
 
                 <button class="drawer-item {{ request()->routeIs('admin.global-logs.*') ? 'active' : '' }}"
