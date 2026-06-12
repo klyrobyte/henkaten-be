@@ -680,8 +680,8 @@ body {
 }
 
 .chip-yellowgreen {
-   background: #7cb342;
-   color: #fff;
+   background: #fdd835;
+   color: #7c7c7c;
 }
 
 .chip-yellowgreen::before {
