@@ -36,7 +36,7 @@ use Illuminate\Support\Facades\Route;
 // ─── All /api/* routes require authentication + X-App-Secret ─────────────────
 // Note: app.secret is also appended to the 'api' middleware group globally,
 // so it applies here even without the explicit alias. Explicit is clearer.
-Route::middleware(['auth', 'app.secret'])->group(function () {
+Route::middleware(['auth', 'app.secret', 'sc.guard'])->group(function () {
 
     // ── Dashboard Status (TV auto-refresh, dashboard polling) ─────────────
     // Rate-limited to protect DB from rapid polling abuse

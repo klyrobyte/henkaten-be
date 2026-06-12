@@ -23,6 +23,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'docs.restrict' => \App\Http\Middleware\RestrictDocsAccess::class,
             // Task 6 — Global Activity Logger alias (also appended to api group below)
             'global.log'    => \App\Http\Middleware\GlobalActivityLogger::class,
+            'sc.guard'      => \App\Http\Middleware\ScContextGuard::class,
         ]);
 
         // ── Global web group middleware ───────────────────────────────────────

@@ -29,7 +29,8 @@ class MasterDataController extends Controller
     public function index(Request $request)
     {
         $user = Auth::user();
-        $factories = $this->factoryConfig->getFactoryObjects();
+        $scId = $user->getActiveScId();
+        $factories = Factory::where('sc_id', $scId)->orderBy('order_index')->get();
 
         if (!$user->isSuperAdmin()) {
             $allowedFactories = (array) $user->factory;
@@ -78,21 +79,24 @@ class MasterDataController extends Controller
         $perPage = $request->get('per_page', 15);
 
         // ── 4M Summary Data ───────────────────────────────────────────
-        $logsQuery = ProblemLog::where('factory', $factory)
+        $logsQuery = ProblemLog::where('sc_id', $scId)
+            ->where('factory', $factory)
             ->where('shift', $shift)
             ->whereBetween('tanggal', [$dari, $sampai]);
         
         $summaryLogs = (clone $logsQuery)->get();
         $jenisList = $this->getDynamicJenis();
 
-        $manCount = AbsenceRecord::where('factory', $factory)
+        $manCount = AbsenceRecord::where('sc_id', $scId)
+            ->where('factory', $factory)
             ->where('shift', $shift)
             ->where('status', 'absen')
             ->whereBetween('tanggal', [$dari, $sampai])
             ->distinct('member_id')
             ->count('member_id');
 
-        $replacementsCount = AssignmentReplacement::where('factory', $factory)
+        $replacementsCount = AssignmentReplacement::where('sc_id', $scId)
+            ->where('factory', $factory)
             ->where('shift', $shift)
             ->whereBetween('tanggal', [$dari, $sampai])
             ->count();
@@ -101,6 +105,7 @@ class MasterDataController extends Controller
         switch ($tab) {
             case 'absence':
                 $history = AbsenceRecord::with('member')
+                    ->where('sc_id', $scId)
                     ->where('factory', $factory)
                     ->where('shift', $shift)
                     ->where('status', 'absen')
@@ -108,16 +113,18 @@ class MasterDataController extends Controller
                     ->orderBy('tanggal', 'desc');
                 break;
             case 'abs-sum':
-                $history = AbsenceSummary::where('factory', $factory)
+                $history = AbsenceSummary::where('sc_id', $scId)
+                    ->where('factory', $factory)
                     ->where('shift', $shift)
                     ->whereBetween('tanggal', [$dari, $sampai])
                     ->orderBy('tanggal', 'desc');
                 break;
             case 'abs-reason':
-                $history = AbsenceReason::orderBy('name');
+                $history = AbsenceReason::where('sc_id', $scId)->orderBy('name');
                 break;
             case 'replacements':
                 $history = AssignmentReplacement::with('member')
+                    ->where('sc_id', $scId)
                     ->where('factory', $factory)
                     ->where('shift', $shift)
                     ->whereBetween('tanggal', [$dari, $sampai])
@@ -125,19 +132,25 @@ class MasterDataController extends Controller
                 break;
             case 'assignments':
                 $history = DailyAssignment::with('member')
+                    ->where('sc_id', $scId)
                     ->where('factory', $factory)
                     ->where('shift', $shift)
                     ->whereBetween('tanggal', [$dari, $sampai])
                     ->orderBy('tanggal', 'desc');
                 break;
             case 'mc-status':
+                $machines = Machine::where('sc_id', $scId)->where('factory', $factory)->pluck('name');
                 $history = MachineStatus::where('factory', $factory)
                     ->where('shift', $shift)
+                    ->whereIn('machine_name', $machines)
                     ->whereBetween('tanggal', [$dari, $sampai])
                     ->orderBy('tanggal', 'desc');
                 break;
             case 'global-logs':
-                $history = GlobalLog::orderBy('created_at', 'desc');
+                $factoriesInSc = Factory::where('sc_id', $scId)->pluck('name');
+                $history = GlobalLog::whereIn('factory', $factoriesInSc)
+                    ->orWhereNull('factory')
+                    ->orderBy('created_at', 'desc');
                 break;
             case '3m':
             default:
@@ -158,7 +171,7 @@ class MasterDataController extends Controller
         }
 
         $currentFactory = $factories->firstWhere('name', $factory) ?? $factories->first();
-        $members = Member::orderBy('nama')->get();
+        $members = Member::where('sc_id', $scId)->orderBy('nama')->get();
 
         return view('admin.superadmin.master_data', compact(
             'factories', 'currentFactory', 'factory', 'shift', 'mode', 'tanggal', 'dari', 'sampai', 'bulan',
@@ -186,28 +199,37 @@ class MasterDataController extends Controller
      */
     public function destroy(Request $request, $id)
     {
+        $scId = Auth::user()->getActiveScId();
         $type = $request->get('type', '3m');
         switch ($type) {
             case '3m':
-                ProblemLog::findOrFail($id)->delete();
+                ProblemLog::where('sc_id', $scId)->findOrFail($id)->delete();
                 return response()->json(['ok' => true, 'message' => 'Problem Log deleted successfully.']);
             case 'absence':
-                AbsenceRecord::findOrFail($id)->delete();
+                AbsenceRecord::where('sc_id', $scId)->findOrFail($id)->delete();
                 return response()->json(['ok' => true, 'message' => 'Absence Record deleted successfully.']);
             case 'abs-sum':
-                AbsenceSummary::findOrFail($id)->delete();
+                AbsenceSummary::where('sc_id', $scId)->findOrFail($id)->delete();
                 return response()->json(['ok' => true, 'message' => 'Absence Summary deleted successfully.']);
             case 'abs-reason':
-                AbsenceReason::findOrFail($id)->delete();
+                AbsenceReason::where('sc_id', $scId)->findOrFail($id)->delete();
                 return response()->json(['ok' => true, 'message' => 'Absence Reason deleted successfully.']);
             case 'replacements':
-                AssignmentReplacement::findOrFail($id)->delete();
+                AssignmentReplacement::where('sc_id', $scId)->findOrFail($id)->delete();
                 return response()->json(['ok' => true, 'message' => 'Replacement Record deleted successfully.']);
             case 'assignments':
-                DailyAssignment::findOrFail($id)->delete();
+                DailyAssignment::where('sc_id', $scId)->findOrFail($id)->delete();
                 return response()->json(['ok' => true, 'message' => 'Daily Assignment deleted successfully.']);
             case 'mc-status':
-                MachineStatus::findOrFail($id)->delete();
+                $mc = MachineStatus::findOrFail($id);
+                $hasMachine = Machine::where('sc_id', $scId)
+                    ->where('factory', $mc->factory)
+                    ->where('name', $mc->machine_name)
+                    ->exists();
+                if (!$hasMachine) {
+                    abort(404);
+                }
+                $mc->delete();
                 return response()->json(['ok' => true, 'message' => 'Machine Status deleted successfully.']);
             case 'global-logs':
                 GlobalLog::findOrFail($id)->delete();
@@ -242,24 +264,27 @@ class MasterDataController extends Controller
             $dari = $sampai = $request->get('tanggal');
         }
 
+        $scId = Auth::user()->getActiveScId();
         // Base query builder based on tab
         $query = match ($tab) {
-            '3m'           => ProblemLog::query(),
-            'absence'      => AbsenceRecord::query(),
-            'abs-sum'      => AbsenceSummary::query(),
+            '3m'           => ProblemLog::where('sc_id', $scId),
+            'absence'      => AbsenceRecord::where('sc_id', $scId),
+            'abs-sum'      => AbsenceSummary::where('sc_id', $scId),
             'abs-reason'   => null, // Uses truncate
-            'replacements' => AssignmentReplacement::query(),
-            'assignments'  => DailyAssignment::query(),
+            'replacements' => AssignmentReplacement::where('sc_id', $scId),
+            'assignments'  => DailyAssignment::where('sc_id', $scId),
             'mc-status'    => MachineStatus::query(),
             'global-logs'  => null, // Uses truncate
             default        => null,
         };
 
-        if ($tab === 'abs-reason' || $tab === 'global-logs') {
-            $model = $tab === 'abs-reason' ? AbsenceReason::class : GlobalLog::class;
-            $count = $model::count();
-            $model::truncate();
-            return response()->json(['ok' => true, 'message' => "Successfully cleared all {$count} " . str_replace('-', ' ', $tab) . " records."]);
+        if ($tab === 'abs-reason') {
+            AbsenceReason::where('sc_id', $scId)->delete();
+            return response()->json(['ok' => true, 'message' => "Successfully cleared all absence reason records for this Service Center."]);
+        } elseif ($tab === 'global-logs') {
+            // Global log is superadmin only, allow truncate
+            GlobalLog::truncate();
+            return response()->json(['ok' => true, 'message' => "Successfully cleared all global logs."]);
         }
 
         if (!$query) {
@@ -271,6 +296,12 @@ class MasterDataController extends Controller
         if ($shift)   $query->where('shift', $shift);
         if ($hasDateFilter && $dari && $sampai) {
             $query->whereBetween('tanggal', [$dari, $sampai]);
+        }
+
+        // Special restriction for mc-status which doesn't have sc_id directly
+        if ($tab === 'mc-status') {
+            $machines = Machine::where('sc_id', $scId)->where('factory', $factory)->pluck('name');
+            $query->whereIn('machine_name', $machines);
         }
 
         // Special case: absence tab in management usually only shows/deletes status='absen'
@@ -291,10 +322,11 @@ class MasterDataController extends Controller
 
     public function update(Request $request, $id)
     {
+        $scId = Auth::user()->getActiveScId();
         $type = $request->get('type', '3m');
         switch ($type) {
             case '3m':
-                $log = ProblemLog::findOrFail($id);
+                $log = ProblemLog::where('sc_id', $scId)->findOrFail($id);
                 $validated = $request->validate([
                     'tanggal' => 'required|date',
                     'factory' => 'required|string',
@@ -321,7 +353,7 @@ class MasterDataController extends Controller
                 return response()->json(['ok' => true, 'message' => 'Problem Log updated.', 'data' => $log]);
 
             case 'absence':
-                $absence = AbsenceRecord::findOrFail($id);
+                $absence = AbsenceRecord::where('sc_id', $scId)->findOrFail($id);
                 $validated = $request->validate([
                     'tanggal' => 'required|date',
                     'factory' => 'required|string',
@@ -332,7 +364,7 @@ class MasterDataController extends Controller
                 return response()->json(['ok' => true, 'message' => 'Absence Record updated.', 'data' => $absence]);
 
             case 'abs-sum':
-                $sum = AbsenceSummary::findOrFail($id);
+                $sum = AbsenceSummary::where('sc_id', $scId)->findOrFail($id);
                 $validated = $request->validate([
                     'tanggal' => 'required|date',
                     'factory' => 'required|string',
@@ -354,7 +386,7 @@ class MasterDataController extends Controller
                 return response()->json(['ok' => true, 'message' => 'Absence Summary updated.', 'data' => $sum]);
 
             case 'abs-reason':
-                $reason = AbsenceReason::findOrFail($id);
+                $reason = AbsenceReason::where('sc_id', $scId)->findOrFail($id);
                 $validated = $request->validate([
                     'name' => 'required|string|max:255',
                     'color' => 'required|string|max:20',
@@ -363,7 +395,7 @@ class MasterDataController extends Controller
                 return response()->json(['ok' => true, 'message' => 'Absence Reason updated.', 'data' => $reason]);
 
             case 'replacements':
-                $repl = AssignmentReplacement::findOrFail($id);
+                $repl = AssignmentReplacement::where('sc_id', $scId)->findOrFail($id);
                 $validated = $request->validate([
                     'tanggal' => 'required|date',
                     'factory' => 'required|string',
@@ -376,7 +408,7 @@ class MasterDataController extends Controller
                 return response()->json(['ok' => true, 'message' => 'Replacement updated.', 'data' => $repl]);
 
             case 'assignments':
-                $assign = DailyAssignment::findOrFail($id);
+                $assign = DailyAssignment::where('sc_id', $scId)->findOrFail($id);
                 $validated = $request->validate([
                     'tanggal' => 'required|date',
                     'factory' => 'required|string',
@@ -396,6 +428,13 @@ class MasterDataController extends Controller
 
             case 'mc-status':
                 $mc = MachineStatus::findOrFail($id);
+                $hasMachine = Machine::where('sc_id', $scId)
+                    ->where('factory', $mc->factory)
+                    ->where('name', $mc->machine_name)
+                    ->exists();
+                if (!$hasMachine) {
+                    abort(404);
+                }
                 $validated = $request->validate([
                     'tanggal' => 'required|date',
                     'factory' => 'required|string',
@@ -442,22 +481,31 @@ class MasterDataController extends Controller
 
     public function show($id)
     {
+        $scId = Auth::user()->getActiveScId();
         $type = request('type', '3m');
         switch ($type) {
             case '3m':
-                return response()->json(ProblemLog::findOrFail($id));
+                return response()->json(ProblemLog::where('sc_id', $scId)->findOrFail($id));
             case 'absence':
-                return response()->json(AbsenceRecord::with('member')->findOrFail($id));
+                return response()->json(AbsenceRecord::where('sc_id', $scId)->with('member')->findOrFail($id));
             case 'abs-sum':
-                return response()->json(AbsenceSummary::findOrFail($id));
+                return response()->json(AbsenceSummary::where('sc_id', $scId)->findOrFail($id));
             case 'abs-reason':
-                return response()->json(AbsenceReason::findOrFail($id));
+                return response()->json(AbsenceReason::where('sc_id', $scId)->findOrFail($id));
             case 'replacements':
-                return response()->json(AssignmentReplacement::with('member')->findOrFail($id));
+                return response()->json(AssignmentReplacement::where('sc_id', $scId)->with('member')->findOrFail($id));
             case 'assignments':
-                return response()->json(DailyAssignment::with('member')->findOrFail($id));
+                return response()->json(DailyAssignment::where('sc_id', $scId)->with('member')->findOrFail($id));
             case 'mc-status':
-                return response()->json(MachineStatus::findOrFail($id));
+                $mc = MachineStatus::findOrFail($id);
+                $hasMachine = Machine::where('sc_id', $scId)
+                    ->where('factory', $mc->factory)
+                    ->where('name', $mc->machine_name)
+                    ->exists();
+                if (!$hasMachine) {
+                    abort(404);
+                }
+                return response()->json($mc);
             case 'global-logs':
                 $log = GlobalLog::findOrFail($id);
                 $log->username_dec = $log->decrypted_username;

@@ -879,8 +879,8 @@
     {{-- ── SHARED JS ── --}}
     <script>
         const CSRF_TOKEN = document.querySelector('meta[name="csrf-token"]').content;
-        const CURRENT_FACTORY = @json(session('factory', 'Factory 2'));
-        const CURRENT_SHIFT = @json(session('shift', 'A'));
+        let CURRENT_FACTORY = @json(session('factory', 'Factory 2'));
+        let CURRENT_SHIFT = @json(session('shift', 'A'));
 
         // ── Security patch 2026-05-10 ────────────────────────────────────────────
         // API_NONCE: per-session nonce for authenticating browser→/api/* requests.
@@ -993,6 +993,40 @@
         }
 
         async function switchSc(scId) {
+            // 1. Force close and unmount all open sheets immediately to prevent interactions
+            document.querySelectorAll('.modal-overlay').forEach(el => {
+                el.classList.remove('show');
+                el.classList.remove('active');
+                const body = el.querySelector('.modal-sheet-body');
+                if (body) {
+                    body.innerHTML = '';
+                }
+            });
+
+            // 2. Clear frontend factory/shift references from state
+            CURRENT_FACTORY = null;
+            CURRENT_SHIFT = null;
+
+            // 3. Clear labels in the UI to prevent rendering stale SC data
+            const headerFactory = document.getElementById('headerFactory');
+            if (headerFactory) {
+                headerFactory.innerHTML = '';
+                headerFactory.style.pointerEvents = 'none';
+            }
+            const mobileFactoryBadge = document.querySelector('.mobile-factory-badge');
+            if (mobileFactoryBadge) {
+                mobileFactoryBadge.innerHTML = '';
+                mobileFactoryBadge.style.pointerEvents = 'none';
+            }
+            const headerFactoryLabel = document.querySelector('.desktop-header span[style*="text-transform:uppercase"]');
+            if (headerFactoryLabel) {
+                headerFactoryLabel.innerHTML = '';
+            }
+            const mobileFactoryLabel = document.querySelector('.mobile-brand-text .mb-subtitle');
+            if (mobileFactoryLabel) {
+                mobileFactoryLabel.innerHTML = '';
+            }
+
             showLoading('Switching Service Center...');
             try {
                 const res = await fetch('{{ route("admin.set-sc") }}', {
