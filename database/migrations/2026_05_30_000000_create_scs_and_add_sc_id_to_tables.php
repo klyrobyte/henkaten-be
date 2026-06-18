@@ -5,8 +5,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -52,7 +51,7 @@ return new class extends Migration
         }
 
         // 4. Update constraints for Master Data (Multi-tenant unique)
-        
+
         // Factories: name and slug unique per SC
         Schema::table('factories', function (Blueprint $table) {
             $table->dropUnique(['name']);
