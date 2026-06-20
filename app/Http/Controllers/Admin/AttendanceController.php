@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\AbsenceSummary;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 /**
  * @group Attendance
@@ -20,11 +21,19 @@ class AttendanceController extends Controller
      */
     public function index(Request $request)
     {
-        $factory = $request->session()->get('factory', 'Factory 2');
+        $user = Auth::user();
+        $scId = $user->sc_id ?? 1;
+        $factory = $request->session()->get('factory', \App\Models\Factory::where('sc_id', $scId)->orderBy('order_index')->value('name') ?? 'Factory 2');
         $shift = $request->session()->get('shift', 'A');
         $tanggal = $request->get('tanggal', today()->toDateString());
 
-        $summary = AbsenceSummary::firstOrNew([
+        $summary = AbsenceSummary::where([
+            'sc_id' => $scId,
+            'tanggal' => $tanggal,
+            'factory' => $factory,
+            'shift' => $shift,
+        ])->first() ?? new AbsenceSummary([
+            'sc_id' => $scId,
             'tanggal' => $tanggal,
             'factory' => $factory,
             'shift' => $shift,
@@ -40,6 +49,9 @@ class AttendanceController extends Controller
      */
     public function store(Request $request)
     {
+        $user = Auth::user();
+        $scId = $user->sc_id ?? 1;
+
         $request->validate([
             'tanggal' => 'required|date',
             'factory' => 'required|string',
@@ -61,6 +73,7 @@ class AttendanceController extends Controller
 
         $summary = AbsenceSummary::updateOrCreate(
             [
+                'sc_id' => $scId,
                 'tanggal' => $request->tanggal,
                 'factory' => $request->factory,
                 'shift' => $request->shift,
@@ -97,7 +110,11 @@ class AttendanceController extends Controller
      */
     public function getData(Request $request)
     {
+        $user = Auth::user();
+        $scId = $user->sc_id ?? 1;
+
         $summary = AbsenceSummary::where([
+            'sc_id' => $scId,
             'tanggal' => $request->tanggal,
             'factory' => $request->factory,
             'shift' => $request->shift,

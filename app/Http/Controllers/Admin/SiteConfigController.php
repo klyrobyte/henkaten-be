@@ -10,7 +10,8 @@ class SiteConfigController extends Controller
 {
     public function index()
     {
-        $configs = SiteConfig::all()->pluck('value', 'key');
+        $scId = auth()->check() ? (auth()->user()->sc_id ?? 1) : 1;
+        $configs = SiteConfig::where('sc_id', $scId)->get()->pluck('value', 'key');
         return view('admin.site_config.index', compact('configs'));
     }
 

@@ -44,7 +44,8 @@ class AssignmentController extends Controller
     private function resolveFactory(Request $request): string
     {
         $user = Auth::user();
-        $factory = $request->get('factory') ?: $request->session()->get('factory', 'Factory 2');
+        $scId = $user->sc_id ?? 1;
+        $factory = $request->get('factory') ?: $request->session()->get('factory', \App\Models\Factory::where('sc_id', $scId)->orderBy('order_index')->value('name') ?? 'Factory 2');
 
         if ($user && !$user->isSuperAdmin()) {
             $allowedFactories = (array) $user->factory;
@@ -76,6 +77,8 @@ class AssignmentController extends Controller
 
     public function index(Request $request)
     {
+        $user = Auth::user();
+        $scId = $user->sc_id ?? 1;
         $factory = $this->resolveFactory($request);
         $shift = $this->normalizeShift($request->session()->get('shift', 'A'));
         $tanggal = $request->get('tanggal', today()->toDateString());
@@ -94,6 +97,7 @@ class AssignmentController extends Controller
 
         // Data absen dari AbsenceRecord (untuk auto-sync)
         $absenIds = AbsenceRecord::where([
+            'sc_id' => $scId,
             'tanggal' => $tanggal,
             'factory' => $factory,
             'shift' => $shift,
@@ -101,7 +105,8 @@ class AssignmentController extends Controller
         ])->pluck('member_id')->toArray();
 
         // Member list untuk panel cari pengganti  - semua member aktif di factory ini
-        $members = Member::where('factory', $factory)
+        $members = Member::where('sc_id', $scId)
+            ->where('factory', $factory)
             ->where('status', 'active')
             ->orderBy('nama')
             ->get();
@@ -138,6 +143,7 @@ class AssignmentController extends Controller
         ]);
 
         $user = Auth::user();
+        $scId = $user->sc_id ?? 1;
         $factory = $request->factory;
 
         if ($user && !$user->isSuperAdmin()) {
@@ -151,10 +157,11 @@ class AssignmentController extends Controller
         $shift = $this->normalizeShift($request->shift);
         $assignments = $request->assignments;
 
-        DB::transaction(function () use ($tanggal, $factory, $shift, $assignments) {
+        DB::transaction(function () use ($tanggal, $factory, $shift, $assignments, $scId) {
 
             // Hapus semua slot lama untuk konteks ini
             DailyAssignment::where([
+                'sc_id' => $scId,
                 'tanggal' => $tanggal,
                 'factory' => $factory,
                 'shift' => $shift,
@@ -169,11 +176,13 @@ class AssignmentController extends Controller
                     if (!$memberName)
                         continue;
 
-                    $member = Member::where('nama', $memberName)
+                    $member = Member::where('sc_id', $scId)
+                        ->where('nama', $memberName)
                         ->where('factory', $factory)
                         ->first();
 
                     DailyAssignment::create([
+                        'sc_id' => $scId,
                         'tanggal' => $tanggal,
                         'factory' => $factory,
                         'shift' => $shift,
@@ -208,6 +217,8 @@ class AssignmentController extends Controller
 
     public function getData(Request $request): JsonResponse
     {
+        $user = Auth::user();
+        $scId = $user->sc_id ?? 1;
         $tanggal = $request->get('tanggal', today()->toDateString());
         $factory = $this->resolveFactory($request);
         $shift = $this->normalizeShift($request->get('shift', session('shift', 'A')));
@@ -215,6 +226,7 @@ class AssignmentController extends Controller
         $assignments = DailyAssignment::toAssignmentsArray($tanggal, $factory, $shift);
 
         $absenIds = AbsenceRecord::where([
+            'sc_id' => $scId,
             'tanggal' => $tanggal,
             'factory' => $factory,
             'shift' => $shift,
@@ -237,11 +249,12 @@ class AssignmentController extends Controller
     public function candidates(Request $request): JsonResponse
     {
         try {
+            $user = Auth::user();
+            $scId = $user->sc_id ?? 1;
             $tanggal = $request->get('tanggal', today()->toDateString());
             $factory = $this->resolveFactory($request);
             $shift = $this->normalizeShift($request->get('shift', session('shift', 'A')));
 
-            $user = Auth::user();
             if ($user && !$user->isSuperAdmin()) {
                 if ($user->shift)
                     $shift = $this->normalizeShift($user->shift);
@@ -253,6 +266,7 @@ class AssignmentController extends Controller
 
             // Sumber 1: DailyAssignment (slot yang statusnya absent, bukan pengganti)
             $absentFromDA = DailyAssignment::where([
+                'sc_id' => $scId,
                 'tanggal' => $tanggal,
                 'factory' => $factory,
                 'shift' => $shift,
@@ -263,6 +277,7 @@ class AssignmentController extends Controller
 
             // Sumber 2: AbsenceRecord dari halaman Member Management
             $absentFromMM = AbsenceRecord::where([
+                'sc_id' => $scId,
                 'tanggal' => $tanggal,
                 'factory' => $factory,
                 'shift' => $shift,
@@ -278,6 +293,7 @@ class AssignmentController extends Controller
 
             // --- Kumpulkan nama yang sudah bertugas (hadir & punya assignment) ---
             $workingNames = DailyAssignment::where([
+                'sc_id' => $scId,
                 'tanggal' => $tanggal,
                 'factory' => $factory,
                 'shift' => $shift,
@@ -288,7 +304,7 @@ class AssignmentController extends Controller
 
             // --- Query member kandidat  - SEMUA factory, SEMUA shift ---
             // Per spec: "Cari Pengganti" must show the full cross-factory member pool.
-            $query = Member::where('status', 'active');
+            $query = Member::where('sc_id', $scId)->where('status', 'active');
 
             // Kecualikan member yang sedang absen
             if (!empty($allAbsentNames)) {
@@ -332,11 +348,14 @@ class AssignmentController extends Controller
 
     public function syncAbsen(Request $request): JsonResponse
     {
+        $user = Auth::user();
+        $scId = $user->sc_id ?? 1;
         $tanggal = $request->get('tanggal', today()->toDateString());
         $factory = $this->resolveFactory($request);
         $shift = $this->normalizeShift($request->get('shift', session('shift', 'A')));
 
         $absenRecords = AbsenceRecord::where([
+            'sc_id' => $scId,
             'tanggal' => $tanggal,
             'factory' => $factory,
             'shift' => $shift,
@@ -351,6 +370,7 @@ class AssignmentController extends Controller
             $nama = $rec->member->nama;
 
             $updated = DailyAssignment::where([
+                'sc_id' => $scId,
                 'tanggal' => $tanggal,
                 'factory' => $factory,
                 'shift' => $shift,
@@ -375,7 +395,9 @@ class AssignmentController extends Controller
 
     private function buildDefaults(string $factory, string $shift, array $groups): array
     {
-        $members = Member::where('factory', $factory)
+        $scId = Auth::user()->sc_id ?? 1;
+        $members = Member::where('sc_id', $scId)
+            ->where('factory', $factory)
             ->where('status', 'active')
             ->orderBy('id')
             ->get();
@@ -444,6 +466,7 @@ class AssignmentController extends Controller
 
     private function broadcastAbsence(string $tanggal, string $factory, string $shift, array $assignments): void
     {
+        $scId = Auth::user()->sc_id ?? 1;
         $reasonMap = [
             'Sakit' => 'Sakit',
             'Cuti' => 'Cuti',
@@ -471,23 +494,24 @@ class AssignmentController extends Controller
         $hadirNames = array_unique($hadirNames);
 
         foreach ($absentSlots as $name => $rawReason) {
-            $member = Member::where('nama', $name)->where('factory', $factory)->first();
+            $member = Member::where('sc_id', $scId)->where('nama', $name)->where('factory', $factory)->first();
             if (!$member)
                 continue;
 
             $dbReason = $reasonMap[$rawReason] ?? 'Alpha';
 
             AbsenceRecord::updateOrCreate(
-                ['tanggal' => $tanggal, 'factory' => $factory, 'shift' => $shift, 'member_id' => $member->id],
+                ['sc_id' => $scId, 'tanggal' => $tanggal, 'factory' => $factory, 'shift' => $shift, 'member_id' => $member->id],
                 ['status' => 'absen', 'reason' => $dbReason]
             );
         }
 
         foreach ($hadirNames as $name) {
-            $member = Member::where('nama', $name)->where('factory', $factory)->first();
+            $member = Member::where('sc_id', $scId)->where('nama', $name)->where('factory', $factory)->first();
             if (!$member)
                 continue;
             AbsenceRecord::where([
+                'sc_id' => $scId,
                 'tanggal' => $tanggal,
                 'factory' => $factory,
                 'shift' => $shift,
@@ -500,18 +524,12 @@ class AssignmentController extends Controller
         $totalMember = $totalAbsen + $totalHadir;
 
         AbsenceSummary::updateOrCreate(
-            ['tanggal' => $tanggal, 'factory' => $factory, 'shift' => $shift],
+            ['sc_id' => $scId, 'tanggal' => $tanggal, 'factory' => $factory, 'shift' => $shift],
             [
+                'total_member' => $totalMember,
                 'mp_hadir' => $totalHadir,
                 'mp_absen' => $totalAbsen,
-                'p_cuti' => 0,
-                'p_sakit' => 0,
-                'p_ijin' => 0,
-                'o_cuti' => 0,
-                'o_sakit' => 0,
-                'o_ijin' => 0,
                 'total_absen' => $totalAbsen,
-                'total_member' => $totalMember,
                 'source' => 'dailyassignment',
             ]
         );

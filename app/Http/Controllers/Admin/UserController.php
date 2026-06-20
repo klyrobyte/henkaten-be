@@ -20,15 +20,15 @@ class UserController extends Controller
     public function index()
     {
         $currentUser = Auth::user();
-        $query = User::orderBy('role')->orderBy('name');
+        $scId = $currentUser->sc_id ?? 1;
+        $query = User::where('sc_id', $scId)->orderBy('role')->orderBy('name');
 
         if ($currentUser->isSuperAdmin()) {
-            // Superadmin sees everyone
+            // Superadmin sees everyone in their SC (SC1)
             $users = $query->get();
-            $factories = Factory::orderBy('order_index')->get();
+            $factories = Factory::where('sc_id', $scId)->orderBy('order_index')->get();
         } else {
-            // Normal admin only sees users within their factory scope
-            // And hides superadmins
+            // Normal admin only sees users within their SC AND their factory scope
             $adminFactories = (array) $currentUser->factory;
             
             $users = $query->where('role', '!=', 'superadmin')
@@ -41,7 +41,7 @@ class UserController extends Controller
                     return !empty(array_intersect($uFactories, $adminFactories));
                 });
                 
-            $factories = Factory::whereIn('name', $adminFactories)->orderBy('order_index')->get();
+            $factories = Factory::where('sc_id', $scId)->whereIn('name', $adminFactories)->orderBy('order_index')->get();
         }
 
         return view('admin.users.index', compact('users', 'factories'));
@@ -50,6 +50,7 @@ class UserController extends Controller
     public function store(Request $request)
     {
         $currentUser = Auth::user();
+        $scId = $currentUser->sc_id ?? 1;
         
         $allowedRoles = ['admin', 'tl', 'gl', 'pengawas', 'tv'];
         if ($currentUser->isSuperAdmin()) {
@@ -77,6 +78,7 @@ class UserController extends Controller
         }
 
         User::create([
+            'sc_id' => $scId,
             'name' => $request->name,
             'username' => $request->username,
             'password' => Hash::make($request->password),
@@ -91,10 +93,13 @@ class UserController extends Controller
     public function update(Request $request, User $user)
     {
         $currentUser = Auth::user();
+        $scId = $currentUser->sc_id ?? 1;
 
-        // Prevent normal admin from editing superadmin
-        if (!$currentUser->isSuperAdmin() && $user->isSuperAdmin()) {
-            return response()->json(['ok' => false, 'message' => 'Akses ditolak.'], 403);
+        // Prevent normal admin from editing superadmin or users from different SC
+        if (!$currentUser->isSuperAdmin()) {
+            if ($user->isSuperAdmin() || $user->sc_id != $scId) {
+                return response()->json(['ok' => false, 'message' => 'Akses ditolak.'], 403);
+            }
         }
 
         $allowedRoles = ['admin', 'tl', 'gl', 'pengawas', 'tv'];
@@ -115,9 +120,6 @@ class UserController extends Controller
             'password.min' => 'Password minimal 6 karakter.',
             'password.confirmed' => 'Konfirmasi password tidak cocok.',
         ]);
-
-        // Prevent changing last admin/superadmin role if necessary
-        // (Simplified for now, superadmin can always manage)
 
         $factory = $request->factory;
         if (!$currentUser->isSuperAdmin()) {
@@ -145,10 +147,13 @@ class UserController extends Controller
     public function destroy(User $user)
     {
         $currentUser = Auth::user();
+        $scId = $currentUser->sc_id ?? 1;
 
-        // Prevent normal admin from deleting superadmin
-        if (!$currentUser->isSuperAdmin() && $user->isSuperAdmin()) {
-            return response()->json(['ok' => false, 'message' => 'Akses ditolak.'], 403);
+        // Prevent normal admin from deleting superadmin or users from different SC
+        if (!$currentUser->isSuperAdmin()) {
+            if ($user->isSuperAdmin() || $user->sc_id != $scId) {
+                return response()->json(['ok' => false, 'message' => 'Akses ditolak.'], 403);
+            }
         }
 
         // Prevent deleting self

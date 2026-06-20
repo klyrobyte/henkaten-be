@@ -30,6 +30,7 @@ class MemberController extends Controller
     public function index(Request $request)
     {
         $user = Auth::user();
+        $scId = $user->sc_id ?? 1;
         $isSuperAdmin = $user->isSuperAdmin();
         $allowedFactories = (array) $user->factory;
 
@@ -37,7 +38,7 @@ class MemberController extends Controller
         $shift = $request->get('shift', 'all');
         $search = $request->get('q', '');
 
-        $query = Member::query();
+        $query = Member::where('sc_id', $scId);
 
         if (!$isSuperAdmin) {
             if ($factory === 'all') {
@@ -63,9 +64,9 @@ class MemberController extends Controller
         // Stats bar
         $stats = [
             'total' => !$isSuperAdmin
-                ? Member::whereIn('factory', $allowedFactories)->count()
-                : Member::count(),
-            'absen_today' => \App\Models\AbsenceRecord::where('tanggal', today())
+                ? Member::where('sc_id', $scId)->whereIn('factory', $allowedFactories)->count()
+                : Member::where('sc_id', $scId)->count(),
+            'absen_today' => \App\Models\AbsenceRecord::where('sc_id', $scId)->where('tanggal', today())
                 ->where('status', 'absen')
                 ->when(!$isSuperAdmin, function ($q) use ($allowedFactories) {
                     return $q->whereHas('member', function ($mq) use ($allowedFactories) {
@@ -75,7 +76,7 @@ class MemberController extends Controller
                 ->count(),
         ];
 
-        $factories = Factory::all();
+        $factories = Factory::where('sc_id', $scId)->get();
         if (!$isSuperAdmin) {
             $factories = $factories->filter(fn($f) => in_array($f->name, $allowedFactories));
         }
@@ -83,7 +84,7 @@ class MemberController extends Controller
         foreach ($factories as $fac) {
             $stats['f_' . $fac->id] = [
                 'name' => $fac->short_label,
-                'count' => Member::where('factory', $fac->name)->count(),
+                'count' => Member::where('sc_id', $scId)->where('factory', $fac->name)->count(),
             ];
         }
 
@@ -106,6 +107,12 @@ class MemberController extends Controller
     public function show(Member $member)
     {
         $user = Auth::user();
+        $scId = $user->sc_id ?? 1;
+
+        if ($member->sc_id != $scId) {
+             abort(403, 'Unauthorized access to this member.');
+        }
+
         if (!$user->isSuperAdmin() && !in_array($member->factory, (array) $user->factory)) {
             abort(403, 'Unauthorized factory access.');
         }
@@ -128,6 +135,7 @@ class MemberController extends Controller
     public function store(Request $request)
     {
         $user = Auth::user();
+        $scId = $user->sc_id ?? 1;
         $data = $this->validateMember($request);
 
         if (!$user->isSuperAdmin() && !in_array($data['factory'], (array) $user->factory)) {
@@ -144,6 +152,7 @@ class MemberController extends Controller
             $data['photo'] = $this->storeBase64Photo($request->photo_base64);
         }
 
+        $data['sc_id'] = $scId;
         $member = Member::create($data);
 
         if ($request->wantsJson()) {
@@ -159,6 +168,12 @@ class MemberController extends Controller
     public function update(Request $request, Member $member)
     {
         $user = Auth::user();
+        $scId = $user->sc_id ?? 1;
+
+        if ($member->sc_id != $scId) {
+             abort(403, 'Unauthorized access to this member.');
+        }
+
         if (!$user->isSuperAdmin() && !in_array($member->factory, (array) $user->factory)) {
             abort(403, 'Unauthorized factory access.');
         }
@@ -199,6 +214,12 @@ class MemberController extends Controller
     public function destroy(Member $member)
     {
         $user = Auth::user();
+        $scId = $user->sc_id ?? 1;
+
+        if ($member->sc_id != $scId) {
+             abort(403, 'Unauthorized access to this member.');
+        }
+
         if (!$user->isSuperAdmin() && !in_array($member->factory, (array) $user->factory)) {
             abort(403, 'Unauthorized factory access.');
         }
@@ -235,7 +256,8 @@ class MemberController extends Controller
         }
 
         $user = Auth::user();
-        $query = Member::query();
+        $scId = $user->sc_id ?? 1;
+        $query = Member::where('sc_id', $scId);
         if (!$user->isSuperAdmin()) {
             $query->whereIn('factory', (array) $user->factory);
         }
@@ -258,7 +280,8 @@ class MemberController extends Controller
     public function list(Request $request)
     {
         $user = Auth::user();
-        $query = Member::query();
+        $scId = $user->sc_id ?? 1;
+        $query = Member::where('sc_id', $scId);
 
         if (!$user->isSuperAdmin()) {
             $allowed = (array) $user->factory;
@@ -286,6 +309,7 @@ class MemberController extends Controller
     public function import(Request $request)
     {
         $user = Auth::user();
+        $scId = $user->sc_id ?? 1;
         $isSuperAdmin = $user->isSuperAdmin();
         $allowedFactories = (array) $user->factory;
 
@@ -305,7 +329,7 @@ class MemberController extends Controller
 
         // replace=true → hapus semua dulu (hanya yang diijinkan)
         if ($request->boolean('replace')) {
-            $delQuery = Member::query();
+            $delQuery = Member::where('sc_id', $scId);
             if (!$isSuperAdmin) {
                 $delQuery->whereIn('factory', $allowedFactories);
             }
@@ -315,7 +339,8 @@ class MemberController extends Controller
         $added = 0;
         $skipped = 0;
         foreach ($request->members as $row) {
-            $exists = Member::where('nama', $row['name'])
+            $exists = Member::where('sc_id', $scId)
+                ->where('nama', $row['name'])
                 ->where('factory', $row['factory'])
                 ->where('shift', $row['shift'])
                 ->exists();
@@ -326,7 +351,7 @@ class MemberController extends Controller
             }
 
             Member::updateOrCreate(
-                ['nama' => $row['name'], 'factory' => $row['factory'], 'shift' => $row['shift']],
+                ['sc_id' => $scId, 'nama' => $row['name'], 'factory' => $row['factory'], 'shift' => $row['shift']],
                 [
                     'jabatan' => $row['role'] ?? 'Operator',
                     'mesin' => $row['mesin'] ?? '',
@@ -341,7 +366,7 @@ class MemberController extends Controller
             'ok' => true,
             'added' => $added,
             'skipped' => $skipped,
-            'total' => Member::count(),
+            'total' => Member::where('sc_id', $scId)->count(),
         ]);
     }
 
@@ -352,7 +377,8 @@ class MemberController extends Controller
     public function export()
     {
         $user = Auth::user();
-        $query = Member::query();
+        $scId = $user->sc_id ?? 1;
+        $query = Member::where('sc_id', $scId);
         if (!$user->isSuperAdmin()) {
             $query->whereIn('factory', (array) $user->factory);
         }

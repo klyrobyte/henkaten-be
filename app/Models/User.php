@@ -13,6 +13,7 @@ class User extends Authenticatable
      * Kolom yang bisa diisi mass-assignment
      */
     protected $fillable = [
+        'sc_id',
         'name',
         'username',
         'password',
@@ -20,6 +21,11 @@ class User extends Authenticatable
         'factory',
         'shift',
     ];
+
+    public function sc()
+    {
+        return $this->belongsTo(Sc::class, 'sc_id');
+    }
 
     protected $hidden = [
         'password',
@@ -45,6 +51,22 @@ class User extends Authenticatable
     public function isSuperAdmin(): bool
     {
         return $this->role === 'superadmin';
+    }
+
+    public function getActiveScId(): int
+    {
+        if ($this->isSuperAdmin()) {
+            return (int) session('active_sc_id', $this->sc_id ?? 1);
+        }
+        return (int) ($this->sc_id ?? 1);
+    }
+
+    public function getScIdAttribute($value)
+    {
+        if ($this->isSuperAdmin() && !app()->runningInConsole() && request()->hasSession()) {
+            return (int) session('active_sc_id', $value ?? 1);
+        }
+        return (int) ($value ?? 1);
     }
 
     public function isAdmin(): bool

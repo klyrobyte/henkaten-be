@@ -18,6 +18,7 @@ use App\Http\Controllers\Admin\SectionController;
 use App\Http\Controllers\Admin\StatusController;
 use App\Http\Controllers\Admin\RepairDepartmentController;
 use App\Http\Controllers\Admin\SiteConfigController;
+use App\Http\Controllers\Admin\ScController;
 use Illuminate\Support\Facades\Route;
 
 // â”€â”€â”€ Auth â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -27,7 +28,7 @@ Route::post('/login', [AuthController::class, 'login'])->name('login.post')->mid
 Route::post('/logout',[AuthController::class, 'logout'])->name('logout');
 
 // â”€â”€â”€ Admin â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', 'sc.guard'])->prefix('admin')->name('admin.')->group(function () {
 
     // â”€â”€ Dashboard â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     Route::get('/',          [DashboardController::class, 'index'])->name('dashboard');
@@ -38,6 +39,7 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     // DEPRECATED â€” migrate callers to POST /api/context
     Route::post('/context',  [DashboardController::class, 'setContext'])->name('context')
          ->middleware('log.deprecated');
+    Route::post('/set-sc',   [DashboardController::class, 'setScContext'])->name('set-sc');
 
     // â”€â”€ TV MODE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     // Picker halaman pilih factory+shift (untuk role tv)
@@ -69,6 +71,14 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
             Route::get('/export', [\App\Http\Controllers\Admin\GlobalLogController::class, 'exportCsv'])->name('export')
                  ->middleware('throttle:5,1'); // rate-limit CSV export
         });
+
+    // ── SC Management (Super Admin Only) ─────────────────────────────────────
+    Route::middleware('role:superadmin')->prefix('sc-management')->name('sc.')->group(function () {
+        Route::get('/',          [ScController::class, 'index'])->name('index');
+        Route::post('/',         [ScController::class, 'store'])->name('store');
+        Route::put('/{sc}',      [ScController::class, 'update'])->name('update');
+        Route::delete('/{sc}',   [ScController::class, 'destroy'])->name('destroy');
+    });
 
     // ── Master Data (Super Admin Only) ───────────────────────────────────────
     Route::middleware(['role:superadmin', 'global.log'])->prefix('master-data')->name('master-data.')

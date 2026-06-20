@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Member extends Model
 {
     protected $fillable = [
+        'sc_id',
         'nama',
         'nik',
         'jabatan',
@@ -18,6 +19,11 @@ class Member extends Model
         'photo',
         'status',
     ];
+
+    public function sc()
+    {
+        return $this->belongsTo(Sc::class, 'sc_id');
+    }
 
     // ── Relasi ───────────────────────────────────────────────────────
     public function absenceRecords(): HasMany

@@ -334,10 +334,37 @@
             </div>
         </div>
 
+        {{-- SC Origin Dropdown (Super Admin only) --}}
+        @if(auth()->user()->isSuperAdmin() && $scs->count() > 0)
+            <div style="margin-bottom:14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+                <label style="font-family:'Roboto Condensed',sans-serif;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:#666;">🏢 SC Origin</label>
+                <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                    @foreach($scs as $sc)
+                        <a href="{{ route('admin.group.index', ['sc_id' => $sc->id]) }}"
+                           style="display:inline-flex;align-items:center;gap:5px;padding:6px 14px;
+                                  border-radius:20px;font-family:'Roboto Condensed',sans-serif;
+                                  font-size:11px;font-weight:800;letter-spacing:.4px;
+                                  text-decoration:none;transition:all .15s;
+                                  {{ $activeSc === $sc->id
+                                        ? 'background:var(--brand-primary);color:#fff;box-shadow:0 3px 10px rgba(var(--brand-primary-rgb),.35);'
+                                        : 'background:#f0f0f0;color:#666;border:1.5px solid #ddd;' }}">
+                            <span>{{ $sc->short_label ?? $sc->name }}</span>
+                        </a>
+                    @endforeach
+                </div>
+                <span style="font-family:'Roboto Condensed',sans-serif;font-size:11px;color:#aaa;">
+                    — Menampilkan group milik <strong>{{ $scs->firstWhere('id', $activeSc)?->name ?? 'SC '.$activeSc }}</strong>
+                </span>
+            </div>
+        @endif
+
         {{-- Toolbar --}}
         <div class="mm-toolbar">
             <div style="font-family:'Roboto Condensed',sans-serif;font-size:13px;color:#666;">
                 <strong style="color:#1f3c88;">{{ $factories->count() }}</strong> factory terdaftar
+                @if(auth()->user()->isSuperAdmin())
+                    <span style="color:#aaa;margin-left:4px;">· SC: {{ $scs->firstWhere('id', $activeSc)?->short_label ?? $activeSc }}</span>
+                @endif
             </div>
             <button class="gm-add-btn" id="gmAddBtn" onclick="openGroupModal()">
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
@@ -370,7 +397,7 @@
                     </div>
                     <div class="gm-card-actions">
                         <button class="gm-act-btn gm-act-edit"
-                            onclick="openGroupModal({{ $f->id }}, '{{ addslashes($f->name) }}', '{{ addslashes($f->short_label) }}', '{{ addslashes($f->gradient) }}', '{{ addslashes($f->detail_departemen) }}')">
+                            onclick="openGroupModal({{ $f->id }}, '{{ addslashes($f->name) }}', '{{ addslashes($f->short_label) }}', '{{ addslashes($f->gradient) }}', '{{ addslashes($f->detail_departemen) }}', {{ $f->sc_id }})">
                             ✏️ Edit
                         </button>
                         <button class="gm-act-btn gm-act-del"
@@ -382,7 +409,11 @@
             @empty
                 <div class="gm-empty" style="grid-column:1/-1;">
                     <div class="gm-empty-icon">🏭</div>
-                    <div>Belum ada factory. Klik <strong>Tambah Factory</strong> untuk mulai.</div>
+                    @if(auth()->user()->isSuperAdmin())
+                        <div>SC ini belum memiliki group. Klik <strong>Tambah Factory</strong> untuk membuat group baru.</div>
+                    @else
+                        <div>Belum ada factory. Klik <strong>Tambah Factory</strong> untuk mulai.</div>
+                    @endif
                 </div>
             @endforelse
         </div>
@@ -399,6 +430,21 @@
             </div>
             <div class="mm-modal-body">
                 <input type="hidden" id="gmFactoryId">
+
+                @if(auth()->user()->isSuperAdmin() && $scs->count() > 0)
+                    <div class="gm-field">
+                        <label>SC Origin *</label>
+                        <select id="gmScId" style="padding:10px 12px; border:1.5px solid #e0e0e0; border-radius:10px; font-size:13px; font-family:inherit; width:100%; background:#fff;">
+                            @foreach($scs as $sc)
+                                <option value="{{ $sc->id }}" {{ $activeSc === $sc->id ? 'selected' : '' }}>
+                                    {{ $sc->name }} ({{ $sc->short_label }})
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                @else
+                    <input type="hidden" id="gmScId" value="{{ $activeSc }}">
+                @endif
 
                 <div class="gm-field">
                     <label>Nama Factory *</label>
@@ -446,6 +492,7 @@
 @push('scripts')
     <script>
         const CSRF = '{{ csrf_token() }}';
+        const GM_ACTIVE_SC = {{ $activeSc }}; // SC ID being managed on this page
         let _gmEditId = null;
 
         // ── Color chip presets ───────────────────────────────────────────────────
@@ -545,7 +592,7 @@
             } catch (e) { /* silent */ }
         });
 
-        function openGroupModal(id = null, name = '', shortLabel = '', gradient = '', detailDept = '') {
+        function openGroupModal(id = null, name = '', shortLabel = '', gradient = '', detailDept = '', scId = null) {
             _gmEditId = id;
             const isEdit = !!id;
             document.getElementById('groupModalTitle').textContent = isEdit ? '✏️ Edit Factory' : '➕ Tambah Factory';
@@ -554,6 +601,12 @@
             document.getElementById('gmShortLabel').value = shortLabel;
             document.getElementById('gmGradient').value = gradient;
             document.getElementById('gmDetailDept').value = detailDept;
+
+            const scSelect = document.getElementById('gmScId');
+            if (scSelect) {
+                scSelect.value = scId ?? GM_ACTIVE_SC;
+            }
+
             // Reset chip selection, then auto-select matching chip
             document.querySelectorAll('#gmChipGrid .gm-chip').forEach(c => c.classList.remove('active'));
             document.getElementById('gmCustomPickerWrap')?.classList.remove('show');
@@ -577,7 +630,9 @@
             try {
                 const url = id ? `/admin/api/factories/${id}` : '/admin/api/factories';
                 const method = id ? 'PUT' : 'POST';
-                const body = { name };
+                const scSelect = document.getElementById('gmScId');
+                const scIdValue = scSelect ? scSelect.value : GM_ACTIVE_SC;
+                const body = { name, sc_id: scIdValue };
                 if (short) body.short_label = short;
                 if (grad) body.gradient = grad;
                 if (detailDept) body.detail_departemen = detailDept;
@@ -596,7 +651,10 @@
 
                 showToast('✅ Factory berhasil disimpan!', 'success');
                 closeSheet('groupModal');
-                setTimeout(() => window.location.reload(), 600);
+                // Reload keeping the same SC filter
+                setTimeout(() => {
+                    window.location.href = `/admin/group?sc_id=${scIdValue}`;
+                }, 600);
             } catch (e) {
                 showToast('Gagal: ' + e.message, 'error');
             } finally {

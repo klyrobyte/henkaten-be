@@ -29,10 +29,11 @@ class MesinManagementController extends Controller
     private function getCurrentFactory(Request $request): string
     {
         $user = Auth::user();
+        $scId = $user->sc_id ?? 1;
 
         // 1. Superadmin: session-based full access
         if ($user->isSuperAdmin()) {
-            return $request->session()->get('factory', 'Factory 2');
+            return $request->session()->get('factory', Factory::where('sc_id', $scId)->orderBy('order_index')->value('name') ?? 'Factory 2');
         }
 
         // 2. GL: fixed to their assigned factory
@@ -49,7 +50,7 @@ class MesinManagementController extends Controller
             return $sessionFactory;
         }
 
-        return !empty($allowedFactories) ? $allowedFactories[0] : 'Factory 2';
+        return !empty($allowedFactories) ? $allowedFactories[0] : (Factory::where('sc_id', $scId)->orderBy('order_index')->value('name') ?? 'Factory 2');
     }
 
     /**
@@ -58,9 +59,10 @@ class MesinManagementController extends Controller
     public function index(Request $request)
     {
         $user = Auth::user();
+        $scId = $user->sc_id ?? 1;
         $currentFactory = $this->getCurrentFactory($request);
 
-        $machines = Machine::where('factory', $currentFactory)
+        $machines = Machine::where('sc_id', $scId)->where('factory', $currentFactory)
             ->orderBy('name')
             ->get();
 
@@ -79,8 +81,10 @@ class MesinManagementController extends Controller
         $userFactory = $user->factory;
 
         // Dynamic data for form dropdowns
-        $factoriesQuery = Factory::query();
-        $sectionsQuery = Section::with('factory');
+        $factoriesQuery = Factory::where('sc_id', $scId);
+        $sectionsQuery = Section::whereHas('factory', function($q) use ($scId) {
+            $q->where('sc_id', $scId);
+        })->with('factory');
 
         if (!$user->isSuperAdmin()) {
             $allowed = (array) ($user->factory ?? []);
@@ -92,7 +96,7 @@ class MesinManagementController extends Controller
 
         $factories = $factoriesQuery->orderBy('order_index')->get();
         $sections = $sectionsQuery->orderBy('factory_id')->orderBy('order_index')->get();
-        $statuses = Status::orderBy('order_index')->get();
+        $statuses = Status::where('sc_id', $scId)->orderBy('order_index')->get();
 
         return view(
             'admin.mesinmg.index',
@@ -106,6 +110,12 @@ class MesinManagementController extends Controller
     public function show(Machine $machine)
     {
         $user = Auth::user();
+        $scId = $user->sc_id ?? 1;
+
+        if ($machine->sc_id != $scId) {
+             abort(403, 'Unauthorized access to this machine.');
+        }
+
         if (!$user->isSuperAdmin() && !in_array($machine->factory, (array) ($user->factory ?? []))) {
             abort(403, 'Unauthorized factory access.');
         }
@@ -124,12 +134,15 @@ class MesinManagementController extends Controller
     public function store(Request $request)
     {
         $user = Auth::user();
+        $scId = $user->sc_id ?? 1;
         $currentFactory = $this->getCurrentFactory($request);
 
         // Build dynamic validation rules from DB
-        $factoryNames = Factory::pluck('name')->toArray();
-        $sectionCodes = Section::pluck('code')->toArray();
-        $statusKeys = Status::pluck('key')->toArray();
+        $factoryNames = Factory::where('sc_id', $scId)->pluck('name')->toArray();
+        $sectionCodes = Section::whereHas('factory', function($q) use ($scId) {
+            $q->where('sc_id', $scId);
+        })->pluck('code')->toArray();
+        $statusKeys = Status::where('sc_id', $scId)->pluck('key')->toArray();
 
         $factoryRule = count($factoryNames) ? 'nullable|string|in:' . implode(',', $factoryNames) : 'nullable|string';
         $sectionRule = count($sectionCodes) ? 'nullable|string|in:' . implode(',', $sectionCodes) : 'nullable|string';
@@ -160,6 +173,7 @@ class MesinManagementController extends Controller
         }
 
         $machine = Machine::create([
+            'sc_id' => $scId,
             'factory' => $factory,
             'name' => $request->name,
             'status' => $request->status,
@@ -181,6 +195,11 @@ class MesinManagementController extends Controller
     public function update(Request $request, Machine $machine)
     {
         $user = Auth::user();
+        $scId = $user->sc_id ?? 1;
+
+        if ($machine->sc_id != $scId) {
+             abort(403, 'Unauthorized access to this machine.');
+        }
 
         // 1. Validate current machine's factory
         if (!$user->isSuperAdmin() && !in_array($machine->factory, (array) ($user->factory ?? []))) {
@@ -190,9 +209,11 @@ class MesinManagementController extends Controller
         $currentFactory = $this->getCurrentFactory($request);
 
         // Build dynamic validation rules from DB
-        $factoryNames = Factory::pluck('name')->toArray();
-        $sectionCodes = Section::pluck('code')->toArray();
-        $statusKeys = Status::pluck('key')->toArray();
+        $factoryNames = Factory::where('sc_id', $scId)->pluck('name')->toArray();
+        $sectionCodes = Section::whereHas('factory', function($q) use ($scId) {
+            $q->where('sc_id', $scId);
+        })->pluck('code')->toArray();
+        $statusKeys = Status::where('sc_id', $scId)->pluck('key')->toArray();
 
         $factoryRule = count($factoryNames) ? 'nullable|string|in:' . implode(',', $factoryNames) : 'nullable|string';
         $sectionRule = count($sectionCodes) ? 'nullable|string|in:' . implode(',', $sectionCodes) : 'nullable|string';
@@ -260,6 +281,12 @@ class MesinManagementController extends Controller
     public function destroy(Machine $machine)
     {
         $user = Auth::user();
+        $scId = $user->sc_id ?? 1;
+
+        if ($machine->sc_id != $scId) {
+             abort(403, 'Unauthorized access to this machine.');
+        }
+
         if (!$user->isSuperAdmin() && !in_array($machine->factory, (array) ($user->factory ?? []))) {
             abort(403, 'Unauthorized factory access.');
         }

@@ -33,10 +33,13 @@ class AbsenceSummaryService
      * Hitung dan simpan summary untuk tanggal/factory/shift tertentu.
      * Dipanggil setiap kali absensi di-save/sync.
      */
-    public function recalculate(string $tanggal, string $factory, string $shift): AbsenceSummary
+    public function recalculate(string $tanggal, string $factory, string $shift, ?int $scId = null): AbsenceSummary
     {
+        $scId = $scId ?? (auth()->check() ? (auth()->user()->sc_id ?? 1) : 1);
+
         // Ambil semua member aktif untuk shift ini
-        $members = Member::where('factory', $factory)
+        $members = Member::where('sc_id', $scId)
+            ->where('factory', $factory)
             ->where('shift', $shift)
             ->where('status', 'active')
             ->get()
@@ -46,6 +49,7 @@ class AbsenceSummaryService
 
         // Ambil semua AbsenceRecord untuk hari ini
         $records = AbsenceRecord::where([
+            'sc_id' => $scId,
             'tanggal' => $tanggal,
             'factory' => $factory,
             'shift' => $shift,
@@ -93,7 +97,7 @@ class AbsenceSummaryService
         $opHadirV = $totalOp - $opAbsen;
 
         return AbsenceSummary::updateOrCreate(
-            ['tanggal' => $tanggal, 'factory' => $factory, 'shift' => $shift],
+            ['sc_id' => $scId, 'tanggal' => $tanggal, 'factory' => $factory, 'shift' => $shift],
             [
                 'total_member' => $totalMember,
                 'mp_hadir' => max(0, $mpHadir),

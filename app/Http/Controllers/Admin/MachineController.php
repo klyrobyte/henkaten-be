@@ -82,7 +82,9 @@ class MachineController extends Controller
             return response()->json(['error' => 'Unauthorized factory access'], 403);
         }
 
+        $scId = auth()->user()->sc_id ?? 1;
         $machine = Machine::firstOrCreate([
+            'sc_id' => $scId,
             'factory' => $request->factory,
             'name' => $request->machine_name,
         ]);
@@ -160,7 +162,9 @@ class MachineController extends Controller
             return response()->json(['error' => 'Unauthorized factory access'], 403);
         }
 
+        $scId = auth()->user()->sc_id ?? 1;
         $machine = Machine::where([
+            'sc_id' => $scId,
             'factory' => $request->factory,
             'name' => $request->machine_name,
         ])->first();
@@ -196,8 +200,10 @@ class MachineController extends Controller
             return response()->json(['error' => 'Unauthorized factory access'], 403);
         }
 
+        $scId = auth()->user()->sc_id ?? 1;
         MachineStatus::updateOrCreate(
             [
+                'sc_id' => $scId,
                 'tanggal' => $request->tanggal,
                 'factory' => $request->factory,
                 'shift' => $request->shift,
@@ -218,7 +224,9 @@ class MachineController extends Controller
             return response()->json(['error' => 'Unauthorized factory access'], 403);
         }
 
+        $scId = auth()->user()->sc_id ?? 1;
         $statuses = MachineStatus::where([
+            'sc_id' => $scId,
             'tanggal' => $request->tanggal,
             'factory' => $request->factory,
             'shift' => $request->shift,
@@ -243,20 +251,22 @@ class MachineController extends Controller
             return response()->json(['error' => 'Unauthorized factory access'], 403);
         }
 
-        $statuses = \App\Models\MachineStatus::where(compact('tanggal', 'factory', 'shift'))
+        $scId = auth()->user()->sc_id ?? 1;
+
+        $statuses = \App\Models\MachineStatus::where(compact('sc_id', 'tanggal', 'factory', 'shift'))
             ->where('status', '!=', 'normal')
             ->get();
 
-        $logs = \App\Models\ProblemLog::where(compact('tanggal', 'factory', 'shift'))
+        $logs = \App\Models\ProblemLog::where(compact('sc_id', 'tanggal', 'factory', 'shift'))
             ->where('status', 'open')
             ->get();
 
-        $absenIds = \App\Models\AbsenceRecord::where(compact('tanggal', 'factory', 'shift'))
+        $absenIds = \App\Models\AbsenceRecord::where(compact('sc_id', 'tanggal', 'factory', 'shift'))
             ->where('status', 'absen')
             ->pluck('member_id')
             ->toArray();
 
-        $replacedIds = \App\Models\AssignmentReplacement::where(compact('tanggal', 'factory', 'shift'))
+        $replacedIds = \App\Models\AssignmentReplacement::where(compact('sc_id', 'tanggal', 'factory', 'shift'))
             ->pluck('member_id')
             ->toArray();
 
@@ -264,7 +274,8 @@ class MachineController extends Controller
 
         $absenMachines = [];
         if (!empty($unreplacedIds)) {
-            $absenMachines = \App\Models\Member::whereIn('id', $unreplacedIds)
+            $absenMachines = \App\Models\Member::where('sc_id', $scId)
+                ->whereIn('id', $unreplacedIds)
                 ->whereNotNull('mesin')
                 ->pluck('mesin')
                 ->toArray();
@@ -307,6 +318,11 @@ class MachineController extends Controller
             return response()->json(['error' => 'Unauthorized factory access'], 403);
         }
 
+        $scId = auth()->user()->sc_id ?? 1;
+        if ($machine->sc_id != $scId) {
+             return response()->json(['error' => 'Unauthorized SC access'], 403);
+        }
+
         $machine->update([
             'floor_cx' => $request->floor_cx,
             'floor_cy' => $request->floor_cy,
@@ -336,7 +352,9 @@ class MachineController extends Controller
             abort(403);
         }
 
-        $machines = Machine::where('factory', strtoupper($factory))
+        $scId = auth()->user()->sc_id ?? 1;
+        $machines = Machine::where('sc_id', $scId)
+            ->where('factory', strtoupper($factory))
             ->orderBy('name')
             ->get();
 

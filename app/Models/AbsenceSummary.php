@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class AbsenceSummary extends Model
 {
     protected $fillable = [
+        'sc_id',
         'tanggal',
         'factory',
         'shift',

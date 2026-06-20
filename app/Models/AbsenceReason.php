@@ -9,5 +9,5 @@ class AbsenceReason extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'color'];
+    protected $fillable = ['sc_id', 'name', 'color'];
 }

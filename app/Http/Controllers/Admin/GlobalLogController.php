@@ -52,7 +52,8 @@ class GlobalLogController extends Controller
         }
 
         $logs     = $query->paginate(50)->withQueryString();
-        $factories = \App\Models\Factory::orderBy('order_index')->get();
+        $scId     = Auth::user()->sc_id ?? 1;
+        $factories = \App\Models\Factory::where('sc_id', $scId)->orderBy('order_index')->get();
 
         return view('admin.global_logs', compact('logs', 'factories'));
     }
