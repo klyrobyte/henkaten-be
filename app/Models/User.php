@@ -53,6 +53,15 @@ class User extends Authenticatable
         return $this->role === 'superadmin';
     }
 
+    /**
+     * Returns true if this user is allowed to access the given SC.
+     * Superadmins can access any SC; regular users are bound to their own sc_id.
+     */
+    public function canAccessSc(int $scId): bool
+    {
+        return $this->isSuperAdmin() || $this->getActiveScId() === $scId;
+    }
+
     public function getActiveScId(): int
     {
         if ($this->isSuperAdmin()) {

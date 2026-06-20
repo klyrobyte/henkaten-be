@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Factory;
+use App\Models\Machine;
 use App\Models\ProblemLog;
 use App\Models\AbsenceRecord;
 use App\Models\AbsenceSummary;
@@ -282,9 +284,14 @@ class MasterDataController extends Controller
             AbsenceReason::where('sc_id', $scId)->delete();
             return response()->json(['ok' => true, 'message' => "Successfully cleared all absence reason records for this Service Center."]);
         } elseif ($tab === 'global-logs') {
-            // Global log is superadmin only, allow truncate
-            GlobalLog::truncate();
-            return response()->json(['ok' => true, 'message' => "Successfully cleared all global logs."]);
+            // Scope deletion to logs belonging to the active SC's factories only.
+            // We do NOT use truncate() — that would wipe all SCs' audit trails.
+            $scFactoryNames = Factory::where('sc_id', $scId)->pluck('name')->toArray();
+            $deleted = GlobalLog::where(function ($q) use ($scFactoryNames) {
+                $q->whereIn('factory', $scFactoryNames)
+                  ->orWhereNull('factory');
+            })->delete();
+            return response()->json(['ok' => true, 'message' => "Successfully cleared {$deleted} global log(s) for this Service Center."]);
         }
 
         if (!$query) {
