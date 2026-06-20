@@ -40,7 +40,7 @@ class FactoryController extends Controller
     /** GET /admin/api/factories  - list for dropdowns */
     public function apiList()
     {
-        $scId = auth()->user()->sc_id ?? 1;
+        $scId = auth()->user()->getActiveScId();
         $factories = Factory::where('sc_id', $scId)->orderBy('order_index')->get();
         return response()->json(['ok' => true, 'factories' => $factories]);
     }

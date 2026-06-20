@@ -798,10 +798,15 @@
             </div>
             <div class="modal-sheet-body">
                 <div style="display:flex;flex-direction:column;gap:12px">
-                    @php $userRole = auth()->user()->role;
-                    $userFactory = auth()->user()->factory; @endphp
+                    @php
+                        $authUser     = auth()->user();
+                        $userFactory  = $authUser->factory; // array|null (cast)
+                        $allowedFacs  = $authUser->isSuperAdmin()
+                            ? null  // null = no restriction
+                            : (array) $userFactory;
+                    @endphp
                     @foreach($factories as $fac)
-                        @if($userRole === 'admin' || !$userFactory || $userFactory === $fac->name)
+                        @if($allowedFacs === null || in_array($fac->name, $allowedFacs))
                             <button class="btn-primary" style="background:{{ $fac->gradient }} !important; border: none;"
                                 onclick="setFactory('{{ addslashes($fac->name) }}')">🏭 {{ $fac->name }}</button>
                         @endif
@@ -821,7 +826,14 @@
             </div>
             <div class="modal-sheet-body" style="padding:8px 14px 20px;">
                 <div style="display:flex;flex-direction:column;gap:12px;">
+                    @php
+                        $tvAuthUser    = auth()->user();
+                        $tvAllowedFacs = $tvAuthUser->isSuperAdmin()
+                            ? null
+                            : (array) $tvAuthUser->factory;
+                    @endphp
                     @foreach($factories as $fac)
+                        @if($tvAllowedFacs === null || in_array($fac->name, $tvAllowedFacs))
                         <div style="border-radius:14px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.12);">
                             {{-- Header factory --}}
                             <div style="background:{{ $fac->gradient }};padding:10px 16px;
@@ -870,6 +882,7 @@
                                 </button>
                             </div>
                         </div>
+                        @endif
                     @endforeach
                 </div>
             </div>

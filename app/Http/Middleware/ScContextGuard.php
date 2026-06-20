@@ -11,6 +11,12 @@ class ScContextGuard
     /**
      * Enforce Service Center (SC) data isolation.
      *
+     * Isolation contract:
+     *  - Non-superadmin users MUST have a non-null sc_id. If missing, abort.
+     *  - Session factory must belong to the user's active SC.
+     *  - Query-string factory parameter must belong to the user's active SC.
+     *  - Route model bindings with sc_id must match the user's active SC.
+     *
      * @param  \Illuminate\Http\Request  $request
      * @param  \Closure  $next
      * @return mixed
@@ -23,6 +29,13 @@ class ScContextGuard
         }
 
         $activeScId = $user->getActiveScId();
+
+        // 0. Guard: non-superadmin users must have a valid sc_id (defence-in-depth)
+        //    A null sc_id would cause every where('sc_id', ...) query to silently
+        //    return wrong results, potentially leaking cross-SC data.
+        if (!$user->isSuperAdmin() && $activeScId === 0) {
+            abort(403, 'Invalid Service Center context. Please contact an administrator.');
+        }
 
         // 1. Clean/Force reset session factory if it does not belong to active SC
         if ($request->hasSession()) {
@@ -49,12 +62,12 @@ class ScContextGuard
             foreach ($request->route()->parameters() as $param) {
                 if (is_object($param)) {
                     if (isset($param->sc_id)) {
-                        if ((int)$param->sc_id !== $activeScId) {
+                        if (!$user->canAccessSc((int) $param->sc_id)) {
                             abort(403, 'Unauthorized Service Center access.');
                         }
                     } elseif ($param instanceof \App\Models\Section) {
                         $factory = $param->factory;
-                        if ($factory && (int)$factory->sc_id !== $activeScId) {
+                        if ($factory && !$user->canAccessSc((int) $factory->sc_id)) {
                             abort(403, 'Unauthorized Service Center access.');
                         }
                     }

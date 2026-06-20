@@ -38,7 +38,7 @@ class MesinManagementController extends Controller
 
         // 2. GL: fixed to their assigned factory
         if ($user->role === 'gl') {
-            return (is_array($user->factory) ? $user->factory[0] : $user->factory) ?? 'Factory 2';
+            return (is_array($user->factory) ? ($user->factory[0] ?? null) : $user->factory) ?? 'Factory 2';
         }
 
         // 3. Normal Admin (role='admin'): restricted to (array)$user->factory

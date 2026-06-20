@@ -50,7 +50,7 @@ class DashboardController extends Controller
         }
 
         $factory = $sessionFactory
-            ?? (is_array($user?->factory) ? $user->factory[0] : $user?->factory)
+            ?? (is_array($user?->factory) ? ($user->factory[0] ?? null) : $user?->factory)
             ?? Factory::where('sc_id', $scId)->orderBy('order_index')->value('name')
             ?? 'Factory 2'; // absolute last resort
 
