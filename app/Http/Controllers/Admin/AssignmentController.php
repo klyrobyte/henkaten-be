@@ -8,6 +8,7 @@ use App\Models\Member;
 use App\Models\AbsenceRecord;
 use App\Models\AbsenceSummary;
 use App\Services\FactoryConfigService;
+use App\Services\ScContext;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
@@ -44,8 +45,8 @@ class AssignmentController extends Controller
     private function resolveFactory(Request $request): string
     {
         $user = Auth::user();
-        $scId = $user->sc_id ?? 1;
-        $factory = $request->get('factory') ?: $request->session()->get('factory', \App\Models\Factory::where('sc_id', $scId)->orderBy('order_index')->value('name') ?? 'Factory 2');
+        $scId = ScContext::id();
+        $factory = $request->get('factory') ?: $request->session()->get('factory', ScContext::firstFactory());
 
         if ($user && !$user->isSuperAdmin()) {
             $allowedFactories = (array) $user->factory;
@@ -78,7 +79,7 @@ class AssignmentController extends Controller
     public function index(Request $request)
     {
         $user = Auth::user();
-        $scId = $user->sc_id ?? 1;
+        $scId = ScContext::id();
         $factory = $this->resolveFactory($request);
         $shift = $this->normalizeShift($request->session()->get('shift', 'A'));
         $tanggal = $request->get('tanggal', today()->toDateString());
@@ -143,7 +144,7 @@ class AssignmentController extends Controller
         ]);
 
         $user = Auth::user();
-        $scId = $user->sc_id ?? 1;
+        $scId = ScContext::id();
         $factory = $request->factory;
 
         if ($user && !$user->isSuperAdmin()) {
@@ -218,7 +219,7 @@ class AssignmentController extends Controller
     public function getData(Request $request): JsonResponse
     {
         $user = Auth::user();
-        $scId = $user->sc_id ?? 1;
+        $scId = ScContext::id();
         $tanggal = $request->get('tanggal', today()->toDateString());
         $factory = $this->resolveFactory($request);
         $shift = $this->normalizeShift($request->get('shift', session('shift', 'A')));
@@ -250,7 +251,7 @@ class AssignmentController extends Controller
     {
         try {
             $user = Auth::user();
-            $scId = $user->sc_id ?? 1;
+            $scId = ScContext::id();
             $tanggal = $request->get('tanggal', today()->toDateString());
             $factory = $this->resolveFactory($request);
             $shift = $this->normalizeShift($request->get('shift', session('shift', 'A')));
@@ -349,7 +350,7 @@ class AssignmentController extends Controller
     public function syncAbsen(Request $request): JsonResponse
     {
         $user = Auth::user();
-        $scId = $user->sc_id ?? 1;
+        $scId = ScContext::id();
         $tanggal = $request->get('tanggal', today()->toDateString());
         $factory = $this->resolveFactory($request);
         $shift = $this->normalizeShift($request->get('shift', session('shift', 'A')));
@@ -395,7 +396,7 @@ class AssignmentController extends Controller
 
     private function buildDefaults(string $factory, string $shift, array $groups): array
     {
-        $scId = Auth::user()->sc_id ?? 1;
+        $scId = ScContext::id();
         $members = Member::where('sc_id', $scId)
             ->where('factory', $factory)
             ->where('status', 'active')
@@ -466,7 +467,7 @@ class AssignmentController extends Controller
 
     private function broadcastAbsence(string $tanggal, string $factory, string $shift, array $assignments): void
     {
-        $scId = Auth::user()->sc_id ?? 1;
+        $scId = ScContext::id();
         $reasonMap = [
             'Sakit' => 'Sakit',
             'Cuti' => 'Cuti',

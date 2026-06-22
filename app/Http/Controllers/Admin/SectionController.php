@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Factory;
 use App\Models\Machine;
 use App\Models\Section;
+use App\Services\ScContext;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -21,7 +22,7 @@ class SectionController extends Controller
     public function index()
     {
         $user = Auth::user();
-        $scId = $user->sc_id ?? 1;
+        $scId = ScContext::id();
         $query = Factory::where('sc_id', $scId)->orderBy('order_index')->with('sections');
 
         if (!$user->isSuperAdmin()) {
@@ -37,7 +38,7 @@ class SectionController extends Controller
     public function apiList(Request $request)
     {
         $user = Auth::user();
-        $scId = $user->sc_id ?? 1;
+        $scId = ScContext::id();
         $query = Section::whereHas('factory', function($q) use ($scId) {
             $q->where('sc_id', $scId);
         })->orderBy('order_index');

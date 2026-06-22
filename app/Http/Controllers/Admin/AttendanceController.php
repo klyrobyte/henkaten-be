@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\AbsenceSummary;
+use App\Services\ScContext;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -22,8 +23,8 @@ class AttendanceController extends Controller
     public function index(Request $request)
     {
         $user = Auth::user();
-        $scId = $user->sc_id ?? 1;
-        $factory = $request->session()->get('factory', \App\Models\Factory::where('sc_id', $scId)->orderBy('order_index')->value('name') ?? 'Factory 2');
+        $scId = ScContext::id();
+        $factory = $request->session()->get('factory', ScContext::firstFactory());
         $shift = $request->session()->get('shift', 'A');
         $tanggal = $request->get('tanggal', today()->toDateString());
 
@@ -50,7 +51,7 @@ class AttendanceController extends Controller
     public function store(Request $request)
     {
         $user = Auth::user();
-        $scId = $user->sc_id ?? 1;
+        $scId = ScContext::id();
 
         $request->validate([
             'tanggal' => 'required|date',
@@ -111,7 +112,7 @@ class AttendanceController extends Controller
     public function getData(Request $request)
     {
         $user = Auth::user();
-        $scId = $user->sc_id ?? 1;
+        $scId = ScContext::id();
 
         $summary = AbsenceSummary::where([
             'sc_id' => $scId,

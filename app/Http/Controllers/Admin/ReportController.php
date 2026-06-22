@@ -17,6 +17,7 @@ use App\Models\ProblemLog;
 use App\Models\Factory;
 use App\Services\ExcelExportService;
 use App\Services\FactoryConfigService;
+use App\Services\ScContext;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -36,7 +37,7 @@ class ReportController extends Controller
     public function index(Request $request)
     {
         $user = Auth::user();
-        $scId = $user->sc_id ?? 1;
+        $scId = ScContext::id();
         $factories = Factory::where('sc_id', $scId)->orderBy('order_index')->get();
 
         if (!$user->isSuperAdmin()) {
@@ -44,7 +45,7 @@ class ReportController extends Controller
             $factories = $factories->filter(fn($f) => in_array($f->name, $allowedFactories));
         }
 
-        $defaultFactory = $factories->first()?->name ?? 'Factory 2';
+        $defaultFactory = $factories->first()?->name ?? ScContext::firstFactory() ?? '';
         $factory = $request->session()->get('factory', $defaultFactory);
 
         // Validate requested factory against allowed scope
@@ -146,7 +147,7 @@ class ReportController extends Controller
     public function exportExcel(Request $request)
     {
         $user = Auth::user();
-        $scId = $user->sc_id ?? 1;
+        $scId = ScContext::id();
         $factories = Factory::where('sc_id', $scId)->orderBy('order_index')->get();
 
         if (!$user->isSuperAdmin()) {
@@ -154,7 +155,7 @@ class ReportController extends Controller
             $factories = $factories->filter(fn($f) => in_array($f->name, $allowedFactories));
         }
 
-        $defaultFactory = $factories->first()?->name ?? 'Factory 2';
+        $defaultFactory = $factories->first()?->name ?? ScContext::firstFactory() ?? '';
         $factory = $request->get('factory', $request->session()->get('factory', $defaultFactory));
 
         // Validate requested factory against allowed scope
@@ -246,7 +247,7 @@ class ReportController extends Controller
     public function exportJson(Request $request)
     {
         $user = Auth::user();
-        $scId = $user->sc_id ?? 1;
+        $scId = ScContext::id();
         $factories = Factory::where('sc_id', $scId)->orderBy('order_index')->get();
 
         if (!$user->isSuperAdmin()) {
@@ -254,7 +255,7 @@ class ReportController extends Controller
             $factories = $factories->filter(fn($f) => in_array($f->name, $allowedFactories));
         }
 
-        $defaultFactory = $factories->first()?->name ?? 'Factory 2';
+        $defaultFactory = $factories->first()?->name ?? ScContext::firstFactory() ?? '';
         $factory = $request->get('factory', $request->session()->get('factory', $defaultFactory));
 
         // Validate requested factory against allowed scope
@@ -321,7 +322,7 @@ class ReportController extends Controller
 
     private function getAbsenDetail(string $tanggal, string $factory, string $shift)
     {
-        $scId = Auth::user()->sc_id ?? 1;
+        $scId = ScContext::id();
         $absenMemberIds = AbsenceRecord::where([
             'sc_id' => $scId,
             'tanggal' => $tanggal,
@@ -335,7 +336,7 @@ class ReportController extends Controller
 
     private function getAbsenDetailRange(string $dari, string $sampai, string $factory, string $shift)
     {
-        $scId = Auth::user()->sc_id ?? 1;
+        $scId = ScContext::id();
         $absenMemberIds = AbsenceRecord::where('sc_id', $scId)
             ->where('factory', $factory)
             ->where('shift', $shift)

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use App\Services\ScContext;
 
 /**
  * DailyAssignment
@@ -68,7 +69,7 @@ class DailyAssignment extends Model
      */
     public static function toAssignmentsArray(string $tanggal, string $factory, string $shift): array
     {
-        $scId = auth()->check() ? (auth()->user()->sc_id ?? 1) : 1;
+        $scId = ScContext::id();
         $rows = static::where([
             'sc_id' => $scId,
             'tanggal' => $tanggal,

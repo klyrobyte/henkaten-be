@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\AbsenceRecord;
 use App\Models\AbsenceSummary;
 use App\Models\Member;
+use App\Services\ScContext;
 
 /**
  * AbsenceSummaryService
@@ -35,7 +36,7 @@ class AbsenceSummaryService
      */
     public function recalculate(string $tanggal, string $factory, string $shift, ?int $scId = null): AbsenceSummary
     {
-        $scId = $scId ?? (auth()->check() ? (auth()->user()->sc_id ?? 1) : 1);
+        $scId = $scId ?? ScContext::id();
 
         // Ambil semua member aktif untuk shift ini
         $members = Member::where('sc_id', $scId)

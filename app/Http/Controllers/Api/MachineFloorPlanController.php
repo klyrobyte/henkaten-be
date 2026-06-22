@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Machine;
 use App\Models\ProblemLog;
+use App\Services\ScContext;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class MachineFloorPlanController extends Controller
 {
@@ -19,10 +21,15 @@ class MachineFloorPlanController extends Controller
     public function getAllMachines(Request $request)
     {
         try {
-            $factory = $request->get('factory', 'Factory 2');
-            
-            // Get all machines from this factory
-            $machines = Machine::where('factory', $factory)
+            $scId   = ScContext::id();
+            $factory = $request->get('factory') ?? ScContext::firstFactory();
+            if (empty($factory)) {
+                return response()->json(['message' => 'No factory configured for this Service Center.'], 422);
+            }
+
+            // Get all machines from this factory scoped to the active SC
+            $machines = Machine::where('sc_id', $scId)
+                ->where('factory', $factory)
                 ->orderBy('status')
                 ->orderBy('name')
                 ->get();
@@ -76,23 +83,29 @@ class MachineFloorPlanController extends Controller
     public function getFloorPlanData(Request $request)
     {
         try {
-            $factory = $request->get('factory', 'Factory 2');
+            $scId   = ScContext::id();
+            $factory = $request->get('factory') ?? ScContext::firstFactory();
+            if (empty($factory)) {
+                return response()->json(['message' => 'No factory configured for this Service Center.'], 422);
+            }
             $tanggal = $request->get('tanggal', today()->toDateString());
-            $shift = $request->get('shift', 'A');  // Can be overridden
-            
-            // Get all machines with coordinates from this factory
-            $machines = Machine::where('factory', $factory)
+            $shift = $request->get('shift', 'A');
+
+            // Get all machines with coordinates from this factory scoped to the active SC
+            $machines = Machine::where('sc_id', $scId)
+                ->where('factory', $factory)
                 ->whereNotNull('floor_cx')
                 ->whereNotNull('floor_cy')
                 ->orderBy('name')
                 ->get();
 
-            // Get all OPEN problem logs for today/shift
+            // Get all OPEN problem logs for today/shift scoped to the active SC
             $openLogsByMachine = ProblemLog::where([
+                'sc_id'  => $scId,
                 'tanggal' => $tanggal,
                 'factory' => $factory,
-                'shift' => $shift,
-                'status' => 'open',
+                'shift'   => $shift,
+                'status'  => 'open',
             ])->whereIn('jenis', ['Machine', 'Material', 'Method'])
                 ->get()
                 ->groupBy('lokasi')  // 'lokasi' is the machine name field

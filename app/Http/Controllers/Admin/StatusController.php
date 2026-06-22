@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Machine;
 use App\Models\Status;
+use App\Services\ScContext;
 use Illuminate\Http\Request;
 
 /**
@@ -17,7 +18,7 @@ class StatusController extends Controller
     /** GET /admin/status  - management page */
     public function index()
     {
-        $scId = auth()->user()->sc_id ?? 1;
+        $scId = ScContext::id();
         $statuses = Status::where('sc_id', $scId)->orderBy('order_index')->get();
         return view('admin.status.index', compact('statuses'));
     }
@@ -25,7 +26,7 @@ class StatusController extends Controller
     /** GET /admin/api/statuses */
     public function apiList()
     {
-        $scId = auth()->user()->sc_id ?? 1;
+        $scId = ScContext::id();
         $statuses = Status::where('sc_id', $scId)->orderBy('order_index')->get();
         return response()->json(['ok' => true, 'statuses' => $statuses]);
     }
@@ -33,7 +34,7 @@ class StatusController extends Controller
     /** POST /admin/api/statuses */
     public function store(Request $request)
     {
-        $scId = auth()->user()->sc_id ?? 1;
+        $scId = ScContext::id();
         $request->validate([
             'key' => "required|string|max:50|unique:statuses,key,NULL,id,sc_id,{$scId}",
             'label' => 'required|string|max:100',
@@ -58,7 +59,7 @@ class StatusController extends Controller
     /** PUT /admin/api/statuses/{status} */
     public function update(Request $request, Status $status)
     {
-        $scId = auth()->user()->sc_id ?? 1;
+        $scId = ScContext::id();
         $request->validate([
             'key' => "required|string|max:50|unique:statuses,key,{$status->id},id,sc_id,{$scId}",
             'label' => 'required|string|max:100',

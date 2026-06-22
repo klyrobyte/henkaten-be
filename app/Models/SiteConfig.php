@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Services\ScContext;
 
 class SiteConfig extends Model
 {
@@ -16,7 +17,7 @@ class SiteConfig extends Model
      */
     public static function getVal(string $key, $default = null)
     {
-        $scId = auth()->check() ? (auth()->user()->sc_id ?? 1) : 1;
+        $scId = ScContext::id();
         return self::where('sc_id', $scId)->where('key', $key)->first()?->value ?? $default;
     }
 

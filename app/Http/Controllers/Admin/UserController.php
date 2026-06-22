@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Factory;
 use App\Models\User;
+use App\Services\ScContext;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -20,7 +21,7 @@ class UserController extends Controller
     public function index()
     {
         $currentUser = Auth::user();
-        $scId = $currentUser->sc_id ?? 1;
+        $scId = ScContext::id();
         $query = User::where('sc_id', $scId)->orderBy('role')->orderBy('name');
 
         if ($currentUser->isSuperAdmin()) {
@@ -50,7 +51,7 @@ class UserController extends Controller
     public function store(Request $request)
     {
         $currentUser = Auth::user();
-        $scId = $currentUser->sc_id ?? 1;
+        $scId = ScContext::id();
         
         $allowedRoles = ['admin', 'tl', 'gl', 'pengawas', 'tv'];
         if ($currentUser->isSuperAdmin()) {
@@ -93,7 +94,7 @@ class UserController extends Controller
     public function update(Request $request, User $user)
     {
         $currentUser = Auth::user();
-        $scId = $currentUser->sc_id ?? 1;
+        $scId = ScContext::id();
 
         // Prevent normal admin from editing superadmin or users from different SC
         if (!$currentUser->isSuperAdmin()) {
@@ -147,7 +148,7 @@ class UserController extends Controller
     public function destroy(User $user)
     {
         $currentUser = Auth::user();
-        $scId = $currentUser->sc_id ?? 1;
+        $scId = ScContext::id();
 
         // Prevent normal admin from deleting superadmin or users from different SC
         if (!$currentUser->isSuperAdmin()) {

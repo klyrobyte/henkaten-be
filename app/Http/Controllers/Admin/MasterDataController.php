@@ -13,6 +13,7 @@ use App\Models\MachineStatus;
 use App\Models\GlobalLog;
 use App\Models\Member;
 use App\Services\FactoryConfigService;
+use App\Services\ScContext;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -29,7 +30,7 @@ class MasterDataController extends Controller
     public function index(Request $request)
     {
         $user = Auth::user();
-        $scId = $user->getActiveScId();
+        $scId = ScContext::id();
         $factories = Factory::where('sc_id', $scId)->orderBy('order_index')->get();
 
         if (!$user->isSuperAdmin()) {
@@ -37,7 +38,7 @@ class MasterDataController extends Controller
             $factories = $factories->filter(fn($f) => in_array($f->name, $allowedFactories));
         }
 
-        $defaultFactory = $factories->first()?->name ?? 'Factory 2';
+        $defaultFactory = $factories->first()?->name ?? ScContext::firstFactory() ?? '';
         $factory = $request->get('factory', $request->session()->get('factory', $defaultFactory));
         $shift = $request->get('shift', $request->session()->get('shift', 'A'));
         
@@ -199,7 +200,7 @@ class MasterDataController extends Controller
      */
     public function destroy(Request $request, $id)
     {
-        $scId = Auth::user()->getActiveScId();
+        $scId = ScContext::id();
         $type = $request->get('type', '3m');
         switch ($type) {
             case '3m':
@@ -264,7 +265,7 @@ class MasterDataController extends Controller
             $dari = $sampai = $request->get('tanggal');
         }
 
-        $scId = Auth::user()->getActiveScId();
+        $scId = ScContext::id();
         // Base query builder based on tab
         $query = match ($tab) {
             '3m'           => ProblemLog::where('sc_id', $scId),
@@ -322,7 +323,7 @@ class MasterDataController extends Controller
 
     public function update(Request $request, $id)
     {
-        $scId = Auth::user()->getActiveScId();
+        $scId = ScContext::id();
         $type = $request->get('type', '3m');
         switch ($type) {
             case '3m':
@@ -481,7 +482,7 @@ class MasterDataController extends Controller
 
     public function show($id)
     {
-        $scId = Auth::user()->getActiveScId();
+        $scId = ScContext::id();
         $type = request('type', '3m');
         switch ($type) {
             case '3m':

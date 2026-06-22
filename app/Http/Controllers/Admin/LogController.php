@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\ProblemLog;
 use App\Services\FactoryConfigService;
+use App\Services\ScContext;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -22,8 +23,8 @@ class LogController extends Controller
     public function index(Request $request)
     {
         $user = Auth::user();
-        $scId = $user->sc_id ?? 1;
-        $factory = $request->session()->get('factory', \App\Models\Factory::where('sc_id', $scId)->orderBy('order_index')->value('name') ?? 'Factory 2');
+        $scId = ScContext::id();
+        $factory = $request->session()->get('factory', ScContext::firstFactory());
 
         if (!$user->isSuperAdmin() && !empty($user->factory)) {
             $allowedFactories = (array) $user->factory;
@@ -51,7 +52,7 @@ class LogController extends Controller
     public function store(Request $request)
     {
         $user = Auth::user();
-        $scId = $user->sc_id ?? 1;
+        $scId = ScContext::id();
         if (!$user->isSuperAdmin() && !empty($user->factory)) {
             $allowedFactories = (array) $user->factory;
             if (!in_array($request->factory, $allowedFactories)) {
@@ -114,7 +115,7 @@ class LogController extends Controller
     public function close(Request $request, ProblemLog $log)
     {
         $user = Auth::user();
-        $scId = $user->sc_id ?? 1;
+        $scId = ScContext::id();
 
         if ($log->sc_id != $scId) {
              return response()->json(['ok' => false, 'message' => 'Unauthorized SC access.'], 403);
@@ -152,7 +153,7 @@ class LogController extends Controller
     public function reopen(ProblemLog $log)
     {
         $user = Auth::user();
-        $scId = $user->sc_id ?? 1;
+        $scId = ScContext::id();
 
         if ($log->sc_id != $scId) {
              return response()->json(['ok' => false, 'message' => 'Unauthorized SC access.'], 403);
@@ -176,7 +177,7 @@ class LogController extends Controller
     public function update(Request $request, ProblemLog $log)
     {
         $user = Auth::user();
-        $scId = $user->sc_id ?? 1;
+        $scId = ScContext::id();
 
         if ($log->sc_id != $scId) {
              return response()->json(['ok' => false, 'message' => 'Unauthorized SC access.'], 403);
@@ -210,7 +211,7 @@ class LogController extends Controller
     public function destroy(ProblemLog $log)
     {
         $user = Auth::user();
-        $scId = $user->sc_id ?? 1;
+        $scId = ScContext::id();
 
         if ($log->sc_id != $scId) {
              return response()->json(['ok' => false, 'message' => 'Unauthorized SC access.'], 403);
@@ -229,7 +230,7 @@ class LogController extends Controller
     public function list(Request $request)
     {
         $user = Auth::user();
-        $scId = $user->sc_id ?? 1;
+        $scId = ScContext::id();
         $factory = $request->factory;
 
         if (!$user->isSuperAdmin() && !empty($user->factory)) {
@@ -278,7 +279,7 @@ class LogController extends Controller
     public function combined(Request $request)
     {
         $user = Auth::user();
-        $scId = $user->sc_id ?? 1;
+        $scId = ScContext::id();
         $factory = $request->factory;
 
         if (!$user->isSuperAdmin() && !empty($user->factory)) {

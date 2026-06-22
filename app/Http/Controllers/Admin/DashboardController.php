@@ -11,6 +11,7 @@ use App\Models\Machine;
 use App\Models\Member;
 use App\Models\ProblemLog;
 use App\Services\FactoryConfigService;
+use App\Services\ScContext;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -38,7 +39,7 @@ class DashboardController extends Controller
         // Resolve factory from session; fall back to user's assigned factory,
         // then to the first factory in DB (never hardcode 'Factory 2').
         $user = Auth::user();
-        $scId = $user->getActiveScId();
+        $scId = ScContext::id();
         $allowedFactories = (!$user->isSuperAdmin() && !empty($user->factory)) ? (array) $user->factory : [];
 
         $sessionFactory = $request->session()->get('factory');
@@ -55,10 +56,10 @@ class DashboardController extends Controller
             $request->session()->put('factory', $sessionFactory);
         }
 
+        $userFactories = is_array($user?->factory) ? $user->factory : [];
         $factory = $sessionFactory
-            ?? (is_array($user?->factory) ? $user->factory[0] : $user?->factory)
-            ?? Factory::where('sc_id', $scId)->orderBy('order_index')->value('name')
-            ?? 'Factory 2'; // absolute last resort
+            ?? (!empty($userFactories) ? $userFactories[0] : null)
+            ?? ScContext::firstFactory();
 
         // Final safety check for $factory
         if (!empty($allowedFactories) && !in_array($factory, $allowedFactories)) {
@@ -170,12 +171,12 @@ class DashboardController extends Controller
     {
         // TV mode pakai query-string, bukan session  - bisa beda per tab/TV
         $user = Auth::user();
-        $scId = $user->sc_id ?? 1;
+        $scId = ScContext::id();
         $allowedFactories = (!$user->isSuperAdmin() && !empty($user->factory)) ? (array) $user->factory : [];
 
-        $factory = $request->get('factory', $request->session()->get('factory', 'Factory 2'));
+        $factory = $request->get('factory', $request->session()->get('factory', ScContext::firstFactory()));
         if (is_array($factory)) {
-            $factory = !empty($factory) ? $factory[0] : 'Factory 2';
+            $factory = !empty($factory) ? $factory[0] : ScContext::firstFactory();
         }
 
         if (!empty($allowedFactories) && !in_array($factory, $allowedFactories)) {
@@ -284,12 +285,12 @@ class DashboardController extends Controller
     public function statusApi(Request $request)
     {
         $user = Auth::user();
-        $scId = $user->sc_id ?? 1;
+        $scId = ScContext::id();
         $allowedFactories = (!$user->isSuperAdmin() && !empty($user->factory)) ? (array) $user->factory : [];
 
-        $factory = $request->get('factory', $request->session()->get('factory', 'Factory 2'));
+        $factory = $request->get('factory', $request->session()->get('factory', ScContext::firstFactory()));
         if (is_array($factory)) {
-            $factory = !empty($factory) ? $factory[0] : 'Factory 2';
+            $factory = !empty($factory) ? $factory[0] : ScContext::firstFactory();
         }
 
         if (!empty($allowedFactories) && !in_array($factory, $allowedFactories)) {
@@ -509,7 +510,7 @@ class DashboardController extends Controller
      */
     private function getMachineStatuses(string $tanggal, string $factory, string $shift): array
     {
-        $scId = auth()->check() ? auth()->user()->getActiveScId() : 1;
+        $scId = ScContext::id();
         $replacedMesinList = AssignmentReplacement::where([
             'sc_id' => $scId,
             'tanggal' => $tanggal,
@@ -606,7 +607,7 @@ class DashboardController extends Controller
      */
     private function buildSummary(array $machineStatuses, string $tanggal, string $factory, string $shift): array
     {
-        $scId = auth()->check() ? auth()->user()->getActiveScId() : 1;
+        $scId = ScContext::id();
         // ── Gunakan DB  - hitung HANYA machines dengan status='mesin' (actual production machines) ──
         // Exclude: persons (key persons), lainya (support), mc_vibration (monitoring), dan status lainnya
         $machinesForTotal = Machine::where('sc_id', $scId)
@@ -694,7 +695,7 @@ class DashboardController extends Controller
      */
     private function calcKyTotalCount(string $factory, string $shift): int
     {
-        $scId = auth()->check() ? auth()->user()->getActiveScId() : 1;
+        $scId = ScContext::id();
         return Member::where('sc_id', $scId)
             ->where('factory', $factory)
             ->whereIn('shift', [$shift, 'AB'])

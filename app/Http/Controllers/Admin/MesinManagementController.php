@@ -7,6 +7,7 @@ use App\Models\Factory;
 use App\Models\Machine;
 use App\Models\Section;
 use App\Models\Status;
+use App\Services\ScContext;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -29,28 +30,28 @@ class MesinManagementController extends Controller
     private function getCurrentFactory(Request $request): string
     {
         $user = Auth::user();
-        $scId = $user->sc_id ?? 1;
+        $scId = ScContext::id();
 
         // 1. Superadmin: session-based full access
         if ($user->isSuperAdmin()) {
-            return $request->session()->get('factory', Factory::where('sc_id', $scId)->orderBy('order_index')->value('name') ?? 'Factory 2');
+            return $request->session()->get('factory', ScContext::firstFactory());
         }
 
         // 2. GL: fixed to their assigned factory
         if ($user->role === 'gl') {
-            return (is_array($user->factory) ? $user->factory[0] : $user->factory) ?? 'Factory 2';
+            return (is_array($user->factory) ? $user->factory[0] : $user->factory) ?? ScContext::firstFactory();
         }
 
         // 3. Normal Admin (role='admin'): restricted to (array)$user->factory
         $allowedFactories = (array) ($user->factory ?? []);
-        $sessionFactory = $request->session()->get('factory', 'Factory 2');
+        $sessionFactory = $request->session()->get('factory', ScContext::firstFactory());
 
         // If session factory is allowed, use it; otherwise fallback to first allowed
         if (in_array($sessionFactory, $allowedFactories)) {
             return $sessionFactory;
         }
 
-        return !empty($allowedFactories) ? $allowedFactories[0] : (Factory::where('sc_id', $scId)->orderBy('order_index')->value('name') ?? 'Factory 2');
+        return !empty($allowedFactories) ? $allowedFactories[0] : ScContext::firstFactory();
     }
 
     /**
@@ -59,7 +60,7 @@ class MesinManagementController extends Controller
     public function index(Request $request)
     {
         $user = Auth::user();
-        $scId = $user->sc_id ?? 1;
+        $scId = ScContext::id();
         $currentFactory = $this->getCurrentFactory($request);
 
         $machines = Machine::where('sc_id', $scId)->where('factory', $currentFactory)
@@ -110,7 +111,7 @@ class MesinManagementController extends Controller
     public function show(Machine $machine)
     {
         $user = Auth::user();
-        $scId = $user->sc_id ?? 1;
+        $scId = ScContext::id();
 
         if ($machine->sc_id != $scId) {
              abort(403, 'Unauthorized access to this machine.');
@@ -134,7 +135,7 @@ class MesinManagementController extends Controller
     public function store(Request $request)
     {
         $user = Auth::user();
-        $scId = $user->sc_id ?? 1;
+        $scId = ScContext::id();
         $currentFactory = $this->getCurrentFactory($request);
 
         // Build dynamic validation rules from DB
@@ -195,7 +196,7 @@ class MesinManagementController extends Controller
     public function update(Request $request, Machine $machine)
     {
         $user = Auth::user();
-        $scId = $user->sc_id ?? 1;
+        $scId = ScContext::id();
 
         if ($machine->sc_id != $scId) {
              abort(403, 'Unauthorized access to this machine.');
@@ -281,7 +282,7 @@ class MesinManagementController extends Controller
     public function destroy(Machine $machine)
     {
         $user = Auth::user();
-        $scId = $user->sc_id ?? 1;
+        $scId = ScContext::id();
 
         if ($machine->sc_id != $scId) {
              abort(403, 'Unauthorized access to this machine.');

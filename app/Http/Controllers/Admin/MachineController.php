@@ -8,6 +8,7 @@ use App\Models\MachineStatus;
 use App\Models\Member;
 use App\Models\AssignmentReplacement;
 use App\Services\FactoryConfigService;
+use App\Services\ScContext;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
@@ -82,7 +83,7 @@ class MachineController extends Controller
             return response()->json(['error' => 'Unauthorized factory access'], 403);
         }
 
-        $scId = auth()->user()->sc_id ?? 1;
+        $scId = ScContext::id();
         $machine = Machine::firstOrCreate([
             'sc_id' => $scId,
             'factory' => $request->factory,
@@ -162,7 +163,7 @@ class MachineController extends Controller
             return response()->json(['error' => 'Unauthorized factory access'], 403);
         }
 
-        $scId = auth()->user()->sc_id ?? 1;
+        $scId = ScContext::id();
         $machine = Machine::where([
             'sc_id' => $scId,
             'factory' => $request->factory,
@@ -200,7 +201,7 @@ class MachineController extends Controller
             return response()->json(['error' => 'Unauthorized factory access'], 403);
         }
 
-        $scId = auth()->user()->sc_id ?? 1;
+        $scId = ScContext::id();
         MachineStatus::updateOrCreate(
             [
                 'sc_id' => $scId,
@@ -224,7 +225,7 @@ class MachineController extends Controller
             return response()->json(['error' => 'Unauthorized factory access'], 403);
         }
 
-        $scId = auth()->user()->sc_id ?? 1;
+        $scId = ScContext::id();
         $statuses = MachineStatus::where([
             'sc_id' => $scId,
             'tanggal' => $request->tanggal,
@@ -251,7 +252,7 @@ class MachineController extends Controller
             return response()->json(['error' => 'Unauthorized factory access'], 403);
         }
 
-        $scId = auth()->user()->sc_id ?? 1;
+        $scId = ScContext::id();
 
         $statuses = \App\Models\MachineStatus::where(compact('sc_id', 'tanggal', 'factory', 'shift'))
             ->where('status', '!=', 'normal')
@@ -318,7 +319,7 @@ class MachineController extends Controller
             return response()->json(['error' => 'Unauthorized factory access'], 403);
         }
 
-        $scId = auth()->user()->sc_id ?? 1;
+        $scId = ScContext::id();
         if ($machine->sc_id != $scId) {
              return response()->json(['error' => 'Unauthorized SC access'], 403);
         }
@@ -352,7 +353,7 @@ class MachineController extends Controller
             abort(403);
         }
 
-        $scId = auth()->user()->sc_id ?? 1;
+        $scId = ScContext::id();
         $machines = Machine::where('sc_id', $scId)
             ->where('factory', strtoupper($factory))
             ->orderBy('name')

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Member;
 use App\Models\Factory;
 use App\Services\FactoryConfigService;
+use App\Services\ScContext;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Response;
@@ -30,7 +31,7 @@ class MemberController extends Controller
     public function index(Request $request)
     {
         $user = Auth::user();
-        $scId = $user->sc_id ?? 1;
+        $scId = ScContext::id();
         $isSuperAdmin = $user->isSuperAdmin();
         $allowedFactories = (array) $user->factory;
 
@@ -107,7 +108,7 @@ class MemberController extends Controller
     public function show(Member $member)
     {
         $user = Auth::user();
-        $scId = $user->sc_id ?? 1;
+        $scId = ScContext::id();
 
         if ($member->sc_id != $scId) {
              abort(403, 'Unauthorized access to this member.');
@@ -135,7 +136,7 @@ class MemberController extends Controller
     public function store(Request $request)
     {
         $user = Auth::user();
-        $scId = $user->sc_id ?? 1;
+        $scId = ScContext::id();
         $data = $this->validateMember($request);
 
         if (!$user->isSuperAdmin() && !in_array($data['factory'], (array) $user->factory)) {
@@ -168,7 +169,7 @@ class MemberController extends Controller
     public function update(Request $request, Member $member)
     {
         $user = Auth::user();
-        $scId = $user->sc_id ?? 1;
+        $scId = ScContext::id();
 
         if ($member->sc_id != $scId) {
              abort(403, 'Unauthorized access to this member.');
@@ -214,7 +215,7 @@ class MemberController extends Controller
     public function destroy(Member $member)
     {
         $user = Auth::user();
-        $scId = $user->sc_id ?? 1;
+        $scId = ScContext::id();
 
         if ($member->sc_id != $scId) {
              abort(403, 'Unauthorized access to this member.');
@@ -256,7 +257,7 @@ class MemberController extends Controller
         }
 
         $user = Auth::user();
-        $scId = $user->sc_id ?? 1;
+        $scId = ScContext::id();
         $query = Member::where('sc_id', $scId);
         if (!$user->isSuperAdmin()) {
             $query->whereIn('factory', (array) $user->factory);
@@ -280,7 +281,7 @@ class MemberController extends Controller
     public function list(Request $request)
     {
         $user = Auth::user();
-        $scId = $user->sc_id ?? 1;
+        $scId = ScContext::id();
         $query = Member::where('sc_id', $scId);
 
         if (!$user->isSuperAdmin()) {
@@ -309,7 +310,7 @@ class MemberController extends Controller
     public function import(Request $request)
     {
         $user = Auth::user();
-        $scId = $user->sc_id ?? 1;
+        $scId = ScContext::id();
         $isSuperAdmin = $user->isSuperAdmin();
         $allowedFactories = (array) $user->factory;
 
@@ -377,7 +378,7 @@ class MemberController extends Controller
     public function export()
     {
         $user = Auth::user();
-        $scId = $user->sc_id ?? 1;
+        $scId = ScContext::id();
         $query = Member::where('sc_id', $scId);
         if (!$user->isSuperAdmin()) {
             $query->whereIn('factory', (array) $user->factory);

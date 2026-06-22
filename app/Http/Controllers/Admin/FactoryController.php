@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Factory;
 use App\Models\Sc;
 use App\Models\Section;
+use App\Services\ScContext;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -30,7 +31,7 @@ class FactoryController extends Controller
         } else {
             // Regular admin: scoped to their own SC only
             $scs = collect();
-            $activeSc = $user->sc_id ?? 1;
+            $activeSc = ScContext::id();
             $factories = Factory::where('sc_id', $activeSc)->orderBy('order_index')->get();
         }
 
@@ -40,7 +41,7 @@ class FactoryController extends Controller
     /** GET /admin/api/factories  - list for dropdowns */
     public function apiList()
     {
-        $scId = auth()->user()->sc_id ?? 1;
+        $scId = ScContext::id();
         $factories = Factory::where('sc_id', $scId)->orderBy('order_index')->get();
         return response()->json(['ok' => true, 'factories' => $factories]);
     }
@@ -55,7 +56,7 @@ class FactoryController extends Controller
         if ($user->isSuperAdmin() && $request->filled('sc_id')) {
             $scId = (int) $request->sc_id;
         } else {
-            $scId = $user->sc_id ?? 1;
+            $scId = ScContext::id();
         }
 
         $request->validate([

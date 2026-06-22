@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\AssignmentReplacement;
 use App\Models\Member;
 use App\Models\AbsenceRecord;
+use App\Services\ScContext;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -35,7 +36,7 @@ class ReplacementController extends Controller
         ]);
 
         $user = Auth::user();
-        $scId = $user->sc_id ?? 1;
+        $scId = ScContext::id();
         $factory = $request->factory;
 
         if ($user && !$user->isSuperAdmin()) {
@@ -115,7 +116,7 @@ class ReplacementController extends Controller
         $shift = $request->shift;
 
         $user = Auth::user();
-        $scId = $user->sc_id ?? 1;
+        $scId = ScContext::id();
 
         if ($user && !$user->isSuperAdmin()) {
             $allowedFactories = (array) $user->factory;
@@ -193,7 +194,7 @@ class ReplacementController extends Controller
     public function destroy(AssignmentReplacement $replacement)
     {
         $user = Auth::user();
-        $scId = $user->sc_id ?? 1;
+        $scId = ScContext::id();
 
         if ($replacement->sc_id != $scId) {
              abort(403, 'Unauthorized SC access.');

@@ -27,6 +27,7 @@ use Illuminate\Support\Facades\Auth;
 
 use App\Models\AbsenceReason;
 use App\Services\AbsenceSummaryService;
+use App\Services\ScContext;
 
 /**
  * @group Absence
@@ -44,12 +45,15 @@ class AbsenceController extends Controller
 
     private function normalizeFactory(?string $factory): string
     {
-        return html_entity_decode($factory ?? 'Factory 2', ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        // Decode HTML entities (e.g. "Factory 3 &amp; 4" → "Factory 3 & 4"),
+        // then fall back to the SC's first factory dynamically — never hardcoded.
+        $decoded = $factory ? html_entity_decode($factory, ENT_QUOTES | ENT_HTML5, 'UTF-8') : null;
+        return $decoded ?: (ScContext::firstFactory() ?? '');
     }
 
     private function membersFor(string $factory, string $shift)
     {
-        $scId = auth()->check() ? (auth()->user()->sc_id ?? 1) : 1;
+        $scId = ScContext::id();
         return Member::where('sc_id', $scId)
             ->where('factory', $factory)
             ->whereIn('shift', [$shift, 'AB'])
@@ -62,7 +66,7 @@ class AbsenceController extends Controller
     public function index(Request $request)
     {
         $user = Auth::user();
-        $scId = $user->sc_id ?? 1;
+        $scId = ScContext::id();
         $userFactories = (array) $user->factory;
 
         if ($user->isSuperAdmin()) {
@@ -75,7 +79,7 @@ class AbsenceController extends Controller
         $factory = $this->normalizeFactory($request->get('factory'));
 
         if (!$user->isSuperAdmin() && !in_array($factory, $userFactories)) {
-            $factory = $userFactories[0] ?? 'Factory 2';
+            $factory = $userFactories[0] ?? ScContext::firstFactory() ?? '';
         }
 
         $shift = $request->get('shift', 'A');
@@ -114,10 +118,10 @@ class AbsenceController extends Controller
         $factory = $this->normalizeFactory($request->factory);
 
         $user = Auth::user();
-        $scId = $user->sc_id ?? 1;
+        $scId = ScContext::id();
         $userFactories = (array) $user->factory;
         if (!$user->isSuperAdmin() && !in_array($factory, $userFactories)) {
-            $factory = $userFactories[0] ?? 'Factory 2';
+            $factory = $userFactories[0] ?? ScContext::firstFactory() ?? '';
         }
 
         $shift = $request->shift;
@@ -160,11 +164,17 @@ class AbsenceController extends Controller
         if ($request->has('factory')) {
             $factory = $this->normalizeFactory($request->get('factory'));
             if (!$user->isSuperAdmin() && !in_array($factory, $userFactories)) {
-                $factory = $userFactories[0] ?? 'Factory 2';
+                $factory = $userFactories[0] ?? ScContext::firstFactory() ?? '';
             }
             $factories = [$factory];
         } else {
-            $factories = $user->isSuperAdmin() ? ['Factory 2', 'Factory 3 & 4'] : $userFactories;
+            // Dynamically load all factories for the currently active SC —
+            // never hardcode a list, as this would break multi-SC isolation.
+            $allScFactories = \App\Models\Factory::where('sc_id', ScContext::id())
+                ->orderBy('order_index')
+                ->pluck('name')
+                ->toArray();
+            $factories = $user->isSuperAdmin() ? $allScFactories : $userFactories;
         }
 
         $shifts = $request->has('shift')
@@ -216,7 +226,7 @@ class AbsenceController extends Controller
         if ($request->wantsJson()) {
             return response()->json($reports);
         }
-        $factory = $request->get("factory", session("factory", "Factory 2"));
+        $factory = $request->get("factory", session("factory", ScContext::firstFactory()));
         $shift = $request->get("shift", session("shift", "A"));
         return view("admin.absence_report", compact("reports", "tanggal", "factory", "shift"));
     }
@@ -229,10 +239,10 @@ class AbsenceController extends Controller
         $user = Auth::user();
         $userFactories = (array) $user->factory;
         $tanggal = $request->get('tanggal', today()->toDateString());
-        $factory = $this->normalizeFactory($request->get('factory', 'Factory 2'));
+        $factory = $this->normalizeFactory($request->get('factory'));
 
         if (!$user->isSuperAdmin() && !in_array($factory, $userFactories)) {
-            $factory = $userFactories[0] ?? 'Factory 2';
+            $factory = $userFactories[0] ?? ScContext::firstFactory() ?? '';
         }
 
         $shift = $request->get('shift', 'A');
@@ -364,10 +374,10 @@ class AbsenceController extends Controller
         $user = Auth::user();
         $userFactories = (array) $user->factory;
         $tanggal = $request->get('tanggal', today()->toDateString());
-        $factory = $this->normalizeFactory($request->get('factory', 'Factory 2'));
+        $factory = $this->normalizeFactory($request->get('factory'));
 
         if (!$user->isSuperAdmin() && !in_array($factory, $userFactories)) {
-            $factory = $userFactories[0] ?? 'Factory 2';
+            $factory = $userFactories[0] ?? ScContext::firstFactory() ?? '';
         }
 
         $shift = $request->get('shift', 'A');
@@ -411,10 +421,10 @@ class AbsenceController extends Controller
         $user = Auth::user();
         $userFactories = (array) $user->factory;
         $tanggal = $request->get('tanggal', today()->toDateString());
-        $factory = $this->normalizeFactory($request->get('factory', 'Factory 2'));
+        $factory = $this->normalizeFactory($request->get('factory'));
 
         if (!$user->isSuperAdmin() && !in_array($factory, $userFactories)) {
-            $factory = $userFactories[0] ?? 'Factory 2';
+            $factory = $userFactories[0] ?? ScContext::firstFactory() ?? '';
         }
 
         $shift = $request->get('shift', 'A');
@@ -461,10 +471,10 @@ class AbsenceController extends Controller
     {
         $user = Auth::user();
         $userFactories = (array) $user->factory;
-        $factory = $this->normalizeFactory($request->get('factory', 'Factory 2'));
+        $factory = $this->normalizeFactory($request->get('factory'));
 
         if (!$user->isSuperAdmin() && !in_array($factory, $userFactories)) {
-            $factory = $userFactories[0] ?? 'Factory 2';
+            $factory = $userFactories[0] ?? ScContext::firstFactory() ?? '';
         }
 
         $records = AbsenceRecord::where([
@@ -490,7 +500,7 @@ class AbsenceController extends Controller
         $user = Auth::user();
         $userFactories = (array) $user->factory;
         if (!$user->isSuperAdmin() && !in_array($factory, $userFactories)) {
-            $factory = $userFactories[0] ?? 'Factory 2';
+            $factory = $userFactories[0] ?? ScContext::firstFactory() ?? '';
         }
 
         $shift = $request->shift;

@@ -19,8 +19,8 @@ class FactoryComposer
     {
         // Only inject if not already set by the controller (avoid double query)
         if (!$view->offsetExists('factories')) {
-            // Use getActiveScId() so SuperAdmin session-switching is respected
-            $scId = auth()->check() ? auth()->user()->getActiveScId() : 1;
+            // Use ScContext to resolve the SC ID
+            $scId = \App\Services\ScContext::id();
             $view->with('factories', Factory::where('sc_id', $scId)->orderBy('order_index')->get());
         }
     }

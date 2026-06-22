@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Factory;
 use App\Models\Machine;
 use App\Models\Section;
+use App\Services\ScContext;
 
 /**
  * FactoryConfigService
@@ -23,7 +24,7 @@ class FactoryConfigService
      */
     public function getSectionConfig(string $factory): array
     {
-        $scId = auth()->check() ? (auth()->user()->sc_id ?? 1) : 1;
+        $scId = ScContext::id();
         $factoryModel = Factory::where('sc_id', $scId)->where('name', $factory)->first();
         if (!$factoryModel)
             return [];
@@ -54,7 +55,8 @@ class FactoryConfigService
      */
     public function buildGroups(string $factory): array
     {
-        $dbMachines = Machine::where('factory', $factory)->orderBy('id')->get();
+        $scId = ScContext::id();
+        $dbMachines = Machine::where('sc_id', $scId)->where('factory', $factory)->orderBy('id')->get();
         $sectionDefs = $this->getSectionConfig($factory);
 
         // Build lookup of configured codes
@@ -135,7 +137,7 @@ class FactoryConfigService
      */
     public function getFactories(): array
     {
-        $scId = auth()->check() ? (auth()->user()->sc_id ?? 1) : 1;
+        $scId = ScContext::id();
         return Factory::where('sc_id', $scId)->orderBy('order_index')->pluck('name')->toArray();
     }
 
@@ -144,7 +146,7 @@ class FactoryConfigService
      */
     public function getFactoryObjects(): \Illuminate\Support\Collection
     {
-        $scId = auth()->check() ? (auth()->user()->sc_id ?? 1) : 1;
+        $scId = ScContext::id();
         return Factory::where('sc_id', $scId)->orderBy('order_index')->get();
     }
 }
