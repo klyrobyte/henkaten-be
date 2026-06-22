@@ -42,6 +42,12 @@ class DashboardController extends Controller
         $allowedFactories = (!$user->isSuperAdmin() && !empty($user->factory)) ? (array) $user->factory : [];
 
         $sessionFactory = $request->session()->get('factory');
+        if (is_array($sessionFactory)) {
+            $sessionFactory = !empty($sessionFactory) ? $sessionFactory[0] : null;
+            if ($sessionFactory) {
+                $request->session()->put('factory', $sessionFactory);
+            }
+        }
 
         // Ensure sessionFactory is allowed if restricted
         if (!empty($allowedFactories) && !in_array($sessionFactory, $allowedFactories)) {
@@ -168,6 +174,9 @@ class DashboardController extends Controller
         $allowedFactories = (!$user->isSuperAdmin() && !empty($user->factory)) ? (array) $user->factory : [];
 
         $factory = $request->get('factory', $request->session()->get('factory', 'Factory 2'));
+        if (is_array($factory)) {
+            $factory = !empty($factory) ? $factory[0] : 'Factory 2';
+        }
 
         if (!empty($allowedFactories) && !in_array($factory, $allowedFactories)) {
             $factory = $allowedFactories[0];
@@ -279,6 +288,9 @@ class DashboardController extends Controller
         $allowedFactories = (!$user->isSuperAdmin() && !empty($user->factory)) ? (array) $user->factory : [];
 
         $factory = $request->get('factory', $request->session()->get('factory', 'Factory 2'));
+        if (is_array($factory)) {
+            $factory = !empty($factory) ? $factory[0] : 'Factory 2';
+        }
 
         if (!empty($allowedFactories) && !in_array($factory, $allowedFactories)) {
             $factory = $allowedFactories[0];

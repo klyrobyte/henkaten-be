@@ -87,13 +87,13 @@ class AuthController extends Controller
             // - For admin/tv, only set if session doesn't already have a value.
             $user = Auth::user();
             if ($user->factory && !in_array($user->role, ['admin'])) {
-                $request->session()->put('factory', $user->factory);
+                $request->session()->put('factory', is_array($user->factory) ? ($user->factory[0] ?? null) : $user->factory);
                 if ($user->shift) {
                     $request->session()->put('shift', $user->shift);
                 }
             } elseif (!$request->session()->has('factory') && $user->factory) {
                 // Admin logging in fresh  - seed from their profile factory if set
-                $request->session()->put('factory', $user->factory);
+                $request->session()->put('factory', is_array($user->factory) ? ($user->factory[0] ?? null) : $user->factory);
             } elseif (!$request->session()->has('factory')) {
                 // Admin with no assigned factory  - use the first factory in DB
                 $firstFactory = \App\Models\Factory::orderBy('order_index')->first();
