@@ -1,5 +1,5 @@
 <?php
-// ═══════════════════════════════════════════════════════════════════════════
+//  ═════════════
 // FILE: app/Http/Controllers/Admin/AbsenceController.php
 // BY: Rizky Daffy
 // PERUBAHAN:
@@ -8,7 +8,7 @@
 //   3. absenHistory()  - endpoint baru untuk rekap tanggal tertentu (JSON)
 //
 // JUGA: di absen.blade.php, fix script navigasi tanggal (lihat bagian bawah)
-// ═══════════════════════════════════════════════════════════════════════════
+//  ═════════════
 
 namespace App\Http\Controllers\Admin;
 
@@ -46,9 +46,9 @@ class AbsenceController extends Controller
     private function normalizeFactory(?string $factory): string
     {
         // Decode HTML entities (e.g. "Factory 3 &amp; 4" → "Factory 3 & 4"),
-        // then fall back to the SC's first factory dynamically — never hardcoded.
+        // then resolve via ScContext to enforce strict SC isolation and the 403 failsafe.
         $decoded = $factory ? html_entity_decode($factory, ENT_QUOTES | ENT_HTML5, 'UTF-8') : null;
-        return $decoded ?: (ScContext::firstFactory() ?? '');
+        return ScContext::resolveFactory($decoded, Auth::user());
     }
 
     private function membersFor(string $factory, string $shift)
@@ -62,25 +62,27 @@ class AbsenceController extends Controller
             ->get();
     }
 
-    // @rizky ── GET /admin/absence ─────────────────────────────────────────────
+    // @rizky   GET /admin/absence                       ─
     public function index(Request $request)
     {
         $user = Auth::user();
         $scId = ScContext::id();
-        $userFactories = (array) $user->factory;
+        $allowedFactories = ScContext::allowedFactories($user);
 
         if ($user->isSuperAdmin()) {
             $factories = Factory::where('sc_id', $scId)->get();
         } else {
-            $factories = Factory::where('sc_id', $scId)->whereIn('name', $userFactories)->get();
+            $query = Factory::where('sc_id', $scId);
+            if (!empty($allowedFactories)) {
+                $query->whereIn('name', $allowedFactories);
+            }
+            $factories = $query->get();
         }
 
         $tanggal = $request->get('tanggal', today()->toDateString());
         $factory = $this->normalizeFactory($request->get('factory'));
 
-        if (!$user->isSuperAdmin() && !in_array($factory, $userFactories)) {
-            $factory = $userFactories[0] ?? ScContext::firstFactory() ?? '';
-        }
+
 
         $shift = $request->get('shift', 'A');
 
@@ -104,7 +106,7 @@ class AbsenceController extends Controller
         );
     }
 
-    // @rizky ── POST /admin/absence/save ───────────────────────────────────────
+    // @rizky   POST /admin/absence/save                    ─
     public function save(Request $request)
     {
         $request->validate([
@@ -152,7 +154,7 @@ class AbsenceController extends Controller
         return back()->with('success', '✅ Data absen tersimpan!');
     }
 
-    // @rizky ── GET /admin/absence/report  (JSON for frontend rekap) ──────────
+    // @rizky   GET /admin/absence/report  (JSON for frontend rekap)      
     public function report(Request $request)
     {
         $user = Auth::user();
@@ -231,7 +233,7 @@ class AbsenceController extends Controller
         return view("admin.absence_report", compact("reports", "tanggal", "factory", "shift"));
     }
 
-    // @rizky ── GET /admin/absence/export  (CSV  - filter by factory & shift) ─
+    // @rizky   GET /admin/absence/export  (CSV  - filter by factory & shift) ─
     // Task 2: Adds RINGKASAN KEHADIRAN summary at end of CSV
     // Task 3: Adds Pengganti column for each absent member
     public function export(Request $request)
@@ -367,7 +369,7 @@ class AbsenceController extends Controller
         ]);
     }
 
-    // @rizky ── GET /admin/absence/export-excel  ← BARU ───────────────────────
+    // @rizky   GET /admin/absence/export-excel  ← BARU            ─
     // Export semua factory+shift untuk tanggal tertentu ke XLSX bagus
     public function exportExcel(Request $request)
     {
@@ -415,7 +417,7 @@ class AbsenceController extends Controller
         ])->deleteFileAfterSend(true);
     }
 
-    // @rizky ── GET /admin/absence/candidates ─────────────────────────────────
+    // @rizky   GET /admin/absence/candidates                 ─
     public function candidates(Request $request)
     {
         $user = Auth::user();
@@ -466,7 +468,7 @@ class AbsenceController extends Controller
         return response()->json($result->sortBy('isWorking')->values());
     }
 
-    // @rizky ── GET /admin/absence/data ────────────────────────────────────────
+    // @rizky   GET /admin/absence/data                     
     public function getData(Request $request)
     {
         $user = Auth::user();
@@ -486,7 +488,7 @@ class AbsenceController extends Controller
         return response()->json($records->keyBy('member_id'));
     }
 
-    // @rizky ── POST /admin/absence/rebuild-summary  (perbaiki data summary yg tersimpan) ──
+    // @rizky   POST /admin/absence/rebuild-summary  (perbaiki data summary yg tersimpan)  
     public function rebuildSummaryEndpoint(Request $request)
     {
         $request->validate([
@@ -508,9 +510,9 @@ class AbsenceController extends Controller
         return response()->json(['ok' => true, 'message' => 'Summary berhasil direbuild']);
     }
 
-    // ═════════════════════════════════════════════════════════════════
+    //  ═══
     // PRIVATE HELPERS
-    // ═════════════════════════════════════════════════════════════════
+    //  ═══
 
     public function rebuildSummary(string $tanggal, string $factory, string $shift): void
     {

@@ -34,11 +34,11 @@ class AttendanceController extends Controller
             'factory' => $factory,
             'shift' => $shift,
         ])->first() ?? new AbsenceSummary([
-            'sc_id' => $scId,
-            'tanggal' => $tanggal,
-            'factory' => $factory,
-            'shift' => $shift,
-        ]);
+                'sc_id' => $scId,
+                'tanggal' => $tanggal,
+                'factory' => $factory,
+                'shift' => $shift,
+            ]);
 
         return view('admin.attendance', compact('summary', 'factory', 'shift', 'tanggal'));
     }
@@ -127,7 +127,7 @@ class AttendanceController extends Controller
         ]);
     }
 
-    // ─── Helper ──────────────────────────────────────────────────────
+    //  ─ Helper                            
 
     /**
      * Build data untuk Chart.js doughnut

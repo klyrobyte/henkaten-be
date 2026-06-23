@@ -26,8 +26,10 @@ class SectionController extends Controller
         $query = Factory::where('sc_id', $scId)->orderBy('order_index')->with('sections');
 
         if (!$user->isSuperAdmin()) {
-            $allowedFactories = (array) $user->factory;
-            $query->whereIn('name', $allowedFactories);
+            $allowedFactories = ScContext::allowedFactories($user);
+            if (!empty($allowedFactories)) {
+                $query->whereIn('name', $allowedFactories);
+            }
         }
 
         $factories = $query->get();

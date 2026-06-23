@@ -1,10 +1,10 @@
 <?php
-// ═══════════════════════════════════════════════════════════════════════════
+//  ═════════════
 // FILE: app/Services/ExcelExportService.php
 //
 // Requires: composer require phpoffice/phpspreadsheet
 // Template: henkaten_template.xlsx (3 sheets: Rekap Absen, Problem Log 3M, Dashboard)
-// ═══════════════════════════════════════════════════════════════════════════
+//  ═════════════
 
 namespace App\Services;
 
@@ -20,7 +20,7 @@ use Carbon\Carbon;
 
 class ExcelExportService
 {
-    // ── Palette (exact dari template) ────────────────────────────────────
+    //   Palette (exact dari template)                   
     const NAVY = 'FF1F3C88';
     const NAVY_MID = 'FF2C4A9E';
     const NAVY_LIGHT = 'FFEEF1FA';
@@ -40,9 +40,9 @@ class ExcelExportService
     const GREY_LIGHT = 'FFF5F5F5';
     const BLACK = 'FF000000';
 
-    // ═══════════════════════════════════════════════════════════════════════
+    //  ═════════
     //  ENTRY POINT
-    // ═══════════════════════════════════════════════════════════════════════
+    //  ═════════
     public function buildFullReport(
         string $factory,
         string $shift,
@@ -76,9 +76,9 @@ class ExcelExportService
         return $path;
     }
 
-    // ═══════════════════════════════════════════════════════════════════════
+    //  ═════════
     //  SHEET 1  - REKAP ABSEN
-    // ═══════════════════════════════════════════════════════════════════════
+    //  ═════════
     private function buildRekapAbsen(
         Spreadsheet $wb,
         array $meta,
@@ -278,7 +278,7 @@ class ExcelExportService
         );
         $ws->getRowDimension($dataRow)->setRowHeight(18);
 
-        // ── Task 2: SUMMARY TABLE BLOCK ──
+        //   Task 2: SUMMARY TABLE BLOCK  
         $dataRow += 2; // Blank row separator
 
         $kyAbsenCount = $members->filter(function ($m) use ($records) {
@@ -331,9 +331,9 @@ class ExcelExportService
         }
     }
 
-    // ═══════════════════════════════════════════════════════════════════════
+    //  ═════════
     //  SHEET 2  - PROBLEM LOG 3M
-    // ═══════════════════════════════════════════════════════════════════════
+    //  ═════════
     private function buildProblemLog(
         Spreadsheet $wb,
         array $meta,
@@ -570,9 +570,9 @@ class ExcelExportService
         $ws->getRowDimension($dataRow)->setRowHeight(18);
     }
 
-    // ═══════════════════════════════════════════════════════════════════════
+    //  ═════════
     //  SHEET 3  - DASHBOARD
-    // ═══════════════════════════════════════════════════════════════════════
+    //  ═════════
     private function buildDashboard(
         Spreadsheet $wb,
         array $meta,
@@ -645,7 +645,7 @@ class ExcelExportService
         $ws->mergeCells('A3:H3');
         $this->s($ws, 'A3', null, self::NAVY_LIGHT, self::WHITE, 9, false);
 
-        // ── SECTION: 4M SUMMARY ───────────────────────────────────────────
+        //   SECTION: 4M SUMMARY                      ─
         $ws->mergeCells('A4:H4');
         $this->s($ws, 'A4', '4M SUMMARY', self::DARK_GREY, self::WHITE, 12, true);
 
@@ -695,7 +695,7 @@ class ExcelExportService
             $this->s($ws, "{$c1}8", $label, $bg, self::MID_GREY, 9, true);
         }
 
-        // ── SECTION: KEHADIRAN ────────────────────────────────────────────
+        //   SECTION: KEHADIRAN                       
         $ws->mergeCells('A11:H11');
         $this->s($ws, 'A11', 'KEHADIRAN', self::DARK_GREY, self::WHITE, 12, true);
 
@@ -712,7 +712,7 @@ class ExcelExportService
             $this->s($ws, "{$c1}15", $label, $bg, self::MID_GREY, 9, true);
         }
 
-        // ── SECTION: PROBLEM LOG ──────────────────────────────────────────
+        //   SECTION: PROBLEM LOG                      
         $ws->mergeCells('A18:H18');
         $this->s($ws, 'A18', 'PROBLEM LOG', self::DARK_GREY, self::WHITE, 12, true);
 
@@ -742,9 +742,9 @@ class ExcelExportService
         );
     }
 
-    // ═══════════════════════════════════════════════════════════════════════
+    //  ═════════
     //  HELPERS
-    // ═══════════════════════════════════════════════════════════════════════
+    //  ═════════
 
     private function s(
         Worksheet $ws,

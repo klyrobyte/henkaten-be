@@ -30,19 +30,27 @@ class UserController extends Controller
             $factories = Factory::where('sc_id', $scId)->orderBy('order_index')->get();
         } else {
             // Normal admin only sees users within their SC AND their factory scope
-            $adminFactories = (array) $currentUser->factory;
+            $adminFactories = ScContext::allowedFactories($currentUser);
             
             $users = $query->where('role', '!=', 'superadmin')
                 ->get()
                 ->filter(function($u) use ($adminFactories) {
-                    // If user has no factory, only show if admin also has no factory (shouldn't happen for admin)
+                    // If the current admin has unrestricted access, they can see all non-superadmin users
+                    if (empty($adminFactories)) return true;
+                    
+                    // If the user being checked has unrestricted access, an admin WITH restrictions cannot see them
+                    // (prevents lower-level admins from managing higher-level admins)
                     if (empty($u->factory)) return false;
                     
                     $uFactories = (array) $u->factory;
                     return !empty(array_intersect($uFactories, $adminFactories));
                 });
                 
-            $factories = Factory::where('sc_id', $scId)->whereIn('name', $adminFactories)->orderBy('order_index')->get();
+            $factoriesQuery = Factory::where('sc_id', $scId)->orderBy('order_index');
+            if (!empty($adminFactories)) {
+                $factoriesQuery->whereIn('name', $adminFactories);
+            }
+            $factories = $factoriesQuery->get();
         }
 
         return view('admin.users.index', compact('users', 'factories'));

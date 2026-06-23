@@ -115,7 +115,7 @@ Header = app-header hijau dari admin.blade, semua komponen konten = copy 1:1 das
             background: #f4f7f0;
         }
 
-        /* ── Layout utama ── */
+        /*   Layout utama   */
         .tv-body {
             position: fixed;
             top: 95px;
@@ -199,7 +199,7 @@ Header = app-header hijau dari admin.blade, semua komponen konten = copy 1:1 das
             overflow: auto;
         }
 
-        /* ── Problems Section (normal TV mode) ── */
+        /*   Problems Section (normal TV mode)   */
         .tv-problems-wrap {
             flex: 1 1 0;
             display: flex;
@@ -260,7 +260,7 @@ Header = app-header hijau dari admin.blade, semua komponen konten = copy 1:1 das
             transition: all 0.3s;
         }
 
-        /* ── Active Problem Variants (Red Accent) ── */
+        /*   Active Problem Variants (Red Accent)   */
         .tv-problems-wrap.has-prob .tv-problems-header {
             background: linear-gradient(135deg, #fff0f0 0%, #ffe8e8 100%);
             border-color: #f5c6c6;
@@ -286,7 +286,7 @@ Header = app-header hijau dari admin.blade, semua komponen konten = copy 1:1 das
             flex-shrink: 0;
         }
 
-        /* ── Glowing Problem Cards Animations ── */
+        /*   Glowing Problem Cards Animations   */
         @keyframes glowMan {
 
             0%,
@@ -443,7 +443,7 @@ Header = app-header hijau dari admin.blade, semua komponen konten = copy 1:1 das
             gap: 4px;
         }
 
-        /* ── Problem Panel Realtime ── */
+        /*   Problem Panel Realtime   */
         .tv-problem-detail {
             flex: 1 1 0;
             display: flex;
@@ -592,19 +592,19 @@ Header = app-header hijau dari admin.blade, semua komponen konten = copy 1:1 das
             font-size: 13px;
         }
 
-        /* ════════════════════════════════════════════
+        /* =>════════
        Semua override di-scope .tv-body
        agar TIDAK bocor ke dashboard.blade.php
-    ════════════════════════════════════════════ */
+    =>════════ */
 
-        /* ── date-bar ── */
+        /*   date-bar   */
         .tv-body .date-bar {
             padding: 8px 14px !important;
             border-radius: 10px !important;
             flex-shrink: 0 !important;
         }
 
-        /* ── shift toggle ── */
+        /*   shift toggle   */
         .tv-body .shift-toggle-bar {
             padding: 5px !important;
             border-radius: 10px !important;
@@ -620,7 +620,7 @@ Header = app-header hijau dari admin.blade, semua komponen konten = copy 1:1 das
             cursor: default !important;
         }
 
-        /* ── legend 4M ── */
+        /*   legend 4M   */
         .tv-body .legend-4m {
             padding: 7px 14px !important;
             border-radius: 10px !important;
@@ -639,7 +639,7 @@ Header = app-header hijau dari admin.blade, semua komponen konten = copy 1:1 das
             height: 10px !important;
         }
 
-        /* ── Status panel ── */
+        /*   Status panel   */
         .tv-body .status-panel {
             padding: 14px 12px !important;
             border-radius: 12px !important;
@@ -753,7 +753,7 @@ Header = app-header hijau dari admin.blade, semua komponen konten = copy 1:1 das
             display: block !important;
         }
 
-        /* ── Chart section ── */
+        /*   Chart section   */
         .tv-body .tv-chart-section .section-title {
             flex-shrink: 0 !important;
             margin-bottom: 4px !important;
@@ -866,7 +866,7 @@ Header = app-header hijau dari admin.blade, semua komponen konten = copy 1:1 das
             box-sizing: border-box !important;
         }
 
-        /* ── Right column scroll ── */
+        /*   Right column scroll   */
         .tv-body .status-mesin-scroll {
             flex: 1 1 0;
             overflow-y: auto;
@@ -894,7 +894,7 @@ Header = app-header hijau dari admin.blade, semua komponen konten = copy 1:1 das
             flex-shrink: 0;
         }
 
-        /* ── Machine cards (scoped) ── */
+        /*   Machine cards (scoped)   */
         .tv-body .mc-photo-upload-overlay {
             display: none !important;
         }
@@ -1355,7 +1355,7 @@ Header = app-header hijau dari admin.blade, semua komponen konten = copy 1:1 das
             background: #2e7d32;
         }
 
-        /* ── TV fixed elements (standalone page, tidak perlu scope) ── */
+        /*   TV fixed elements (standalone page, tidak perlu scope)   */
         .tv-badge {
             position: fixed;
             top: 64px;
@@ -1503,9 +1503,9 @@ Header = app-header hijau dari admin.blade, semua komponen konten = copy 1:1 das
 
 <body>
 
-    {{-- ════════════════════════════════════════════════════════════════
+    {{-- ══
     HEADER - identik persis app-header dari admin.blade.php
-    ════════════════════════════════════════════════════════════════ --}}
+    ══ --}}
     <div class="app-header" style="padding:0 12px;gap:10px;position:fixed;top:0;left:0;right:0;z-index:400;">
 
         <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0;">
@@ -1539,29 +1539,30 @@ Header = app-header hijau dari admin.blade, semua komponen konten = copy 1:1 das
     <div class="tv-badge">📺 TV MODE</div>
     <div class="tv-paused" id="tvPaused">⏸ PAUSED</div>
 
-    {{-- ════════════════════════════════════════════════════════════════
+    {{-- ══
     BODY
-    ════════════════════════════════════════════════════════════════ --}}
+    ══ --}}
     <div class="tv-body" id="tvBody">
 
         {{-- ════ LEFT COLUMN ════ --}}
         <div class="tv-col-left">
 
-            {{-- ── date-bar ── --}}
+            {{-- date-bar --}}
             <div class="date-bar">
                 <div class="date-label">📅</div>
-                <span style="flex:1;font-family:'Roboto Condensed',sans-serif;font-weight:600;font-size:16px;color:#222;letter-spacing:.5px;">
+                <span
+                    style="flex:1;font-family:'Roboto Condensed',sans-serif;font-weight:600;font-size:16px;color:#222;letter-spacing:.5px;">
                     {{ \Carbon\Carbon::parse($tanggal)->format('d / m / Y') }}
                 </span>
             </div>
 
-            {{-- ── shift-toggle-bar ── --}}
+            {{-- shift-toggle-bar --}}
             <div class="shift-toggle-bar">
                 <button class="shift-toggle-btn {{ $shift === 'A' ? 'active' : '' }}">SHIFT A</button>
                 <button class="shift-toggle-btn {{ $shift === 'B' ? 'active' : '' }}">SHIFT B</button>
             </div>
 
-            {{-- ── legend-4m ── --}}
+            {{-- legend-4m --}}
             <div class="legend-4m">
                 <div class="legend-4m-item">
                     <div class="l4m-dot" style="background:var(--red)"></div>Man (Absen)
@@ -1577,7 +1578,7 @@ Header = app-header hijau dari admin.blade, semua komponen konten = copy 1:1 das
                 </div>
             </div>
 
-            {{-- ── status-panel ── --}}
+            {{-- status-panel --}}
             @php
                 $chipMap = ['chip-green', 'chip-yellowgreen', 'chip-yellow', 'chip-red'];
                 $chipTxt = [
@@ -1641,7 +1642,7 @@ Header = app-header hijau dari admin.blade, semua komponen konten = copy 1:1 das
                 </div>
             </div>
 
-            {{-- ── Diagram Attendance ── --}}
+            {{-- Diagram Attendance --}}
             <div class="tv-chart-section">
                 <div class="section-title">Attendance</div>
                 <div class="attendance-chart-wrap">
@@ -2312,7 +2313,7 @@ Header = app-header hijau dari admin.blade, semua komponen konten = copy 1:1 das
         let tvChart = null;
         const $g = id => document.getElementById(id);
 
-        /* ── JAM ── */
+        /*   JAM   */
         (() => {
             const el = $g('tvClock');
             const p = x => String(x).padStart(2, '0');
@@ -2320,7 +2321,7 @@ Header = app-header hijau dari admin.blade, semua komponen konten = copy 1:1 das
             t(); setInterval(t, 1000);
         })();
 
-        /* ── CHART (Task 4: includes red Absen indicator) ── */
+        /*   CHART (Task 4: includes red Absen indicator)   */
         function renderChart(d) {
             if (!d) return;
             // Task 4: compute absen count
@@ -2360,7 +2361,7 @@ Header = app-header hijau dari admin.blade, semua komponen konten = copy 1:1 das
             });
         }
 
-        /* ── AUTO-SCROLL MESIN ── */
+        /*   AUTO-SCROLL MESIN   */
         const mesinScroll = $g('statusMesinScroll');
         let mesinPaused = false;
         let mesinScrollPos = 0;
@@ -2399,7 +2400,7 @@ Header = app-header hijau dari admin.blade, semua komponen konten = copy 1:1 das
             if (e.key === 'f' || e.key === 'F' || e.key === 'F11') { e.preventDefault(); tvFS(); }
         });
 
-        /* ── FULLSCREEN ── */
+        /*   FULLSCREEN   */
         function tvFS() {
             if (!document.fullscreenElement)
                 (document.documentElement.requestFullscreen || document.documentElement.webkitRequestFullscreen)?.call(document.documentElement);
@@ -2407,7 +2408,7 @@ Header = app-header hijau dari admin.blade, semua komponen konten = copy 1:1 das
                 (document.exitFullscreen || document.webkitExitFullscreen)?.call(document);
         }
 
-        /* ── SYNC ── */
+        /*   SYNC   */
         let _cd = 30, _cdI = null;
         function startCD() {
             _cd = 30; clearInterval(_cdI);
@@ -2488,7 +2489,7 @@ Header = app-header hijau dari admin.blade, semua komponen konten = copy 1:1 das
             finally { if (dot) dot.style.opacity = '1'; }
         }
 
-        /* ── SYNC CARDS ── */
+        /*   SYNC CARDS   */
         const colorMap = { man: '#e74c3c', machine: '#1f3c88', material: '#f39c12', method: '#2e7d32' };
         const borderCls = { man: 'mc-status-man', machine: 'mc-status-machine', material: 'mc-status-material', method: 'mc-status-method' };
 
@@ -2611,7 +2612,7 @@ Header = app-header hijau dari admin.blade, semua komponen konten = copy 1:1 das
             finally { _tvSyncing = false; }
         }
 
-        /* ── TICKER ── */
+        /*   TICKER   */
         function buildTicker(d) {
             const items = []; const ab = d.absence ?? {}; const s = d.summary ?? {};
             if ((ab.op_cuti ?? 0) > 0) items.push({ dot: '#ff69b4', txt: `Cuti: ${ab.op_cuti}` });
@@ -2630,7 +2631,7 @@ Header = app-header hijau dari admin.blade, semua komponen konten = copy 1:1 das
             el.style.animationDuration = Math.max(20, (el.scrollWidth / 2) / 70) + 's';
         }
 
-        /* ── PROBLEM PANEL HTML RENDERER ── */
+        /*   PROBLEM PANEL HTML RENDERER   */
         const renderProbRows = (tbody, dataset, emptyMsg) => {
             if (!tbody) return;
             const isHistory = tbody.id === 'tvProbTbodyHistory';
@@ -2698,7 +2699,7 @@ Header = app-header hijau dari admin.blade, semua komponen konten = copy 1:1 das
             tbody.innerHTML = html;
         };
 
-        /* ── ACTIVE PROBLEM PANEL (DETAIL PROBLEM) ──
+        /*   ACTIVE PROBLEM PANEL (DETAIL PROBLEM)  
          *  — also drives the "MESIN BERMASALAH > 4 JAM" overlay.
          *  The overlay ONLY fires when:
          *    • _source === 'log'  (real MC/MM/MT log entry, NOT Man/absen)
@@ -2716,7 +2717,7 @@ Header = app-header hijau dari admin.blade, semua komponen konten = copy 1:1 das
             }
             renderProbRows(tbodyActive, activeProblems, '✅ Tidak ada problem aktif  - Semua kondisi normal');
 
-            // ── Overdue watcher: MC/MM/MT problems open > 4h ──
+            //   Overdue watcher: MC/MM/MT problems open > 4h  
             const FOUR_H_MS = 4 * 60 * 60 * 1000;
             const now = Date.now();
             const overdueJenis = new Set(['machine', 'material', 'method']);
@@ -2744,7 +2745,7 @@ Header = app-header hijau dari admin.blade, semua komponen konten = copy 1:1 das
             updateOverdueOverlay(overdueProblems);
         }
 
-        /* ── HISTORY PROBLEM PANEL ── */
+        /*   HISTORY PROBLEM PANEL   */
         async function fetchAndSyncHistoryPanel() {
             try {
                 const qs = `tanggal=${TV_T}&factory=${encodeURIComponent(TV_F)}&shift=${TV_S}`;
@@ -2768,7 +2769,7 @@ Header = app-header hijau dari admin.blade, semua komponen konten = copy 1:1 das
             } catch (e) { console.warn('[TV hist]', e); }
         }
 
-        /* ── PROBLEMS SECTION ── */
+        /*   PROBLEMS SECTION   */
         function syncProblemsSection() {
             const grid = $g('tvProblemsGrid');
             const wrap = $g('tvProblemsWrap');
@@ -2810,7 +2811,7 @@ Header = app-header hijau dari admin.blade, semua komponen konten = copy 1:1 das
             window.open(`/admin/tv?${qs}`, '_blank');
         }
 
-        /* ── Overdue MC Overlay watcher (>4h) ──
+        /*   Overdue MC Overlay watcher (>4h)  
          *  Receives pre-filtered overdue list from syncActiveProblemPanel.
          *  duration_hours / duration_minutes are already computed client-side. */
         function updateOverdueOverlay(problems) {
@@ -2843,7 +2844,7 @@ Header = app-header hijau dari admin.blade, semua komponen konten = copy 1:1 das
             overlay.classList.add('visible');
         }
 
-        /* ── INIT ── */
+        /*   INIT   */
         document.addEventListener('DOMContentLoaded', () => {
             if (initAb) renderChart(initAb);
             buildTicker({ absence: initAb, summary: @json($machineSummary), open_logs: {{ $openLogsCount }}, status_level: {{ $statusLevel }} });
@@ -2865,7 +2866,7 @@ Header = app-header hijau dari admin.blade, semua komponen konten = copy 1:1 das
     </script>
 
     <style>
-        /* ── Task 7: Overdue MC Overlay Styles ── */
+        /*   Task 7: Overdue MC Overlay Styles   */
         #tvOverdueOverlay {
             position: fixed;
             top: 0;

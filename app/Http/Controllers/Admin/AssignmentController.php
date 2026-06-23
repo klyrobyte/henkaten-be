@@ -20,7 +20,7 @@ use Illuminate\Support\Facades\Auth;
  * Menggantikan seluruh logika JS di dailyassignment.html:
  *
  *   JS function                  → Laravel method
- *   ─────────────────────────────────────────────────
+ *                           ─
  *   init() + loadAssignments()   → index()
  *   saveAssignments()            → save()          POST /admin/assignment/save
  *   syncAbsenFromMemberMgmt()    → syncAbsen()     GET  /admin/assignment/sync-absen (AJAX)
@@ -45,23 +45,15 @@ class AssignmentController extends Controller
     private function resolveFactory(Request $request): string
     {
         $user = Auth::user();
-        $scId = ScContext::id();
-        $factory = $request->get('factory') ?: $request->session()->get('factory', ScContext::firstFactory());
-
-        if ($user && !$user->isSuperAdmin()) {
-            $allowedFactories = (array) $user->factory;
-            if (!empty($allowedFactories) && !in_array($factory, $allowedFactories)) {
-                $factory = $allowedFactories[0];
-            }
-        }
-
-        return $factory;
+        $requested = $request->get('factory');
+        $session = $request->session()->get('factory');
+        return ScContext::resolveRequestFactory($requested, $session, $user);
     }
 
-    // ══════════════════════════════════════════════════════════════════════════
+    //  ════════════
     // HELPER: Normalisasi nilai shift  - pastikan selalu 'A' atau 'B'
     // Mengatasi inkonsistensi nilai 'Shift A' vs 'A' dari berbagai sumber
-    // ══════════════════════════════════════════════════════════════════════════
+    //  ════════════
 
     private function normalizeShift(string $shift): string
     {
@@ -71,10 +63,10 @@ class AssignmentController extends Controller
         return in_array($shift, ['A', 'B']) ? $shift : 'A';
     }
 
-    // ══════════════════════════════════════════════════════════════════════════
+    //  ════════════
     // INDEX  - Halaman utama Penugasan Harian
     // Menggantikan: init() + renderBoard() JS
-    // ══════════════════════════════════════════════════════════════════════════
+    //  ════════════
 
     public function index(Request $request)
     {
@@ -128,11 +120,11 @@ class AssignmentController extends Controller
         ));
     }
 
-    // ══════════════════════════════════════════════════════════════════════════
+    //  ════════════
     // SAVE  - Simpan semua assignment
     // Menggantikan: saveAssignments() + broadcast() JS
     // POST /admin/assignment/save
-    // ══════════════════════════════════════════════════════════════════════════
+    //  ════════════
 
     public function save(Request $request): JsonResponse
     {
@@ -211,10 +203,10 @@ class AssignmentController extends Controller
         ]);
     }
 
-    // ══════════════════════════════════════════════════════════════════════════
+    //  ════════════
     // GET DATA  - Ambil assignments sebagai JSON untuk AJAX reload
     // GET /admin/assignment/data
-    // ══════════════════════════════════════════════════════════════════════════
+    //  ════════════
 
     public function getData(Request $request): JsonResponse
     {
@@ -241,11 +233,11 @@ class AssignmentController extends Controller
         ]);
     }
 
-    // ══════════════════════════════════════════════════════════════════════════
+    //  ════════════
     // CANDIDATES  - Daftar kandidat pengganti
     // FIX: normalisasi shift, gabungkan semua sumber absen, hapus duplikasi logika
     // GET /admin/assignment/candidates
-    // ══════════════════════════════════════════════════════════════════════════
+    //  ════════════
 
     public function candidates(Request $request): JsonResponse
     {
@@ -342,10 +334,10 @@ class AssignmentController extends Controller
         }
     }
 
-    // ══════════════════════════════════════════════════════════════════════════
+    //  ════════════
     // SYNC ABSEN  - Sinkronkan absen dari AbsenceRecord → assignment
     // POST /admin/assignment/sync-absen
-    // ══════════════════════════════════════════════════════════════════════════
+    //  ════════════
 
     public function syncAbsen(Request $request): JsonResponse
     {
@@ -390,9 +382,9 @@ class AssignmentController extends Controller
         return response()->json(['ok' => true, 'synced' => $synced]);
     }
 
-    // ══════════════════════════════════════════════════════════════════════════
+    //  ════════════
     // PRIVATE HELPERS
-    // ══════════════════════════════════════════════════════════════════════════
+    //  ════════════
 
     private function buildDefaults(string $factory, string $shift, array $groups): array
     {

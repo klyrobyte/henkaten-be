@@ -27,12 +27,12 @@ class RestrictDocsAccess
 {
     public function handle(Request $request, Closure $next): mixed
     {
-        // ── Gate 1: SCRIBE_ENABLED must be true ──────────────────────────────
+        //   Gate 1: SCRIBE_ENABLED must be true                
         if (!config('app.scribe_enabled', false)) {
             abort(404);
         }
 
-        // ── Gate 2: IP allowlist check ────────────────────────────────────────
+        //   Gate 2: IP allowlist check                     
         $allowedRaw = config('app.scribe_allowed_ips', '');
         $allowed = array_filter(array_map('trim', explode(',', $allowedRaw)));
 

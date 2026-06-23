@@ -46,7 +46,7 @@ class User extends Authenticatable
         return 'username';
     }
 
-    // ─── Role helpers ────────────────────────────────────────────────
+    //  ─ Role helpers                         
 
     public function isSuperAdmin(): bool
     {
@@ -89,13 +89,13 @@ class User extends Authenticatable
      */
     public function getRoleLabelAttribute(): string
     {
-        return match($this->role) {
+        return match ($this->role) {
             'superadmin' => 'Super Admin',
-            'admin'    => 'Administrator',
-            'tl'       => 'Team Leader',
-            'gl'       => 'Group Leader',
+            'admin' => 'Administrator',
+            'tl' => 'Team Leader',
+            'gl' => 'Group Leader',
             'pengawas' => 'Pengawas',
-            default    => ucfirst($this->role),
+            default => ucfirst($this->role),
         };
     }
 
@@ -104,14 +104,14 @@ class User extends Authenticatable
      */
     public function getRoleColorAttribute(): string
     {
-        return match($this->role) {
+        return match ($this->role) {
             'superadmin' => '#000000',
-            'admin'    => '#e74c3c',
-            'tl'       => '#1f3c88',
-            'gl'       => '#2e7d32',
+            'admin' => '#e74c3c',
+            'tl' => '#1f3c88',
+            'gl' => '#2e7d32',
             'pengawas' => '#f39c12',
-            'tv'       => '#6a1b9a',
-            default    => '#888',
+            'tv' => '#6a1b9a',
+            default => '#888',
         };
     }
 }

@@ -1,6 +1,6 @@
 /**
  * auto-sync.js
- * ─────────────────────────────────────────────────────────────────────────
+ *                                     ─
  * Taruh file ini di public/js/auto-sync.js
  * Lalu include di layouts/admin.blade.php sebelum @stack('scripts'):
  *
@@ -12,7 +12,7 @@
  *  2. Module ini polling ke /admin/absence/data setiap POLL_MS milidetik
  *  3. Jika hash data berubah → semua handler dipanggil dengan data terbaru
  *  4. Page absen auto-save tiap kali user klik Hadir/Absen (debounced 800ms)
- * ─────────────────────────────────────────────────────────────────────────
+ *                                     ─
  */
 
 (function () {
@@ -21,7 +21,7 @@
     const POLL_MS      = 10_000; // polling interval: 10 detik
     const SAVE_DEBOUNCE = 800;   // debounce auto-save absen: 0.8 detik
 
-    // ── Ambil context dari meta tag yang di-inject layout ────────────
+    //   Ambil context dari meta tag yang di-inject layout       
     // Di layouts/admin.blade.php tambahkan:
     //   <meta name="hk-factory" content="{{ session('factory','Factory 2') }}">
     //   <meta name="hk-shift"   content="{{ session('shift','A') }}">
@@ -38,14 +38,14 @@
         get csrf()    { return getMeta('csrf-token')  || ''; },
     };
 
-    // ── Internal state ───────────────────────────────────────────────
+    //   Internal state                        ─
     let _lastHash     = null;
     let _handlers     = [];       // callback terdaftar
     let _pollTimer    = null;
     let _saveTimer    = null;
     let _indicator    = null;     // elemen DOM kecil di pojok
 
-    // ── Public API ───────────────────────────────────────────────────
+    //   Public API                          ─
     window.HKSync = {
         /** Daftarkan callback yang dipanggil saat data absen berubah */
         onUpdate(fn) { _handlers.push(fn); },
@@ -60,7 +60,7 @@
         showIndicator: showSyncIndicator,
     };
 
-    // ── Indicator UI ─────────────────────────────────────────────────
+    //   Indicator UI                         ─
     function createIndicator() {
         if (_indicator) return;
         _indicator = document.createElement('div');
@@ -88,14 +88,14 @@
         _indicator._hideTimer = setTimeout(() => { _indicator.style.opacity = '0'; }, 2500);
     }
 
-    // ── Hash helper ──────────────────────────────────────────────────
+    //   Hash helper                          
     async function quickHash(data) {
         const str = JSON.stringify(data);
         const buf = await crypto.subtle.digest('SHA-1', new TextEncoder().encode(str));
         return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
     }
 
-    // ── Core poll ────────────────────────────────────────────────────
+    //   Core poll                           
     async function pollNow(silent = false) {
         try {
             const params = new URLSearchParams({
@@ -133,7 +133,7 @@
         }
     }
 
-    // ── Auto-save absen (debounced) ───────────────────────────────────
+    //   Auto-save absen (debounced)                  ─
     function triggerSave(absenStateObj) {
         clearTimeout(_saveTimer);
         showSyncIndicator('Menyimpan...', 'save');
@@ -162,7 +162,7 @@
         }, SAVE_DEBOUNCE);
     }
 
-    // ── Start polling ────────────────────────────────────────────────
+    //   Start polling                         
     function startPolling() {
         pollNow(true); // poll sekali langsung saat load
         _pollTimer = setInterval(() => pollNow(), POLL_MS);
@@ -179,7 +179,7 @@
         });
     }
 
-    // ── Boot ─────────────────────────────────────────────────────────
+    //   Boot                             ─
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', startPolling);
     } else {

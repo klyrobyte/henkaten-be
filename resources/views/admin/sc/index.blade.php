@@ -77,6 +77,7 @@
             margin-top: 4px;
             border: 1px dashed #ddd;
         }
+
         .sc-admin-label {
             font-family: 'Roboto Condensed', sans-serif;
             font-size: 9px;
@@ -214,7 +215,7 @@
             cursor: not-allowed;
         }
 
-        /* ── Color Chip Selector ── */
+        /*   Color Chip Selector   */
         .gm-chip-grid {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
@@ -334,6 +335,7 @@
             margin-top: 10px;
             border: 1.5px solid #cce3ff;
         }
+
         .admin-setup-title {
             font-family: 'Roboto Condensed', sans-serif;
             font-size: 11px;
@@ -382,7 +384,8 @@
                     <div class="gm-card-header" style="background: {{ $sc->gradient }};">
                         <div class="gm-card-order">{{ $sc->order_index }}</div>
                         <div class="gm-card-name">{{ $sc->name }}</div>
-                        <span style="font-family:'Roboto Condensed',sans-serif;font-size:11px;font-weight:900;background:rgba(255,255,255,.25);padding:2px 8px;border-radius:10px;">
+                        <span
+                            style="font-family:'Roboto Condensed',sans-serif;font-size:11px;font-weight:900;background:rgba(255,255,255,.25);padding:2px 8px;border-radius:10px;">
                             {{ $sc->short_label ?? 'SC' }}
                         </span>
                     </div>
@@ -395,7 +398,11 @@
 
                         <div class="sc-admin-info">
                             <div class="sc-admin-label">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+                                    <circle cx="12" cy="7" r="4" />
+                                </svg>
                                 SC Administrator
                             </div>
                             <div style="font-family:'Roboto Condensed',sans-serif;font-size:12px;font-weight:700;color:#333;">
@@ -412,8 +419,7 @@
                             ✏️ Edit
                         </button>
                         @if($sc->id !== 1)
-                            <button class="gm-act-btn gm-act-del"
-                                onclick="deleteSc({{ $sc->id }}, '{{ addslashes($sc->name) }}')">
+                            <button class="gm-act-btn gm-act-del" onclick="deleteSc({{ $sc->id }}, '{{ addslashes($sc->name) }}')">
                                 🗑️
                             </button>
                         @endif
@@ -478,7 +484,11 @@
                 {{-- Admin Setup Section - Only for NEW SC --}}
                 <div id="adminSetupSection" class="admin-setup-section">
                     <div class="admin-setup-title">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                            <polyline points="9 12 11 14 15 10" />
+                        </svg>
                         Setup Admin Akun
                     </div>
                     <div class="gm-field">
@@ -495,8 +505,10 @@
                             <input type="password" id="adminPassword" placeholder="Min. 6 karakter">
                         </div>
                     </div>
-                    <small style="color:#666;font-size:10px;font-family:'Roboto Condensed',sans-serif;line-height:1.4;display:block">
-                        ⚠️ Akun ini akan otomatis memiliki role <b>Administrator</b> untuk SC baru ini dan memiliki akses penuh ke template yang dikloning.
+                    <small
+                        style="color:#666;font-size:10px;font-family:'Roboto Condensed',sans-serif;line-height:1.4;display:block">
+                        ⚠️ Akun ini akan otomatis memiliki role <b>Administrator</b> untuk SC baru ini dan memiliki akses
+                        penuh ke template yang dikloning.
                     </small>
                 </div>
 
@@ -529,14 +541,14 @@
             if (!grid) return;
             let html = SC_PRESETS.map((p, i) =>
                 `<div class="gm-chip" data-idx="${i}" style="background:${p.value}" title="${p.label}" onclick="scSelectChip(${i})">
-                    <span class="gm-chip-check">✓</span>
-                 </div>`
+                        <span class="gm-chip-check">✓</span>
+                     </div>`
             ).join('');
             html += `<div class="gm-chip gm-chip-custom" data-idx="custom" onclick="scSelectChip('custom')">
-                        <span style="font-size:18px">🎨</span>
-                        <span style="font-size:9px;font-family:'Roboto Condensed',sans-serif;font-weight:800">Custom</span>
-                        <span class="gm-chip-check" style="display:none">✓</span>
-                     </div>`;
+                            <span style="font-size:18px">🎨</span>
+                            <span style="font-size:9px;font-family:'Roboto Condensed',sans-serif;font-weight:800">Custom</span>
+                            <span class="gm-chip-check" style="display:none">✓</span>
+                         </div>`;
             grid.innerHTML = html;
         }
 
@@ -591,16 +603,16 @@
             document.getElementById('scGradient').value = gradient;
             document.getElementById('scDetail').value = detail;
             document.getElementById('scSlug').value = slug;
-            
+
             document.getElementById('scSaveBtn').textContent = isEdit ? '💾 Simpan Perubahan' : '🚀 Deploy Service Center';
-            
+
             // Hide admin setup on edit
             document.getElementById('adminSetupSection').style.display = isEdit ? 'none' : 'block';
 
             document.querySelectorAll('#scChipGrid .gm-chip').forEach(c => c.classList.remove('active'));
             document.getElementById('scCustomPickerWrap')?.classList.remove('show');
             if (gradient) scSyncChipSelection(gradient);
-            
+
             openSheet('scModal');
             setTimeout(() => document.getElementById('scName').focus(), 200);
         }
@@ -612,7 +624,7 @@
             const short = document.getElementById('scShortLabel').value.trim();
             const grad = document.getElementById('scGradient').value.trim();
             const detail = document.getElementById('scDetail').value.trim();
-            
+
             if (!name || !slug) { showToast('Nama and Slug tidak boleh kosong.', 'error'); return; }
 
             const body = { name, slug, short_label: short, gradient: grad, detail_departemen: detail };

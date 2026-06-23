@@ -3,7 +3,7 @@
 
 @push('styles')
     <style>
-        /* ── Section card ─────────────────────────────────────────── */
+        /*   Section card                      ─ */
         .rpt-card {
             background: #fff;
             border-radius: 14px;
@@ -33,7 +33,7 @@
             background: #f0f0f0;
         }
 
-        /* ── 4M stat boxes ──────────────────────────────────────────── */
+        /*   4M stat boxes                        */
         .m4-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -118,7 +118,7 @@
             color: #2e7d32;
         }
 
-        /* ── Absen member list ──────────────────────────────────────── */
+        /*   Absen member list                      */
         .absen-member-row {
             display: flex;
             align-items: center;
@@ -195,7 +195,7 @@
             border: 1.5px solid #e0e0e0;
         }
 
-        /* ── Replacement list ───────────────────────────────────────── */
+        /*   Replacement list                     ─ */
         .repl-row {
             display: flex;
             align-items: center;
@@ -230,7 +230,7 @@
             color: #888;
         }
 
-        /* ── Warning banner ─────────────────────────────────────────── */
+        /*   Warning banner                      ─ */
         .warning-banner {
             background: #fff8e1;
             border: 1.5px solid #ffe082;
@@ -246,7 +246,7 @@
             margin-bottom: 8px;
         }
 
-        /* ── Log cards ───────────────────────────────────────────────── */
+        /*   Log cards                         ─ */
         .log-summary-bar {
             display: flex;
             gap: 8px;
@@ -473,7 +473,7 @@
             background: #ffcdd2;
         }
 
-        /* ── Date Mode Bar ───────────────────────────────────────────── */
+        /*   Date Mode Bar                       ─ */
         .date-mode-bar {
             display: flex;
             align-items: stretch;
@@ -571,7 +571,7 @@
             filter: brightness(1.12);
         }
 
-        /* ── Jenis Selector ─────────────────────────────────────────── */
+        /*   Jenis Selector                      ─ */
         .jenis-selector {
             display: flex;
             gap: 8px;
@@ -778,7 +778,7 @@
 
 @section('content')
 
-    {{-- ══ DATE MODE BAR ═════════════════════════════════════════════ --}}
+    {{-- ══ DATE MODE BAR =>═════════ --}}
     <div class="date-mode-bar">
 
         {{-- Mode toggle buttons --}}
@@ -927,7 +927,7 @@
         </div>
     </div>
 
-    {{-- ══ SECTION 1: 4M Summary ══════════════════════════════════════ --}}
+    {{-- ══ SECTION 1: 4M Summary =>══ --}}
     @php
         $manCount = $absenMembers->count();
         $openCount = $logs->where('status', 'open')->count();
@@ -973,7 +973,7 @@
         @endif
     </div>
 
-    {{-- ══ SECTION 2: Man  - Absensi ════════════════════════════════════ --}}
+    {{-- ══ SECTION 2: Man  - Absensi => --}}
     <div class="rpt-card">
         <div class="rpt-section-title">👤 Man  - Absensi MP ({{ $manCount }})</div>
 
@@ -1030,7 +1030,7 @@
         @endif
     </div>
 
-    {{-- ══ SECTION 3: Problem Log (Full Interactive) ══════════════════ --}}
+    {{-- ══ SECTION 3: Problem Log (Full Interactive)--}}
     <div style="margin-bottom:80px">
 
         {{-- Sub-header + tombol tambah --}}
@@ -1124,7 +1124,7 @@
         </div>
     </div>
 
-    {{-- ══ MODAL: Tambah Log ══════════════════════════════════════════ --}}
+    {{-- ══ MODAL: Tambah Log =>══════ --}}
     <div class="modal-overlay" id="addLogSheet">
         <div class="modal-sheet">
             <div class="modal-sheet-handle"></div>
@@ -1219,7 +1219,7 @@
         </div>
     </div>
 
-    {{-- ══ MODAL: Edit Waktu ══════════════════════════════════════════ --}}
+    {{-- ══ MODAL: Edit Waktu =>══════ --}}
     <div class="modal-overlay" id="editTimeSheet">
         <div class="modal-sheet" style="max-height:320px">
             <div class="modal-sheet-handle"></div>
@@ -1251,7 +1251,7 @@
         </div>
     </div>
 
-    {{-- ══ MODAL: Close Log (Wajib Countermeasure) ════════════════════ --}}
+    {{-- ══ MODAL: Close Log (Wajib Countermeasure)  => --}}
     <div class="modal-overlay" id="closeLogSheet">
         <div class="modal-sheet" style="max-height:380px">
             <div class="modal-sheet-handle"></div>
@@ -1331,7 +1331,7 @@
 
 @push('scripts')
     <script>
-        // ── Date Mode Switcher ────────────────────────────────────────
+        //   Date Mode Switcher                     
         const DATE_MODE_PANELS = ['hari', 'bulan', 'rentang'];
 
         function setDateMode(mode) {
@@ -1393,7 +1393,7 @@
             window.location = u.toString();
         }
 
-        // ── Problem Log JS (identik logika dari log.blade.php) ────────
+        //   Problem Log JS (identik logika dari log.blade.php)     
         const LOG_CSRF = '{{ csrf_token() }}';
         const LOG_TANGGAL = '{{ $tanggal }}';
         const LOG_FACTORY = @json($factory);
@@ -1402,7 +1402,7 @@
         let activeJenis = null;
         const jenisOptions = @json($jenisList);
 
-        // ── Pilih jenis ──────────────────────────────────────────────
+        //   Pilih jenis                        
         function selectJenis(jenis) {
             activeJenis = jenis;
             jenisOptions.forEach(j => {
@@ -1434,7 +1434,7 @@
             }
         }
 
-        // ── Submit log baru ──────────────────────────────────────────
+        //   Submit log baru                      
         async function submitLog() {
             if (!activeJenis) { showToast('Pilih tipe masalah dulu', 'error'); return; }
 
@@ -1480,7 +1480,7 @@
             }
         }
 
-        // ── Close log ────────────────────────────────────────────────
+        //   Close log                         
         function closeLog(id) {
             document.getElementById('closeLogId').value = id;
             document.getElementById('closeCM').value = '';
@@ -1576,7 +1576,7 @@
             }
         }
 
-        // ── Reopen log ───────────────────────────────────────────────
+        //   Reopen log                        ─
         async function reopenLog(id) {
             try {
                 await fetch(`/api/logs/${id}/reopen`, {
@@ -1588,7 +1588,7 @@
             } catch (e) { showToast('Gagal', 'error'); }
         }
 
-        // ── Edit waktu ───────────────────────────────────────────────
+        //   Edit waktu                        ─
         function editLog(id, mulai, selesai) {
             document.getElementById('editLogId').value = id;
             document.getElementById('editMulai').value = mulai;
@@ -1637,7 +1637,7 @@
             }
         }
 
-        // ── Delete log ───────────────────────────────────────────────
+        //   Delete log                        ─
         async function deleteLog(id) {
             if (!confirm('Hapus log ini? Tindakan tidak bisa dibatalkan.')) return;
             try {
@@ -1650,11 +1650,11 @@
             } catch (e) { showToast('Gagal', 'error'); }
         }
 
-        // ── Live preview durasi saat edit waktu ─────────────────────
+        //   Live preview durasi saat edit waktu           ─
         document.getElementById('editMulai').addEventListener('input', updateDurasiPreview);
         document.getElementById('editSelesai').addEventListener('input', updateDurasiPreview);
 
-        // ── Reset form saat sheet ditutup ────────────────────────────
+        //   Reset form saat sheet ditutup               
         const origClose = window.closeSheet;
         window.closeSheet = function (id) {
             if (id === 'addLogSheet') {

@@ -7,12 +7,12 @@ use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 
 /**
- * ══ ScContext — Multi-Tenant SC Resolution Service ═══════════════════════════
+ * ══ ScContext — Multi-Tenant SC Resolution Service  =>═══════
  *
  * Single source of truth for resolving the active Service Center (SC) context.
  *
  * WHY THIS EXISTS
- * ───────────────
+ *        ─
  * Two competing patterns existed in the codebase:
  *   ❌  $user->sc_id ?? 1              → bypasses SuperAdmin session switching
  *   ✅  $user->getActiveScId()         → SC-aware, respects SA context switch
@@ -21,7 +21,7 @@ use Illuminate\Support\Facades\Auth;
  * It also eliminates hardcoded 'Factory 2' fallbacks via ScContext::firstFactory().
  *
  * USAGE
- * ─────
+ *   ─
  *   $scId   = ScContext::id();
  *   $first  = ScContext::firstFactory();
  *   $scoped = ScContext::resolveFactory($requested, $user);
@@ -30,7 +30,7 @@ use Illuminate\Support\Facades\Auth;
  */
 class ScContext
 {
-    // ─── SC Resolution ────────────────────────────────────────────────────────
+    //  ─ SC Resolution                             
 
     /**
      * Resolve the currently active SC ID.
@@ -51,7 +51,7 @@ class ScContext
         return 1;
     }
 
-    // ─── Factory Resolution ───────────────────────────────────────────────────
+    //  ─ Factory Resolution                          ─
 
     /**
      * Return the name of the first factory for the currently active SC,
@@ -108,7 +108,7 @@ class ScContext
 
         // Snapshot the cast property into a plain PHP value — never call reset()
         // or pass-by-ref on an overloaded Eloquent property (causes ErrorException).
-        $userFactoryRaw  = $user->factory;
+        $userFactoryRaw = $user->factory;
         $userFirstFactory = is_array($userFactoryRaw)
             ? (array_values($userFactoryRaw)[0] ?? null)
             : $userFactoryRaw;

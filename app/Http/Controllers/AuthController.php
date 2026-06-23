@@ -45,14 +45,14 @@ class AuthController extends Controller
             'password' => 'required|string',
         ]);
 
-        // ── TASK 5: Rate Limiter ─────────────────────────────────────────────
+        //   TASK 5: Rate Limiter                       ─
         // Use SHA-256 of IP so the raw IP address is never stored in cache keys
         $rateLimiterKey = 'login|' . hash('sha256', $request->ip());
 
         if (RateLimiter::tooManyAttempts($rateLimiterKey, self::MAX_ATTEMPTS)) {
             $seconds = RateLimiter::availableIn($rateLimiterKey);
             Log::warning('[LoginRateLimiter] Percobaan login diblokir — terlalu banyak upaya', [
-                'ip_hash'  => hash('sha256', $request->ip()),
+                'ip_hash' => hash('sha256', $request->ip()),
                 'username' => $request->input('username'),
                 'retry_in' => $seconds,
             ]);
@@ -61,7 +61,7 @@ class AuthController extends Controller
             $message = "Terlalu banyak percobaan login. Coba lagi dalam {$seconds} detik.";
             if ($request->expectsJson()) {
                 return response()->json([
-                    'error'      => $message,
+                    'error' => $message,
                     'retryAfter' => $seconds,
                 ], 429);
             }
@@ -78,7 +78,7 @@ class AuthController extends Controller
         ];
 
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
-            // ── Successful login: clear rate limit counter ───────────────────
+            //   Successful login: clear rate limit counter          ─
             RateLimiter::clear($rateLimiterKey);
             $request->session()->regenerate();
 
@@ -105,7 +105,7 @@ class AuthController extends Controller
             return redirect()->intended(route('admin.dashboard'));
         }
 
-        // ── Failed login: increment rate limiter ─────────────────────────────
+        //   Failed login: increment rate limiter               ─
         RateLimiter::hit($rateLimiterKey, self::DECAY_SECONDS);
         $remaining = self::MAX_ATTEMPTS - RateLimiter::attempts($rateLimiterKey);
         $remainingMsg = $remaining > 0 ? " (sisa {$remaining} percobaan)" : '';

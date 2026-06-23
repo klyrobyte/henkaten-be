@@ -29,25 +29,25 @@ class SecurityHeaders
     {
         $response = $next($request);
 
-        // ── Anti-Clickjacking ─────────────────────────────────────────────────
+        //   Anti-Clickjacking                         ─
         $response->headers->set('X-Frame-Options', 'SAMEORIGIN');
 
-        // ── Prevent MIME Sniffing ─────────────────────────────────────────────
+        //   Prevent MIME Sniffing                       ─
         $response->headers->set('X-Content-Type-Options', 'nosniff');
 
-        // ── Legacy XSS Protection (IE/old Chrome) ─────────────────────────────
+        //   Legacy XSS Protection (IE/old Chrome)               ─
         $response->headers->set('X-XSS-Protection', '1; mode=block');
 
-        // ── Referrer Policy ───────────────────────────────────────────────────
+        //   Referrer Policy                          ─
         $response->headers->set('Referrer-Policy', 'strict-origin-when-cross-origin');
 
-        // ── Permissions Policy  - disable unused browser APIs ──────────────────
+        //   Permissions Policy  - disable unused browser APIs          
         $response->headers->set(
             'Permissions-Policy',
             'camera=(), microphone=(), geolocation=(), payment=(), usb=(), magnetometer=(), gyroscope=()'
         );
 
-        // ── Content Security Policy ───────────────────────────────────────────
+        //   Content Security Policy                      ─
         // Tailored to Henkaten: uses CDN for Alpine.js, chart libs, font icons.
         // 'unsafe-inline' required for existing inline scripts/styles in Blade views.
         //
@@ -85,7 +85,7 @@ class SecurityHeaders
 
         $response->headers->set('Content-Security-Policy', implode('; ', $cspDirectives));
 
-        // ── HSTS  - only when APP_URL is https:// ─────────────────────────────
+        //   HSTS  - only when APP_URL is https://               ─
         // Telling a browser to only use HTTPS on an HTTP-only server would
         // permanently break access. Only send HSTS when we're actually on HTTPS.
         if ($isHttps) {
@@ -95,7 +95,7 @@ class SecurityHeaders
             );
         }
 
-        // ── Remove server fingerprinting headers ──────────────────────────────
+        //   Remove server fingerprinting headers                
         $response->headers->remove('X-Powered-By');
         $response->headers->remove('Server');
 

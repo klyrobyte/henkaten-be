@@ -260,16 +260,16 @@
 
 <body class="{{ $themeEffect === 'glossy' ? 'theme-glossy' : '' }}">
 
-    {{-- ── LOADING OVERLAY ── --}}
+    {{--   LOADING OVERLAY   --}}
     <div class="loading-overlay" id="loadingEl">
         <div class="loading-spinner"></div>
         <div class="loading-text" id="loadingText">Loading...</div>
     </div>
 
-    {{-- ── TOAST ── --}}
+    {{--   TOAST   --}}
     <div class="toast" id="toastEl"></div>
 
-    {{-- ── DRAWER MENU ── --}}
+    {{--   DRAWER MENU   --}}
     <div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
     <div class="drawer-menu" id="drawerMenu">
 
@@ -357,9 +357,15 @@
             </button>
 
             {{-- TV Dropdown - dynamic from DB --}}
+            {{-- RBAC: SuperAdmin + unrestricted Admin see all SC factories; GL/TL/Pengawas/TV see only assigned --}}
+            @php
+                $__tvUser = auth()->user();
+                $__tvAllowed = \App\Services\ScContext::allowedFactories($__tvUser);
+                $__tvIsAdmin = $__tvUser->isSuperAdmin() || $__tvUser->role === 'admin';
+            @endphp
             <div id="tvDropdown" style="display:none;">
                 @foreach($factories as $fac)
-                    @if(auth()->user()->isSuperAdmin() || (is_array(auth()->user()->factory) && in_array($fac->name, auth()->user()->factory)))
+                    @if($__tvIsAdmin ? (empty($__tvAllowed) || in_array($fac->name, $__tvAllowed)) : in_array($fac->name, $__tvAllowed))
                         <div class="tv-factory-block">
                             <div class="tv-factory-header" style="background:{{ $fac->gradient }};">
                                 {{-- Lucide Factory --}}
@@ -631,7 +637,7 @@
         </div>
     </div>
 
-    {{-- ── HEADER (DESKTOP) ── --}}
+    {{--   HEADER (DESKTOP)   --}}
     <div class="app-header desktop-header" style="padding:0 12px;gap:10px;">
         <button class="header-menu-btn" onclick="openDrawer()">☰</button>
 
@@ -703,7 +709,7 @@
         </div>
     </div>
 
-    {{-- ── HEADER (MOBILE) ── --}}
+    {{--   HEADER (MOBILE)   --}}
     <div class="app-header mobile-header">
         <button class="mobile-menu-btn" onclick="openDrawer()">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2"
@@ -731,12 +737,12 @@
     </div>
 
 
-    {{-- ── MAIN CONTENT ── --}}
+    {{--   MAIN CONTENT   --}}
     <div class="main-content">
         @yield('content')
     </div>
 
-    {{-- ── BOTTOM NAV ── --}}
+    {{--   BOTTOM NAV   --}}
     @php
         $currentFactory = session('factory', 'Factory 2');
         $currentShift = session('shift', 'A');
@@ -788,7 +794,7 @@
 
     </nav>
 
-    {{-- ── FACTORY PICKER MODAL - dynamic from DB ── --}}
+    {{--   FACTORY PICKER MODAL - dynamic from DB   --}}
      <div class="modal-overlay" id="factorySheet">
         <div class="modal-sheet">
             <div class="modal-sheet-handle"></div>
@@ -798,10 +804,14 @@
             </div>
             <div class="modal-sheet-body">
                 <div style="display:flex;flex-direction:column;gap:12px">
-                    @php $userRole = auth()->user()->role;
-                    $userFactory = auth()->user()->factory; @endphp
+                    {{-- RBAC: same guard as tvDropdown — admins with no restriction see all --}}
+                    @php
+                        $__fpUser = auth()->user();
+                        $__fpAllowed = \App\Services\ScContext::allowedFactories($__fpUser);
+                        $__fpIsAdmin = $__fpUser->isSuperAdmin() || $__fpUser->role === 'admin';
+                    @endphp
                     @foreach($factories as $fac)
-                        @if($userRole === 'admin' || !$userFactory || $userFactory === $fac->name)
+                        @if($__fpIsAdmin ? (empty($__fpAllowed) || in_array($fac->name, $__fpAllowed)) : in_array($fac->name, $__fpAllowed))
                             <button class="btn-primary" style="background:{{ $fac->gradient }} !important; border: none;"
                                 onclick="setFactory('{{ addslashes($fac->name) }}')">🏭 {{ $fac->name }}</button>
                         @endif
@@ -811,7 +821,7 @@
         </div>
     </div>
 
-    {{-- ── TV PICKER SHEET (dari bottom nav) - dynamic from DB ── --}}
+    {{--   TV PICKER SHEET (dari bottom nav) - dynamic from DB   --}}
     <div class="modal-overlay" id="tvPickerSheet">
         <div class="modal-sheet">
             <div class="modal-sheet-handle"></div>
@@ -876,13 +886,13 @@
         </div>
     </div>
 
-    {{-- ── SHARED JS ── --}}
+    {{--   SHARED JS   --}}
     <script>
         const CSRF_TOKEN = document.querySelector('meta[name="csrf-token"]').content;
         let CURRENT_FACTORY = @json(session('factory', 'Factory 2'));
         let CURRENT_SHIFT = @json(session('shift', 'A'));
 
-        // ── Security patch 2026-05-10 ────────────────────────────────────────────
+        //   Security patch 2026-05-10                       
         // API_NONCE: per-session nonce for authenticating browser→/api/* requests.
         // Read from <meta name="api-nonce"> injected by GenerateApiNonce middleware.
         // Sent as X-App-Secret header on every apiFetch() call.

@@ -3,9 +3,9 @@
  * SVG-based factory floor mapping with real-time status updates
  */
 
-// ════════════════════════════════════════════════════════════════
+//  ══
 // SVG COORDINATE SYSTEM UTILITIES
-// ════════════════════════════════════════════════════════════════
+//  ══
 
 const FloorPlanCoordinates = {
     /**
@@ -56,9 +56,9 @@ const FloorPlanCoordinates = {
     }
 };
 
-// ════════════════════════════════════════════════════════════════
+//  ══
 // STATUS COLORS & STATUS HELPERS
-// ════════════════════════════════════════════════════════════════
+//  ══
 
 const StatusSystem = {
     colors: {
@@ -99,9 +99,9 @@ const StatusSystem = {
     }
 };
 
-// ════════════════════════════════════════════════════════════════
+//  ══
 // FLOOR PLAN RENDERER
-// ════════════════════════════════════════════════════════════════
+//  ══
 
 const FloorPlanRenderer = {
     /**
@@ -139,7 +139,7 @@ const FloorPlanRenderer = {
      */
     createMachineIndicator(machine) {
         const statusClass = StatusSystem.getClass(machine.status);
-        
+
         // Create group
         const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
         g.classList.add('machine-indicator', `status-${statusClass}`);
@@ -203,7 +203,7 @@ const FloorPlanRenderer = {
     showMachineDetail(machine) {
         const statusName = StatusSystem.getName(machine.status);
         const coords = `(${machine.floor_cx.toFixed(2)}, ${machine.floor_cy.toFixed(2)})`;
-        
+
         alert(
             `Machine: ${machine.name}\n` +
             `Status: ${statusName}\n` +
@@ -212,9 +212,9 @@ const FloorPlanRenderer = {
     }
 };
 
-// ════════════════════════════════════════════════════════════════
+//  ══
 // API CLIENT
-// ════════════════════════════════════════════════════════════════
+//  ══
 
 const FloorPlanAPI = {
     /**
@@ -265,9 +265,9 @@ const FloorPlanAPI = {
     }
 };
 
-// ════════════════════════════════════════════════════════════════
+//  ══
 // FLOOR PLAN DISPLAY MODULE
-// ════════════════════════════════════════════════════════════════
+//  ══
 
 const FloorPlanDisplay = {
     /**
@@ -338,9 +338,9 @@ const FloorPlanDisplay = {
     }
 };
 
-// ════════════════════════════════════════════════════════════════
+//  ══
 // FLOOR PLAN EDITOR MODULE
-// ════════════════════════════════════════════════════════════════
+//  ══
 
 const FloorPlanEditor = {
     /**
@@ -491,9 +491,9 @@ const FloorPlanEditor = {
     }
 };
 
-// ════════════════════════════════════════════════════════════════
+//  ══
 // AUTO-INITIALIZATION
-// ════════════════════════════════════════════════════════════════
+//  ══
 
 document.addEventListener('DOMContentLoaded', () => {
     const hasEditor = document.getElementById('svg-container');

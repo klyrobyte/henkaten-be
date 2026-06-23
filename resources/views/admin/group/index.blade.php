@@ -208,7 +208,7 @@
             margin-bottom: 10px;
         }
 
-        /* ── Color Chip Selector ─────────────────────────────── */
+        /*   Color Chip Selector                ─ */
         .gm-chip-grid {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
@@ -337,23 +337,24 @@
         {{-- SC Origin Dropdown (Super Admin only) --}}
         @if(auth()->user()->isSuperAdmin() && $scs->count() > 0)
             <div style="margin-bottom:14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-                <label style="font-family:'Roboto Condensed',sans-serif;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:#666;">🏢 SC Origin</label>
+                <label
+                    style="font-family:'Roboto Condensed',sans-serif;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:#666;">🏢
+                    SC Origin</label>
                 <div style="display:flex;gap:6px;flex-wrap:wrap;">
                     @foreach($scs as $sc)
-                        <a href="{{ route('admin.group.index', ['sc_id' => $sc->id]) }}"
-                           style="display:inline-flex;align-items:center;gap:5px;padding:6px 14px;
-                                  border-radius:20px;font-family:'Roboto Condensed',sans-serif;
-                                  font-size:11px;font-weight:800;letter-spacing:.4px;
-                                  text-decoration:none;transition:all .15s;
-                                  {{ $activeSc === $sc->id
-                                        ? 'background:var(--brand-primary);color:#fff;box-shadow:0 3px 10px rgba(var(--brand-primary-rgb),.35);'
-                                        : 'background:#f0f0f0;color:#666;border:1.5px solid #ddd;' }}">
+                        <a href="{{ route('admin.group.index', ['sc_id' => $sc->id]) }}" style="display:inline-flex;align-items:center;gap:5px;padding:6px 14px;
+                                              border-radius:20px;font-family:'Roboto Condensed',sans-serif;
+                                              font-size:11px;font-weight:800;letter-spacing:.4px;
+                                              text-decoration:none;transition:all .15s;
+                                              {{ $activeSc === $sc->id
+                        ? 'background:var(--brand-primary);color:#fff;box-shadow:0 3px 10px rgba(var(--brand-primary-rgb),.35);'
+                        : 'background:#f0f0f0;color:#666;border:1.5px solid #ddd;' }}">
                             <span>{{ $sc->short_label ?? $sc->name }}</span>
                         </a>
                     @endforeach
                 </div>
                 <span style="font-family:'Roboto Condensed',sans-serif;font-size:11px;color:#aaa;">
-                    — Menampilkan group milik <strong>{{ $scs->firstWhere('id', $activeSc)?->name ?? 'SC '.$activeSc }}</strong>
+                    — Menampilkan group milik <strong>{{ $scs->firstWhere('id', $activeSc)?->name ?? 'SC ' . $activeSc }}</strong>
                 </span>
             </div>
         @endif
@@ -363,7 +364,8 @@
             <div style="font-family:'Roboto Condensed',sans-serif;font-size:13px;color:#666;">
                 <strong style="color:#1f3c88;">{{ $factories->count() }}</strong> factory terdaftar
                 @if(auth()->user()->isSuperAdmin())
-                    <span style="color:#aaa;margin-left:4px;">· SC: {{ $scs->firstWhere('id', $activeSc)?->short_label ?? $activeSc }}</span>
+                    <span style="color:#aaa;margin-left:4px;">· SC:
+                        {{ $scs->firstWhere('id', $activeSc)?->short_label ?? $activeSc }}</span>
                 @endif
             </div>
             <button class="gm-add-btn" id="gmAddBtn" onclick="openGroupModal()">
@@ -434,7 +436,8 @@
                 @if(auth()->user()->isSuperAdmin() && $scs->count() > 0)
                     <div class="gm-field">
                         <label>SC Origin *</label>
-                        <select id="gmScId" style="padding:10px 12px; border:1.5px solid #e0e0e0; border-radius:10px; font-size:13px; font-family:inherit; width:100%; background:#fff;">
+                        <select id="gmScId"
+                            style="padding:10px 12px; border:1.5px solid #e0e0e0; border-radius:10px; font-size:13px; font-family:inherit; width:100%; background:#fff;">
                             @foreach($scs as $sc)
                                 <option value="{{ $sc->id }}" {{ $activeSc === $sc->id ? 'selected' : '' }}>
                                     {{ $sc->name }} ({{ $sc->short_label }})
@@ -495,7 +498,7 @@
         const GM_ACTIVE_SC = {{ $activeSc }}; // SC ID being managed on this page
         let _gmEditId = null;
 
-        // ── Color chip presets ───────────────────────────────────────────────────
+        //   Color chip presets                          ─
         const GM_PRESETS = [
             { label: 'Navy', value: 'linear-gradient(135deg,#1f3c88,#2e57d4)' },
             { label: 'Green', value: 'linear-gradient(135deg,#2e7d32,#56ab2f)' },
@@ -514,14 +517,14 @@
             if (!grid) return;
             let html = GM_PRESETS.map((p, i) =>
                 `<div class="gm-chip" data-idx="${i}" style="background:${p.value}" title="${p.label}" onclick="gmSelectChip(${i})">
-                    <span class="gm-chip-check">✓</span>
-                 </div>`
+                        <span class="gm-chip-check">✓</span>
+                     </div>`
             ).join('');
             html += `<div class="gm-chip gm-chip-custom" data-idx="custom" onclick="gmSelectChip('custom')">
-                        <span style="font-size:18px">🎨</span>
-                        <span style="font-size:9px;font-family:'Roboto Condensed',sans-serif;font-weight:800">Custom</span>
-                        <span class="gm-chip-check" style="display:none">✓</span>
-                     </div>`;
+                            <span style="font-size:18px">🎨</span>
+                            <span style="font-size:9px;font-family:'Roboto Condensed',sans-serif;font-weight:800">Custom</span>
+                            <span class="gm-chip-check" style="display:none">✓</span>
+                         </div>`;
             grid.innerHTML = html;
         }
 

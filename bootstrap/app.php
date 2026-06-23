@@ -12,21 +12,21 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        // ── Middleware aliases ────────────────────────────────────────────────
+        //   Middleware aliases                         
         $middleware->alias([
-            'role'          => \App\Http\Middleware\RoleMiddleware::class,
-            'tv.restrict'   => \App\Http\Middleware\TvRestrictMiddleware::class,
+            'role' => \App\Http\Middleware\RoleMiddleware::class,
+            'tv.restrict' => \App\Http\Middleware\TvRestrictMiddleware::class,
             'internal.request' => \App\Http\Middleware\EnsureInternalRequest::class,
             // Security patch 2026-05-10:
-            'app.secret'    => \App\Http\Middleware\VerifyAppSecret::class,
-            'log.deprecated'=> \App\Http\Middleware\LogDeprecatedRoute::class,
+            'app.secret' => \App\Http\Middleware\VerifyAppSecret::class,
+            'log.deprecated' => \App\Http\Middleware\LogDeprecatedRoute::class,
             'docs.restrict' => \App\Http\Middleware\RestrictDocsAccess::class,
             // Task 6 — Global Activity Logger alias (also appended to api group below)
-            'global.log'    => \App\Http\Middleware\GlobalActivityLogger::class,
-            'sc.guard'      => \App\Http\Middleware\ScContextGuard::class,
+            'global.log' => \App\Http\Middleware\GlobalActivityLogger::class,
+            'sc.guard' => \App\Http\Middleware\ScContextGuard::class,
         ]);
 
-        // ── Global web group middleware ───────────────────────────────────────
+        //   Global web group middleware                    ─
         // SecurityHeaders: inject security headers on every response
         $middleware->appendToGroup('web', \App\Http\Middleware\SecurityHeaders::class);
 
@@ -37,7 +37,7 @@ return Application::configure(basePath: dirname(__DIR__))
         // Must run after session is started  - appended to web group ensures this
         $middleware->appendToGroup('web', \App\Http\Middleware\GenerateApiNonce::class);
 
-        // ── API group middleware ──────────────────────────────────────────────
+        //   API group middleware                        
         // All /api/* routes must carry a valid X-App-Secret header.
         // auth:sanctum is already stripped from the api group (this app uses
         // session auth on web), so we replace it with our session + app.secret guard.

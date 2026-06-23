@@ -30,28 +30,8 @@ class MesinManagementController extends Controller
     private function getCurrentFactory(Request $request): string
     {
         $user = Auth::user();
-        $scId = ScContext::id();
-
-        // 1. Superadmin: session-based full access
-        if ($user->isSuperAdmin()) {
-            return $request->session()->get('factory', ScContext::firstFactory());
-        }
-
-        // 2. GL: fixed to their assigned factory
-        if ($user->role === 'gl') {
-            return (is_array($user->factory) ? $user->factory[0] : $user->factory) ?? ScContext::firstFactory();
-        }
-
-        // 3. Normal Admin (role='admin'): restricted to (array)$user->factory
-        $allowedFactories = (array) ($user->factory ?? []);
-        $sessionFactory = $request->session()->get('factory', ScContext::firstFactory());
-
-        // If session factory is allowed, use it; otherwise fallback to first allowed
-        if (in_array($sessionFactory, $allowedFactories)) {
-            return $sessionFactory;
-        }
-
-        return !empty($allowedFactories) ? $allowedFactories[0] : ScContext::firstFactory();
+        $sessionFactory = $request->session()->get('factory');
+        return ScContext::resolveFactory($sessionFactory, $user);
     }
 
     /**
@@ -88,11 +68,13 @@ class MesinManagementController extends Controller
         })->with('factory');
 
         if (!$user->isSuperAdmin()) {
-            $allowed = (array) ($user->factory ?? []);
-            $factoriesQuery->whereIn('name', $allowed);
-            $sectionsQuery->whereHas('factory', function ($q) use ($allowed) {
-                $q->whereIn('name', $allowed);
-            });
+            $allowed = ScContext::allowedFactories($user);
+            if (!empty($allowed)) {
+                $factoriesQuery->whereIn('name', $allowed);
+                $sectionsQuery->whereHas('factory', function ($q) use ($allowed) {
+                    $q->whereIn('name', $allowed);
+                });
+            }
         }
 
         $factories = $factoriesQuery->orderBy('order_index')->get();

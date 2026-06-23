@@ -19,9 +19,9 @@
 
     <div class="main">
 
-        {{-- ══════════════════════════════════════════════════════════════ --}}
+        {{-- --}}
         {{-- PAGE: MEMBERS --}}
-        {{-- ══════════════════════════════════════════════════════════════ --}}
+        {{-- --}}
         <div class="page active" id="page-members">
 
             <div class="filter-bar">
@@ -149,9 +149,9 @@
 
     </div>{{-- /main --}}
 
-    {{-- ──────────────────────────────────────────────────────────── --}}
+    {{-- --}}
     {{-- MODAL: MEMBER DETAIL SHEET --}}
-    {{-- ──────────────────────────────────────────────────────────── --}}
+    {{-- --}}
     <div class="modal-overlay" id="memberSheet">
         <div class="modal-sheet">
             <div class="modal-handle"></div>
@@ -165,9 +165,9 @@
         </div>
     </div>
 
-    {{-- ──────────────────────────────────────────────────────────── --}}
+    {{-- --}}
     {{-- MODAL: ADD / EDIT MEMBER SHEET --}}
-    {{-- ──────────────────────────────────────────────────────────── --}}
+    {{-- --}}
     <div class="modal-overlay" id="editSheet">
         <div class="modal-sheet">
             <div class="modal-handle"></div>
@@ -261,7 +261,7 @@
         let currentShift = '{{ $shift }}';
         let editPhotoData = null;
 
-        // ── Navigasi tab ──────────────────────────────────────────────
+        //   Navigasi tab                        
         function goPage(page) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
@@ -270,7 +270,7 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        // ── Filter chips ──────────────────────────────────────────────
+        //   Filter chips                        
         function applyFilter(factory, shift) {
             currentFactory = factory;
             currentShift = shift;
@@ -327,7 +327,7 @@
             }
         }
 
-        // ── Member detail sheet ───────────────────────────────────────
+        //   Member detail sheet                    ─
         async function openMemberDetail(id) {
             openSheet('memberSheet');
             document.getElementById('memberSheetTitle').textContent = 'Detail Member';
@@ -354,31 +354,31 @@
                     : '<div style="text-align:center;padding:16px;color:#bbb;font-size:12px">Belum ada riwayat absen</div>';
 
                 document.getElementById('memberSheetBody').innerHTML = `
-                <div class="member-detail-hero">
-                    <div class="member-detail-photo">${photoHTML}</div>
-                    <div class="member-detail-info">
-                        <h4>${m.nama}</h4>
-                        <div style="font-size:12px;color:#888;margin-bottom:6px">
-                            ${m.factory} | Shift ${m.shift}${m.mesin ? ' | ' + m.mesin : ''}
+                    <div class="member-detail-hero">
+                        <div class="member-detail-photo">${photoHTML}</div>
+                        <div class="member-detail-info">
+                            <h4>${m.nama}</h4>
+                            <div style="font-size:12px;color:#888;margin-bottom:6px">
+                                ${m.factory} | Shift ${m.shift}${m.mesin ? ' | ' + m.mesin : ''}
+                            </div>
+                            <span class="mc-badge ${badgeClass}">${m.jabatan}</span>
+                            ${m.nik ? `<span style="font-size:11px;color:#aaa;margin-left:8px">NIK: ${m.nik}</span>` : ''}
                         </div>
-                        <span class="mc-badge ${badgeClass}">${m.jabatan}</span>
-                        ${m.nik ? `<span style="font-size:11px;color:#aaa;margin-left:8px">NIK: ${m.nik}</span>` : ''}
                     </div>
-                </div>
-                <div style="display:flex;gap:8px;margin-bottom:16px">
-                    <button class="btn btn-sm btn-orange" style="flex:1"
-                        onclick="closeSheet('memberSheet');loadEditMember(${m.id})">✏️ Edit</button>
-                    <button class="btn btn-sm btn-danger" onclick="deleteMember(${m.id})">🗑️</button>
-                </div>
-                <div class="section-title">Riwayat Absen (10 Terakhir)</div>
-                <div class="history-list">${histHTML}</div>`;
+                    <div style="display:flex;gap:8px;margin-bottom:16px">
+                        <button class="btn btn-sm btn-orange" style="flex:1"
+                            onclick="closeSheet('memberSheet');loadEditMember(${m.id})">✏️ Edit</button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteMember(${m.id})">🗑️</button>
+                    </div>
+                    <div class="section-title">Riwayat Absen (10 Terakhir)</div>
+                    <div class="history-list">${histHTML}</div>`;
             } catch (e) {
                 document.getElementById('memberSheetBody').innerHTML =
                     `<div style="text-align:center;padding:24px;color:var(--red)">Gagal memuat: ${e.message}</div>`;
             }
         }
 
-        // ── Tambah / Edit member ──────────────────────────────────────
+        //   Tambah / Edit member                    
         function openAddMember() {
             editPhotoData = null;
             document.getElementById('editSheetTitle').textContent = 'Tambah Member';
@@ -387,7 +387,7 @@
             document.getElementById('editRole').value = 'Operator';
 
             // Default to first available factory
-            const firstFactory = document.getElementById('editFactory').options[0]?.value || 'Factory 2';
+            const firstFactory = document.getElementById('editFactory').options[0]?.value || '';
             document.getElementById('editFactory').value = firstFactory;
 
             document.getElementById('editShift').value = 'A';
@@ -487,7 +487,7 @@
             } finally { hideLoading(); }
         }
 
-        // ── Hapus member ──────────────────────────────────────────────
+        //   Hapus member                        
         async function deleteMember(id) {
             if (!confirm('Hapus member ini?')) return;
             try {
@@ -507,7 +507,7 @@
             } catch (e) { showToast('Gagal: ' + e.message, 'error'); }
         }
 
-        // ── Utility ───────────────────────────────────────────────────
+        //   Utility                          ─
         function apiCall(url, method = 'GET', body = null) {
             return api(url, method, body);
         }

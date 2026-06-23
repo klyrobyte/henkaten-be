@@ -1,7 +1,7 @@
-{{-- ════════════════════════════════════════════════════════════════
+{{-- ══
 TV MODE FLOOR PLAN SECTION
 Displays factory floor plan with real-time machine status indicators
-════════════════════════════════════════════════════════════════ --}}
+══ --}}
 
 <style>
     /* TV Mode Floor Plan Styling - PORTRAIT LAYOUT */
@@ -183,9 +183,9 @@ Displays factory floor plan with real-time machine status indicators
     </div>
 </div>
 
-{{-- ════════════════════════════════════ --}}
+{{-- => --}}
 {{-- Floor Plan Display JavaScript --}}
-{{-- ════════════════════════════════════ --}}
+{{-- => --}}
 
 <script>
     // TV Mode Floor Plan System
@@ -380,7 +380,7 @@ Displays factory floor plan with real-time machine status indicators
             circle.setAttribute('stroke-width', '3');
             g.appendChild(circle);
 
-            // ── Machine name label  - transparent, LEFT of the dot ───────────────
+            //   Machine name label  - transparent, LEFT of the dot        ─
             // text-anchor="end" so the text right-aligns flush against the dot edge.
             // No background rect  - fully transparent / clean look.
             const fontSize = 20;                    // SVG viewBox units (scales with SVG)

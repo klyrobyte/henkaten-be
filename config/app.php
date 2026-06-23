@@ -123,7 +123,7 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
-    // ── Security patch 2026-05-10 ─────────────────────────────────────────────
+    //   Security patch 2026-05-10                       ─
     // APP_API_SECRET: shared secret for HMAC-based API authentication (non-browser clients)
     'api_secret' => env('APP_API_SECRET', ''),
 

@@ -41,21 +41,21 @@ class DailyAssignment extends Model
         'substitute_for' => 'integer',
     ];
 
-    // ── Relasi ───────────────────────────────────────────────────────────────
+    //   Relasi                                ─
 
     public function member(): BelongsTo
     {
         return $this->belongsTo(Member::class);
     }
 
-    // ── Helper: build key string seperti JS ─────────────────────────────────
+    //   Helper: build key string seperti JS                 ─
 
     public function getMcKeyAttribute(): string
     {
         return "{$this->group_title}::{$this->machine_name}";
     }
 
-    // ── Static: ubah koleksi DB → format array JS (assignments{}) ───────────
+    //   Static: ubah koleksi DB → format array JS (assignments{})      ─
 
     /**
      * Ambil semua slot untuk konteks tertentu, kembalikan dalam format JS:

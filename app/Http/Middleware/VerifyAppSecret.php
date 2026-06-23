@@ -41,14 +41,14 @@ class VerifyAppSecret
 
         // X-App-Secret is optional now for Path C fallback.
 
-        // ── Path A: Session nonce (browser / Blade clients) ───────────────────
+        //   Path A: Session nonce (browser / Blade clients)          ─
         // Valid only if an authenticated session exists with our nonce stored.
         $sessionNonce = $request->session()->get('api_nonce', '');
         if (!empty($sessionNonce) && hash_equals($sessionNonce, $provided)) {
             return $next($request);
         }
 
-        // ── Path B: Static HMAC (app / service clients) ───────────────────────
+        //   Path B: Static HMAC (app / service clients)            ─
         // Expected = hash_hmac('sha256', fixed-message, APP_API_SECRET)
         $rawSecret = config('app.api_secret', env('APP_API_SECRET', ''));
         if (!empty($rawSecret) && !empty($provided)) {
@@ -58,7 +58,7 @@ class VerifyAppSecret
             }
         }
 
-        // ── Path C: Fallback for Apps without X-App-Secret ────────────────────
+        //   Path C: Fallback for Apps without X-App-Secret           
         // Allow if the request looks like an app (JSON intent) or internal XHR.
         // This mirrors the old EnsureInternalRequest behavior so apps don't break.
         $isXhr = $request->headers->get('X-Requested-With') === 'XMLHttpRequest';
@@ -78,7 +78,7 @@ class VerifyAppSecret
         return $this->deny($request, 'invalid_secret');
     }
 
-    // ── Reject with 401  - log the attempt, leak nothing to the caller ─────────
+    //   Reject with 401  - log the attempt, leak nothing to the caller     ─
     private function deny(Request $request, string $reason): \Illuminate\Http\JsonResponse
     {
         Log::warning('VerifyAppSecret: blocked API access', [

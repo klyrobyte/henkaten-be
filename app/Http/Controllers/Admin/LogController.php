@@ -118,7 +118,7 @@ class LogController extends Controller
         $scId = ScContext::id();
 
         if ($log->sc_id != $scId) {
-             return response()->json(['ok' => false, 'message' => 'Unauthorized SC access.'], 403);
+            return response()->json(['ok' => false, 'message' => 'Unauthorized SC access.'], 403);
         }
 
         if (!$user->isSuperAdmin() && !empty($user->factory)) {
@@ -156,7 +156,7 @@ class LogController extends Controller
         $scId = ScContext::id();
 
         if ($log->sc_id != $scId) {
-             return response()->json(['ok' => false, 'message' => 'Unauthorized SC access.'], 403);
+            return response()->json(['ok' => false, 'message' => 'Unauthorized SC access.'], 403);
         }
 
         if (!$user->isSuperAdmin() && !empty($user->factory)) {
@@ -180,7 +180,7 @@ class LogController extends Controller
         $scId = ScContext::id();
 
         if ($log->sc_id != $scId) {
-             return response()->json(['ok' => false, 'message' => 'Unauthorized SC access.'], 403);
+            return response()->json(['ok' => false, 'message' => 'Unauthorized SC access.'], 403);
         }
 
         if (!$user->isSuperAdmin() && !empty($user->factory)) {
@@ -214,7 +214,7 @@ class LogController extends Controller
         $scId = ScContext::id();
 
         if ($log->sc_id != $scId) {
-             return response()->json(['ok' => false, 'message' => 'Unauthorized SC access.'], 403);
+            return response()->json(['ok' => false, 'message' => 'Unauthorized SC access.'], 403);
         }
 
         if (!$user->isSuperAdmin() && !empty($user->factory)) {
@@ -293,7 +293,7 @@ class LogController extends Controller
         $isTvMode = $request->has('history') && $request->history === '3months';
         $startDate = now()->subMonths(2)->startOfMonth()->toDateString();
 
-        // ── 3M Problem Logs ──────────────────────────────────────────────
+        //   3M Problem Logs                        
         $logQuery = ProblemLog::where('sc_id', $scId)->where('factory', $factory)->whereIn('jenis', ['Machine', 'Material', 'Method']);
 
         if ($isTvMode) {
@@ -323,7 +323,7 @@ class LogController extends Controller
             '_source' => 'log',
         ]);
 
-        // ── Man (Absen) rows ─────────────────────────────────────────────
+        //   Man (Absen) rows                       ─
         $absenQuery = \App\Models\AbsenceRecord::where('sc_id', $scId)->where('factory', $factory)->where('status', 'absen');
         $replQuery = \App\Models\AssignmentReplacement::where('sc_id', $scId)->where('factory', $factory)->with('member');
 

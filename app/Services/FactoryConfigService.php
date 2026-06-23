@@ -16,7 +16,7 @@ use App\Services\ScContext;
  */
 class FactoryConfigService
 {
-    // ─── Public API ───────────────────────────────────────────────────
+    //  ─ Public API                          ─
 
     /**
      * Ambil konfigurasi section (array of definitions) untuk satu factory.

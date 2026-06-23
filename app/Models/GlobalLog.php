@@ -37,7 +37,7 @@ class GlobalLog extends Model
     // Disable soft-deletes — append-only table
     public $timestamps = true;
 
-    // ── Encryption helpers ──────────────────────────────────────────────────
+    //   Encryption helpers                          
 
     /**
      * Create a new log entry with automatic PII encryption.
@@ -53,27 +53,27 @@ class GlobalLog extends Model
      * @param string|null $factory
      */
     public static function record(
-        ?int    $userId,
+        ?int $userId,
         ?string $username,
         ?string $role,
-        string  $action,
-        string  $target,
-        ?array  $detail = null,
+        string $action,
+        string $target,
+        ?array $detail = null,
         ?string $ip = null,
         ?string $userAgent = null,
         ?string $factory = null
     ): void {
         try {
             static::create([
-                'user_id_enc'  => Crypt::encryptString((string) ($userId ?? 'guest')),
+                'user_id_enc' => Crypt::encryptString((string) ($userId ?? 'guest')),
                 'username_enc' => Crypt::encryptString((string) ($username ?? 'unknown')),
-                'role'         => $role,
-                'action'       => strtoupper(substr($action, 0, 10)),
-                'target'       => substr($target, 0, 255),
-                'detail'       => $detail ? json_encode($detail, JSON_UNESCAPED_UNICODE) : null,
-                'ip_enc'       => Crypt::encryptString((string) ($ip ?? 'unknown')),
-                'user_agent'   => $userAgent ? substr($userAgent, 0, 512) : null,
-                'factory'      => $factory ? substr($factory, 0, 100) : null,
+                'role' => $role,
+                'action' => strtoupper(substr($action, 0, 10)),
+                'target' => substr($target, 0, 255),
+                'detail' => $detail ? json_encode($detail, JSON_UNESCAPED_UNICODE) : null,
+                'ip_enc' => Crypt::encryptString((string) ($ip ?? 'unknown')),
+                'user_agent' => $userAgent ? substr($userAgent, 0, 512) : null,
+                'factory' => $factory ? substr($factory, 0, 100) : null,
             ]);
         } catch (\Throwable $e) {
             // Never let logging failure crash the application
@@ -81,14 +81,15 @@ class GlobalLog extends Model
         }
     }
 
-    // ── Decryption accessors (for display in Global Logs dashboard) ─────────
+    //   Decryption accessors (for display in Global Logs dashboard)     ─
 
     /**
      * Safely decrypt an encrypted field, returning a fallback on error.
      */
     public static function safeDecrypt(?string $encrypted, string $fallback = '—'): string
     {
-        if (!$encrypted) return $fallback;
+        if (!$encrypted)
+            return $fallback;
         try {
             return Crypt::decryptString($encrypted);
         } catch (\Throwable) {

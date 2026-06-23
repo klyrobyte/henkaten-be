@@ -3,7 +3,7 @@
 
 @push('styles')
     <style>
-        /* ── Summary bar ─────────────────────────────────────────────── */
+        /*   Summary bar                        ─ */
         .log-summary-bar {
             display: flex;
             gap: 8px;
@@ -38,7 +38,7 @@
             margin-top: 3px;
         }
 
-        /* ── Log cards ───────────────────────────────────────────────── */
+        /*   Log cards                         ─ */
         .log-card {
             background: #fff;
             border-radius: 14px;
@@ -231,7 +231,7 @@
             background: #ffcdd2;
         }
 
-        /* ── Jenis Selector ─────────────────────────────────────────── */
+        /*   Jenis Selector                      ─ */
         .jenis-selector {
             display: flex;
             gap: 8px;
@@ -590,7 +590,7 @@
         @endforelse
     </div>
 
-    {{-- ══ MODAL: Tambah Log ══════════════════════════════════════════ --}}
+    {{-- ══ MODAL: Tambah Log =>══════ --}}
     <div class="modal-overlay" id="addLogSheet">
         <div class="modal-sheet">
             <div class="modal-sheet-handle"></div>
@@ -801,7 +801,7 @@
         </div>
     </div>
 
-    {{-- ══ MODAL: Edit Waktu ══════════════════════════════════════════ --}}
+    {{-- ══ MODAL: Edit Waktu =>══════ --}}
     <div class="modal-overlay" id="editTimeSheet">
         <div class="modal-sheet" style="max-height:320px">
             <div class="modal-sheet-handle"></div>
@@ -833,7 +833,7 @@
         </div>
     </div>
 
-    {{-- ══ MODAL: Close Log (Wajib Countermeasure) ════════════════════ --}}
+    {{-- ══ MODAL: Close Log (Wajib Countermeasure)  => --}}
     <div class="modal-overlay" id="closeLogSheet">
         <div class="modal-sheet" style="max-height:380px">
             <div class="modal-sheet-handle"></div>
@@ -927,7 +927,7 @@
             return u.toString();
         }
 
-        // ── Pilih jenis ──────────────────────────────────────────────
+        //   Pilih jenis                        
         function selectJenis(jenis) {
             activeJenis = jenis;
             ['Machine', 'Material', 'Method'].forEach(j => {
@@ -951,7 +951,7 @@
             }
         }
 
-        // ── Submit log baru ──────────────────────────────────────────
+        //   Submit log baru                      
         async function submitLog() {
             if (!activeJenis) { showToast('Pilih tipe masalah dulu', 'error'); return; }
 
@@ -998,7 +998,7 @@
             }
         }
 
-        // ── Close log: tampilkan jam selesai + durasi langsung di card ──
+        //   Close log: tampilkan jam selesai + durasi langsung di card  
         function closeLog(id) {
             document.getElementById('closeLogId').value = id;
             document.getElementById('closeCM').value = '';
@@ -1106,7 +1106,7 @@
             } catch (e) { showToast('Gagal', 'error'); }
         }
 
-        // ── Edit waktu: auto-isi waktu selesai sekarang jika kosong ──
+        //   Edit waktu: auto-isi waktu selesai sekarang jika kosong  
         function editLog(id, mulai, selesai) {
             document.getElementById('editLogId').value = id;
             document.getElementById('editMulai').value = mulai;
@@ -1168,11 +1168,11 @@
             } catch (e) { showToast('Gagal', 'error'); }
         }
 
-        // ── Live preview durasi saat edit waktu ─────────────────────
+        //   Live preview durasi saat edit waktu           ─
         document.getElementById('editMulai').addEventListener('input', updateDurasiPreview);
         document.getElementById('editSelesai').addEventListener('input', updateDurasiPreview);
 
-        // ── Reset form saat sheet ditutup ────────────────────────────
+        //   Reset form saat sheet ditutup               
         const origClose = window.closeSheet;
         window.closeSheet = function (id) {
             if (id === 'addLogSheet') {

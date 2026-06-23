@@ -3,7 +3,7 @@
 
 @push('styles')
     <style>
-        /* ── Page Header ── */
+        /*   Page Header   */
         .mm-page-title {
             font-family: 'Roboto Condensed', sans-serif;
             font-size: 18px;
@@ -20,7 +20,7 @@
             font-weight: 600;
         }
 
-        /* ── Stats Bar ── */
+        /*   Stats Bar   */
         .mm-stats {
             display: flex;
             flex-wrap: wrap;
@@ -56,7 +56,7 @@
             color: #888;
         }
 
-        /* ── Toolbar ── */
+        /*   Toolbar   */
         .mm-toolbar {
             display: flex;
             align-items: center;
@@ -112,7 +112,7 @@
             transform: none;
         }
 
-        /* ── Card Grid ── */
+        /*   Card Grid   */
         .mm-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
@@ -280,7 +280,7 @@
             margin-bottom: 10px;
         }
 
-        /* ── Modal Form ── */
+        /*   Modal Form   */
         .mm-modal-body {
             padding: 18px 18px 4px;
         }
@@ -553,7 +553,7 @@
 
     </div>
 
-    {{-- ── Add/Edit Mesin Modal ── --}}
+    {{--   Add/Edit Mesin Modal   --}}
     <div class="modal-overlay" id="mesinModal">
         <div class="modal-sheet" style="max-height:92vh;overflow-y:auto">
             <div class="modal-sheet-handle"></div>
@@ -637,13 +637,13 @@
         const MM_FACTORY = {!! json_encode($currentFactory) !!};
         let _mmEditId = null;
 
-        // ── Init: check empty ─────────────────────────────
+        //   Init: check empty               ─
         (function checkEmpty() {
             const cards = document.querySelectorAll('.mm-card');
             document.getElementById('mmEmpty').style.display = cards.length === 0 ? 'block' : 'none';
         })();
 
-        // ── Search/filter ─────────────────────────────────
+        //   Search/filter                 ─
         function filterCards() {
             const q = document.getElementById('mmSearch').value.toLowerCase().trim();
             let visible = 0;
@@ -655,7 +655,7 @@
             document.getElementById('mmEmpty').style.display = visible === 0 ? 'block' : 'none';
         }
 
-        // ── FACTORY_SECTIONS  - built from DB (injected by PHP) ────────────
+        //   FACTORY_SECTIONS  - built from DB (injected by PHP)       
         // { factoryName: [ {value, label, type}, ... ] }
         @php
             $__fsMap = [];
@@ -670,6 +670,7 @@
             }
         @endphp
         const FACTORY_SECTIONS = {!! json_encode($__fsMap, JSON_UNESCAPED_UNICODE) !!};
+        const ALL_FACTORIES = {!! json_encode($factories->pluck('name')->toArray(), JSON_UNESCAPED_UNICODE) !!};
 
         function populateFactoryDropdown(selectedFactory = '') {
             const factoryEl = document.getElementById('mmFactory');
@@ -677,17 +678,16 @@
 
             factoryEl.innerHTML = '<option value=""> - Pilih Factory  -</option>';
 
-            const factories = Object.keys(FACTORY_SECTIONS);
-            factories.forEach(factory => {
+            ALL_FACTORIES.forEach(factory => {
                 const opt = document.createElement('option');
                 opt.value = factory;
                 opt.textContent = factory;
-                if (factory === selectedFactory || factories.length === 1) opt.selected = true;
+                if (factory === selectedFactory || ALL_FACTORIES.length === 1) opt.selected = true;
                 factoryEl.appendChild(opt);
             });
         }
 
-        // ── Open modal ───────────────────────────────────
+        //   Open modal                  ─
         function openMesinModal(id = null, name = '', status = '', photoUrl = '', factory = '', section = '') {
             _mmEditId = id;
             const isEdit = !!id;
@@ -721,7 +721,7 @@
             setTimeout(() => document.getElementById('mmName').focus(), 200);
         }
 
-        // ── Photo handling ────────────────────────────────
+        //   Photo handling                 
         function triggerPhotoInput() {
             document.getElementById('mmPhotoInput').click();
         }
@@ -744,7 +744,7 @@
             input.value = ''; // reset agar file yang sama bisa dipilih ulang
         }
 
-        // ── Populate section dropdown ─────────────────────
+        //   Populate section dropdown           ─
         // Membaca factory + status yang sedang aktif di modal,
         // lalu mengisi #mmSection dari FACTORY_SECTIONS.
         // currentSection = value (misal 'f3', 'f4', 'f2-resin', dst)
@@ -803,7 +803,7 @@
             _factEl.addEventListener('change', () => updateSectionVisibility());
         }
 
-        // ── Save (Add/Edit) ──────────────────────────────
+        //   Save (Add/Edit)                
         async function saveMesin() {
             const id = _mmEditId;
             const name = document.getElementById('mmName').value.trim();
@@ -858,7 +858,7 @@
             }
         }
 
-        // ── Delete ───────────────────────────────────────
+        //   Delete                    ─
         async function deleteMesin(id, name) {
             if (!confirm(`Hapus mesin "${name}"?\n\nAksi ini tidak bisa dibatalkan.`)) return;
 
@@ -890,7 +890,7 @@
             }
         }
 
-        // ── Keyboard shortcut ────────────────────────────
+        //   Keyboard shortcut               
         document.addEventListener('keydown', e => {
             if (e.key === 'Escape') closeSheet('mesinModal');
         });

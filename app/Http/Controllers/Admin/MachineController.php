@@ -100,7 +100,7 @@ class MachineController extends Controller
             }
         }
 
-        // ── Downscale handler ────────────────────────────────────────────
+        //   Downscale handler                       
         $file = $request->file('photo');
         $maxWidth = 1280;   // cap longest side to 1280 px
         $maxHeight = 1280;
@@ -138,7 +138,7 @@ class MachineController extends Controller
         imagedestroy($image);
 
         Storage::disk('machines')->put($filename, $imageData);
-        // ── End downscale handler ────────────────────────────────────────
+        //   End downscale handler                     
 
         $machine->update(['photo' => $filename]);
 
@@ -321,7 +321,7 @@ class MachineController extends Controller
 
         $scId = ScContext::id();
         if ($machine->sc_id != $scId) {
-             return response()->json(['error' => 'Unauthorized SC access'], 403);
+            return response()->json(['error' => 'Unauthorized SC access'], 403);
         }
 
         $machine->update([

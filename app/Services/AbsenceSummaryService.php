@@ -13,7 +13,7 @@ use App\Services\ScContext;
  * Menghitung breakdown kehadiran dari AbsenceRecord ke AbsenceSummary.
  *
  * LOGIKA UTAMA:
- * ─────────────────────────────────────────────────────────────────
+ *                                 ─
  * Setiap member yang absen HANYA masuk ke SATU bucket saja:
  *   - Cek jabatan → Operator atau SPV/Pengawas?
  *   - Cek reason  → cuti / sakit / ijin / Alpha / null

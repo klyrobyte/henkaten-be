@@ -1,10 +1,10 @@
 <?php
-// ═══════════════════════════════════════════════════════════════════════════
+//  ═════════════
 // FILE: app/Http/Controllers/Admin/ReportController.php
 // @rizky
 // PERUBAHAN:
 //   exportExcel()  - full report (Absen + Problem Log + Dashboard) ke XLSX
-// ═══════════════════════════════════════════════════════════════════════════
+//  ═════════════
 
 namespace App\Http\Controllers\Admin;
 
@@ -41,26 +41,20 @@ class ReportController extends Controller
         $factories = Factory::where('sc_id', $scId)->orderBy('order_index')->get();
 
         if (!$user->isSuperAdmin()) {
-            $allowedFactories = (array) $user->factory;
-            $factories = $factories->filter(fn($f) => in_array($f->name, $allowedFactories));
-        }
-
-        $defaultFactory = $factories->first()?->name ?? ScContext::firstFactory() ?? '';
-        $factory = $request->session()->get('factory', $defaultFactory);
-
-        // Validate requested factory against allowed scope
-        if (!$user->isSuperAdmin()) {
-            $allowedFactories = (array) $user->factory;
-            if (!in_array($factory, $allowedFactories)) {
-                $factory = $defaultFactory;
+            $allowedFactories = ScContext::allowedFactories($user);
+            if (!empty($allowedFactories)) {
+                $factories = $factories->filter(fn($f) => in_array($f->name, $allowedFactories));
             }
         }
+
+        $sessionFactory = $request->session()->get('factory');
+        $factory = ScContext::resolveFactory($sessionFactory, $user);
 
         $currentFactory = $factories->firstWhere('name', $factory) ?? $factories->first();
         $shift = $request->session()->get('shift', 'A');
         $jenisList = $this->getDynamicJenis();
 
-        // ── Date mode routing ─────────────────────────────────────────
+        //   Date mode routing                     ─
         $mode = $request->get('mode', 'hari');   // hari | bulan | rentang
         $tanggal = $request->get('tanggal', today()->toDateString());
 
@@ -89,7 +83,7 @@ class ReportController extends Controller
 
         $isRange = ($dari !== $sampai); // true for month/rentang multi-day
 
-        // ── Problem Logs (supports range) ─────────────────────────────
+        //   Problem Logs (supports range)               ─
         $logsQuery = ProblemLog::where('sc_id', $scId)
             ->where('factory', $factory)
             ->where('shift', $shift)
@@ -100,7 +94,7 @@ class ReportController extends Controller
 
         $logs = $logsQuery->get();
 
-        // ── Absences (for display  - use first day or aggregate) ───────
+        //   Absences (for display  - use first day or aggregate)    ─
         $absenceSummary = AbsenceSummary::where([
             'sc_id' => $scId,
             'tanggal' => $tanggal,
@@ -143,7 +137,7 @@ class ReportController extends Controller
         ));
     }
 
-    // ── GET /admin/reports/export  (CSV) ──────────────────────────────
+    //   GET /admin/reports/export  (CSV)                
     public function exportExcel(Request $request)
     {
         $user = Auth::user();
@@ -243,7 +237,7 @@ class ReportController extends Controller
         ])->deleteFileAfterSend(true);
     }
 
-    // ── GET /admin/reports/backup  (JSON) ─────────────────────────────
+    //   GET /admin/reports/backup  (JSON)               ─
     public function exportJson(Request $request)
     {
         $user = Auth::user();
@@ -318,7 +312,7 @@ class ReportController extends Controller
             ->header('Content-Disposition', "attachment; filename=\"{$filename}\"");
     }
 
-    // ─── Helpers ──────────────────────────────────────────────────────
+    //  ─ Helpers                            
 
     private function getAbsenDetail(string $tanggal, string $factory, string $shift)
     {

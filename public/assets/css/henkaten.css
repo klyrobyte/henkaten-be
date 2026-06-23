@@ -57,7 +57,7 @@ body {
    border-radius: 4px;
 }
 
-/* ── HEADER ── */
+/*   HEADER   */
 .app-header {
    position: fixed;
    top: 0;
@@ -228,7 +228,7 @@ body {
    cursor: pointer;
 }
 
-/* ── BOTTOM NAV ── */
+/*   BOTTOM NAV   */
 .bottom-nav {
    position: fixed;
    bottom: 0;
@@ -312,14 +312,14 @@ body {
    stroke: var(--brand-primary);
 }
 
-/* ── MAIN CONTENT ── */
+/*   MAIN CONTENT   */
 .main-content {
    padding-top: calc(var(--header-h) + 12px);
    padding-left: 16px;
    padding-right: 16px;
 }
 
-/* ── CONTROLS ── */
+/*   CONTROLS   */
 .shift-toggle-bar {
    display: flex;
    gap: 8px;
@@ -395,7 +395,7 @@ body {
    font-family: 'Roboto Condensed', sans-serif;
 }
 
-/* ── STATUS PANEL ── */
+/*   STATUS PANEL   */
 .status-panel {
    background: #ffffff;
    border-radius: 16px;
@@ -765,7 +765,7 @@ body {
    text-transform: uppercase;
 }
 
-/* ── SUMMARY GRID ── */
+/*   SUMMARY GRID   */
 .summary-grid {
    display: grid;
    grid-template-columns: repeat(3, 1fr);
@@ -799,7 +799,7 @@ body {
    letter-spacing: .3px;
 }
 
-/* ── SECTION TITLE ── */
+/*   SECTION TITLE   */
 .section-title {
    font-family: 'Roboto Condensed', sans-serif;
    font-size: 13px;
@@ -820,7 +820,7 @@ body {
    background: #e0e0e0;
 }
 
-/* ── ATTENDANCE CHART ── */
+/*   ATTENDANCE CHART   */
 .attendance-chart-wrap {
    background: var(--card);
    border-radius: var(--radius);
@@ -903,7 +903,7 @@ body {
    min-width: 60px;
 }
 
-/* ── MACHINE GRID ── */
+/*   MACHINE GRID   */
 .machine-grid {
    display: grid;
    grid-template-columns: repeat(2, 1fr);
@@ -923,7 +923,7 @@ body {
    }
 }
 
-/* ── MACHINE CARD ── */
+/*   MACHINE CARD   */
 .machine-card {
    background: var(--card);
    border-radius: var(--radius-sm);
@@ -995,7 +995,7 @@ body {
    color: var(--gray);
 }
 
-/* ── 4M LIGHTS ── */
+/*   4M LIGHTS   */
 .mc-lights {
    position: absolute;
    top: 6px;
@@ -1031,7 +1031,7 @@ body {
    background: var(--green-light);
 }
 
-/* ── CIRCLE ── */
+/*   CIRCLE   */
 .circle-wrap {
    display: flex;
    flex-direction: column;
@@ -1111,7 +1111,7 @@ body {
    box-shadow: 0 0 6px rgba(255, 128, 0, .5) !important;
 }
 
-/* ── FORMS ── */
+/*   FORMS   */
 .log-form-card {
    background: var(--card);
    border-radius: var(--radius);
@@ -1257,7 +1257,7 @@ body {
    color: #fff;
 }
 
-/* ── LOG CARDS ── */
+/*   LOG CARDS   */
 .log-card {
    background: var(--card);
    border-radius: var(--radius-sm);
@@ -1359,7 +1359,7 @@ body {
    border-top: 1px solid #f0f0f0;
 }
 
-/* ── REPORT TABLE ── */
+/*   REPORT TABLE   */
 .report-scroll {
    overflow-x: auto;
    border-radius: var(--radius-sm);
@@ -1409,7 +1409,7 @@ body {
    flex-wrap: wrap;
 }
 
-/* ── MODAL ── */
+/*   MODAL   */
 .modal-overlay {
    position: fixed;
    inset: 0;
@@ -1490,7 +1490,7 @@ body {
    justify-content: center;
 }
 
-/* ── DRAWER OVERLAY ── */
+/*   DRAWER OVERLAY   */
 .drawer-overlay {
    position: fixed;
    inset: 0;
@@ -1507,7 +1507,7 @@ body {
    display: block;
 }
 
-/* ── DRAWER CONTAINER ── */
+/*   DRAWER CONTAINER   */
 .drawer-menu {
    position: fixed;
    top: 0;
@@ -1528,7 +1528,7 @@ body {
    transform: translateX(0);
 }
 
-/* ── DRAWER HEADER ── */
+/*   DRAWER HEADER   */
 .drawer-header {
    background: var(--brand-primary);
    padding: 20px 18px 16px;
@@ -1575,7 +1575,7 @@ body {
    background: rgba(255, 255, 255, 0.15);
 }
 
-/* ── DRAWER NAV (scrollable) ── */
+/*   DRAWER NAV (scrollable)   */
 .drawer-nav {
    flex: 1;
    overflow-y: auto;
@@ -1586,7 +1586,7 @@ body {
    width: 0;
 }
 
-/* ── DRAWER ITEM (tombol navigasi) ── */
+/*   DRAWER ITEM (tombol navigasi)   */
 .drawer-item {
    display: flex;
    align-items: center;
@@ -1655,7 +1655,7 @@ body {
    stroke: #E53935;
 }
 
-/* ── SECTION LABEL ── */
+/*   SECTION LABEL   */
 .drawer-section-label {
    padding: 12px 20px 4px;
    font-size: 10px;
@@ -1666,14 +1666,14 @@ body {
    font-family: 'Roboto Condensed', sans-serif;
 }
 
-/* ── DIVIDER ── */
+/*   DIVIDER   */
 .drawer-divider {
    height: 1px;
    background: #f0f0f0;
    margin: 8px 16px;
 }
 
-/* ── TV MODE BUTTON ── */
+/*   TV MODE BUTTON   */
 .tv-mode-btn {
    display: flex;
    align-items: center;
@@ -1730,7 +1730,7 @@ body {
    transition: transform .25s;
 }
 
-/* ── TV DROPDOWN CONTENT ── */
+/*   TV DROPDOWN CONTENT   */
 #tvDropdown {
    padding: 4px 12px 8px;
 }
@@ -1812,7 +1812,7 @@ body {
    background: #E53935;
 }
 
-/* ── TOAST ── */
+/*   TOAST   */
 .toast {
    position: fixed;
    bottom: calc(var(--bottom-h) + 16px);
@@ -1848,7 +1848,7 @@ body {
    background: var(--navy);
 }
 
-/* ── LOADING ── */
+/*   LOADING   */
 .loading-overlay {
    position: fixed;
    inset: 0;
@@ -1886,7 +1886,7 @@ body {
    font-weight: 600;
 }
 
-/* ── 4M LEGEND ── */
+/*   4M LEGEND   */
 .legend-4m {
    display: flex;
    gap: 10px;
@@ -1914,7 +1914,7 @@ body {
    flex-shrink: 0;
 }
 
-/* ── ATTENDANCE ── */
+/*   ATTENDANCE   */
 .attendance-input-grid {
    display: grid;
    grid-template-columns: 1fr 1fr;
@@ -1931,7 +1931,7 @@ body {
    color: var(--green);
 }
 
-/* ── SETTINGS ── */
+/*   SETTINGS   */
 .settings-section {
    background: var(--card);
    border-radius: var(--radius);
@@ -2007,7 +2007,7 @@ body {
    color: #fff;
 }
 
-/* ── EMPTY STATE ── */
+/*   EMPTY STATE   */
 .empty-state {
    text-align: center;
    padding: 40px 20px;
@@ -2023,7 +2023,7 @@ body {
    font-size: 14px;
 }
 
-/* ── PAGE WRAPPER ── */
+/*   PAGE WRAPPER   */
 .page {
    padding: 0 12px 16px;
 }
@@ -2055,9 +2055,9 @@ body {
    }
 }
 
-/* ══════════════════════════════════════════════════════════════
+/*  
    MEMBER MANAGEMENT  - tambahan CSS (dari membermanagement.html)
-   ══════════════════════════════════════════════════════════════ */
+   */
 
 /* Member grid */
 .member-grid {
@@ -2800,9 +2800,9 @@ body {
    --purple: #8e44ad;
 }
 
-/* ══════════════════════════════════════════════════════════════
+/*  
    MACHINES PAGE
-   ══════════════════════════════════════════════════════════════ */
+   */
 .machine-group-card {
    background: #fff;
    border-radius: var(--radius);
@@ -2962,9 +2962,9 @@ body {
    border-color: var(--green)
 }
 
-/* ══════════════════════════════════════════════════════════════
+/*  
    LOG PAGE
-   ══════════════════════════════════════════════════════════════ */
+   */
 .log-summary-bar {
    display: grid;
    grid-template-columns: repeat(3, 1fr);
@@ -3164,9 +3164,9 @@ body {
    margin-left: auto
 }
 
-/* ══════════════════════════════════════════════════════════════
+/*  
    REPORT PAGE
-   ══════════════════════════════════════════════════════════════ */
+   */
 .log-badge {
    display: inline-flex;
    align-items: center

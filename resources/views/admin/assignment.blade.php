@@ -3,12 +3,12 @@
 
 @push('styles')
     <style>
-        /* ══ WRAP ══════════════════════════════════════════════════════ */
+        /* ══ WRAP =>══════════════════ */
         .assign-wrap {
             padding: 10px 12px 110px;
         }
 
-        /* ── Summary bar ─────────────────────────────────────────────── */
+        /*   Summary bar                        ─ */
         .sum-bar {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
@@ -82,7 +82,7 @@
             border-top-color: var(--orange);
         }
 
-        /* ── Alert ───────────────────────────────────────────────────── */
+        /*   Alert                           ─ */
         .alert-strip {
             background: linear-gradient(90deg, var(--red), #c0392b);
             color: #fff;
@@ -118,7 +118,7 @@
             }
         }
 
-        /* ── Group block ─────────────────────────────────────────────── */
+        /*   Group block                        ─ */
         .group-block {
             background: #fff;
             border-radius: 12px;
@@ -158,17 +158,17 @@
             background: var(--orange);
         }
 
-        /* ══ ID CARD grid ════════════════════════════════════════════════
+        /* ══ ID CARD grid =>════════════
                            Setiap mesin = satu kartu ID card:
-                           ┌──────────────────┐
+                           ┌         ┐
                            │ ● NAMA MESIN     │  ← header, dot bisa diklik jika merah
-                           ├──────────────────┤
+                           ├         ┤
                            │    [FOTO]        │  ← avatar member
                            │   Nama Member    │
                            │   [tag Hadir]    │
                            │  [btn Absen/🔍]  │
-                           └──────────────────┘
-                           ════════════════════════════════════════════════════════════════ */
+                           └         ┘
+                            ══ */
         .machine-grid {
             padding: 12px;
             display: grid;
@@ -221,7 +221,7 @@
             border-bottom-color: #f4a8a8;
         }
 
-        /* ── Status dot  - DOT MERAH BISA DIKLIK ──────────────────────── */
+        /*   Status dot  - DOT MERAH BISA DIKLIK              */
         .mc-dot {
             width: 10px;
             height: 10px;
@@ -510,7 +510,7 @@
             color: var(--red);
         }
 
-        /* ── Two-pane + Sub panel ────────────────────────────────────── */
+        /*   Two-pane + Sub panel                     */
         .assign-two {
             display: grid;
             grid-template-columns: 1fr 290px;
@@ -733,7 +733,7 @@
             font-size: 12px;
         }
 
-        /* ── Sync strip ──────────────────────────────────────────────── */
+        /*   Sync strip                          */
         .sync-strip {
             background: linear-gradient(90deg, #1565C0, var(--navy));
             color: #fff;
@@ -752,7 +752,7 @@
             display: flex;
         }
 
-        /* ── Save bar ────────────────────────────────────────────────── */
+        /*   Save bar                           */
         .assign-save-bar {
             position: fixed;
             bottom: 56px;
@@ -804,7 +804,7 @@
             cursor: pointer;
         }
 
-        /* ── Modal alasan absen ─────────────────────────────────────── */
+        /*   Modal alasan absen                    ─ */
         .modal-bg2 {
             position: fixed;
             inset: 0;
@@ -1120,7 +1120,7 @@
 
 @push('scripts')
     <script>
-        // ══ CONFIG ════════════════════════════════════════════════════════════════════
+        // ══ CONFIG  ══════
         const TANGGAL = '{{ $tanggal }}';
         const FACTORY = @json($factory);
         const SHIFT = '{{ $shift }}';
@@ -1134,7 +1134,7 @@
             'jabatan' => $m->jabatan,
         ]));
 
-        // ══ STATE ═════════════════════════════════════════════════════════════════════
+        // ══ STATE  ═══════
         let assignments = @json($assignments);
         let savedAssignments = JSON.parse(JSON.stringify(assignments));
         let unsaved = false;
@@ -1142,7 +1142,7 @@
         let selectedReason = '';
         let activeFinder = null;
 
-        // ══ HELPERS ═══════════════════════════════════════════════════════════════════
+        // ══ HELPERS  ═════
         function initials(name) {
             if (!name) return '?';
             const p = name.trim().split(' ');
@@ -1155,7 +1155,7 @@
         }
         function getPhoto(name) { return MEMBER_LIST.find(x => x.name === name)?.photo || null; }
 
-        // ══ RENDER BOARD ══════════════════════════════════════════════════════════════
+        // ══ RENDER BOARD  
         function renderBoard() {
             const root = document.getElementById('boardRoot');
             let html = '';
@@ -1189,7 +1189,7 @@
             root.innerHTML = html;
         }
 
-        // ── ID Card untuk satu mesin ──────────────────────────────────────────────
+        //   ID Card untuk satu mesin                        
         function renderMachineCard(key, macName) {
             const slots = assignments[key] || [];
             const hasAb = slots.some(s => s.status === 'absent' && !s.isSubstitute);
@@ -1197,7 +1197,7 @@
             const cardCls = allAb ? 'card-problem' : hasAb ? 'card-partial' : 'card-ok';
             const dotCls = allAb ? 'dot-ab' : hasAb ? 'dot-warn' : 'dot-ok';
 
-            // ── dot onclick: langsung tempel di atribut HTML, BUKAN addEventListener
+            //   dot onclick: langsung tempel di atribut HTML, BUKAN addEventListener
             const dotOnClick = (dotCls !== 'dot-ok')
                 ? `onclick="openFinderForMachine(this)" data-key="${esc(key)}"`
                 : '';
@@ -1219,7 +1219,7 @@
                             </div>`;
         }
 
-        // ── Member slot dalam card ────────────────────────────────────────────────
+        //   Member slot dalam card                         
         function renderMemberSlot(key, slot, idx) {
             if (!slot.memberName) {
                 return `<div class="mc-slot-empty" onclick="openFinderEmpty('${esc(key)}',${idx})">
@@ -1262,7 +1262,7 @@
                             </div>`;
         }
 
-        // ══ SUMMARY ═══════════════════════════════════════════════════════════════════
+        // ══ SUMMARY  ═════
         function updateSummary() {
             let hadir = 0, absen = 0, butuh = 0, terisi = 0;
             Object.values(assignments).forEach(slots => {
@@ -1288,7 +1288,7 @@
 
         function render() { renderBoard(); updateSummary(); renderCandidates(); updateSaveBar(); }
 
-        // ══ ABSEN / HADIR ═════════════════════════════════════════════════════════════
+        // ══ ABSEN / HADIR => =>═════
         function openAbsenModal(key, idx, memberName) {
             pendingAbsent = { key, idx, memberName };
             selectedReason = '';
@@ -1321,7 +1321,7 @@
             markUnsaved(); render(); showToast(`✅ ${name} ditandai hadir`, 'success');
         }
 
-        // ══ FINDER ════════════════════════════════════════════════════════════════════
+        // ══ FINDER  ══════
         // Dipanggil oleh onclick="openFinderForMachine(this)" pada DOT elemen
         // Menggunakan data-key dari elemen DOM  - tidak ada isu string escaping
         function openFinderForMachine(dotEl) {
@@ -1411,7 +1411,7 @@
             markUnsaved(); render(); showToast(`↩ Pengganti ${name} dihapus`, 'warn');
         }
 
-        // ══ SAVE / DISCARD ════════════════════════════════════════════════════════════
+        // ══ SAVE / DISCARD => =>════
         function markUnsaved() { unsaved = true; updateSaveBar(); }
         function updateSaveBar() {
             const bar = document.getElementById('assignSaveBar');
@@ -1447,7 +1447,7 @@
             showToast('↩ Perubahan dibatalkan', 'warn');
         }
 
-        // ══ DATE / SHIFT ══════════════════════════════════════════════════════════════
+        // ══ DATE / SHIFT  
         async function onDateChange(val) {
             if (unsaved && !confirm('Ada perubahan belum disimpan. Ganti tanggal?')) {
                 document.getElementById('tanggalHari').value = TANGGAL; return;
@@ -1460,7 +1460,7 @@
             window.location.reload();
         }
 
-        // ══ SYNC ABSEN ════════════════════════════════════════════════════════════════
+        // ══ SYNC ABSEN  ══
         async function syncAbsenFromServer() {
             try {
                 const res = await fetch(`/api/assignment/sync-absen?tanggal=${TANGGAL}&factory=${encodeURIComponent(FACTORY)}&shift=${SHIFT}`,
@@ -1480,7 +1480,7 @@
             el.classList.add('show'); setTimeout(() => el.classList.remove('show'), 5000);
         }
 
-        // ══ TOAST / LOADING ═══════════════════════════════════════════════════════════
+        // ══ TOAST / LOADING => =>═══
         function showToast(msg, type = 'info') {
             const t = document.getElementById('toastEl'); if (!t) return;
             t.textContent = msg; t.className = `toast ${type} show`;
@@ -1489,14 +1489,14 @@
         function showLoading() { document.getElementById('loadingEl')?.classList.add('show'); }
         function hideLoading() { document.getElementById('loadingEl')?.classList.remove('show'); }
 
-        // ══ KEYBOARD ══════════════════════════════════════════════════════════════════
+        // ══ KEYBOARD  ════
         document.addEventListener('keydown', e => {
             if (e.key === 'Escape') closeAbsenModal();
             if ((e.ctrlKey || e.metaKey) && e.key === 's') { e.preventDefault(); if (unsaved) saveAssignments(); }
         });
         window.addEventListener('beforeunload', e => { if (unsaved) { e.preventDefault(); e.returnValue = ''; } });
 
-        // ══ INIT ══════════════════════════════════════════════════════════════════════
+        // ══ INIT  ════════
         document.addEventListener('DOMContentLoaded', () => {
             render();
             updateSaveBar();

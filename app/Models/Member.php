@@ -25,13 +25,13 @@ class Member extends Model
         return $this->belongsTo(Sc::class, 'sc_id');
     }
 
-    // ── Relasi ───────────────────────────────────────────────────────
+    //   Relasi                            ─
     public function absenceRecords(): HasMany
     {
         return $this->hasMany(AbsenceRecord::class);
     }
 
-    // ── Helper: CSS badge class untuk jabatan (mengganti getRoleBadgeClass() JS) ──
+    //   Helper: CSS badge class untuk jabatan (mengganti getRoleBadgeClass() JS)  
     public function getRoleBadgeClassAttribute(): string
     {
         return match (strtolower($this->jabatan ?? '')) {
@@ -43,7 +43,7 @@ class Member extends Model
         };
     }
 
-    // ── Helper: URL foto (storage atau placeholder) ──────────────────
+    //   Helper: URL foto (storage atau placeholder)          
     public function getPhotoUrlAttribute(): ?string
     {
         if (!$this->photo)

@@ -23,11 +23,11 @@ class MemberController extends Controller
     {
     }
 
-    // ──────────────────────────────────────────────────────────────────
+    //                                  
     // HALAMAN UTAMA  - mengganti page-members + renderMembers() + updateStats()
     // GET /admin/member
     // @rizky
-    // ──────────────────────────────────────────────────────────────────
+    //                                  
     public function index(Request $request)
     {
         $user = Auth::user();
@@ -43,9 +43,11 @@ class MemberController extends Controller
 
         if (!$isSuperAdmin) {
             if ($factory === 'all') {
-                $query->whereIn('factory', $allowedFactories);
+                if (!empty($allowedFactories)) {
+                    $query->whereIn('factory', $allowedFactories);
+                }
             } else {
-                if (!in_array($factory, $allowedFactories)) {
+                if (!empty($allowedFactories) && !in_array($factory, $allowedFactories)) {
                     abort(403, 'Unauthorized factory access.');
                 }
                 $query->where('factory', $factory);
@@ -64,12 +66,12 @@ class MemberController extends Controller
 
         // Stats bar
         $stats = [
-            'total' => !$isSuperAdmin
+            'total' => (!$isSuperAdmin && !empty($allowedFactories))
                 ? Member::where('sc_id', $scId)->whereIn('factory', $allowedFactories)->count()
                 : Member::where('sc_id', $scId)->count(),
             'absen_today' => \App\Models\AbsenceRecord::where('sc_id', $scId)->where('tanggal', today())
                 ->where('status', 'absen')
-                ->when(!$isSuperAdmin, function ($q) use ($allowedFactories) {
+                ->when(!$isSuperAdmin && !empty($allowedFactories), function ($q) use ($allowedFactories) {
                     return $q->whereHas('member', function ($mq) use ($allowedFactories) {
                         $mq->whereIn('factory', $allowedFactories);
                     });
@@ -78,7 +80,7 @@ class MemberController extends Controller
         ];
 
         $factories = Factory::where('sc_id', $scId)->get();
-        if (!$isSuperAdmin) {
+        if (!$isSuperAdmin && !empty($allowedFactories)) {
             $factories = $factories->filter(fn($f) => in_array($f->name, $allowedFactories));
         }
 
@@ -101,17 +103,17 @@ class MemberController extends Controller
         );
     }
 
-    // ──────────────────────────────────────────────────────────────────
+    //                                  
     // DETAIL (JSON)  - untuk AJAX sheet panel
     // GET /admin/members/{member}
-    // ──────────────────────────────────────────────────────────────────
+    //                                  
     public function show(Member $member)
     {
         $user = Auth::user();
         $scId = ScContext::id();
 
         if ($member->sc_id != $scId) {
-             abort(403, 'Unauthorized access to this member.');
+            abort(403, 'Unauthorized access to this member.');
         }
 
         if (!$user->isSuperAdmin() && !in_array($member->factory, (array) $user->factory)) {
@@ -129,10 +131,10 @@ class MemberController extends Controller
         ]);
     }
 
-    // ──────────────────────────────────────────────────────────────────
+    //                                  
     // SIMPAN BARU  - mengganti saveMember() JS (mode tambah)
     // POST /admin/members
-    // ──────────────────────────────────────────────────────────────────
+    //                                  
     public function store(Request $request)
     {
         $user = Auth::user();
@@ -162,17 +164,17 @@ class MemberController extends Controller
         return back()->with('success', '✅ Member ditambah: ' . $member->nama);
     }
 
-    // ──────────────────────────────────────────────────────────────────
+    //                                  
     // UPDATE  - mengganti saveMember() JS (mode edit)
     // PUT /admin/members/{member}
-    // ──────────────────────────────────────────────────────────────────
+    //                                  
     public function update(Request $request, Member $member)
     {
         $user = Auth::user();
         $scId = ScContext::id();
 
         if ($member->sc_id != $scId) {
-             abort(403, 'Unauthorized access to this member.');
+            abort(403, 'Unauthorized access to this member.');
         }
 
         if (!$user->isSuperAdmin() && !in_array($member->factory, (array) $user->factory)) {
@@ -208,17 +210,17 @@ class MemberController extends Controller
         return back()->with('success', '✅ Member diupdate: ' . $member->nama);
     }
 
-    // ──────────────────────────────────────────────────────────────────
+    //                                  
     // HAPUS  - mengganti deleteMember(id) JS
     // DELETE /admin/members/{member}
-    // ──────────────────────────────────────────────────────────────────
+    //                                  
     public function destroy(Member $member)
     {
         $user = Auth::user();
         $scId = ScContext::id();
 
         if ($member->sc_id != $scId) {
-             abort(403, 'Unauthorized access to this member.');
+            abort(403, 'Unauthorized access to this member.');
         }
 
         if (!$user->isSuperAdmin() && !in_array($member->factory, (array) $user->factory)) {
@@ -238,14 +240,14 @@ class MemberController extends Controller
         return back()->with('success', 'Member dihapus');
     }
 
-    // ──────────────────────────────────────────────────────────────────
+    //                                  
     // HAPUS SEMUA  - mengganti clearAllMembers() JS
     // DELETE /admin/members/clear-all
     //
     // Requires explicit confirmation header to prevent accidental or
     // automated mass-deletion. The client must send:
     //   X-Confirm-Action: DELETE_ALL_MEMBERS
-    // ──────────────────────────────────────────────────────────────────
+    //                                  
     public function clearAll(Request $request)
     {
         // Guard: require explicit confirmation header to prevent accidental mass-delete
@@ -274,10 +276,10 @@ class MemberController extends Controller
         return response()->json(['ok' => true]);
     }
 
-    // ──────────────────────────────────────────────────────────────────
+    //                                  
     // LIST JSON (AJAX)  - untuk halaman lain (dailyassignment, dll)
     // GET /admin/members/list?factory=&shift=
-    // ──────────────────────────────────────────────────────────────────
+    //                                  
     public function list(Request $request)
     {
         $user = Auth::user();
@@ -302,11 +304,11 @@ class MemberController extends Controller
         return response()->json($members);
     }
 
-    // ──────────────────────────────────────────────────────────────────
+    //                                  
     // IMPORT  - mengganti confirmImport() + processExcelFile() JS
     // JS tetap parse Excel di browser, lalu kirim JSON array ke sini
     // POST /admin/members/import
-    // ──────────────────────────────────────────────────────────────────
+    //                                  
     public function import(Request $request)
     {
         $user = Auth::user();
@@ -371,10 +373,10 @@ class MemberController extends Controller
         ]);
     }
 
-    // ──────────────────────────────────────────────────────────────────
+    //                                  
     // EXPORT CSV  - mengganti exportMembers() JS (pakai SheetJS)
     // GET /admin/members/export
-    // ──────────────────────────────────────────────────────────────────
+    //                                  
     public function export()
     {
         $user = Auth::user();
@@ -408,10 +410,10 @@ class MemberController extends Controller
         ]);
     }
 
-    // ──────────────────────────────────────────────────────────────────
+    //                                  
     // DOWNLOAD TEMPLATE  - mengganti downloadTemplate() JS
     // GET /admin/members/template
-    // ──────────────────────────────────────────────────────────────────
+    //                                  
     public function downloadTemplate()
     {
         $rows = [
@@ -431,7 +433,7 @@ class MemberController extends Controller
         ]);
     }
 
-    // ── Private helpers ───────────────────────────────────────────────
+    //   Private helpers                        ─
 
     private function validateMember(Request $request): array
     {
@@ -455,7 +457,7 @@ class MemberController extends Controller
         $ext = explode('/', explode(';', $base64)[0])[1];
         $data = base64_decode(explode(',', $base64)[1]);
 
-        // ── Magic-byte MIME validation  - prevent disguised non-image uploads  -
+        //   Magic-byte MIME validation  - prevent disguised non-image uploads  -
         // Inspect the first 12 bytes of the decoded binary to verify it is
         // actually an image, regardless of what the data URI header claims.
         $allowedMimes = [

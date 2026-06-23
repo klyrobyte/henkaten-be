@@ -34,15 +34,15 @@ class EnsureInternalRequest
 {
     public function handle(Request $request, Closure $next): mixed
     {
-        // ── Check 1: X-Requested-With header (Axios / jQuery AJAX) ───────────
+        //   Check 1: X-Requested-With header (Axios / jQuery AJAX)      ─
         $isXhr = $request->headers->get('X-Requested-With') === 'XMLHttpRequest';
 
-        // ── Check 2: Referer must match our app's URL ─────────────────────────
+        //   Check 2: Referer must match our app's URL             ─
         $appUrl = rtrim(config('app.url'), '/');
         $referer = rtrim($request->headers->get('Referer', ''), '/');
         $validReferer = !empty($referer) && str_starts_with($referer, $appUrl);
 
-        // ── Check 3: Accept header signals JSON intent ────────────────────────
+        //   Check 3: Accept header signals JSON intent             
         $wantsJson = $request->wantsJson()
             || str_contains($request->header('Accept', ''), 'application/json');
 

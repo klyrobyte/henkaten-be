@@ -22,7 +22,8 @@ class MasterDataController extends Controller
 {
     public function __construct(
         protected FactoryConfigService $factoryConfig
-    ) {}
+    ) {
+    }
 
     /**
      * Display a listing of the resource.
@@ -41,7 +42,7 @@ class MasterDataController extends Controller
         $defaultFactory = $factories->first()?->name ?? ScContext::firstFactory() ?? '';
         $factory = $request->get('factory', $request->session()->get('factory', $defaultFactory));
         $shift = $request->get('shift', $request->session()->get('shift', 'A'));
-        
+
         // Save to session for persistence
         session(['factory' => $factory, 'shift' => $shift]);
 
@@ -67,7 +68,8 @@ class MasterDataController extends Controller
         } elseif ($mode === 'rentang') {
             $dari = $request->get('dari', \Carbon\Carbon::parse($tanggal)->startOfMonth()->toDateString());
             $sampai = $request->get('sampai', \Carbon\Carbon::parse($tanggal)->endOfMonth()->toDateString());
-            if ($dari > $sampai) [$dari, $sampai] = [$sampai, $dari];
+            if ($dari > $sampai)
+                [$dari, $sampai] = [$sampai, $dari];
             $bulan = \Carbon\Carbon::parse($dari)->format('Y-m');
         } else {
             $mode = 'hari';
@@ -79,12 +81,12 @@ class MasterDataController extends Controller
         $tab = $request->get('tab', '3m');
         $perPage = $request->get('per_page', 15);
 
-        // ── 4M Summary Data ───────────────────────────────────────────
+        //   4M Summary Data                      ─
         $logsQuery = ProblemLog::where('sc_id', $scId)
             ->where('factory', $factory)
             ->where('shift', $shift)
             ->whereBetween('tanggal', [$dari, $sampai]);
-        
+
         $summaryLogs = (clone $logsQuery)->get();
         $jenisList = $this->getDynamicJenis();
 
@@ -102,7 +104,7 @@ class MasterDataController extends Controller
             ->whereBetween('tanggal', [$dari, $sampai])
             ->count();
 
-        // ── History Data ──────────────────────────────────────────────
+        //   History Data                        
         switch ($tab) {
             case 'absence':
                 $history = AbsenceRecord::with('member')
@@ -175,8 +177,23 @@ class MasterDataController extends Controller
         $members = Member::where('sc_id', $scId)->orderBy('nama')->get();
 
         return view('admin.superadmin.master_data', compact(
-            'factories', 'currentFactory', 'factory', 'shift', 'mode', 'tanggal', 'dari', 'sampai', 'bulan',
-            'tab', 'history', 'summaryLogs', 'jenisList', 'manCount', 'replacementsCount', 'perPage', 'members'
+            'factories',
+            'currentFactory',
+            'factory',
+            'shift',
+            'mode',
+            'tanggal',
+            'dari',
+            'sampai',
+            'bulan',
+            'tab',
+            'history',
+            'summaryLogs',
+            'jenisList',
+            'manCount',
+            'replacementsCount',
+            'perPage',
+            'members'
         ));
     }
 
@@ -245,7 +262,7 @@ class MasterDataController extends Controller
         $tab = $request->get('tab', '3m');
         $factory = $request->get('factory', $request->session()->get('factory'));
         $shift = $request->get('shift', $request->session()->get('shift'));
-        
+
         $mode = $request->get('mode');
         $hasDateFilter = false;
         $dari = $sampai = null;
@@ -259,7 +276,8 @@ class MasterDataController extends Controller
             $hasDateFilter = true;
             $dari = $request->get('dari');
             $sampai = $request->get('sampai');
-            if ($dari && $sampai && $dari > $sampai) [$dari, $sampai] = [$sampai, $dari];
+            if ($dari && $sampai && $dari > $sampai)
+                [$dari, $sampai] = [$sampai, $dari];
         } elseif ($request->has('tanggal')) {
             $hasDateFilter = true;
             $dari = $sampai = $request->get('tanggal');
@@ -268,15 +286,15 @@ class MasterDataController extends Controller
         $scId = ScContext::id();
         // Base query builder based on tab
         $query = match ($tab) {
-            '3m'           => ProblemLog::where('sc_id', $scId),
-            'absence'      => AbsenceRecord::where('sc_id', $scId),
-            'abs-sum'      => AbsenceSummary::where('sc_id', $scId),
-            'abs-reason'   => null, // Uses truncate
+            '3m' => ProblemLog::where('sc_id', $scId),
+            'absence' => AbsenceRecord::where('sc_id', $scId),
+            'abs-sum' => AbsenceSummary::where('sc_id', $scId),
+            'abs-reason' => null, // Uses truncate
             'replacements' => AssignmentReplacement::where('sc_id', $scId),
-            'assignments'  => DailyAssignment::where('sc_id', $scId),
-            'mc-status'    => MachineStatus::query(),
-            'global-logs'  => null, // Uses truncate
-            default        => null,
+            'assignments' => DailyAssignment::where('sc_id', $scId),
+            'mc-status' => MachineStatus::query(),
+            'global-logs' => null, // Uses truncate
+            default => null,
         };
 
         if ($tab === 'abs-reason') {
@@ -293,8 +311,10 @@ class MasterDataController extends Controller
         }
 
         // Apply shared filters
-        if ($factory) $query->where('factory', $factory);
-        if ($shift)   $query->where('shift', $shift);
+        if ($factory)
+            $query->where('factory', $factory);
+        if ($shift)
+            $query->where('shift', $shift);
         if ($hasDateFilter && $dari && $sampai) {
             $query->whereBetween('tanggal', [$dari, $sampai]);
         }
@@ -315,8 +335,10 @@ class MasterDataController extends Controller
 
         $scope = $hasDateFilter ? "between {$dari} and {$sampai}" : "for all time";
         $msg = "Successfully deleted all {$count} {$tab} records {$scope}";
-        if ($factory) $msg .= " in {$factory}";
-        if ($shift)   $msg .= " (Shift {$shift})";
+        if ($factory)
+            $msg .= " in {$factory}";
+        if ($shift)
+            $msg .= " (Shift {$shift})";
 
         return response()->json(['ok' => true, 'message' => $msg . "."]);
     }
@@ -342,14 +364,14 @@ class MasterDataController extends Controller
                     'pic' => 'nullable|string',
                     'status' => 'required|string|in:open,closed',
                 ]);
-                
+
                 if (!empty($validated['waktu_mulai']) && !empty($validated['waktu_selesai'])) {
                     $validated['durasi'] = $this->calcDuration($validated['waktu_mulai'], $validated['waktu_selesai']);
                 } elseif ($validated['status'] === 'open') {
                     $validated['durasi'] = null;
                     $validated['waktu_selesai'] = null;
                 }
-                
+
                 $log->update($validated);
                 return response()->json(['ok' => true, 'message' => 'Problem Log updated.', 'data' => $log]);
 
@@ -472,11 +494,14 @@ class MasterDataController extends Controller
         $s = strtotime("2000-01-01 {$start}");
         $e = strtotime("2000-01-01 {$end}");
         $diff = $e - $s;
-        if ($diff < 0) $diff += 86400;
+        if ($diff < 0)
+            $diff += 86400;
         $h = intdiv($diff, 3600);
         $m = intdiv($diff % 3600, 60);
-        if ($h > 0 && $m > 0) return "{$h}j {$m}m";
-        if ($h > 0) return "{$h}j";
+        if ($h > 0 && $m > 0)
+            return "{$h}j {$m}m";
+        if ($h > 0)
+            return "{$h}j";
         return "{$m}m";
     }
 

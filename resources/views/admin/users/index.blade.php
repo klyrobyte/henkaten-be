@@ -43,7 +43,7 @@
             opacity: .8;
         }
 
-        /* ── User Table ── */
+        /*   User Table   */
         .um-table-wrap {
             overflow-x: auto;
             border-radius: 12px;
@@ -204,7 +204,7 @@
             margin-left: 4px;
         }
 
-        /* ── Modal Form ── */
+        /*   Modal Form   */
         .um-modal-body {
             padding: 16px;
         }
@@ -519,7 +519,7 @@
 
     </div>
 
-    {{-- ── Add/Edit User Modal ── --}}
+    {{--   Add/Edit User Modal   --}}
     <div class="modal-overlay" id="userModal">
         <div class="modal-sheet" style="max-height:95vh;overflow-y:auto">
             <div class="modal-sheet-handle"></div>
@@ -556,17 +556,23 @@
                         <label>Factory (Bisa Pilih Lebih Dari Satu) *</label>
                         <div class="factory-checklist" id="factoryChecklist">
                             @php
-                                $isSuper = auth()->user()->isSuperAdmin();
-                                $adminFacs = (array) auth()->user()->factory;
+                                $__cbUser = auth()->user();
+                                $__isSuper = $__cbUser->isSuperAdmin();
+                                $__isAdmin = $__cbUser->role === 'admin';
+                                // SuperAdmin and admin can freely assign; GL/TL/Pengawas are read-only
+                                $__canEdit = $__isSuper || $__isAdmin;
                             @endphp
                             @foreach($factories as $f)
-                                <div class="factory-item {{ !$isSuper ? 'disabled' : '' }}">
-                                    <input type="checkbox" id="fac_{{ $f->id }}" value="{{ $f->name }}" class="um-factory-cb" {{ !$isSuper ? 'checked disabled' : '' }}>
+                                <div class="factory-item {{ !$__canEdit ? 'disabled' : '' }}">
+                                    {{-- SuperAdmin/Admin: checkboxes are editable; GL/TL: locked to their own --}}
+                                    <input type="checkbox" id="fac_{{ $f->id }}" value="{{ $f->name }}"
+                                        class="um-factory-cb" {{ !$__canEdit ? 'checked disabled' : '' }}>
                                     <label for="fac_{{ $f->id }}">{{ $f->name }}</label>
                                 </div>
                             @endforeach
                         </div>
                     </div>
+
                     <div class="um-field">
                         <label>Shift</label>
                         <select id="umShift">
@@ -619,12 +625,17 @@
             // Reset checkboxes
             const cbs = document.querySelectorAll('.um-factory-cb');
             const isSuper = {{ auth()->user()->isSuperAdmin() ? 'true' : 'false' }};
+            const isAdmin = {{ auth()->user()->role === 'admin' ? 'true' : 'false' }};
+            const canEdit = isSuper || isAdmin;
 
             cbs.forEach(cb => {
-                if (isSuper) {
+                if (canEdit) {
+                    // SuperAdmin & Admin: freely set checkboxes based on the user being edited
+                    cb.disabled = false;
+                    cb.closest('.factory-item')?.classList.remove('disabled');
                     cb.checked = Array.isArray(factory) ? factory.includes(cb.value) : (factory == cb.value);
                 } else {
-                    // Normal admin: always checked and disabled (locked to their own factories)
+                    // GL / TL / Pengawas: locked — always checked and disabled (their own factories only)
                     cb.checked = true;
                     cb.disabled = true;
                 }

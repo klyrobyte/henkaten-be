@@ -3,7 +3,7 @@
 
 @section('content')
 
-    {{-- ── Filter bar ── --}}
+    {{--   Filter bar   --}}
     <form method="GET" action="{{ route('admin.absence.index') }}" id="filterForm">
         <div class="card" style="padding:12px 16px;margin-bottom:10px">
             <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
@@ -40,7 +40,7 @@
         </div>
     </form>
 
-    {{-- ── Summary counts ── --}}
+    {{--   Summary counts   --}}
     <div class="absen-summary-grid">
         <div class="absen-stat">
             <div class="as-val" id="asTotal" style="color:var(--navy)">{{ $members->count() }}</div>
@@ -56,7 +56,7 @@
         </div>
     </div>
 
-    {{-- ── Cari Member ── --}}
+    {{--   Cari Member   --}}
     <div style="margin-bottom:14px">
         <input type="text" id="searchMember" placeholder="🔍 Cari nama member..."
             style="width:100%;padding:10px 14px;border:1.5px solid #e0e0e0;border-radius:10px;font-family:inherit;font-size:14px;box-sizing:border-box;outline:none;transition:border-color 0.2s;"
@@ -64,14 +64,14 @@
             onkeyup="filterMembers()">
     </div>
 
-    {{-- ── Action buttons ── --}}
+    {{-- Tombol Aksi  --}}
     <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
         <button class="btn btn-sm btn-primary" onclick="broadcastAbsen()" style="flex:1">
             💾 Simpan &amp; Sync
         </button>
     </div>
 
-    {{-- ── Member list ── --}}
+    {{--   Member list   --}}
     @if($members->isEmpty())
         <div class="empty-state">
             <div class="ei">👥</div>
@@ -120,10 +120,10 @@
         </div>
     @endif
 
-    {{-- ══════════════════════════════════════════════════════════════ --}}
+    {{-- --}}
     {{-- REKAP  - navigasi tanggal + export CSV --}}
     {{-- dipindah dari page-report di member management --}}
-    {{-- ══════════════════════════════════════════════════════════════ --}}
+    {{-- --}}
     <div style="margin-top:24px">
         <div class="report-date-nav">
             <button class="rdn-btn" onclick="changeReportDate(-1)">←</button>
@@ -153,7 +153,7 @@
 
         let currentReportDate = TANGGAL;
 
-        // ── State absen (init dari server) ───────────────────────────
+        //   State absen (init dari server)              ─
         let absenState = {
             @foreach($members as $m)
                 @php $rec = $records[$m->id] ?? null; @endphp
@@ -164,7 +164,7 @@
             @endforeach
     };
 
-        // ── Client-Side Search ──
+        //   Client-Side Search  
         function filterMembers() {
             const query = document.getElementById('searchMember').value.toLowerCase();
             const rows = document.querySelectorAll('.absen-member-row');
@@ -187,7 +187,7 @@
             // Bisa tambahkan state empty-search jika visibleCount === 0
         }
 
-        // ── Toggle hadir / absen ─────────────────────────────────────
+        //   Toggle hadir / absen                   ─
         function setAbsenState(memberId, status, reason) {
             const defaultReason = @json($absenceReasons->first()?->name ?? 'Alpha');
             absenState[memberId] = {
@@ -213,7 +213,7 @@
             updateAbsenCounts();
         }
 
-        // ── Update counter ───────────────────────────────────────────
+        //   Update counter                      ─
         function updateAbsenCounts() {
             const vals = Object.values(absenState);
             const hadir = vals.filter(v => v.status === 'hadir').length;
@@ -223,7 +223,7 @@
             document.getElementById('asAbsen').textContent = absen;
         }
 
-        // ── Save ke server ────────────────────────────────────────────
+        //   Save ke server                       
         async function saveAbsenData() {
             if (!Object.keys(absenState).length) {
                 showToast('Tidak ada data absen', 'error'); return false;
@@ -269,13 +269,13 @@
             }
         }
 
-        // ── Sync ke Board ─────────────────────────────────────────────
+        //   Sync ke Board                       ─
         async function broadcastAbsen() {
             const ok = await saveAbsenData();
             if (ok) showToast('📡 Data disinkronkan ke Board!', 'success');
         }
 
-        // ── Rekap: navigasi tanggal ───────────────────────────────────
+        //   Rekap: navigasi tanggal                  ─
         function changeReportDate(d) {
             const dt = new Date(currentReportDate + 'T12:00:00'); // Use 12:00:00 to avoid timezone shift
             dt.setDate(dt.getDate() + d);
@@ -388,7 +388,7 @@
             document.getElementById('reportContent').innerHTML = html;
         }
 
-        // ── Init ─────────────────────────────────────────────────────
+        //   Init                           ─
         document.addEventListener('DOMContentLoaded', () => {
             updateAbsenCounts();
             renderReportDateLabel();

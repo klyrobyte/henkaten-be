@@ -45,14 +45,14 @@ class Machine extends Model
 
         $code = $this->section;
 
-        // ── Priority 1: check if the value is a known code in the sections table.
+        //   Priority 1: check if the value is a known code in the sections table.
         // This is the canonical path for all dynamically-created sections (e.g. f3-lainya).
         $exists = \App\Models\Section::where('code', $code)->exists();
         if ($exists) {
             return $code;
         }
 
-        // ── Priority 2: fall back to the legacy display-name / old-format mapping
+        //   Priority 2: fall back to the legacy display-name / old-format mapping
         // for machines that were assigned before the dynamic section system existed.
         return $this->mapSectionNameToKey($code);
     }
@@ -67,7 +67,7 @@ class Machine extends Model
     private function mapSectionNameToKey(string $sectionName): string
     {
         $mapping = [
-            // ── Display names (legacy, pre-DB) ──
+            //   Display names (legacy, pre-DB)  
             'Key Persons' => 'persons',
             'Factory 3 - Robot Assy' => 'robot',
             'Resin Injection' => 'mesin',
@@ -75,7 +75,7 @@ class Machine extends Model
             'Robot Assy D26A Doortrim' => 'pos',
             'Others / Support Equipment' => 'lainya',
 
-            // ── Internal status keys (direct passthrough) ──
+            //   Internal status keys (direct passthrough)  
             'persons' => 'persons',
             'mesin' => 'mesin',
             'robot' => 'robot',
@@ -84,7 +84,7 @@ class Machine extends Model
             'lainya' => 'lainya',
             'mc_vibration' => 'mc_vibration',
 
-            // ── Legacy factory codes (pre-DB, no longer actively used) ──
+            //   Legacy factory codes (pre-DB, no longer actively used)  
             'f3' => 'f3',
             'f4' => 'f4',
         ];

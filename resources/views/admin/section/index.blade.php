@@ -326,7 +326,8 @@
                 @endif
                 @foreach($factories as $f)
                     <option value="{{ $f->id }}" data-name="{{ $f->name }}" {{ count($factories) === 1 ? 'selected' : '' }}>
-                        {{ $f->name }}</option>
+                        {{ $f->name }}
+                    </option>
                 @endforeach
             </select>
             <div class="sm-reorder-hint">☰ Drag untuk ubah urutan</div>
@@ -457,18 +458,18 @@
                 item.draggable = true;
 
                 item.innerHTML = `
-                    <div class="sm-drag-handle">⠿</div>
-                    <div class="sm-item-order">${idx + 1}</div>
-                    <div class="sm-item-info">
-                        <div class="sm-item-name">${s.name}</div>
-                        <div class="sm-item-code">code: ${s.code}</div>
-                        ${s.type ? `<span class="sm-item-badge" style="background:#555;margin-top:4px;">Type: ${s.type}</span>` : ''}
-                    </div>
-                    <div class="sm-item-actions">
-                        <button class="sm-act-btn sm-act-edit" onclick="openSectionModal(${s.id},'${escQ(s.name)}','${escQ(s.code)}','${s.type || ''}')">✏️ Edit</button>
-                        <button class="sm-act-btn sm-act-del"  onclick="deleteSection(${s.id},'${escQ(s.name)}')">🗑️</button>
-                    </div>
-                `;
+                        <div class="sm-drag-handle">⠿</div>
+                        <div class="sm-item-order">${idx + 1}</div>
+                        <div class="sm-item-info">
+                            <div class="sm-item-name">${s.name}</div>
+                            <div class="sm-item-code">code: ${s.code}</div>
+                            ${s.type ? `<span class="sm-item-badge" style="background:#555;margin-top:4px;">Type: ${s.type}</span>` : ''}
+                        </div>
+                        <div class="sm-item-actions">
+                            <button class="sm-act-btn sm-act-edit" onclick="openSectionModal(${s.id},'${escQ(s.name)}','${escQ(s.code)}','${s.type || ''}')">✏️ Edit</button>
+                            <button class="sm-act-btn sm-act-del"  onclick="deleteSection(${s.id},'${escQ(s.name)}')">🗑️</button>
+                        </div>
+                    `;
 
                 // Drag events
                 item.addEventListener('dragstart', e => {
@@ -606,7 +607,7 @@
             }
         }
 
-        // ── Init: auto-load if factory selected ───────────
+        //   Init: auto-load if factory selected      ─
         document.addEventListener('DOMContentLoaded', () => {
             const select = document.getElementById('smFactorySelect');
             if (select && select.value) {

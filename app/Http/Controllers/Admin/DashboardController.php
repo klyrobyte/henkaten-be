@@ -56,15 +56,9 @@ class DashboardController extends Controller
             $request->session()->put('factory', $sessionFactory);
         }
 
-        $userFactories = is_array($user?->factory) ? $user->factory : [];
-        $factory = $sessionFactory
-            ?? (!empty($userFactories) ? $userFactories[0] : null)
-            ?? ScContext::firstFactory();
-
-        // Final safety check for $factory
-        if (!empty($allowedFactories) && !in_array($factory, $allowedFactories)) {
-            $factory = $allowedFactories[0];
-        }
+        // Delegate to the canonical resolver — carries the strict 403 abort guard
+        // so a null can never propagate downstream into typed private methods.
+        $factory = ScContext::resolveFactory($sessionFactory, $user);
 
         $shift = $request->session()->get('shift', $user?->shift ?? 'A');
         $tanggal = $request->get('tanggal', today()->toDateString());
@@ -148,9 +142,9 @@ class DashboardController extends Controller
             'factories',
             'repairDepartments',
             'factoryDetails'
-            ));
+        ));
 
-            }
+    }
 
 
     // =========================================================================
@@ -174,14 +168,17 @@ class DashboardController extends Controller
         $scId = ScContext::id();
         $allowedFactories = (!$user->isSuperAdmin() && !empty($user->factory)) ? (array) $user->factory : [];
 
-        $factory = $request->get('factory', $request->session()->get('factory', ScContext::firstFactory()));
-        if (is_array($factory)) {
-            $factory = !empty($factory) ? $factory[0] : ScContext::firstFactory();
+        // TV mode: query-string factory param takes priority (each TV tab can show a
+        // different factory independently), then falls through to the session chain.
+        $tvSessionFactory = $request->session()->get('factory');
+        if (is_array($tvSessionFactory)) {
+            $tvSessionFactory = !empty($tvSessionFactory) ? $tvSessionFactory[0] : null;
         }
-
-        if (!empty($allowedFactories) && !in_array($factory, $allowedFactories)) {
-            $factory = $allowedFactories[0];
+        $tvRequestedFactory = $request->get('factory');
+        if (is_array($tvRequestedFactory)) {
+            $tvRequestedFactory = !empty($tvRequestedFactory) ? $tvRequestedFactory[0] : null;
         }
+        $factory = ScContext::resolveRequestFactory($tvRequestedFactory, $tvSessionFactory, $user);
 
         $shift = $request->get('shift', $request->session()->get('shift', 'A'));
         $tanggal = $request->get('tanggal', today()->toDateString());
@@ -250,7 +247,7 @@ class DashboardController extends Controller
             ->where('factory', $factory)
             ->whereIn('shift', [$shift, 'AB'])
             ->where('status', 'active')->count();
-        
+
         $total_mc = Machine::where('sc_id', $scId)
             ->where('factory', $factory)
             ->where('status', 'mesin')
@@ -288,14 +285,16 @@ class DashboardController extends Controller
         $scId = ScContext::id();
         $allowedFactories = (!$user->isSuperAdmin() && !empty($user->factory)) ? (array) $user->factory : [];
 
-        $factory = $request->get('factory', $request->session()->get('factory', ScContext::firstFactory()));
-        if (is_array($factory)) {
-            $factory = !empty($factory) ? $factory[0] : ScContext::firstFactory();
+        // Status API: resolve from query-string first (TV real-time polling), then session.
+        $apiSessionFactory = $request->session()->get('factory');
+        if (is_array($apiSessionFactory)) {
+            $apiSessionFactory = !empty($apiSessionFactory) ? $apiSessionFactory[0] : null;
         }
-
-        if (!empty($allowedFactories) && !in_array($factory, $allowedFactories)) {
-            $factory = $allowedFactories[0];
+        $apiRequestedFactory = $request->get('factory');
+        if (is_array($apiRequestedFactory)) {
+            $apiRequestedFactory = !empty($apiRequestedFactory) ? $apiRequestedFactory[0] : null;
         }
+        $factory = ScContext::resolveRequestFactory($apiRequestedFactory, $apiSessionFactory, $user);
 
         $shift = $request->get('shift', $request->session()->get('shift', 'A'));
         $tanggal = $request->get('tanggal', today()->toDateString());
@@ -400,34 +399,34 @@ class DashboardController extends Controller
             $announcements[] = "⚠️ Problem <b>{$jenis}</b> terdeteksi pada <b>{$logApi->lokasi}</b>";
 
             $activeProblems[] = [
-                'jenis'           => $logApi->jenis,
-                'lokasi'          => $logApi->lokasi,
-                'deskripsi'       => $logApi->deskripsi,
-                'cause'           => $logApi->cause,
-                'countermeasure'  => $logApi->countermeasure,
-                'pic'             => $logApi->pic,
-                'waktu_mulai'     => $logApi->waktu_mulai,
-                'waktu_selesai'   => $logApi->waktu_selesai,
-                'durasi'          => $logApi->durasi,
-                'tanggal'         => $logApi->tanggal,
-                'status'          => 'open',
-                '_source'         => 'log',
-                'opened_at'       => optional($logApi->created_at)->toIso8601String(), // TV overlay uses this
+                'jenis' => $logApi->jenis,
+                'lokasi' => $logApi->lokasi,
+                'deskripsi' => $logApi->deskripsi,
+                'cause' => $logApi->cause,
+                'countermeasure' => $logApi->countermeasure,
+                'pic' => $logApi->pic,
+                'waktu_mulai' => $logApi->waktu_mulai,
+                'waktu_selesai' => $logApi->waktu_selesai,
+                'durasi' => $logApi->durasi,
+                'tanggal' => $logApi->tanggal,
+                'status' => 'open',
+                '_source' => 'log',
+                'opened_at' => optional($logApi->created_at)->toIso8601String(), // TV overlay uses this
             ];
         }
 
         return response()->json([
-            'total_absen'      => $totalAbsen,
-            'ky_absent'        => $kyTotalCount, // keeping the key name for compatibility if needed, but it's now kyTotalCount
-            'problem_mc'       => $machineSummary['problem'],
-            'open_logs'        => $openLogsCount,
-            'status_level'     => $statusLevel,
-            'summary'          => $machineSummary,
-            'absence'          => $absenceSummary,
-            'total_mp'         => $total_mp,
-            'announcements'    => $announcements,
-            'active_problems'  => $activeProblems, // each MC/MM/MT log has `opened_at` for TV watcher
-            'updated_at'       => now()->format('H:i:s'),
+            'total_absen' => $totalAbsen,
+            'ky_absent' => $kyTotalCount, // keeping the key name for compatibility if needed, but it's now kyTotalCount
+            'problem_mc' => $machineSummary['problem'],
+            'open_logs' => $openLogsCount,
+            'status_level' => $statusLevel,
+            'summary' => $machineSummary,
+            'absence' => $absenceSummary,
+            'total_mp' => $total_mp,
+            'announcements' => $announcements,
+            'active_problems' => $activeProblems, // each MC/MM/MT log has `opened_at` for TV watcher
+            'updated_at' => now()->format('H:i:s'),
         ]);
     }
 
@@ -495,7 +494,7 @@ class DashboardController extends Controller
     // =========================================================================
 
     /**
-     * ══ SINGLE SOURCE OF TRUTH  - status visual per mesin ════════════════════
+     * ══ SINGLE SOURCE OF TRUTH  - status visual per mesin  =>
      * develop by rizky
      * Dipakai untuk: border card, pip dots, status pills, dot kecil.
      *
@@ -558,7 +557,7 @@ class DashboardController extends Controller
         }
 
         $result = [];
-        // ── Gunakan semua mesin dari DB (bukan hardcoded) ──
+        //   Gunakan semua mesin dari DB (bukan hardcoded)  
         foreach (Machine::where('sc_id', $scId)->where('factory', $factory)->pluck('name') as $machineName) {
             $active = [];
 
@@ -587,7 +586,7 @@ class DashboardController extends Controller
     }
 
     /**
-     * ══ BUILD SUMMARY ════════════════════════════════════════════════════════
+     * ══ BUILD SUMMARY => =>
      * fixed by rizky
      * Aturan counter summary:
      *
@@ -608,7 +607,7 @@ class DashboardController extends Controller
     private function buildSummary(array $machineStatuses, string $tanggal, string $factory, string $shift): array
     {
         $scId = ScContext::id();
-        // ── Gunakan DB  - hitung HANYA machines dengan status='mesin' (actual production machines) ──
+        //   Gunakan DB  - hitung HANYA machines dengan status='mesin' (actual production machines)  
         // Exclude: persons (key persons), lainya (support), mc_vibration (monitoring), dan status lainnya
         $machinesForTotal = Machine::where('sc_id', $scId)
             ->where('factory', $factory)
@@ -618,7 +617,7 @@ class DashboardController extends Controller
         $total = count($machinesForTotal);
         $machinesForSet = array_flip($machinesForTotal);
 
-        // ── MAN: hitung JUMLAH ORANG yang absen (bukan per mesin) ──
+        //   MAN: hitung JUMLAH ORANG yang absen (bukan per mesin)  
         $man = AbsenceRecord::where([
             'sc_id' => $scId,
             'tanggal' => $tanggal,
@@ -627,7 +626,7 @@ class DashboardController extends Controller
             'status' => 'absen',
         ])->count();
 
-        // ── MACHINE / MATERIAL / METHOD: hitung per LAPORAN open (bukan per mesin) ──
+        //   MACHINE / MATERIAL / METHOD: hitung per LAPORAN open (bukan per mesin)  
         $openLogCounts = ProblemLog::where([
             'sc_id' => $scId,
             'tanggal' => $tanggal,
@@ -676,21 +675,27 @@ class DashboardController extends Controller
         $isAbsenOverLimit = $totalAbsen > $kyTotal;
 
         if ($isAbsenOverLimit) {
-            if ($activeMC === 0) return 1; // Ringan
-            if ($activeMC === 1) return 2; // Khusus
-            if ($activeMC >= 2)  return 3; // Bahaya
+            if ($activeMC === 0)
+                return 1; // Ringan
+            if ($activeMC === 1)
+                return 2; // Khusus
+            if ($activeMC >= 2)
+                return 3; // Bahaya
         } else {
             // Absen masih dalam limit KY
-            if ($activeMC === 0) return 0; // Normal
-            if ($activeMC === 1) return 2; // Khusus (Machine problem is critical)
-            if ($activeMC >= 2)  return 3; // Bahaya
+            if ($activeMC === 0)
+                return 0; // Normal
+            if ($activeMC === 1)
+                return 2; // Khusus (Machine problem is critical)
+            if ($activeMC >= 2)
+                return 3; // Bahaya
         }
 
         return 0; // Fallback
     }
 
     /**
-     * ══ HITUNG KY TOTAL COUNT ════════════════════════════════════════════════
+     * ══ HITUNG KY TOTAL COUNT =>════════════
      * Count how many Key Persons (KY) exist for the given factory and shift
      */
     private function calcKyTotalCount(string $factory, string $shift): int
@@ -702,7 +707,7 @@ class DashboardController extends Controller
             ->where('status', 'active')
             ->where(function ($q) {
                 $q->where('mesin', 'like', 'KY%')
-                  ->orWhere('mesin', 'like', 'ky%');
+                    ->orWhere('mesin', 'like', 'ky%');
             })
             ->count();
     }
