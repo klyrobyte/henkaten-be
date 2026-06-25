@@ -222,6 +222,7 @@
                         <select id="editShift">
                             <option value="A">Shift A</option>
                             <option value="B">Shift B</option>
+                            <option value="NS">Non-Shift (NS)</option>
                         </select>
                     </div>
                     <div class="field-group">

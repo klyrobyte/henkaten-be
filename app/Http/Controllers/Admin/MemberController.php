@@ -318,7 +318,7 @@ class MemberController extends Controller
             'members' => 'required|array|min:1',
             'members.*.name' => 'required|string|max:100',
             'members.*.factory' => 'required|string',
-            'members.*.shift' => 'required|in:A,B',
+            'members.*.shift' => 'required|in:A,B,NS',
             'replace' => 'boolean',
         ]);
 
@@ -440,7 +440,7 @@ class MemberController extends Controller
             'nik' => 'nullable|string|max:50',
             'jabatan' => 'required|in:Operator,SPV,TL,GL,KY',
             'factory' => 'required|string',
-            'shift' => 'required|in:A,B',
+            'shift' => 'required|in:A,B,NS',
             'mesin' => 'nullable|string|max:100',
             'status' => 'required|in:active,inactive',
         ]);

@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\AbsenceRecord;
 use App\Models\AbsenceSummary;
 use App\Models\Member;
+use App\Services\NonShiftResolver;
 use App\Services\ScContext;
 
 /**
@@ -38,10 +39,17 @@ class AbsenceSummaryService
     {
         $scId = $scId ?? ScContext::id();
 
-        // Ambil semua member aktif untuk shift ini
+        $nsActiveShift = NonShiftResolver::activeShiftFor($tanggal);
+        $includeNs     = ($nsActiveShift === $shift);
+        $shifts        = [$shift];
+        if ($includeNs) {
+            $shifts[] = 'NS';
+        }
+
+        // Ambil semua member aktif untuk shift ini (dan NS jika sedang aktif di shift ini)
         $members = Member::where('sc_id', $scId)
             ->where('factory', $factory)
-            ->where('shift', $shift)
+            ->whereIn('shift', $shifts)
             ->where('status', 'active')
             ->get()
             ->keyBy('id');

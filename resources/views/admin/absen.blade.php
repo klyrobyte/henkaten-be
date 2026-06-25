@@ -147,9 +147,9 @@
 @push('scripts')
     <script>
         const CSRF = '{{ csrf_token() }}';
-        const TANGGAL = '{{ $tanggal }}';
-        const FACTORY = '{{ $factory }}';
-        const SHIFT = '{{ $shift }}';
+        const TANGGAL = @json($tanggal);
+        const FACTORY = @json($factory);
+        const SHIFT = @json($shift);
 
         let currentReportDate = TANGGAL;
 
