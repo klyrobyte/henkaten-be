@@ -28,6 +28,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\AbsenceReason;
 use App\Services\AbsenceSummaryService;
 use App\Services\ScContext;
+use App\Services\NonShiftResolver;
 
 /**
  * @group Absence

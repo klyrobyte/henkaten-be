@@ -320,7 +320,7 @@ class MemberController extends Controller
             'members' => 'required|array|min:1',
             'members.*.name' => 'required|string|max:100',
             'members.*.factory' => 'required|string',
-            'members.*.shift' => 'required|in:A,B',
+            'members.*.shift' => 'required|in:A,B,NS',
             'replace' => 'boolean',
         ]);
 

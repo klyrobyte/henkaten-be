@@ -6,6 +6,7 @@ use App\Models\AbsenceRecord;
 use App\Models\AbsenceSummary;
 use App\Models\Member;
 use App\Services\ScContext;
+use App\Services\NonShiftResolver;
 
 /**
  * AbsenceSummaryService

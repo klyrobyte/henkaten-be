@@ -21,7 +21,6 @@ use App\Http\Controllers\Admin\SiteConfigController;
 use App\Http\Controllers\Admin\ScController;
 use Illuminate\Support\Facades\Route;
 
-// â”€â”€â”€ Auth â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 // Rate limit login to 10 attempts/minute per IP â€” brute-force protection
 Route::post('/login', [AuthController::class, 'login'])->name('login.post')->middleware('throttle:10,1');

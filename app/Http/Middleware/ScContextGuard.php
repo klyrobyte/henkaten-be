@@ -37,6 +37,12 @@ class ScContextGuard
 
         // 2. Guard Request factory parameter if it is passed in query/input
         $reqFactoryName = $request->input('factory') ?? $request->query('factory');
+        // Decode HTML entities (e.g. "Factory 3 &amp; 4" → "Factory 3 & 4") sent by
+        // Blade-rendered JS variables that may be HTML-encoded.
+        if ($reqFactoryName) {
+            $reqFactoryName = html_entity_decode($reqFactoryName, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        }
+
         if ($reqFactoryName && $request->route() && $request->route()->getName() !== 'admin.set-sc') {
             $exists = Factory::where('sc_id', $activeScId)->where('name', $reqFactoryName)->exists();
             if (!$exists) {
@@ -49,12 +55,12 @@ class ScContextGuard
             foreach ($request->route()->parameters() as $param) {
                 if (is_object($param)) {
                     if (isset($param->sc_id)) {
-                        if ((int)$param->sc_id !== $activeScId) {
+                        if ((int) $param->sc_id !== $activeScId) {
                             abort(403, 'Unauthorized Service Center access.');
                         }
                     } elseif ($param instanceof \App\Models\Section) {
                         $factory = $param->factory;
-                        if ($factory && (int)$factory->sc_id !== $activeScId) {
+                        if ($factory && (int) $factory->sc_id !== $activeScId) {
                             abort(403, 'Unauthorized Service Center access.');
                         }
                     }
