@@ -46,6 +46,14 @@ Route::middleware(['auth', 'sc.guard'])->prefix('admin')->name('admin.')->group(
     Route::get('/tv/picker', [DashboardController::class, 'tvPicker'])->name('tv.picker');
     // TV board â€” bisa diakses semua role (tv, admin, tl, dll)
     Route::get('/tv',        [DashboardController::class, 'tvMode'])->name('tv');
+    
+    // TV Slide Dual Mode
+    Route::get('/tv-slide', function (\Illuminate\Http\Request $request) {
+        $scId = \App\Services\ScContext::id();
+        $factory = $request->get('factory', \App\Services\ScContext::firstFactory());
+        $layout = \App\Models\FactoryLayout::where('sc_id', $scId)->where('factory', $factory)->first();
+        return view('admin.tv_slide', compact('factory', 'layout'));
+    })->name('tv-slide');
 
     // â”€â”€ User Management (Admin only) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     Route::middleware('role:admin')->prefix('users')->name('users.')->group(function () {
@@ -78,6 +86,17 @@ Route::middleware(['auth', 'sc.guard'])->prefix('admin')->name('admin.')->group(
         Route::post('/',         [ScController::class, 'store'])->name('store');
         Route::put('/{sc}',      [ScController::class, 'update'])->name('update');
         Route::delete('/{sc}',   [ScController::class, 'destroy'])->name('destroy');
+    });
+
+    // ── Skill Management ───────────────────────────────────────────────────
+    Route::middleware('role:admin,gl')->prefix('skills')->name('skills.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\SkillController::class, 'index'])->name('index');
+    });
+
+    // ── Floor Plan Manager ────────────────────────────────────────────────
+    Route::middleware('role:admin,gl')->prefix('floor-plan-manager')->name('floor-plan-manager.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\FloorPlanManagerController::class, 'index'])->name('index');
+        Route::post('/upload', [\App\Http\Controllers\Admin\FloorPlanManagerController::class, 'uploadLayout'])->name('upload');
     });
 
     // ── Master Data (Super Admin Only) ───────────────────────────────────────

@@ -1498,15 +1498,80 @@ Header = app-header hijau dari admin.blade, semua komponen konten = copy 1:1 das
             margin-right: 5px;
             vertical-align: middle;
         }
+        
+        /* ── Slide Wrapper ── */
+        .tv-master-slide {
+            position: absolute; top: 0; left: 0; width: 100vw; height: 100vh;
+            opacity: 0; visibility: hidden; pointer-events: none; transition: opacity 0.5s ease;
+            z-index: 1; background: transparent; overflow: hidden;
+        }
+        .tv-master-slide.active { opacity: 1; visibility: visible; pointer-events: auto; z-index: 2; }
+
+        /* ── Navigation Dots ── */
+        .tv-nav-dots { position: absolute; bottom: 45px; left: 50%; transform: translateX(-50%); z-index: 500; display: flex; gap: 12px; }
+        .tv-nav-dot { width: 45px; height: 6px; border-radius: 4px; background: rgba(255,255,255,0.25); cursor: pointer; transition: all 0.3s; box-shadow: 0 2px 4px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); }
+        .tv-nav-dot.active { background: #fff; box-shadow: 0 0 10px rgba(255,255,255,0.8); }
+        .tv-nav-dot:hover { background: rgba(255,255,255,0.6); }
+
+        /* ── Slide 2 (Floor Plan + Matrix) CSS ── */
+        #tvSlide2 { background: #E5E7EB; padding: 75px 16px 75px 16px; font-family: 'Roboto', sans-serif; display: flex; flex-direction: column; }
+        #tvSlide2 .main-layout { display: flex; gap: 16px; flex: 1; min-height: 0; }
+        #tvSlide2 .left-panel { flex: 0 0 38%; background: #fff; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); display: flex; flex-direction: column; overflow: hidden; position: relative; padding: 16px; }
+        #tvSlide2 .tv-img-wrap { position: relative; display: inline-block; line-height: 0; max-width: 100%; max-height: 100%; }
+        #tvSlide2 .tv-img-wrap img { display: block; max-width: 100%; max-height: calc(100vh - 150px); object-fit: contain; }
+        #tvSlide2 .tv-pin { position: absolute; width: 24px; height: 24px; border-radius: 50%; transform: translate(-50%, -50%); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0; box-shadow: 0 2px 6px rgba(0,0,0,0.3); border: 2px solid #fff; }
+        #tvSlide2 .tv-pin-label { position: absolute; right: 100%; margin-right: 8px; background: transparent; color: #000; font-weight: 900; font-size: 14px; white-space: nowrap; font-family: 'Roboto Condensed', sans-serif; text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff; }
+        #tvSlide2 .pin-ok      { background: #2E7D32; }
+        #tvSlide2 .pin-warn    { background: #F39C12; }
+        #tvSlide2 .pin-problem { background: #E74C3C; }
+        #tvSlide2 .pin-off     { background: #9E9E9E; }
+        #tvSlide2 .fp-empty { color: #777; text-align: center; font-size: 14px; line-height: 1.6; }
+        
+        #tvSlide2 .right-panel { flex: 1; background: #fff; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); display: flex; flex-direction: column; overflow: hidden; padding: 16px; }
+        #tvSlide2 .matrix-header { background: #185E35; color: #fff; padding: 10px 16px; border-radius: 6px; font-family: 'Roboto Condensed', sans-serif; font-size: 14px; font-weight: 700; display: flex; justify-content: space-between; margin-bottom: 12px; }
+        #tvSlide2 .summary-stats { display: flex; justify-content: space-around; padding: 10px 0 20px 0; border-bottom: 1px solid #eee; margin-bottom: 16px; }
+        #tvSlide2 .stat-item { text-align: center; }
+        #tvSlide2 .stat-val { font-size: 24px; font-weight: 900; color: #333; font-family: 'Roboto Condensed', sans-serif; }
+        #tvSlide2 .stat-lbl { font-size: 11px; color: #666; margin-top: 4px; }
+        #tvSlide2 .matrix-content { flex: 1; overflow: auto; }
+        
+        #tvSlide2 .m-table { width: 100%; border-collapse: separate; border-spacing: 0; font-family: 'Roboto', sans-serif; font-size: 11px; }
+        #tvSlide2 .m-table th { background: #185E35; color: #fff; padding: 8px; font-weight: 600; text-align: center; border: 1px solid #114526; white-space: nowrap; position: sticky; top: 0; z-index: 10; }
+        #tvSlide2 .m-table thead tr:nth-child(2) th { top: 31px; z-index: 9; }
+        #tvSlide2 .m-table thead tr:nth-child(3) th { top: 62px; z-index: 8; }
+        #tvSlide2 .m-table th.col-name, #tvSlide2 .m-table td.col-name { width: 140px; min-width: 140px; max-width: 140px; left: 0; position: sticky; text-align: left; }
+        #tvSlide2 .m-table th.col-shift, #tvSlide2 .m-table td.col-shift { width: 50px; min-width: 50px; max-width: 50px; left: 140px; position: sticky; }
+        #tvSlide2 .m-table th.col-name, #tvSlide2 .m-table th.col-shift { z-index: 12 !important; background: #185E35; }
+        #tvSlide2 .m-table td.col-name, #tvSlide2 .m-table td.col-shift { z-index: 11; background: #fff; box-shadow: 2px 0 5px -2px rgba(0,0,0,0.1); font-weight: 600; }
+        #tvSlide2 .m-table td { padding: 6px 8px; border: 1px solid #eee; text-align: center; color: #333; background: #fff; }
+        #tvSlide2 .m-table tr:nth-child(even) td:not(.col-name):not(.col-shift) { background: #f9f9f9; }
+        
+        #tvSlide2 .m-table thead tr:first-child th:first-child { border-top-left-radius: 11px; }
+        #tvSlide2 .m-table thead tr:first-child th:last-child { border-top-right-radius: 11px; }
+        #tvSlide2 .m-table tbody tr:last-child td:first-child { border-bottom-left-radius: 11px; }
+        #tvSlide2 .m-table tbody tr:last-child td:last-child { border-bottom-right-radius: 11px; }
+        
+        #tvSlide2 .skill-circle { display: inline-block; width: 14px; height: 14px; border-radius: 50%; border: 1px solid #333; position: relative; background: #fff; vertical-align: middle; }
+        #tvSlide2 .skill-100 { background: #333; }
+        #tvSlide2 .skill-75 { background: conic-gradient(#333 0deg 270deg, #fff 270deg 360deg); }
+        #tvSlide2 .skill-50 { background: conic-gradient(#333 0deg 180deg, #fff 180deg 360deg); }
+        #tvSlide2 .skill-25 { background: conic-gradient(#333 0deg 90deg, #fff 90deg 360deg); }
+        #tvSlide2 .skill-0 { background: #fff; border-color: #ccc; }
+        
+        #tvSlide2 .chip-level { font-size: 10px; font-weight: 700; color: #2E7D32; }
+        #tvSlide2 .chip-level.training { color: #E74C3C; }
     </style>
 </head>
 
 <body>
 
+    <!-- SLIDE 1: Dashboard -->
+    <div class="tv-master-slide active" id="tvSlide1">
+
     {{-- ════════════════════════════════════════════════════════════════
     HEADER - identik persis app-header dari admin.blade.php
     ════════════════════════════════════════════════════════════════ --}}
-    <div class="app-header" style="padding:0 12px;gap:10px;position:fixed;top:0;left:0;right:0;z-index:400;">
+    <div class="app-header" style="padding:0 12px;gap:10px;position:absolute;top:0;left:0;right:0;z-index:400;">
 
         <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0;">
             <img src="{{ asset('/images/sugity.png') }}" alt="Sugity Creatives"
@@ -2287,15 +2352,232 @@ Header = app-header hijau dari admin.blade, semua komponen konten = copy 1:1 das
 
     </div>{{-- /tv-body --}}
 
-    {{-- ════ TICKER ════ --}}
-    <div class="tv-ticker">
+    </div><!-- /tvSlide1 -->
+
+    <!-- SLIDE 2: Floor Plan & Skill Matrix (Native) -->
+    <div class="tv-master-slide" id="tvSlide2">
+        <div class="app-header" style="padding:0 12px;gap:10px;position:absolute;top:0;left:0;right:0;z-index:400;">
+            <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0;">
+                <img src="{{ asset('/images/sugity.png') }}" alt="Sugity Creatives" style="height:36px;width:auto;object-fit:contain;flex-shrink:0;" onerror="this.style.display='none'">
+                <div style="display:flex;flex-direction:column;line-height:1.2;min-width:0;">
+                    <span style="font-family:'Roboto Condensed',sans-serif;font-weight:900;font-size:25px;letter-spacing:2px;color:#fff;text-shadow:0 0 14px rgba(245,166,35,.5);white-space:nowrap;-webkit-text-stroke: 1px rgba(255, 255, 255, 0.6);">HENKATEN BOARD</span>
+                    <span style="font-family:'Roboto Condensed',sans-serif;font-weight:700;font-size:14px;letter-spacing:1.2px;color:rgba(255,255,255,.85);text-transform:uppercase;white-space:nowrap;">{{ $factory }}</span>
+                </div>
+            </div>
+            <a href="{{ route('admin.dashboard') }}" style="background:rgba(255,255,255,.1);border:1.5px solid rgba(255,255,255,.2);border-radius:8px;padding:6px 14px;color:rgba(255,255,255,.75);font-family:'Roboto Condensed',sans-serif;font-size:14px;font-weight:700;text-decoration:none;display:flex;align-items:center;gap:5px;flex-shrink:0;">✕ Exit TV</a>
+        </div>
+        
+        <div class="main-layout">
+            <!-- LEFT: Floor Plan -->
+            <div class="left-panel">
+                <div class="section-title" style="margin-bottom:16px;">LAYOUT FACTORY</div>
+                <div style="flex:1; display:flex; align-items:center; justify-content:center; width:100%;">
+                    @php $layout = \App\Models\FactoryLayout::where('factory', $factory)->where('sc_id', session('current_sc_id', 1))->first(); @endphp
+                    @if($layout && $layout->image_url)
+                        <div class="tv-img-wrap">
+                            <img src="{{ $layout->image_url }}" alt="Layout">
+                            <div id="tvPinsLayer"></div>
+                        </div>
+                    @else
+                        <div class="fp-empty">📷 Layout belum dikonfigurasi.<br>Gunakan <strong>Floor Plan Manager</strong>.</div>
+                    @endif
+                </div>
+            </div>
+
+            <!-- RIGHT: Skill Matrix -->
+            <div class="right-panel">
+                <div class="matrix-header">
+                    <span>Man Power Skill Map — {{ $factory }}</span>
+                    <span id="headerClock">Loading...</span>
+                </div>
+                
+                <div class="summary-stats">
+                    <div class="stat-item"><div class="stat-val" id="statTotal">0</div><div class="stat-lbl">Total operator</div></div>
+                    <div class="stat-item"><div class="stat-val" id="statMulti">0</div><div class="stat-lbl">Multi-skill ≥75%</div></div>
+                    <div class="stat-item"><div class="stat-val" id="statPengembangan">0</div><div class="stat-lbl">Pada pengembangan</div></div>
+                    <div class="stat-item"><div class="stat-val" id="statBaru">0</div><div class="stat-lbl">Operator baru (&lt;40%)</div></div>
+                </div>
+
+                <div class="matrix-content" id="matrixBox">
+                    <div style="display:flex;height:100%;align-items:center;justify-content:center;color:#777;">⏳ Memuat data skill...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- NAVIGATION DOTS (PPT Style) -->
+    <div class="tv-nav-dots">
+        <div class="tv-nav-dot active" onclick="manualSlide(0)" title="Slide 1: Dashboard"></div>
+        <div class="tv-nav-dot" onclick="manualSlide(1)" title="Slide 2: Floor Plan & Skill"></div>
+    </div>
+
+    {{-- ════ TICKER & FULLSCREEN (GLOBAL) ════ --}}
+    <div class="tv-ticker" style="z-index: 600;">
         <div class="tv-ticker-lbl">📢 INFO</div>
         <div class="tv-ticker-track">
             <div class="tv-ticker-inner" id="tvTickerInner"></div>
         </div>
     </div>
 
-    <button class="tv-fs" onclick="tvFS()">⛶ Fullscreen</button>
+    <button class="tv-fs" onclick="tvFS()" style="z-index: 600;">⛶ Fullscreen</button>
+
+    <script>
+        /* ── Master Slide Rotation (PPT Style) ── */
+        let tvStep = 0;
+        let slideInterval;
+        const SLIDE_MS = 10000; // 10 detik
+
+        function goSlide(n) {
+            tvStep = n;
+            document.getElementById('tvSlide1').classList.toggle('active', tvStep === 0);
+            document.getElementById('tvSlide2').classList.toggle('active', tvStep === 1);
+            
+            const dots = document.querySelectorAll('.tv-nav-dot');
+            dots.forEach((d, i) => d.classList.toggle('active', i === tvStep));
+            
+            if (tvStep === 1) {
+                fetchSlide2Data();
+            }
+        }
+
+        function startSlideTimer() {
+            clearInterval(slideInterval);
+            slideInterval = setInterval(() => {
+                goSlide((tvStep + 1) % 2);
+            }, SLIDE_MS);
+        }
+
+        function manualSlide(n) {
+            goSlide(n);
+            startSlideTimer(); // reset timer on manual click
+        }
+        
+        startSlideTimer();
+
+        /* ── API Data for Slide 2 ── */
+        async function fetchSlide2Data() {
+            try {
+                const f = encodeURIComponent(TV_F);
+                const s = encodeURIComponent(TV_S);
+                const [resM, resS] = await Promise.all([
+                    fetch(`/api/floor-plan-manager/machines?factory=${f}`),
+                    fetch(`/api/skills?factory=${f}&shift=${s}`)
+                ]);
+                const machines = await resM.json();
+                const skillData = await resS.json();
+                renderPins(machines);
+                renderMatrix(skillData.members || [], skillData.skills || {}, skillData.processes || {}, machines);
+            } catch(e) { console.error('Error fetching slide 2 data', e); }
+        }
+
+        function renderPins(machines) {
+            const layer = document.getElementById('tvPinsLayer');
+            if (!layer) return;
+            layer.innerHTML = machines.filter(m => m.floor_cx !== null && m.floor_cy !== null).map(m => {
+                const s = (m.status || '').toLowerCase();
+                let cls = 'pin-ok';
+                if (s.includes('stop') || s.includes('rusak') || s.includes('problem')) cls = 'pin-problem';
+                else if (s.includes('slow') || s.includes('masalah') || s.includes('warn')) cls = 'pin-warn';
+                else if (s.includes('off') || s.includes('mati')) cls = 'pin-off';
+                return `<div class="tv-pin ${cls}" style="left:${m.floor_cx}%;top:${m.floor_cy}%;"><div class="tv-pin-label">${m.name}</div></div>`;
+            }).join('');
+        }
+
+        function renderMatrix(members, skills, processes, machinesData) {
+            const box = document.getElementById('matrixBox');
+            if (!members.length) { box.innerHTML = '<div style="text-align:center;padding:40px;color:#777;">Tidak ada data member aktif.</div>'; return; }
+
+            const machineNames = (machinesData || []).map(m => m.name).sort().slice(0, 12);
+            if (!machineNames.length) { box.innerHTML = '<div style="text-align:center;padding:40px;color:#777;">Belum ada data mesin di factory ini.</div>'; return; }
+
+            let totalOp = members.length, multiSkill = 0, pengembang = 0, opBaru = 0;
+            const displayMembers = members.slice(0, 20);
+
+            let totalCols = 0;
+            machineNames.forEach(m => {
+                 totalCols += Math.max(1, (processes[m] || []).length);
+            });
+
+            let html = `<table class="m-table"><thead><tr>
+                <th class="col-name" rowspan="3">Nama operator</th><th class="col-shift" rowspan="3">Shift</th>
+                <th colspan="${totalCols}">Mesin / Proses</th><th rowspan="3">Level</th>
+                </tr><tr>`;
+                
+            machineNames.forEach(m => {
+                 const procs = processes[m] || [];
+                 const colspan = Math.max(1, procs.length);
+                 html += `<th colspan="${colspan}">${esc(m)}</th>`;
+            });
+            html += `</tr><tr>`;
+            
+            machineNames.forEach(m => {
+                 const procs = processes[m] || [];
+                 if (procs.length === 0) {
+                     html += `<th style="color:#cfdfd4;font-size:9px;">ALL</th>`;
+                 } else {
+                     procs.forEach(p => {
+                         html += `<th style="font-size:9px;font-weight:normal;">${esc(p)}</th>`;
+                     });
+                 }
+            });
+            html += `</tr></thead><tbody>`;
+
+            displayMembers.forEach(m => {
+                let avgScore = 0, count = 0;
+                let rowHtml = `<tr><td class="col-name">${esc(m.nama)}</td><td style="color:#2E7D32;font-weight:700;">${m.shift}</td>`;
+                
+                machineNames.forEach(mn => {
+                    const procs = processes[mn] || [];
+                    if (procs.length === 0) {
+                        const pct = skills[m.id]?.[mn]?.['-']?.skill_pct ?? null;
+                        let circleClass = 'skill-0';
+                        if (pct !== null) {
+                            avgScore += pct; count++;
+                            if (pct >= 100) circleClass = 'skill-100'; else if (pct >= 75) circleClass = 'skill-75';
+                            else if (pct >= 50) circleClass = 'skill-50'; else if (pct > 0) circleClass = 'skill-25';
+                        }
+                        rowHtml += `<td><div class="skill-circle ${circleClass}"></div></td>`;
+                    } else {
+                        procs.forEach(p => {
+                            const pct = skills[m.id]?.[mn]?.[p]?.skill_pct ?? null;
+                            let circleClass = 'skill-0';
+                            if (pct !== null) {
+                                avgScore += pct; count++;
+                                if (pct >= 100) circleClass = 'skill-100'; else if (pct >= 75) circleClass = 'skill-75';
+                                else if (pct >= 50) circleClass = 'skill-50'; else if (pct > 0) circleClass = 'skill-25';
+                            }
+                            rowHtml += `<td><div class="skill-circle ${circleClass}"></div></td>`;
+                        });
+                    }
+                });
+
+                let finalAvg = count > 0 ? Math.round(avgScore / count) : 0;
+                let levelLabel = 'Baru', levelClass = 'training';
+                if (finalAvg >= 75) { levelLabel = 'Master'; levelClass = ''; multiSkill++; }
+                else if (finalAvg >= 40) { levelLabel = 'Berkembang'; levelClass = ''; pengembang++; }
+                else { opBaru++; }
+                rowHtml += `<td><span class="chip-level ${levelClass}">${levelLabel}</span></td></tr>`;
+                html += rowHtml;
+            });
+            html += `</tbody></table>`;
+            box.innerHTML = html;
+            
+            document.getElementById('statTotal').textContent = totalOp;
+            document.getElementById('statMulti').textContent = multiSkill;
+            document.getElementById('statPengembangan').textContent = pengembang;
+            document.getElementById('statBaru').textContent = opBaru;
+        }
+
+        function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+        
+        setInterval(() => {
+            const d = new Date();
+            const months = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agt','Sep','Okt','Nov','Des'];
+            const hc = document.getElementById('headerClock');
+            if(hc) hc.textContent = `Bulan ${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()} | PT. Sugity Creatives`;
+        }, 1000);
+        
+    </script>
 
     <script>
         Chart.register(ChartDataLabels);

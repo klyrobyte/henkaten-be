@@ -2080,7 +2080,11 @@
                         // Feature 3: always keep dot red + clickable when there's an absence,
                         // even after a replacement has been assigned (allow multiple pengganti)
                         dot.className = 'mc-dot d-absen'; dot.style.background = '';
-                        dot.onclick = e => { e.stopPropagation(); openFinderModal(machine); };
+                        dot.onclick = e => { 
+                            e.stopPropagation(); 
+                            const absentName = absenItems.length > 0 ? absenItems[0].querySelector('.mc-member-name')?.textContent?.trim() : '';
+                            openFinderModal(machine, absentName); 
+                        };
                     } else if (primaryStatus !== 'normal' && colorMap[primaryStatus]) {
                         dot.className = 'mc-dot d-visible'; dot.style.background = colorMap[primaryStatus];
                         dot.onclick = e => { e.stopPropagation(); openMachineDetail(machine, primaryStatus); };
@@ -2325,12 +2329,14 @@
 
         /* ── 5. FINDER PENGGANTI ── */
         let activeMachine = null;
+        let activeAbsentName = '';
         // memberId → { replacementId, targetMachine, name, sourceMachine }
         let _penggantiMap = new Map();
 
-        function openFinderModal(machine) {
+        function openFinderModal(machine, absentName = '') {
             activeMachine = machine;
-            $id('finderMachineName').textContent = machine;
+            activeAbsentName = absentName;
+            $id('finderMachineName').textContent = machine + (absentName ? ` (Absen: ${absentName})` : '');
             $id('finderSearch').value = '';
             $id('finderOverlay').classList.add('show');
             document.body.style.overflow = 'hidden';
@@ -2344,7 +2350,14 @@
             const list = $id('finderCandList'), q = $id('finderSearch')?.value?.trim() || '';
             list.innerHTML = '<div class="cand-empty">⏳ Memuat…</div>';
             try {
-                const params = new URLSearchParams({ tanggal: TANGGAL, factory: FACTORY, shift: SHIFT, q });
+                const params = new URLSearchParams({ 
+                    tanggal: TANGGAL, 
+                    factory: FACTORY, 
+                    shift: SHIFT, 
+                    q: q,
+                    machine: activeMachine,
+                    absentName: activeAbsentName
+                });
                 const res = await fetch(`/api/assignment/candidates?${params}`, { headers: { Accept: 'application/json', 'X-CSRF-TOKEN': CSRF } });
                 if (!res.ok) { list.innerHTML = `<div class="cand-empty">⚠️ Error ${res.status}</div>`; return; }
                 let data = await res.json();
@@ -2428,7 +2441,14 @@
                     // Feature 3: keep border red + keep dot active after replacement
                     tc.classList.add('mc-has-absen');
                     const dot = tc.querySelector('.mc-dot');
-                    if (dot) { dot.className = 'mc-dot d-absen'; dot.style.background = ''; dot.onclick = e => { e.stopPropagation(); openFinderModal(targetMachine); }; }
+                    if (dot) { 
+                        dot.className = 'mc-dot d-absen'; dot.style.background = ''; 
+                        dot.onclick = e => { 
+                            e.stopPropagation(); 
+                            const absentName = tc.querySelector('.mi-absen .mc-member-name')?.textContent?.trim() || '';
+                            openFinderModal(targetMachine, absentName); 
+                        }; 
+                    }
                 }
 
                 // ── 2. Update source card (member yg "dipinjam") ──
@@ -2487,7 +2507,15 @@
                         }
                         // Feature 3: keep border + dot active even after replacement is loaded
                         tc.classList.add('mc-has-absen');
-                        const dot = tc.querySelector('.mc-dot'); if (dot) { dot.className = 'mc-dot d-absen'; dot.style.background = ''; dot.onclick = e => { e.stopPropagation(); openFinderModal(r.target_machine); }; }
+                        const dot = tc.querySelector('.mc-dot'); 
+                        if (dot) { 
+                            dot.className = 'mc-dot d-absen'; dot.style.background = ''; 
+                            dot.onclick = e => { 
+                                e.stopPropagation(); 
+                                const absentName = tc.querySelector('.mi-absen .mc-member-name')?.textContent?.trim() || '';
+                                openFinderModal(r.target_machine, absentName); 
+                            }; 
+                        }
                     }
                     if (r.source_machine) {
                         const sc = document.querySelector(`.mc-card[data-machine="${CSS.escape(r.source_machine)}"]`);

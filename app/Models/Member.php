@@ -54,4 +54,8 @@ class Member extends Model
         $filename = basename($this->photo);
         return '/storage/members/' . $filename;
     }
+    public function skills()
+    {
+        return $this->hasMany(MemberSkill::class);
+    }
 }

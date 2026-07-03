@@ -199,9 +199,16 @@ class ReportController extends Controller
             ->whereIn('jenis', $jenisList)
             ->orderBy('waktu_mulai')->get();
 
+        $nsActiveShift = \App\Services\NonShiftResolver::activeShiftFor($sampai);
+        $includeNs = ($nsActiveShift === $shift);
+        $shifts = [$shift, 'AB'];
+        if ($includeNs) {
+            $shifts[] = 'NS';
+        }
+
         $members = Member::where('sc_id', $scId)
             ->where('factory', $factory)
-            ->whereIn('shift', [$shift, 'AB'])
+            ->whereIn('shift', $shifts)
             ->where('status', 'active')
             ->orderBy('nama')
             ->get();

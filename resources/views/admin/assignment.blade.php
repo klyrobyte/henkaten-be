@@ -1369,20 +1369,31 @@
 
         async function renderCandidates() {
             if (!activeFinder) return;
+            const machineName = activeFinder.key.split('::')[1];
             const list = document.getElementById('candList');
             const q = document.getElementById('subSearch')?.value?.toLowerCase().trim() || '';
+            
+            let absentName = '';
+            if (!activeFinder.isEmpty) {
+                const slot = assignments[activeFinder.key]?.[activeFinder.idx];
+                if (slot && slot.status === 'absent') {
+                    absentName = slot.memberName;
+                }
+            }
+
             list.innerHTML = '<div class="cand-empty">⏳ Memuat...</div>';
             try {
-                const url = `/admin/assignment/candidates?tanggal=${TANGGAL}&factory=${encodeURIComponent(FACTORY)}&shift=${SHIFT}&q=${encodeURIComponent(q)}`;
+                const url = `/admin/assignment/candidates?tanggal=${TANGGAL}&factory=${encodeURIComponent(FACTORY)}&shift=${SHIFT}&machine=${encodeURIComponent(machineName)}&q=${encodeURIComponent(q)}&absentName=${encodeURIComponent(absentName)}`;
                 const data = await fetch(url, { headers: { 'Accept': 'application/json' } }).then(r => r.json());
-                if (!data.length) { list.innerHTML = '<div class="cand-empty">🔍 Tidak ada member tersedia.</div>'; return; }
+                if (!data.length) { list.innerHTML = '<div class="cand-empty">🔍 Tidak ada member pengganti yg sesuai kriteria skill.</div>'; return; }
                 list.innerHTML = data.map(m => {
                     const av = m.photo ? `<img src="${esc(m.photo)}" alt="">` : `<span>${initials(m.name)}</span>`;
                     return `<div class="cand-card" onclick="assignSub('${esc(m.name)}','${esc(m.photo || '')}')">
                                         <div class="cand-av ${m.isWorking ? 'av-w' : 'av-n'}">${av}</div>
                                         <div class="cand-name">${esc(m.name)}</div>
                                         ${m.isWorking ? '<div class="cand-tag">Sdh Bertugas</div>' : ''}
-                                        <button class="cand-btn" onclick="event.stopPropagation();assignSub('${esc(m.name)}','${esc(m.photo || '')}')">✓ Pilih</button>
+                                        ${m.skill_pct !== null ? `<div class="cand-tag" style="background:${m.skill_pct >= 75 ? 'var(--green)' : 'var(--orange)'};color:#fff;">Skill ${m.skill_pct}%</div>` : ''}
+                                        ${m.eligible ? `<button class="cand-btn" onclick="event.stopPropagation();assignSub('${esc(m.name)}','${esc(m.photo || '')}')">✓ Pilih</button>` : `<button class="cand-btn" style="background:#aaa;cursor:not-allowed;" disabled>Skill < 75%</button>`}
                                     </div>`;
                 }).join('');
             } catch (e) { list.innerHTML = '<div class="cand-empty">Gagal memuat kandidat.</div>'; }

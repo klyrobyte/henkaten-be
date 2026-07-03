@@ -99,10 +99,17 @@ class DashboardController extends Controller
             $openLogsCount
         );
 
+        $nsActiveShift = \App\Services\NonShiftResolver::activeShiftFor($tanggal);
+        $includeNs = ($nsActiveShift === $shift);
+        $shifts = [$shift];
+        if ($includeNs) {
+            $shifts[] = 'NS';
+        }
+
         $groups = $this->factoryConfig->buildGroups($factory);
         $members = Member::where('sc_id', $scId)
             ->where('factory', $factory)
-            ->where('shift', $shift)
+            ->whereIn('shift', $shifts)
             ->where('status', 'active')
             ->orderBy('id')->get();
 
@@ -116,9 +123,13 @@ class DashboardController extends Controller
             ->count();
 
         // TOTAL MP: counts active members only — NOT affected by absence/attendance data
+        $shiftsForTotal = [$shift, 'AB'];
+        if ($includeNs) {
+            $shiftsForTotal[] = 'NS';
+        }
         $total_mp = Member::where('sc_id', $scId)
             ->where('factory', $factory)
-            ->whereIn('shift', [$shift, 'AB'])
+            ->whereIn('shift', $shiftsForTotal)
             ->where('status', 'active')->count();
 
 
@@ -216,10 +227,17 @@ class DashboardController extends Controller
             $openLogsCount
         );
 
+        $nsActiveShift = \App\Services\NonShiftResolver::activeShiftFor($tanggal);
+        $includeNs = ($nsActiveShift === $shift);
+        $shifts = [$shift];
+        if ($includeNs) {
+            $shifts[] = 'NS';
+        }
+
         $groups = $this->factoryConfig->buildGroups($factory);
         $members = Member::where('sc_id', $scId)
             ->where('factory', $factory)
-            ->where('shift', $shift)
+            ->whereIn('shift', $shifts)
             ->where('status', 'active')
             ->orderBy('id')->get();
 
