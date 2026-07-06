@@ -201,7 +201,7 @@ class ReportController extends Controller
 
         $nsActiveShift = \App\Services\NonShiftResolver::activeShiftFor($sampai);
         $includeNs = ($nsActiveShift === $shift);
-        $shifts = [$shift, 'AB'];
+        $shifts = [$shift];
         if ($includeNs) {
             $shifts[] = 'NS';
         }

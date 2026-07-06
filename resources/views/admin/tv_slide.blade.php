@@ -175,25 +175,43 @@
 
         .m-table {
             width: 100%;
-            border-collapse: collapse;
+            border-collapse: separate;
+            border-spacing: 0;
             font-family: 'Roboto', sans-serif;
             font-size: 11px;
         }
 
         .m-table th {
             background: #185E35;
-            /* Dark Green */
             color: #fff;
             padding: 8px;
             font-weight: 600;
             text-align: center;
             border: 1px solid #114526;
             white-space: nowrap;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        .m-table thead tr:nth-child(2) th { top: 31px; z-index: 9; }
+
+        .m-table th.col-name, .m-table td.col-name {
+            width: 140px; min-width: 140px; max-width: 140px;
+            left: 0; position: sticky; text-align: left;
         }
 
-        .m-table th.col-name {
-            text-align: left;
-            min-width: 120px;
+        .m-table th.col-shift, .m-table td.col-shift {
+            width: 50px; min-width: 50px; max-width: 50px;
+            left: 140px; position: sticky;
+        }
+
+        .m-table th.col-name, .m-table th.col-shift {
+            z-index: 12 !important; background: #185E35;
+        }
+
+        .m-table td.col-name, .m-table td.col-shift {
+            z-index: 11; background: #fff; box-shadow: 2px 0 5px -2px rgba(0,0,0,0.1); font-weight: 600;
         }
 
         .m-table td {
@@ -201,14 +219,10 @@
             border: 1px solid #eee;
             text-align: center;
             color: #333;
+            background: #fff;
         }
 
-        .m-table td.col-name {
-            text-align: left;
-            font-weight: 600;
-        }
-
-        .m-table tr:nth-child(even) td {
+        .m-table tr:nth-child(even) td:not(.col-name):not(.col-shift) {
             background: #f9f9f9;
         }
 
@@ -422,9 +436,8 @@
         <thead>
             <tr>
                 <th class="col-name" rowspan="2">Nama operator</th>
-                <th rowspan="2">Shift</th>
+                <th class="col-shift" rowspan="2">Shift</th>
                 <th colspan="${machineNames.length}">Mesin / Proses</th>
-                <th rowspan="2">Level</th>
             </tr>
             <tr>
                 ${machineNames.map(n => `<th>${esc(n)}</th>`).join('')}
@@ -438,7 +451,7 @@
 
                     let rowHtml = `<tr>
             <td class="col-name">${esc(m.nama)}</td>
-            <td style="color:#2E7D32;font-weight:700;">${m.shift}</td>`;
+            <td class="col-shift" style="color:#2E7D32;font-weight:700;">${m.shift}</td>`;
 
                     machineNames.forEach(mn => {
                         const pct = skills[m.id]?.[mn]?.skill_pct ?? null;
@@ -456,14 +469,11 @@
                     });
 
                     let finalAvg = count > 0 ? Math.round(avgScore / count) : 0;
-                    let levelLabel = 'Baru';
-                    let levelClass = 'training';
-
-                    if (finalAvg >= 75) { levelLabel = 'Master'; levelClass = ''; multiSkill++; }
-                    else if (finalAvg >= 40) { levelLabel = 'Berkembang'; levelClass = ''; pengembang++; }
+                    if (finalAvg >= 75) { multiSkill++; }
+                    else if (finalAvg >= 40) { pengembang++; }
                     else { opBaru++; }
 
-                    rowHtml += `<td><span class="chip-level ${levelClass}">${levelLabel}</span></td></tr>`;
+                    rowHtml += `</tr>`;
                     html += rowHtml;
                 });
 

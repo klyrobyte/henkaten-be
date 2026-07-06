@@ -55,7 +55,10 @@
 
         // Fetch current factory's gradient for Warna Header
         $rawFactory = $factory ?? session('factory') ?? request('factory') ?? 'Factory 2';
-        $normalizedName = html_entity_decode($rawFactory, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        if (is_array($rawFactory)) {
+            $rawFactory = $rawFactory[0] ?? 'Factory 2';
+        }
+        $normalizedName = html_entity_decode((string)$rawFactory, ENT_QUOTES | ENT_HTML5, 'UTF-8');
         $factoryData = $factories->firstWhere('name', $normalizedName);
         $factoryGradient = $factoryData?->gradient ?: 'var(--brand-primary)';
     @endphp

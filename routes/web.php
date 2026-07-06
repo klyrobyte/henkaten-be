@@ -91,6 +91,7 @@ Route::middleware(['auth', 'sc.guard'])->prefix('admin')->name('admin.')->group(
     // ── Skill Management ───────────────────────────────────────────────────
     Route::middleware('role:admin,gl')->prefix('skills')->name('skills.')->group(function () {
         Route::get('/', [\App\Http\Controllers\Admin\SkillController::class, 'index'])->name('index');
+        Route::get('/export', [\App\Http\Controllers\Admin\SkillController::class, 'export'])->name('export');
     });
 
     // ── Floor Plan Manager ────────────────────────────────────────────────

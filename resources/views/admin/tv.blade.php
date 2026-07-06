@@ -1769,18 +1769,16 @@ Header = app-header hijau dari admin.blade, semua komponen konten = copy 1:1 das
                 use App\Models\Machine;
                 use App\Models\Member;
 
-                // TOTAL MP: counts active members only — NOT affected by absence/attendance data
+                $scId = \App\Services\ScContext::id();
+
                 if ($factory === 'Factory 2') {
-                    $totMpF2 = Member::where('factory', 'Factory 2')->where('status', 'active')->count();
-                    $totMcF2 = Machine::where('factory', 'Factory 2')->where('status', 'mesin')->count();
-                    $totRobotF2 = Machine::where('factory', 'Factory 2')->where('status', 'line')->count();
+                    $totMcF2 = Machine::where('sc_id', $scId)->where('factory', 'Factory 2')->where('status', 'mesin')->count();
+                    $totRobotF2 = Machine::where('sc_id', $scId)->where('factory', 'Factory 2')->where('status', 'line')->count();
                 } else {
-                    $totMpF34 = Member::where('factory', 'Factory 3 & 4')->where('status', 'active')->count();
-                    $totalMcF34 = Machine::where('factory', 'Factory 3 & 4')->where('status', 'mesin')->count();
-                    $totMcF3 = Machine::where('factory', 'Factory 3 & 4')->where('section', 'f3-resin')->where('status', 'mesin')->count();
-                    $totMcF4 = Machine::where('factory', 'Factory 3 & 4')->where('section', 'f4-resin')->where('status', 'mesin')->count();
-                    $totRobotF34 = Machine::where('factory', 'Factory 3 & 4')->where('status', 'robot')->count();
-                    $totVibF34 = Machine::where('factory', 'Factory 3 & 4')->where('status', 'mc_vibration')->count();
+                    $totMcF3 = Machine::where('sc_id', $scId)->where('factory', 'Factory 3 & 4')->where('section', 'f3-resin')->where('status', 'mesin')->count();
+                    $totMcF4 = Machine::where('sc_id', $scId)->where('factory', 'Factory 3 & 4')->where('section', 'f4-resin')->where('status', 'mesin')->count();
+                    $totRobotF34 = Machine::where('sc_id', $scId)->where('factory', 'Factory 3 & 4')->where('status', 'robot')->count();
+                    $totVibF34 = Machine::where('sc_id', $scId)->where('factory', 'Factory 3 & 4')->where('status', 'mc_vibration')->count();
                 }
             @endphp
 
@@ -1832,7 +1830,7 @@ Header = app-header hijau dari admin.blade, semua komponen konten = copy 1:1 das
             <div class="tv-report-summary">
                 @if($factory === 'Factory 2')
                     <div class="tv-rs-card">
-                        <div class="tv-rs-val" id="rsMpF2">{{ $totMpF2 }}</div>
+                        <div class="tv-rs-val" id="rsMpF2">{{ $total_mp }}</div>
                         <div class="tv-rs-lbl">TOTAL MP</div>
                     </div>
                     <div class="tv-rs-card">
@@ -1845,7 +1843,7 @@ Header = app-header hijau dari admin.blade, semua komponen konten = copy 1:1 das
                     </div>
                 @else
                     <div class="tv-rs-card">
-                        <div class="tv-rs-val" id="rsMpF34">{{ $totMpF34 }}</div>
+                        <div class="tv-rs-val" id="rsMpF34">{{ $total_mp }}</div>
                         <div class="tv-rs-lbl">TOTAL MP<br>FAC 3&4</div>
                     </div>
                     <div class="tv-rs-card">
@@ -2500,7 +2498,7 @@ Header = app-header hijau dari admin.blade, semua komponen konten = copy 1:1 das
 
             let html = `<table class="m-table"><thead><tr>
                 <th class="col-name" rowspan="3">Nama operator</th><th class="col-shift" rowspan="3">Shift</th>
-                <th colspan="${totalCols}">Mesin / Proses</th><th rowspan="3">Level</th>
+                <th colspan="${totalCols}">Mesin / Proses</th>
                 </tr><tr>`;
                 
             machineNames.forEach(m => {
@@ -2524,7 +2522,7 @@ Header = app-header hijau dari admin.blade, semua komponen konten = copy 1:1 das
 
             displayMembers.forEach(m => {
                 let avgScore = 0, count = 0;
-                let rowHtml = `<tr><td class="col-name">${esc(m.nama)}</td><td style="color:#2E7D32;font-weight:700;">${m.shift}</td>`;
+                let rowHtml = `<tr><td class="col-name">${esc(m.nama)}</td><td class="col-shift" style="color:#2E7D32;font-weight:700;">${m.shift}</td>`;
                 
                 machineNames.forEach(mn => {
                     const procs = processes[mn] || [];
@@ -2552,11 +2550,10 @@ Header = app-header hijau dari admin.blade, semua komponen konten = copy 1:1 das
                 });
 
                 let finalAvg = count > 0 ? Math.round(avgScore / count) : 0;
-                let levelLabel = 'Baru', levelClass = 'training';
-                if (finalAvg >= 75) { levelLabel = 'Master'; levelClass = ''; multiSkill++; }
-                else if (finalAvg >= 40) { levelLabel = 'Berkembang'; levelClass = ''; pengembang++; }
+                if (finalAvg >= 75) { multiSkill++; }
+                else if (finalAvg >= 40) { pengembang++; }
                 else { opBaru++; }
-                rowHtml += `<td><span class="chip-level ${levelClass}">${levelLabel}</span></td></tr>`;
+                rowHtml += `</tr>`;
                 html += rowHtml;
             });
             html += `</tbody></table>`;

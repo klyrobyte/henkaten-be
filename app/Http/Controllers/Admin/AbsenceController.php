@@ -48,7 +48,10 @@ class AbsenceController extends Controller
     {
         // Decode HTML entities (e.g. "Factory 3 &amp; 4" → "Factory 3 & 4"),
         // then fall back to the SC's first factory dynamically — never hardcoded.
-        $decoded = $factory ? html_entity_decode($factory, ENT_QUOTES | ENT_HTML5, 'UTF-8') : null;
+        if (is_array($factory)) {
+            $factory = $factory[0] ?? null;
+        }
+        $decoded = $factory ? html_entity_decode((string)$factory, ENT_QUOTES | ENT_HTML5, 'UTF-8') : null;
         return $decoded ?: (ScContext::firstFactory() ?? '');
     }
 

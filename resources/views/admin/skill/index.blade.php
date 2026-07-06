@@ -435,6 +435,10 @@
                 <p>Manajemen persentase skill member terhadap mesin. Input 0-100% (ILUO format).</p>
             </div>
             <div class="filter-bar">
+                <input type="text" id="searchMember" class="filter-select" placeholder="🔍 Cari MP..." onkeyup="filterTable()">
+                <a href="{{ route('admin.skills.export', request()->query()) }}" class="btn-manage" style="background:#0ea5e9; text-decoration:none;">
+                    <span>📥</span> Export Excel
+                </a>
                 <button class="btn-manage" onclick="openManageModal()">
                     <span>⚙️</span> Kelola Item Mesin
                 </button>
@@ -492,7 +496,6 @@
                                     {{ $mac }}
                                 </th>
                             @endforeach
-                            <th rowspan="2">Level Prediksi</th>
                         </tr>
                         <tr>
                             @foreach($machines as $mac)
@@ -595,22 +598,7 @@
                                     @endif
                                 @endforeach
 
-                                @php
-                                    $finalAvg = $count > 0 ? round($avgScore / $count) : 0;
-                                    $levelLabel = 'Baru';
-                                    $levelClass = 'newbie';
-                                    if ($finalAvg >= 75) {
-                                        $levelLabel = 'Master';
-                                        $levelClass = '';
-                                    } elseif ($finalAvg >= 40) {
-                                        $levelLabel = 'Berkembang';
-                                        $levelClass = 'training';
-                                    }
-                                @endphp
-                                <td>
-                                    <span class="chip-level {{ $levelClass }}" id="level-{{ $m->id }}">{{ $levelLabel }}</span>
-                                </td>
-                            </tr>
+                                </tr>
                         @endforeach
                     </tbody>
                 </table>
@@ -820,6 +808,26 @@
                 window.location.reload();
             } catch (e) {
                 alert('Gagal menghapus item: ' + e.message);
+            }
+        }
+
+        function filterTable() {
+            const input = document.getElementById("searchMember");
+            const filter = input.value.toLowerCase();
+            const table = document.querySelector(".m-table");
+            if (!table) return;
+            const tr = table.getElementsByTagName("tbody")[0].getElementsByTagName("tr");
+
+            for (let i = 0; i < tr.length; i++) {
+                const td = tr[i].getElementsByTagName("td")[0]; // Kolom Nama Operator
+                if (td) {
+                    const txtValue = td.textContent || td.innerText;
+                    if (txtValue.toLowerCase().indexOf(filter) > -1) {
+                        tr[i].style.display = "";
+                    } else {
+                        tr[i].style.display = "none";
+                    }
+                }       
             }
         }
     </script>
