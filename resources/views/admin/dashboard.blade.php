@@ -3,7 +3,7 @@
 
 @push('styles')
     <style>
-        /* ══ MACHINE SECTION =>══════════ */
+        /* ══ MACHINE SECTION ══════════════════════════════════════════════ */
         .machines-wrap {
             padding: 0 0 110px;
         }
@@ -49,7 +49,7 @@
             gap: 12px;
         }
 
-        /* ══ MACHINE CARD =>════════════ */
+        /* ══ MACHINE CARD ════════════════════════════════════════════════ */
         .mc-card {
             background: #fff;
             border-radius: 14px;
@@ -426,7 +426,7 @@
             width: 100%;
         }
 
-        /*   STATUS PILLS                        ─ */
+        /* ── STATUS PILLS ─────────────────────────────────────────────── */
         .mc-status-row {
             display: flex;
             gap: 3px;
@@ -1139,7 +1139,7 @@
             cursor: not-allowed;
         }
 
-        /*   Empty section state                   ─ */
+        /* ── Empty section state ───────────────────────────────────── */
         .mc-empty-section {
             display: flex;
             flex-direction: column;
@@ -1914,7 +1914,7 @@
         const colorMap = { man: '#e74c3c', machine: '#1f3c88', material: '#f39c12', method: '#2e7d32' };
         const borderCls = { man: 'mc-status-man', machine: 'mc-status-machine', material: 'mc-status-material', method: 'mc-status-method' };
 
-        /*   1. SYNC SUMMARY   */
+        /* ── 1. SYNC SUMMARY ── */
         async function syncSummary() {
             try {
                 const d = $id('tanggalHari').value;
@@ -1952,7 +1952,7 @@
             } catch (e) { console.error('syncSummary', e); }
         }
 
-        /*   2. SYNC MACHINE CARDS   */
+        /* ── 2. SYNC MACHINE CARDS ── */
         let _syncing = false;
         async function syncCards() {
             if (_syncing) return;
@@ -1995,7 +1995,7 @@
 
                     if (!cardHasAbsen) card.querySelectorAll('.mc-member-item[data-replacement="1"]').forEach(el => el.remove());
 
-                    //   Inject pengganti baru yang belum ada di DOM  
+                    // ── Inject pengganti baru yang belum ada di DOM ──
                     if (cardHasAbsen) {
                         const row = card.querySelector('.mc-members-row');
                         const repl = replData.filter(r => r.target_machine === machine);
@@ -2080,7 +2080,11 @@
                         // Feature 3: always keep dot red + clickable when there's an absence,
                         // even after a replacement has been assigned (allow multiple pengganti)
                         dot.className = 'mc-dot d-absen'; dot.style.background = '';
-                        dot.onclick = e => { e.stopPropagation(); openFinderModal(machine); };
+                        dot.onclick = e => { 
+                            e.stopPropagation(); 
+                            const absentName = absenItems.length > 0 ? absenItems[0].querySelector('.mc-member-name')?.textContent?.trim() : '';
+                            openFinderModal(machine, absentName); 
+                        };
                     } else if (primaryStatus !== 'normal' && colorMap[primaryStatus]) {
                         dot.className = 'mc-dot d-visible'; dot.style.background = colorMap[primaryStatus];
                         dot.onclick = e => { e.stopPropagation(); openMachineDetail(machine, primaryStatus); };
@@ -2107,7 +2111,7 @@
             await syncSummary();
         }
 
-        /*   3. QUICK LOG MODAL   */
+        /* ── 3. QUICK LOG MODAL ── */
         let _qlActiveJenis = null;
         const _qlPrefix = { Machine: 'm', Material: 'mat', Method: 'met' };
 
@@ -2301,7 +2305,7 @@
             } catch (e) { showToast('Gagal', 'error'); if (btn) btn.disabled = false; }
         }
 
-        /*   4. MACHINE DETAIL SHEET   */
+        /* ── 4. MACHINE DETAIL SHEET ── */
         function handleCardClick(e, machine, status) {
             if (e.target.classList.contains('d-absen') || e.target.closest('.mc-addlog-bar')) return;
             openMachineDetail(machine, status);
@@ -2323,14 +2327,16 @@
                 .catch(() => { if (body) body.innerHTML = '<p style="text-align:center;color:#aaa;padding:20px">Gagal memuat data</p>'; });
         }
 
-        /*   5. FINDER PENGGANTI   */
+        /* ── 5. FINDER PENGGANTI ── */
         let activeMachine = null;
+        let activeAbsentName = '';
         // memberId → { replacementId, targetMachine, name, sourceMachine }
         let _penggantiMap = new Map();
 
-        function openFinderModal(machine) {
+        function openFinderModal(machine, absentName = '') {
             activeMachine = machine;
-            $id('finderMachineName').textContent = machine;
+            activeAbsentName = absentName;
+            $id('finderMachineName').textContent = machine + (absentName ? ` (Absen: ${absentName})` : '');
             $id('finderSearch').value = '';
             $id('finderOverlay').classList.add('show');
             document.body.style.overflow = 'hidden';
@@ -2344,7 +2350,14 @@
             const list = $id('finderCandList'), q = $id('finderSearch')?.value?.trim() || '';
             list.innerHTML = '<div class="cand-empty">⏳ Memuat…</div>';
             try {
-                const params = new URLSearchParams({ tanggal: TANGGAL, factory: FACTORY, shift: SHIFT, q });
+                const params = new URLSearchParams({ 
+                    tanggal: TANGGAL, 
+                    factory: FACTORY, 
+                    shift: SHIFT, 
+                    q: q,
+                    machine: activeMachine,
+                    absentName: activeAbsentName
+                });
                 const res = await fetch(`/api/assignment/candidates?${params}`, { headers: { Accept: 'application/json', 'X-CSRF-TOKEN': CSRF } });
                 if (!res.ok) { list.innerHTML = `<div class="cand-empty">⚠️ Error ${res.status}</div>`; return; }
                 let data = await res.json();
@@ -2406,7 +2419,7 @@
                 }
                 closeFinderModal();
 
-                //   1. Inject card pengganti langsung ke DOM (tanpa tunggu full reload)  
+                // ── 1. Inject card pengganti langsung ke DOM (tanpa tunggu full reload) ──
                 const tc = document.querySelector(`.mc-card[data-machine="${CSS.escape(targetMachine)}"]`);
                 if (tc) {
                     const row = tc.querySelector('.mc-members-row');
@@ -2428,10 +2441,17 @@
                     // Feature 3: keep border red + keep dot active after replacement
                     tc.classList.add('mc-has-absen');
                     const dot = tc.querySelector('.mc-dot');
-                    if (dot) { dot.className = 'mc-dot d-absen'; dot.style.background = ''; dot.onclick = e => { e.stopPropagation(); openFinderModal(targetMachine); }; }
+                    if (dot) { 
+                        dot.className = 'mc-dot d-absen'; dot.style.background = ''; 
+                        dot.onclick = e => { 
+                            e.stopPropagation(); 
+                            const absentName = tc.querySelector('.mi-absen .mc-member-name')?.textContent?.trim() || '';
+                            openFinderModal(targetMachine, absentName); 
+                        }; 
+                    }
                 }
 
-                //   2. Update source card (member yg "dipinjam")  
+                // ── 2. Update source card (member yg "dipinjam") ──
                 if (sourceMachine) {
                     const sc = document.querySelector(`.mc-card[data-machine="${CSS.escape(sourceMachine)}"]`);
                     if (sc) {
@@ -2449,7 +2469,7 @@
                     }
                 }
 
-                //   3. Sync penuh: reset guard + delay agar server commit dulu  
+                // ── 3. Sync penuh: reset guard + delay agar server commit dulu ──
                 _syncing = false;
                 await new Promise(r => setTimeout(r, 350));
                 await syncCards();
@@ -2487,7 +2507,15 @@
                         }
                         // Feature 3: keep border + dot active even after replacement is loaded
                         tc.classList.add('mc-has-absen');
-                        const dot = tc.querySelector('.mc-dot'); if (dot) { dot.className = 'mc-dot d-absen'; dot.style.background = ''; dot.onclick = e => { e.stopPropagation(); openFinderModal(r.target_machine); }; }
+                        const dot = tc.querySelector('.mc-dot'); 
+                        if (dot) { 
+                            dot.className = 'mc-dot d-absen'; dot.style.background = ''; 
+                            dot.onclick = e => { 
+                                e.stopPropagation(); 
+                                const absentName = tc.querySelector('.mi-absen .mc-member-name')?.textContent?.trim() || '';
+                                openFinderModal(r.target_machine, absentName); 
+                            }; 
+                        }
                     }
                     if (r.source_machine) {
                         const sc = document.querySelector(`.mc-card[data-machine="${CSS.escape(r.source_machine)}"]`);
@@ -2508,7 +2536,7 @@
             } catch (e) { console.error('loadReplacements', e); }
         }
 
-        /*   Cancel Pengganti (hapus dari DB + update DOM)   */
+        /* ── Cancel Pengganti (hapus dari DB + update DOM) ── */
         async function cancelPengganti(memberId, replacementId, name, targetMachine, sourceMachine, btn) {
             if (btn) { btn.disabled = true; btn.textContent = '⏳…'; }
             try {
@@ -2580,7 +2608,7 @@
             }
         }
 
-        /*   6. CHART KEHADIRAN (Task 4: includes red Absen segment)   */
+        /* ── 6. CHART KEHADIRAN (Task 4: includes red Absen segment) ── */
         function renderChart(data) {
             if (!data) return;
             // Use Alpha columns from DB if available, otherwise fallback to calculation
@@ -2618,7 +2646,7 @@
             });
         }
 
-        /*   7. AUTO REFRESH  - CHANGE: interval 15 detik   */
+        /* ── 7. AUTO REFRESH  - CHANGE: interval 15 detik ── */
         let _arInterval = null, _arCountdown = 15, _arPaused = false;
         function startAutoRefresh() {
             if (_arInterval) clearInterval(_arInterval);
@@ -2638,7 +2666,7 @@
         }
         function onDateChange(val) { const url = new URL(window.location); url.searchParams.set('tanggal', val); window.location = url; }
 
-        /*   8. FOTO MESIN   */
+        /* ── 8. FOTO MESIN ── */
         function triggerPhotoUpload(machine, slug, factory) { document.getElementById('file-' + slug)?.click(); }
         async function uploadMachinePhoto(event, machine, slug, factory) {
             const file = event.target.files?.[0]; if (!file) return;
@@ -2663,7 +2691,7 @@
             finally { wrap?.classList.remove('uploading'); event.target.value = ''; }
         }
 
-        /*   9. INIT   */
+        /* ── 9. INIT ── */
         document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeFinderModal(); closeQuickLog(); } });
         document.addEventListener('DOMContentLoaded', () => {
             if (initAbsence) renderChart(initAbsence);

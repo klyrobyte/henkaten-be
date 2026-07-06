@@ -93,10 +93,12 @@ class DashboardController extends Controller
             $openLogsCount
         );
 
+        $shifts = \App\Services\NonShiftResolver::shiftsFor($shift, $tanggal);
+
         $groups = $this->factoryConfig->buildGroups($factory);
         $members = Member::where('sc_id', $scId)
             ->where('factory', $factory)
-            ->where('shift', $shift)
+            ->whereIn('shift', $shifts)
             ->where('status', 'active')
             ->orderBy('id')->get();
 
@@ -110,9 +112,10 @@ class DashboardController extends Controller
             ->count();
 
         // TOTAL MP: counts active members only — NOT affected by absence/attendance data
+        $shiftsForTotal = array_merge(\App\Services\NonShiftResolver::shiftsFor($shift, $tanggal), ['AB']);
         $total_mp = Member::where('sc_id', $scId)
             ->where('factory', $factory)
-            ->whereIn('shift', [$shift, 'AB'])
+            ->whereIn('shift', $shiftsForTotal)
             ->where('status', 'active')->count();
 
 
@@ -213,10 +216,12 @@ class DashboardController extends Controller
             $openLogsCount
         );
 
+        $shifts = \App\Services\NonShiftResolver::shiftsFor($shift, $tanggal);
+
         $groups = $this->factoryConfig->buildGroups($factory);
         $members = Member::where('sc_id', $scId)
             ->where('factory', $factory)
-            ->where('shift', $shift)
+            ->whereIn('shift', $shifts)
             ->where('status', 'active')
             ->orderBy('id')->get();
 
@@ -243,9 +248,10 @@ class DashboardController extends Controller
         }
 
         // TOTAL MP for TV
+        $shiftsForTotal = array_merge(\App\Services\NonShiftResolver::shiftsFor($shift, $tanggal), ['AB']);
         $total_mp = Member::where('sc_id', $scId)
             ->where('factory', $factory)
-            ->whereIn('shift', [$shift, 'AB'])
+            ->whereIn('shift', $shiftsForTotal)
             ->where('status', 'active')->count();
 
         $total_mc = Machine::where('sc_id', $scId)
@@ -335,9 +341,10 @@ class DashboardController extends Controller
         // scoped to the current factory+shift (no separate server query needed).
 
         // TOTAL MP: counts active members only — NOT affected by absence/attendance data
+        $shiftsForTotal = array_merge(\App\Services\NonShiftResolver::shiftsFor($shift, $tanggal), ['AB']);
         $total_mp = Member::where('sc_id', $scId)
             ->where('factory', $factory)
-            ->whereIn('shift', [$shift, 'AB'])
+            ->whereIn('shift', $shiftsForTotal)
             ->where('status', 'active')->count();
 
         // Live Announcements Array Logic

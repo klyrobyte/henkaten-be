@@ -36,17 +36,24 @@ class ScContextGuard
         }
 
         // 2. Guard Request factory parameter if it is passed in query/input
-        $reqFactoryName = $request->input('factory') ?? $request->query('factory');
-        // Decode HTML entities (e.g. "Factory 3 &amp; 4" → "Factory 3 & 4") sent by
-        // Blade-rendered JS variables that may be HTML-encoded.
-        if ($reqFactoryName) {
-            $reqFactoryName = html_entity_decode($reqFactoryName, ENT_QUOTES | ENT_HTML5, 'UTF-8');
-        }
-
-        if ($reqFactoryName && $request->route() && $request->route()->getName() !== 'admin.set-sc') {
-            $exists = Factory::where('sc_id', $activeScId)->where('name', $reqFactoryName)->exists();
-            if (!$exists) {
-                abort(403, 'Unauthorized factory context.');
+        $reqFactory = $request->input('factory') ?? $request->query('factory');
+        if ($reqFactory && $request->route() && $request->route()->getName() !== 'admin.set-sc') {
+            $factoriesToCheck = is_array($reqFactory) ? $reqFactory : [$reqFactory];
+            $decodedNames = [];
+            foreach ($factoriesToCheck as $fName) {
+                if (is_string($fName)) {
+                    $decodedNames[] = html_entity_decode($fName, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+                }
+            }
+            
+            if (!empty($decodedNames)) {
+                $existsCount = Factory::where('sc_id', $activeScId)
+                    ->whereIn('name', $decodedNames)
+                    ->count();
+                    
+                if ($existsCount !== count(array_unique($decodedNames))) {
+                    abort(403, 'Unauthorized factory context.');
+                }
             }
         }
 

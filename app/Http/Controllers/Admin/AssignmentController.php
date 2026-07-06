@@ -85,7 +85,7 @@ class AssignmentController extends Controller
 
         // Jika belum ada assignment hari ini, buat default dari member DB
         if (empty($assignments)) {
-            $assignments = $this->buildDefaults($factory, $shift, $groups);
+            $assignments = $this->buildDefaults($factory, $shift, $groups, $tanggal);
         }
 
         // Data absen dari AbsenceRecord (untuk auto-sync)
@@ -304,33 +304,81 @@ class AssignmentController extends Controller
                 $query->whereNotIn('nama', $allAbsentNames);
             }
 
-            // Filter pencarian nama
-            if ($q !== '') {
-                $query->where('nama', 'like', "%{$q}%");
+            $machineName = $request->get('machine');
+            $absentName = $request->get('absentName', '');
+            $factory = $request->get('factory');
+
+            if (empty($absentName) && $factory) {
+                // Bukan pengganti (tambah member biasa)
+                $query->where('factory', $factory);
             }
 
-            $members = $query->orderBy('nama')->get()->map(fn($m) => [
-                'id' => $m->id,
-                'name' => $m->nama,
-                'photo' => $m->photo ? asset('storage/' . $m->photo) : null,
-                'jabatan' => $m->jabatan,
-                'mesin' => $m->mesin,
-                'isWorking' => in_array($m->nama, $workingNames),
-            ]);
+            // Ambil skills kandidat
+            $query->with(['skills' => function($q) use ($machineName) {
+                $q->where('machine_name', $machineName);
+            }]);
 
-            // Urutkan: yang belum bertugas duluan
-            $members = $members->sortBy('isWorking')->values();
+            $allCandidates = $query->orderBy('nama')->get();
+
+            // Load absent member's skills if this is a replacement
+            $absentSkills = collect();
+            if (!empty($absentName)) {
+                $absentMember = Member::where('sc_id', $scId)->where('nama', $absentName)->first();
+                if ($absentMember) {
+                    $absentSkills = \App\Models\MemberSkill::where('member_id', $absentMember->id)
+                        ->where('machine_name', $machineName)
+                        ->where('skill_pct', '>', 0)
+                        ->get()
+                        ->keyBy(function($s) {
+                            return empty($s->process_name) ? '-' : $s->process_name;
+                        });
+                }
+            }
+
+            $members = $allCandidates->map(function($m) use ($workingNames, $absentSkills, $absentName) {
+                $isWorking = in_array($m->nama, $workingNames);
+                $isEligible = true;
+                
+                if (!empty($absentName) && $absentSkills->isNotEmpty()) {
+                    // Check if candidate fulfills ALL absent member's skills on this machine
+                    $candSkills = $m->skills->keyBy(function($s) {
+                        return empty($s->process_name) ? '-' : $s->process_name;
+                    });
+                    
+                    foreach ($absentSkills as $proc => $aSkill) {
+                        $cSkillPct = isset($candSkills[$proc]) ? $candSkills[$proc]->skill_pct : 0;
+                        if ($cSkillPct < 75) {
+                            $isEligible = false;
+                            break;
+                        }
+                    }
+                } else {
+                    $maxPct = $m->skills->max('skill_pct') ?? 0;
+                    $isEligible = $maxPct >= 75;
+                }
+
+                return [
+                    'id' => $m->id,
+                    'name' => $m->nama,
+                    'jabatan' => $m->jabatan,
+                    'photo' => $m->photo_url,
+                    'mesin' => $m->mesin,
+                    'isWorking' => $isWorking,
+                    'skill_pct' => $m->skills->max('skill_pct') ?? 0,
+                    'eligible' => $isEligible,
+                ];
+            });
+
+            // Ponytail: inline filter+sort
+            $members = $members->filter(fn($m) => $m['eligible'])
+                               ->sortBy(fn($m) => $m['isWorking'] ? 1 : 0)
+                               ->values();
 
             return response()->json($members);
 
         } catch (\Throwable $e) {
-            // Log full details server-side, return safe generic message to client
-            \Log::error('AssignmentController::candidates() error', [
-                'message' => $e->getMessage(),
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
-            ]);
-            return response()->json(['ok' => false, 'message' => 'Terjadi kesalahan saat memuat kandidat.'], 500);
+            \Log::error('AssignmentController@candidates failed', ['message' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+            return response()->json(['message' => 'Internal Server Error'], 500);
         }
     }
 
@@ -386,29 +434,34 @@ class AssignmentController extends Controller
     // PRIVATE HELPERS
     //  ════════════
 
-    private function buildDefaults(string $factory, string $shift, array $groups): array
+    private function buildDefaults(string $factory, string $shift, array $groups, string $tanggal): array
     {
         $scId = ScContext::id();
-        $members = Member::where('sc_id', $scId)
+        $shifts = \App\Services\NonShiftResolver::shiftsFor($shift, $tanggal);
+
+        $membersByMachine = Member::where('sc_id', $scId)
             ->where('factory', $factory)
             ->where('status', 'active')
+            ->whereIn('shift', $shifts)
             ->orderBy('id')
-            ->get();
+            ->get()
+            ->groupBy('mesin');
 
         $assignments = [];
-        $memberIndex = 0;
 
         foreach ($groups as $group) {
             foreach ($group['machines'] as $machine) {
                 $key = "{$group['title']}::{$machine}";
-                $count = $this->factoryConfig->getCircleCount($factory, $group['title'], $machine);
+                
+                $machineMembers = $membersByMachine->get($machine, collect())->values();
+                $count = max(1, count($machineMembers));
 
                 $slots = [];
                 for ($i = 0; $i < $count; $i++) {
-                    $m = $members[$memberIndex] ?? null;
+                    $m = $machineMembers->get($i);
                     $slots[] = [
                         'memberName' => $m?->nama ?? '',
-                        'foto' => $m?->photo ? asset('storage/' . $m->photo) : null,
+                        'foto' => $m?->photo_url,
                         'status' => 'present',
                         'absentReason' => '',
                         'isSubstitute' => false,
@@ -416,7 +469,6 @@ class AssignmentController extends Controller
                         'syncedFromMM' => false,
                         'memberId' => $m?->id,
                     ];
-                    $memberIndex++;
                 }
 
                 $assignments[$key] = $slots;

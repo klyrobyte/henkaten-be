@@ -52,12 +52,13 @@ class AbsenceController extends Controller
         return ScContext::resolveFactory($decoded, Auth::user());
     }
 
-    private function membersFor(string $factory, string $shift)
+    private function membersFor(string $factory, string $shift, ?string $tanggal = null)
     {
         $scId = ScContext::id();
+        $shifts = array_merge(NonShiftResolver::shiftsFor($shift, $tanggal), ['AB']);
         return Member::where('sc_id', $scId)
             ->where('factory', $factory)
-            ->whereIn('shift', [$shift, 'AB'])
+            ->whereIn('shift', $shifts)
             ->where('status', 'active')
             ->orderBy('nama')
             ->get();
@@ -87,7 +88,7 @@ class AbsenceController extends Controller
 
         $shift = $request->get('shift', 'A');
 
-        $members = $this->membersFor($factory, $shift);
+        $members = $this->membersFor($factory, $shift, $tanggal);
 
         $records = AbsenceRecord::where([
             'sc_id' => $scId,
@@ -129,7 +130,7 @@ class AbsenceController extends Controller
 
         $shift = $request->shift;
 
-        $validIds = $this->membersFor($factory, $shift)->pluck('id')->toArray();
+        $validIds = $this->membersFor($factory, $shift, $tanggal)->pluck('id')->toArray();
 
         DB::transaction(function () use ($request, $tanggal, $factory, $shift, $validIds, $scId) {
             foreach ($request->records as $memberId => $rec) {
@@ -188,7 +189,7 @@ class AbsenceController extends Controller
 
         foreach ($factories as $factory) {
             foreach ($shifts as $shift) {
-                $members = $this->membersFor($factory, $shift);
+                $members = $this->membersFor($factory, $shift, $tanggal);
                 if ($members->isEmpty())
                     continue;
 
@@ -250,7 +251,7 @@ class AbsenceController extends Controller
 
         $shift = $request->get('shift', 'A');
 
-        $members = $this->membersFor($factory, $shift);
+        $members = $this->membersFor($factory, $shift, $tanggal);
         $records = AbsenceRecord::where([
             'tanggal' => $tanggal,
             'factory' => $factory,
@@ -385,7 +386,7 @@ class AbsenceController extends Controller
 
         $shift = $request->get('shift', 'A');
 
-        $members = $this->membersFor($factory, $shift);
+        $members = $this->membersFor($factory, $shift, $tanggal);
         $records = AbsenceRecord::where([
             'tanggal' => $tanggal,
             'factory' => $factory,
@@ -440,9 +441,11 @@ class AbsenceController extends Controller
             'status' => 'absen',
         ])->pluck('member_id')->toArray();
 
+        $shifts = array_merge(NonShiftResolver::shiftsFor($shift, $tanggal), ['AB']);
+
         $query = Member::where('factory', $factory)
             ->where('status', 'active')
-            ->whereIn('shift', [$shift, 'AB'])
+            ->whereIn('shift', $shifts)
             ->whereNotIn('id', $absentIds)
             ->orderBy('nama');
 

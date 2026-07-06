@@ -88,44 +88,14 @@ class NonShiftResolver
     }
 
     /**
-     * Cek apakah tanggal tertentu adalah minggu Shift A untuk NS.
+     * Helper untuk query: kembalikan array shift reguler + NS (jika aktif)
      */
-    public static function isShiftA(?string $tanggal = null): bool
+    public static function shiftsFor(string $shift, ?string $tanggal = null): array
     {
-        return static::activeShiftFor($tanggal) === 'A';
-    }
-
-    /**
-     * Cek apakah tanggal tertentu adalah minggu Shift B untuk NS.
-     */
-    public static function isShiftB(?string $tanggal = null): bool
-    {
-        return static::activeShiftFor($tanggal) === 'B';
-    }
-
-    /**
-     * Kembalikan array informasi rotasi untuk tanggal tertentu.
-     * Berguna untuk ditampilkan di UI.
-     *
-     * @return array{shift: string, week_start: string, week_end: string, weeks_from_epoch: int}
-     */
-    public static function info(?string $tanggal = null): array
-    {
-        $date      = $tanggal ? Carbon::parse($tanggal) : Carbon::today();
-        $shift     = static::activeShiftFor($tanggal);
-        $weekStart = $date->copy()->startOfWeek(Carbon::MONDAY);
-        $weekEnd   = $date->copy()->endOfWeek(Carbon::SUNDAY);
-        $epoch     = static::epoch();
-
-        $weeksDiff = $weekStart->gte($epoch)
-            ? (int) $epoch->diffInWeeks($weekStart)
-            : -((int) $weekStart->diffInWeeks($epoch));
-
-        return [
-            'shift'            => $shift,
-            'week_start'       => $weekStart->toDateString(),
-            'week_end'         => $weekEnd->toDateString(),
-            'weeks_from_epoch' => $weeksDiff,
-        ];
+        $shifts = [$shift];
+        if (static::activeShiftFor($tanggal) === $shift) {
+            $shifts[] = 'NS';
+        }
+        return $shifts;
     }
 }

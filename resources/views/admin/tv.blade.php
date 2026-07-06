@@ -115,7 +115,7 @@ Header = app-header hijau dari admin.blade, semua komponen konten = copy 1:1 das
             background: #f4f7f0;
         }
 
-        /*   Layout utama   */
+        /* ── Layout utama ── */
         .tv-body {
             position: fixed;
             top: 95px;
@@ -199,7 +199,7 @@ Header = app-header hijau dari admin.blade, semua komponen konten = copy 1:1 das
             overflow: auto;
         }
 
-        /*   Problems Section (normal TV mode)   */
+        /* ── Problems Section (normal TV mode) ── */
         .tv-problems-wrap {
             flex: 1 1 0;
             display: flex;
@@ -260,7 +260,7 @@ Header = app-header hijau dari admin.blade, semua komponen konten = copy 1:1 das
             transition: all 0.3s;
         }
 
-        /*   Active Problem Variants (Red Accent)   */
+        /* ── Active Problem Variants (Red Accent) ── */
         .tv-problems-wrap.has-prob .tv-problems-header {
             background: linear-gradient(135deg, #fff0f0 0%, #ffe8e8 100%);
             border-color: #f5c6c6;
@@ -286,7 +286,7 @@ Header = app-header hijau dari admin.blade, semua komponen konten = copy 1:1 das
             flex-shrink: 0;
         }
 
-        /*   Glowing Problem Cards Animations   */
+        /* ── Glowing Problem Cards Animations ── */
         @keyframes glowMan {
 
             0%,
@@ -443,7 +443,7 @@ Header = app-header hijau dari admin.blade, semua komponen konten = copy 1:1 das
             gap: 4px;
         }
 
-        /*   Problem Panel Realtime   */
+        /* ── Problem Panel Realtime ── */
         .tv-problem-detail {
             flex: 1 1 0;
             display: flex;
@@ -592,19 +592,19 @@ Header = app-header hijau dari admin.blade, semua komponen konten = copy 1:1 das
             font-size: 13px;
         }
 
-        /* =>════════
+        /* ════════════════════════════════════════════
        Semua override di-scope .tv-body
        agar TIDAK bocor ke dashboard.blade.php
-    =>════════ */
+    ════════════════════════════════════════════ */
 
-        /*   date-bar   */
+        /* ── date-bar ── */
         .tv-body .date-bar {
             padding: 8px 14px !important;
             border-radius: 10px !important;
             flex-shrink: 0 !important;
         }
 
-        /*   shift toggle   */
+        /* ── shift toggle ── */
         .tv-body .shift-toggle-bar {
             padding: 5px !important;
             border-radius: 10px !important;
@@ -620,7 +620,7 @@ Header = app-header hijau dari admin.blade, semua komponen konten = copy 1:1 das
             cursor: default !important;
         }
 
-        /*   legend 4M   */
+        /* ── legend 4M ── */
         .tv-body .legend-4m {
             padding: 7px 14px !important;
             border-radius: 10px !important;
@@ -639,7 +639,7 @@ Header = app-header hijau dari admin.blade, semua komponen konten = copy 1:1 das
             height: 10px !important;
         }
 
-        /*   Status panel   */
+        /* ── Status panel ── */
         .tv-body .status-panel {
             padding: 14px 12px !important;
             border-radius: 12px !important;
@@ -753,7 +753,7 @@ Header = app-header hijau dari admin.blade, semua komponen konten = copy 1:1 das
             display: block !important;
         }
 
-        /*   Chart section   */
+        /* ── Chart section ── */
         .tv-body .tv-chart-section .section-title {
             flex-shrink: 0 !important;
             margin-bottom: 4px !important;
@@ -866,7 +866,7 @@ Header = app-header hijau dari admin.blade, semua komponen konten = copy 1:1 das
             box-sizing: border-box !important;
         }
 
-        /*   Right column scroll   */
+        /* ── Right column scroll ── */
         .tv-body .status-mesin-scroll {
             flex: 1 1 0;
             overflow-y: auto;
@@ -894,7 +894,7 @@ Header = app-header hijau dari admin.blade, semua komponen konten = copy 1:1 das
             flex-shrink: 0;
         }
 
-        /*   Machine cards (scoped)   */
+        /* ── Machine cards (scoped) ── */
         .tv-body .mc-photo-upload-overlay {
             display: none !important;
         }
@@ -1355,7 +1355,7 @@ Header = app-header hijau dari admin.blade, semua komponen konten = copy 1:1 das
             background: #2e7d32;
         }
 
-        /*   TV fixed elements (standalone page, tidak perlu scope)   */
+        /* ── TV fixed elements (standalone page, tidak perlu scope) ── */
         .tv-badge {
             position: fixed;
             top: 64px;
@@ -1498,15 +1498,80 @@ Header = app-header hijau dari admin.blade, semua komponen konten = copy 1:1 das
             margin-right: 5px;
             vertical-align: middle;
         }
+        
+        /* ── Slide Wrapper ── */
+        .tv-master-slide {
+            position: absolute; top: 0; left: 0; width: 100vw; height: 100vh;
+            opacity: 0; visibility: hidden; pointer-events: none; transition: opacity 0.5s ease;
+            z-index: 1; background: transparent; overflow: hidden;
+        }
+        .tv-master-slide.active { opacity: 1; visibility: visible; pointer-events: auto; z-index: 2; }
+
+        /* ── Navigation Dots ── */
+        .tv-nav-dots { position: absolute; bottom: 45px; left: 50%; transform: translateX(-50%); z-index: 500; display: flex; gap: 12px; }
+        .tv-nav-dot { width: 45px; height: 6px; border-radius: 4px; background: rgba(255,255,255,0.25); cursor: pointer; transition: all 0.3s; box-shadow: 0 2px 4px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); }
+        .tv-nav-dot.active { background: #fff; box-shadow: 0 0 10px rgba(255,255,255,0.8); }
+        .tv-nav-dot:hover { background: rgba(255,255,255,0.6); }
+
+        /* ── Slide 2 (Floor Plan + Matrix) CSS ── */
+        #tvSlide2 { background: #E5E7EB; padding: 75px 16px 75px 16px; font-family: 'Roboto', sans-serif; display: flex; flex-direction: column; }
+        #tvSlide2 .main-layout { display: flex; gap: 16px; flex: 1; min-height: 0; }
+        #tvSlide2 .left-panel { flex: 0 0 38%; background: #fff; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); display: flex; flex-direction: column; overflow: hidden; position: relative; padding: 16px; }
+        #tvSlide2 .tv-img-wrap { position: relative; display: inline-block; line-height: 0; max-width: 100%; max-height: 100%; }
+        #tvSlide2 .tv-img-wrap img { display: block; max-width: 100%; max-height: calc(100vh - 150px); object-fit: contain; }
+        #tvSlide2 .tv-pin { position: absolute; width: 24px; height: 24px; border-radius: 50%; transform: translate(-50%, -50%); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0; box-shadow: 0 2px 6px rgba(0,0,0,0.3); border: 2px solid #fff; }
+        #tvSlide2 .tv-pin-label { position: absolute; right: 100%; margin-right: 8px; background: transparent; color: #000; font-weight: 900; font-size: 14px; white-space: nowrap; font-family: 'Roboto Condensed', sans-serif; text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff; }
+        #tvSlide2 .pin-ok      { background: #2E7D32; }
+        #tvSlide2 .pin-warn    { background: #F39C12; }
+        #tvSlide2 .pin-problem { background: #E74C3C; }
+        #tvSlide2 .pin-off     { background: #9E9E9E; }
+        #tvSlide2 .fp-empty { color: #777; text-align: center; font-size: 14px; line-height: 1.6; }
+        
+        #tvSlide2 .right-panel { flex: 1; background: #fff; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); display: flex; flex-direction: column; overflow: hidden; padding: 16px; }
+        #tvSlide2 .matrix-header { background: #185E35; color: #fff; padding: 10px 16px; border-radius: 6px; font-family: 'Roboto Condensed', sans-serif; font-size: 14px; font-weight: 700; display: flex; justify-content: space-between; margin-bottom: 12px; }
+        #tvSlide2 .summary-stats { display: flex; justify-content: space-around; padding: 10px 0 20px 0; border-bottom: 1px solid #eee; margin-bottom: 16px; }
+        #tvSlide2 .stat-item { text-align: center; }
+        #tvSlide2 .stat-val { font-size: 24px; font-weight: 900; color: #333; font-family: 'Roboto Condensed', sans-serif; }
+        #tvSlide2 .stat-lbl { font-size: 11px; color: #666; margin-top: 4px; }
+        #tvSlide2 .matrix-content { flex: 1; overflow: auto; }
+        
+        #tvSlide2 .m-table { width: 100%; border-collapse: separate; border-spacing: 0; font-family: 'Roboto', sans-serif; font-size: 11px; }
+        #tvSlide2 .m-table th { background: #185E35; color: #fff; padding: 8px; font-weight: 600; text-align: center; border: 1px solid #114526; white-space: nowrap; position: sticky; top: 0; z-index: 10; }
+        #tvSlide2 .m-table thead tr:nth-child(2) th { top: 31px; z-index: 9; }
+        #tvSlide2 .m-table thead tr:nth-child(3) th { top: 62px; z-index: 8; }
+        #tvSlide2 .m-table th.col-name, #tvSlide2 .m-table td.col-name { width: 140px; min-width: 140px; max-width: 140px; left: 0; position: sticky; text-align: left; }
+        #tvSlide2 .m-table th.col-shift, #tvSlide2 .m-table td.col-shift { width: 50px; min-width: 50px; max-width: 50px; left: 140px; position: sticky; }
+        #tvSlide2 .m-table th.col-name, #tvSlide2 .m-table th.col-shift { z-index: 12 !important; background: #185E35; }
+        #tvSlide2 .m-table td.col-name, #tvSlide2 .m-table td.col-shift { z-index: 11; background: #fff; box-shadow: 2px 0 5px -2px rgba(0,0,0,0.1); font-weight: 600; }
+        #tvSlide2 .m-table td { padding: 6px 8px; border: 1px solid #eee; text-align: center; color: #333; background: #fff; }
+        #tvSlide2 .m-table tr:nth-child(even) td:not(.col-name):not(.col-shift) { background: #f9f9f9; }
+        
+        #tvSlide2 .m-table thead tr:first-child th:first-child { border-top-left-radius: 11px; }
+        #tvSlide2 .m-table thead tr:first-child th:last-child { border-top-right-radius: 11px; }
+        #tvSlide2 .m-table tbody tr:last-child td:first-child { border-bottom-left-radius: 11px; }
+        #tvSlide2 .m-table tbody tr:last-child td:last-child { border-bottom-right-radius: 11px; }
+        
+        #tvSlide2 .skill-circle { display: inline-block; width: 14px; height: 14px; border-radius: 50%; border: 1px solid #333; position: relative; background: #fff; vertical-align: middle; }
+        #tvSlide2 .skill-100 { background: #333; }
+        #tvSlide2 .skill-75 { background: conic-gradient(#333 0deg 270deg, #fff 270deg 360deg); }
+        #tvSlide2 .skill-50 { background: conic-gradient(#333 0deg 180deg, #fff 180deg 360deg); }
+        #tvSlide2 .skill-25 { background: conic-gradient(#333 0deg 90deg, #fff 90deg 360deg); }
+        #tvSlide2 .skill-0 { background: #fff; border-color: #ccc; }
+        
+        #tvSlide2 .chip-level { font-size: 10px; font-weight: 700; color: #2E7D32; }
+        #tvSlide2 .chip-level.training { color: #E74C3C; }
     </style>
 </head>
 
 <body>
 
-    {{-- ══
+    <!-- SLIDE 1: Dashboard -->
+    <div class="tv-master-slide active" id="tvSlide1">
+
+    {{-- ════════════════════════════════════════════════════════════════
     HEADER - identik persis app-header dari admin.blade.php
-    ══ --}}
-    <div class="app-header" style="padding:0 12px;gap:10px;position:fixed;top:0;left:0;right:0;z-index:400;">
+    ════════════════════════════════════════════════════════════════ --}}
+    <div class="app-header" style="padding:0 12px;gap:10px;position:absolute;top:0;left:0;right:0;z-index:400;">
 
         <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0;">
             <img src="{{ asset('/images/sugity.png') }}" alt="Sugity Creatives"
@@ -1539,30 +1604,29 @@ Header = app-header hijau dari admin.blade, semua komponen konten = copy 1:1 das
     <div class="tv-badge">📺 TV MODE</div>
     <div class="tv-paused" id="tvPaused">⏸ PAUSED</div>
 
-    {{-- ══
+    {{-- ════════════════════════════════════════════════════════════════
     BODY
-    ══ --}}
+    ════════════════════════════════════════════════════════════════ --}}
     <div class="tv-body" id="tvBody">
 
         {{-- ════ LEFT COLUMN ════ --}}
         <div class="tv-col-left">
 
-            {{-- date-bar --}}
+            {{-- ── date-bar ── --}}
             <div class="date-bar">
                 <div class="date-label">📅</div>
-                <span
-                    style="flex:1;font-family:'Roboto Condensed',sans-serif;font-weight:600;font-size:16px;color:#222;letter-spacing:.5px;">
+                <span style="flex:1;font-family:'Roboto Condensed',sans-serif;font-weight:600;font-size:16px;color:#222;letter-spacing:.5px;">
                     {{ \Carbon\Carbon::parse($tanggal)->format('d / m / Y') }}
                 </span>
             </div>
 
-            {{-- shift-toggle-bar --}}
+            {{-- ── shift-toggle-bar ── --}}
             <div class="shift-toggle-bar">
                 <button class="shift-toggle-btn {{ $shift === 'A' ? 'active' : '' }}">SHIFT A</button>
                 <button class="shift-toggle-btn {{ $shift === 'B' ? 'active' : '' }}">SHIFT B</button>
             </div>
 
-            {{-- legend-4m --}}
+            {{-- ── legend-4m ── --}}
             <div class="legend-4m">
                 <div class="legend-4m-item">
                     <div class="l4m-dot" style="background:var(--red)"></div>Man (Absen)
@@ -1578,7 +1642,7 @@ Header = app-header hijau dari admin.blade, semua komponen konten = copy 1:1 das
                 </div>
             </div>
 
-            {{-- status-panel --}}
+            {{-- ── status-panel ── --}}
             @php
                 $chipMap = ['chip-green', 'chip-yellowgreen', 'chip-yellow', 'chip-red'];
                 $chipTxt = [
@@ -1642,7 +1706,7 @@ Header = app-header hijau dari admin.blade, semua komponen konten = copy 1:1 das
                 </div>
             </div>
 
-            {{-- Diagram Attendance --}}
+            {{-- ── Diagram Attendance ── --}}
             <div class="tv-chart-section">
                 <div class="section-title">Attendance</div>
                 <div class="attendance-chart-wrap">
@@ -1705,18 +1769,16 @@ Header = app-header hijau dari admin.blade, semua komponen konten = copy 1:1 das
                 use App\Models\Machine;
                 use App\Models\Member;
 
-                // TOTAL MP: counts active members only — NOT affected by absence/attendance data
+                $scId = \App\Services\ScContext::id();
+
                 if ($factory === 'Factory 2') {
-                    $totMpF2 = Member::where('factory', 'Factory 2')->where('status', 'active')->count();
-                    $totMcF2 = Machine::where('factory', 'Factory 2')->where('status', 'mesin')->count();
-                    $totRobotF2 = Machine::where('factory', 'Factory 2')->where('status', 'line')->count();
+                    $totMcF2 = Machine::where('sc_id', $scId)->where('factory', 'Factory 2')->where('status', 'mesin')->count();
+                    $totRobotF2 = Machine::where('sc_id', $scId)->where('factory', 'Factory 2')->where('status', 'line')->count();
                 } else {
-                    $totMpF34 = Member::where('factory', 'Factory 3 & 4')->where('status', 'active')->count();
-                    $totalMcF34 = Machine::where('factory', 'Factory 3 & 4')->where('status', 'mesin')->count();
-                    $totMcF3 = Machine::where('factory', 'Factory 3 & 4')->where('section', 'f3-resin')->where('status', 'mesin')->count();
-                    $totMcF4 = Machine::where('factory', 'Factory 3 & 4')->where('section', 'f4-resin')->where('status', 'mesin')->count();
-                    $totRobotF34 = Machine::where('factory', 'Factory 3 & 4')->where('status', 'robot')->count();
-                    $totVibF34 = Machine::where('factory', 'Factory 3 & 4')->where('status', 'mc_vibration')->count();
+                    $totMcF3 = Machine::where('sc_id', $scId)->where('factory', 'Factory 3 & 4')->where('section', 'f3-resin')->where('status', 'mesin')->count();
+                    $totMcF4 = Machine::where('sc_id', $scId)->where('factory', 'Factory 3 & 4')->where('section', 'f4-resin')->where('status', 'mesin')->count();
+                    $totRobotF34 = Machine::where('sc_id', $scId)->where('factory', 'Factory 3 & 4')->where('status', 'robot')->count();
+                    $totVibF34 = Machine::where('sc_id', $scId)->where('factory', 'Factory 3 & 4')->where('status', 'mc_vibration')->count();
                 }
             @endphp
 
@@ -1768,7 +1830,7 @@ Header = app-header hijau dari admin.blade, semua komponen konten = copy 1:1 das
             <div class="tv-report-summary">
                 @if($factory === 'Factory 2')
                     <div class="tv-rs-card">
-                        <div class="tv-rs-val" id="rsMpF2">{{ $totMpF2 }}</div>
+                        <div class="tv-rs-val" id="rsMpF2">{{ $total_mp }}</div>
                         <div class="tv-rs-lbl">TOTAL MP</div>
                     </div>
                     <div class="tv-rs-card">
@@ -1781,7 +1843,7 @@ Header = app-header hijau dari admin.blade, semua komponen konten = copy 1:1 das
                     </div>
                 @else
                     <div class="tv-rs-card">
-                        <div class="tv-rs-val" id="rsMpF34">{{ $totMpF34 }}</div>
+                        <div class="tv-rs-val" id="rsMpF34">{{ $total_mp }}</div>
                         <div class="tv-rs-lbl">TOTAL MP<br>FAC 3&4</div>
                     </div>
                     <div class="tv-rs-card">
@@ -2288,15 +2350,231 @@ Header = app-header hijau dari admin.blade, semua komponen konten = copy 1:1 das
 
     </div>{{-- /tv-body --}}
 
-    {{-- ════ TICKER ════ --}}
-    <div class="tv-ticker">
+    </div><!-- /tvSlide1 -->
+
+    <!-- SLIDE 2: Floor Plan & Skill Matrix (Native) -->
+    <div class="tv-master-slide" id="tvSlide2">
+        <div class="app-header" style="padding:0 12px;gap:10px;position:absolute;top:0;left:0;right:0;z-index:400;">
+            <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0;">
+                <img src="{{ asset('/images/sugity.png') }}" alt="Sugity Creatives" style="height:36px;width:auto;object-fit:contain;flex-shrink:0;" onerror="this.style.display='none'">
+                <div style="display:flex;flex-direction:column;line-height:1.2;min-width:0;">
+                    <span style="font-family:'Roboto Condensed',sans-serif;font-weight:900;font-size:25px;letter-spacing:2px;color:#fff;text-shadow:0 0 14px rgba(245,166,35,.5);white-space:nowrap;-webkit-text-stroke: 1px rgba(255, 255, 255, 0.6);">HENKATEN BOARD</span>
+                    <span style="font-family:'Roboto Condensed',sans-serif;font-weight:700;font-size:14px;letter-spacing:1.2px;color:rgba(255,255,255,.85);text-transform:uppercase;white-space:nowrap;">{{ $factory }}</span>
+                </div>
+            </div>
+            <a href="{{ route('admin.dashboard') }}" style="background:rgba(255,255,255,.1);border:1.5px solid rgba(255,255,255,.2);border-radius:8px;padding:6px 14px;color:rgba(255,255,255,.75);font-family:'Roboto Condensed',sans-serif;font-size:14px;font-weight:700;text-decoration:none;display:flex;align-items:center;gap:5px;flex-shrink:0;">✕ Exit TV</a>
+        </div>
+        
+        <div class="main-layout">
+            <!-- LEFT: Floor Plan -->
+            <div class="left-panel">
+                <div class="section-title" style="margin-bottom:16px;">LAYOUT FACTORY</div>
+                <div style="flex:1; display:flex; align-items:center; justify-content:center; width:100%;">
+                    @php $layout = \App\Models\FactoryLayout::where('factory', $factory)->where('sc_id', session('current_sc_id', 1))->first(); @endphp
+                    @if($layout && $layout->image_url)
+                        <div class="tv-img-wrap">
+                            <img src="{{ $layout->image_url }}" alt="Layout">
+                            <div id="tvPinsLayer"></div>
+                        </div>
+                    @else
+                        <div class="fp-empty">📷 Layout belum dikonfigurasi.<br>Gunakan <strong>Floor Plan Manager</strong>.</div>
+                    @endif
+                </div>
+            </div>
+
+            <!-- RIGHT: Skill Matrix -->
+            <div class="right-panel">
+                <div class="matrix-header">
+                    <span>Man Power Skill Map — {{ $factory }}</span>
+                    <span id="headerClock">Loading...</span>
+                </div>
+                
+                <div class="summary-stats">
+                    <div class="stat-item"><div class="stat-val" id="statTotal">0</div><div class="stat-lbl">Total operator</div></div>
+                    <div class="stat-item"><div class="stat-val" id="statMulti">0</div><div class="stat-lbl">Multi-skill ≥75%</div></div>
+                    <div class="stat-item"><div class="stat-val" id="statPengembangan">0</div><div class="stat-lbl">Pada pengembangan</div></div>
+                    <div class="stat-item"><div class="stat-val" id="statBaru">0</div><div class="stat-lbl">Operator baru (&lt;40%)</div></div>
+                </div>
+
+                <div class="matrix-content" id="matrixBox">
+                    <div style="display:flex;height:100%;align-items:center;justify-content:center;color:#777;">⏳ Memuat data skill...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- NAVIGATION DOTS (PPT Style) -->
+    <div class="tv-nav-dots">
+        <div class="tv-nav-dot active" onclick="manualSlide(0)" title="Slide 1: Dashboard"></div>
+        <div class="tv-nav-dot" onclick="manualSlide(1)" title="Slide 2: Floor Plan & Skill"></div>
+    </div>
+
+    {{-- ════ TICKER & FULLSCREEN (GLOBAL) ════ --}}
+    <div class="tv-ticker" style="z-index: 600;">
         <div class="tv-ticker-lbl">📢 INFO</div>
         <div class="tv-ticker-track">
             <div class="tv-ticker-inner" id="tvTickerInner"></div>
         </div>
     </div>
 
-    <button class="tv-fs" onclick="tvFS()">⛶ Fullscreen</button>
+    <button class="tv-fs" onclick="tvFS()" style="z-index: 600;">⛶ Fullscreen</button>
+
+    <script>
+        /* ── Master Slide Rotation (PPT Style) ── */
+        let tvStep = 0;
+        let slideInterval;
+        const SLIDE_MS = 10000; // 10 detik
+
+        function goSlide(n) {
+            tvStep = n;
+            document.getElementById('tvSlide1').classList.toggle('active', tvStep === 0);
+            document.getElementById('tvSlide2').classList.toggle('active', tvStep === 1);
+            
+            const dots = document.querySelectorAll('.tv-nav-dot');
+            dots.forEach((d, i) => d.classList.toggle('active', i === tvStep));
+            
+            if (tvStep === 1) {
+                fetchSlide2Data();
+            }
+        }
+
+        function startSlideTimer() {
+            clearInterval(slideInterval);
+            slideInterval = setInterval(() => {
+                goSlide((tvStep + 1) % 2);
+            }, SLIDE_MS);
+        }
+
+        function manualSlide(n) {
+            goSlide(n);
+            startSlideTimer(); // reset timer on manual click
+        }
+        
+        startSlideTimer();
+
+        /* ── API Data for Slide 2 ── */
+        async function fetchSlide2Data() {
+            try {
+                const f = encodeURIComponent(TV_F);
+                const s = encodeURIComponent(TV_S);
+                const [resM, resS] = await Promise.all([
+                    fetch(`/api/floor-plan-manager/machines?factory=${f}`),
+                    fetch(`/api/skills?factory=${f}&shift=${s}`)
+                ]);
+                const machines = await resM.json();
+                const skillData = await resS.json();
+                renderPins(machines);
+                renderMatrix(skillData.members || [], skillData.skills || {}, skillData.processes || {}, machines);
+            } catch(e) { console.error('Error fetching slide 2 data', e); }
+        }
+
+        function renderPins(machines) {
+            const layer = document.getElementById('tvPinsLayer');
+            if (!layer) return;
+            layer.innerHTML = machines.filter(m => m.floor_cx !== null && m.floor_cy !== null).map(m => {
+                const s = (m.status || '').toLowerCase();
+                let cls = 'pin-ok';
+                if (s.includes('stop') || s.includes('rusak') || s.includes('problem')) cls = 'pin-problem';
+                else if (s.includes('slow') || s.includes('masalah') || s.includes('warn')) cls = 'pin-warn';
+                else if (s.includes('off') || s.includes('mati')) cls = 'pin-off';
+                return `<div class="tv-pin ${cls}" style="left:${m.floor_cx}%;top:${m.floor_cy}%;"><div class="tv-pin-label">${m.name}</div></div>`;
+            }).join('');
+        }
+
+        function renderMatrix(members, skills, processes, machinesData) {
+            const box = document.getElementById('matrixBox');
+            if (!members.length) { box.innerHTML = '<div style="text-align:center;padding:40px;color:#777;">Tidak ada data member aktif.</div>'; return; }
+
+            const machineNames = (machinesData || []).map(m => m.name).sort().slice(0, 12);
+            if (!machineNames.length) { box.innerHTML = '<div style="text-align:center;padding:40px;color:#777;">Belum ada data mesin di factory ini.</div>'; return; }
+
+            let totalOp = members.length, multiSkill = 0, pengembang = 0, opBaru = 0;
+            const displayMembers = members.slice(0, 20);
+
+            let totalCols = 0;
+            machineNames.forEach(m => {
+                 totalCols += Math.max(1, (processes[m] || []).length);
+            });
+
+            let html = `<table class="m-table"><thead><tr>
+                <th class="col-name" rowspan="3">Nama operator</th><th class="col-shift" rowspan="3">Shift</th>
+                <th colspan="${totalCols}">Mesin / Proses</th>
+                </tr><tr>`;
+                
+            machineNames.forEach(m => {
+                 const procs = processes[m] || [];
+                 const colspan = Math.max(1, procs.length);
+                 html += `<th colspan="${colspan}">${esc(m)}</th>`;
+            });
+            html += `</tr><tr>`;
+            
+            machineNames.forEach(m => {
+                 const procs = processes[m] || [];
+                 if (procs.length === 0) {
+                     html += `<th style="color:#cfdfd4;font-size:9px;">ALL</th>`;
+                 } else {
+                     procs.forEach(p => {
+                         html += `<th style="font-size:9px;font-weight:normal;">${esc(p)}</th>`;
+                     });
+                 }
+            });
+            html += `</tr></thead><tbody>`;
+
+            displayMembers.forEach(m => {
+                let avgScore = 0, count = 0;
+                let rowHtml = `<tr><td class="col-name">${esc(m.nama)}</td><td class="col-shift" style="color:#2E7D32;font-weight:700;">${m.shift}</td>`;
+                
+                machineNames.forEach(mn => {
+                    const procs = processes[mn] || [];
+                    if (procs.length === 0) {
+                        const pct = skills[m.id]?.[mn]?.['-']?.skill_pct ?? null;
+                        let circleClass = 'skill-0';
+                        if (pct !== null) {
+                            avgScore += pct; count++;
+                            if (pct >= 100) circleClass = 'skill-100'; else if (pct >= 75) circleClass = 'skill-75';
+                            else if (pct >= 50) circleClass = 'skill-50'; else if (pct > 0) circleClass = 'skill-25';
+                        }
+                        rowHtml += `<td><div class="skill-circle ${circleClass}"></div></td>`;
+                    } else {
+                        procs.forEach(p => {
+                            const pct = skills[m.id]?.[mn]?.[p]?.skill_pct ?? null;
+                            let circleClass = 'skill-0';
+                            if (pct !== null) {
+                                avgScore += pct; count++;
+                                if (pct >= 100) circleClass = 'skill-100'; else if (pct >= 75) circleClass = 'skill-75';
+                                else if (pct >= 50) circleClass = 'skill-50'; else if (pct > 0) circleClass = 'skill-25';
+                            }
+                            rowHtml += `<td><div class="skill-circle ${circleClass}"></div></td>`;
+                        });
+                    }
+                });
+
+                let finalAvg = count > 0 ? Math.round(avgScore / count) : 0;
+                if (finalAvg >= 75) { multiSkill++; }
+                else if (finalAvg >= 40) { pengembang++; }
+                else { opBaru++; }
+                rowHtml += `</tr>`;
+                html += rowHtml;
+            });
+            html += `</tbody></table>`;
+            box.innerHTML = html;
+            
+            document.getElementById('statTotal').textContent = totalOp;
+            document.getElementById('statMulti').textContent = multiSkill;
+            document.getElementById('statPengembangan').textContent = pengembang;
+            document.getElementById('statBaru').textContent = opBaru;
+        }
+
+        function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+        
+        setInterval(() => {
+            const d = new Date();
+            const months = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agt','Sep','Okt','Nov','Des'];
+            const hc = document.getElementById('headerClock');
+            if(hc) hc.textContent = `Bulan ${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()} | PT. Sugity Creatives`;
+        }, 1000);
+        
+    </script>
 
     <script>
         Chart.register(ChartDataLabels);
@@ -2313,7 +2591,7 @@ Header = app-header hijau dari admin.blade, semua komponen konten = copy 1:1 das
         let tvChart = null;
         const $g = id => document.getElementById(id);
 
-        /*   JAM   */
+        /* ── JAM ── */
         (() => {
             const el = $g('tvClock');
             const p = x => String(x).padStart(2, '0');
@@ -2321,7 +2599,7 @@ Header = app-header hijau dari admin.blade, semua komponen konten = copy 1:1 das
             t(); setInterval(t, 1000);
         })();
 
-        /*   CHART (Task 4: includes red Absen indicator)   */
+        /* ── CHART (Task 4: includes red Absen indicator) ── */
         function renderChart(d) {
             if (!d) return;
             // Task 4: compute absen count
@@ -2361,7 +2639,7 @@ Header = app-header hijau dari admin.blade, semua komponen konten = copy 1:1 das
             });
         }
 
-        /*   AUTO-SCROLL MESIN   */
+        /* ── AUTO-SCROLL MESIN ── */
         const mesinScroll = $g('statusMesinScroll');
         let mesinPaused = false;
         let mesinScrollPos = 0;
@@ -2400,7 +2678,7 @@ Header = app-header hijau dari admin.blade, semua komponen konten = copy 1:1 das
             if (e.key === 'f' || e.key === 'F' || e.key === 'F11') { e.preventDefault(); tvFS(); }
         });
 
-        /*   FULLSCREEN   */
+        /* ── FULLSCREEN ── */
         function tvFS() {
             if (!document.fullscreenElement)
                 (document.documentElement.requestFullscreen || document.documentElement.webkitRequestFullscreen)?.call(document.documentElement);
@@ -2408,7 +2686,7 @@ Header = app-header hijau dari admin.blade, semua komponen konten = copy 1:1 das
                 (document.exitFullscreen || document.webkitExitFullscreen)?.call(document);
         }
 
-        /*   SYNC   */
+        /* ── SYNC ── */
         let _cd = 30, _cdI = null;
         function startCD() {
             _cd = 30; clearInterval(_cdI);
@@ -2489,7 +2767,7 @@ Header = app-header hijau dari admin.blade, semua komponen konten = copy 1:1 das
             finally { if (dot) dot.style.opacity = '1'; }
         }
 
-        /*   SYNC CARDS   */
+        /* ── SYNC CARDS ── */
         const colorMap = { man: '#e74c3c', machine: '#1f3c88', material: '#f39c12', method: '#2e7d32' };
         const borderCls = { man: 'mc-status-man', machine: 'mc-status-machine', material: 'mc-status-material', method: 'mc-status-method' };
 
@@ -2612,7 +2890,7 @@ Header = app-header hijau dari admin.blade, semua komponen konten = copy 1:1 das
             finally { _tvSyncing = false; }
         }
 
-        /*   TICKER   */
+        /* ── TICKER ── */
         function buildTicker(d) {
             const items = []; const ab = d.absence ?? {}; const s = d.summary ?? {};
             if ((ab.op_cuti ?? 0) > 0) items.push({ dot: '#ff69b4', txt: `Cuti: ${ab.op_cuti}` });
@@ -2631,7 +2909,7 @@ Header = app-header hijau dari admin.blade, semua komponen konten = copy 1:1 das
             el.style.animationDuration = Math.max(20, (el.scrollWidth / 2) / 70) + 's';
         }
 
-        /*   PROBLEM PANEL HTML RENDERER   */
+        /* ── PROBLEM PANEL HTML RENDERER ── */
         const renderProbRows = (tbody, dataset, emptyMsg) => {
             if (!tbody) return;
             const isHistory = tbody.id === 'tvProbTbodyHistory';
@@ -2699,7 +2977,7 @@ Header = app-header hijau dari admin.blade, semua komponen konten = copy 1:1 das
             tbody.innerHTML = html;
         };
 
-        /*   ACTIVE PROBLEM PANEL (DETAIL PROBLEM)  
+        /* ── ACTIVE PROBLEM PANEL (DETAIL PROBLEM) ──
          *  — also drives the "MESIN BERMASALAH > 4 JAM" overlay.
          *  The overlay ONLY fires when:
          *    • _source === 'log'  (real MC/MM/MT log entry, NOT Man/absen)
@@ -2717,7 +2995,7 @@ Header = app-header hijau dari admin.blade, semua komponen konten = copy 1:1 das
             }
             renderProbRows(tbodyActive, activeProblems, '✅ Tidak ada problem aktif  - Semua kondisi normal');
 
-            //   Overdue watcher: MC/MM/MT problems open > 4h  
+            // ── Overdue watcher: MC/MM/MT problems open > 4h ──
             const FOUR_H_MS = 4 * 60 * 60 * 1000;
             const now = Date.now();
             const overdueJenis = new Set(['machine', 'material', 'method']);
@@ -2745,7 +3023,7 @@ Header = app-header hijau dari admin.blade, semua komponen konten = copy 1:1 das
             updateOverdueOverlay(overdueProblems);
         }
 
-        /*   HISTORY PROBLEM PANEL   */
+        /* ── HISTORY PROBLEM PANEL ── */
         async function fetchAndSyncHistoryPanel() {
             try {
                 const qs = `tanggal=${TV_T}&factory=${encodeURIComponent(TV_F)}&shift=${TV_S}`;
@@ -2769,7 +3047,7 @@ Header = app-header hijau dari admin.blade, semua komponen konten = copy 1:1 das
             } catch (e) { console.warn('[TV hist]', e); }
         }
 
-        /*   PROBLEMS SECTION   */
+        /* ── PROBLEMS SECTION ── */
         function syncProblemsSection() {
             const grid = $g('tvProblemsGrid');
             const wrap = $g('tvProblemsWrap');
@@ -2811,7 +3089,7 @@ Header = app-header hijau dari admin.blade, semua komponen konten = copy 1:1 das
             window.open(`/admin/tv?${qs}`, '_blank');
         }
 
-        /*   Overdue MC Overlay watcher (>4h)  
+        /* ── Overdue MC Overlay watcher (>4h) ──
          *  Receives pre-filtered overdue list from syncActiveProblemPanel.
          *  duration_hours / duration_minutes are already computed client-side. */
         function updateOverdueOverlay(problems) {
@@ -2844,7 +3122,7 @@ Header = app-header hijau dari admin.blade, semua komponen konten = copy 1:1 das
             overlay.classList.add('visible');
         }
 
-        /*   INIT   */
+        /* ── INIT ── */
         document.addEventListener('DOMContentLoaded', () => {
             if (initAb) renderChart(initAb);
             buildTicker({ absence: initAb, summary: @json($machineSummary), open_logs: {{ $openLogsCount }}, status_level: {{ $statusLevel }} });
@@ -2866,7 +3144,7 @@ Header = app-header hijau dari admin.blade, semua komponen konten = copy 1:1 das
     </script>
 
     <style>
-        /*   Task 7: Overdue MC Overlay Styles   */
+        /* ── Task 7: Overdue MC Overlay Styles ── */
         #tvOverdueOverlay {
             position: fixed;
             top: 0;

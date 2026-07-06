@@ -1,6 +1,6 @@
 <?php
 
-//  ═════════════════
+// ═══════════════════════════════════════════════════════════════════════════════
 //  routes/api.php  - Henkaten Board Secure API Routes
 //
 //  Security model:
@@ -15,7 +15,7 @@
 //      so that session-authenticated users are recognized.
 //
 //  Added: 2026-05-10 | Security hardening patch | @RizkyDaffy
-//  ═════════════════
+// ═══════════════════════════════════════════════════════════════════════════════
 
 use App\Http\Controllers\Admin\AbsenceController;
 use App\Http\Controllers\Admin\AssignmentController;
@@ -33,24 +33,24 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Api\MachineFloorPlanController;
 use Illuminate\Support\Facades\Route;
 
-//  ─ All /api/* routes require authentication + X-App-Secret         ─
+// ─── All /api/* routes require authentication + X-App-Secret ─────────────────
 // Note: app.secret is also appended to the 'api' middleware group globally,
 // so it applies here even without the explicit alias. Explicit is clearer.
 Route::middleware(['auth', 'app.secret', 'sc.guard'])->group(function () {
 
-    //   Dashboard Status (TV auto-refresh, dashboard polling)       ─
+    // ── Dashboard Status (TV auto-refresh, dashboard polling) ─────────────
     // Rate-limited to protect DB from rapid polling abuse
     Route::get('status', [DashboardController::class, 'statusApi'])
         ->middleware('throttle:120,1');
 
     Route::post('context', [DashboardController::class, 'setContext']);
 
-    //   Replacements (Pengganti)                      
+    // ── Replacements (Pengganti) ──────────────────────────────────────────
     Route::get('replacements', [ReplacementController::class, 'index']);
     Route::post('replacements', [ReplacementController::class, 'store']);
     Route::delete('replacements/{replacement}', [ReplacementController::class, 'destroy']);
 
-    //   Problem Logs                            
+    // ── Problem Logs ──────────────────────────────────────────────────────
     Route::prefix('logs')->group(function () {
         Route::get('list', [LogController::class, 'list']);
         Route::get('combined', [LogController::class, 'combined']);
@@ -61,10 +61,10 @@ Route::middleware(['auth', 'app.secret', 'sc.guard'])->group(function () {
         Route::delete('{log}', [LogController::class, 'destroy']);
     });
 
-    //   Attendance Data                          ─
+    // ── Attendance Data ───────────────────────────────────────────────────
     Route::get('attendance/data', [AttendanceController::class, 'getData']);
 
-    //   Absence                              ─
+    // ── Absence ───────────────────────────────────────────────────────────
     Route::prefix('absence')->group(function () {
         Route::post('save', [AbsenceController::class, 'save']);
         Route::get('data', [AbsenceController::class, 'getData']);
@@ -77,7 +77,7 @@ Route::middleware(['auth', 'app.secret', 'sc.guard'])->group(function () {
             ->middleware('throttle:10,1');
     });
 
-    //   Daily Assignment                          
+    // ── Daily Assignment ──────────────────────────────────────────────────
     Route::prefix('assignment')->group(function () {
         Route::post('save', [AssignmentController::class, 'save']);
         Route::get('data', [AssignmentController::class, 'getData']);
@@ -85,7 +85,7 @@ Route::middleware(['auth', 'app.secret', 'sc.guard'])->group(function () {
         Route::post('sync-absen', [AssignmentController::class, 'syncAbsen']);
     });
 
-    //   Members                              ─
+    // ── Members ───────────────────────────────────────────────────────────
     Route::get('members/list', [MemberController::class, 'list']);
     Route::get('members/{member}', [MemberController::class, 'show']);
 
@@ -101,7 +101,7 @@ Route::middleware(['auth', 'app.secret', 'sc.guard'])->group(function () {
         Route::get('/template', [MemberController::class, 'downloadTemplate']);
     });
 
-    //   Machines                              
+    // ── Machines ──────────────────────────────────────────────────────────
     Route::prefix('machines')->group(function () {
         // Floor plan data (previously under auth+internal.request)
         Route::get('all', [MachineFloorPlanController::class, 'getAllMachines']);
@@ -116,7 +116,7 @@ Route::middleware(['auth', 'app.secret', 'sc.guard'])->group(function () {
         Route::patch('{machine}/floor-coordinates', [MachineController::class, 'updateFloorCoordinates']);
     });
 
-    //   Factory / Section / Status  - admin only              ─
+    // ── Factory / Section / Status  - admin only ───────────────────────────
     Route::middleware('role:admin')->group(function () {
         // Factories
         Route::prefix('factories')->group(function () {
@@ -149,17 +149,34 @@ Route::middleware(['auth', 'app.secret', 'sc.guard'])->group(function () {
             Route::put('/{user}', [UserController::class, 'update']);
             Route::delete('/{user}', [UserController::class, 'destroy']);
         });
+        
+        // Sections & Factories read access (available to gl role for dropdowns)
+        Route::get('factories', [FactoryController::class, 'apiList']);
+        Route::get('sections', [SectionController::class, 'apiList']);
+        Route::get('statuses', [StatusController::class, 'apiList']);
+
+        // ── Skill API
+        Route::middleware('role:admin,gl')->prefix('skills')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Admin\SkillController::class, 'apiList']);
+            Route::post('/save', [\App\Http\Controllers\Admin\SkillController::class, 'save']);
+            Route::post('/save-batch', [\App\Http\Controllers\Admin\SkillController::class, 'saveBatch']);
+            
+            // Machine Processes Management
+            Route::post('/processes/add', [\App\Http\Controllers\Admin\SkillController::class, 'addProcess']);
+            Route::post('/processes/delete', [\App\Http\Controllers\Admin\SkillController::class, 'deleteProcess']);
+        });
+
+        // ── Floor Plan Manager API
+        Route::middleware('role:admin,gl')->prefix('floor-plan-manager')->group(function () {
+            Route::get('/machines', [\App\Http\Controllers\Admin\FloorPlanManagerController::class, 'machineList']);
+            Route::patch('/pin/{machine}', [\App\Http\Controllers\Admin\FloorPlanManagerController::class, 'updatePin']);
+        });
     });
 
-    // Sections & Factories read access (available to gl role for dropdowns)
-    Route::get('factories', [FactoryController::class, 'apiList']);
-    Route::get('sections', [SectionController::class, 'apiList']);
-    Route::get('statuses', [StatusController::class, 'apiList']);
-
-    //   Task 6: Client-side Activity Beacon                 
+    // ── Task 6: Client-side Activity Beacon ────────────────────────────────
     // Accepts UI action events from authenticated browser clients.
     // Behind auth + app.secret (GlobalActivityLogger logs server-side automatically).
     Route::post('activity-log', [GlobalLogController::class, 'storeActivity'])
-        ->middleware('throttle:60,1'); // 60 beacons/min max
+         ->middleware('throttle:60,1'); // 60 beacons/min max
 
 });

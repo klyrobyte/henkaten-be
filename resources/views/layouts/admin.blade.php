@@ -55,7 +55,10 @@
 
         // Fetch current factory's gradient for Warna Header
         $rawFactory = $factory ?? session('factory') ?? request('factory') ?? 'Factory 2';
-        $normalizedName = html_entity_decode($rawFactory, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        if (is_array($rawFactory)) {
+            $rawFactory = $rawFactory[0] ?? 'Factory 2';
+        }
+        $normalizedName = html_entity_decode((string)$rawFactory, ENT_QUOTES | ENT_HTML5, 'UTF-8');
         $factoryData = $factories->firstWhere('name', $normalizedName);
         $factoryGradient = $factoryData?->gradient ?: 'var(--brand-primary)';
     @endphp
@@ -260,16 +263,16 @@
 
 <body class="{{ $themeEffect === 'glossy' ? 'theme-glossy' : '' }}">
 
-    {{--   LOADING OVERLAY   --}}
+    {{-- ── LOADING OVERLAY ── --}}
     <div class="loading-overlay" id="loadingEl">
         <div class="loading-spinner"></div>
         <div class="loading-text" id="loadingText">Loading...</div>
     </div>
 
-    {{--   TOAST   --}}
+    {{-- ── TOAST ── --}}
     <div class="toast" id="toastEl"></div>
 
-    {{--   DRAWER MENU   --}}
+    {{-- ── DRAWER MENU ── --}}
     <div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
     <div class="drawer-menu" id="drawerMenu">
 
@@ -357,15 +360,9 @@
             </button>
 
             {{-- TV Dropdown - dynamic from DB --}}
-            {{-- RBAC: SuperAdmin + unrestricted Admin see all SC factories; GL/TL/Pengawas/TV see only assigned --}}
-            @php
-                $__tvUser = auth()->user();
-                $__tvAllowed = \App\Services\ScContext::allowedFactories($__tvUser);
-                $__tvIsAdmin = $__tvUser->isSuperAdmin() || $__tvUser->role === 'admin';
-            @endphp
             <div id="tvDropdown" style="display:none;">
                 @foreach($factories as $fac)
-                    @if($__tvIsAdmin ? (empty($__tvAllowed) || in_array($fac->name, $__tvAllowed)) : in_array($fac->name, $__tvAllowed))
+                    @if(auth()->user()->isSuperAdmin() || (is_array(auth()->user()->factory) && in_array($fac->name, auth()->user()->factory)))
                         <div class="tv-factory-block">
                             <div class="tv-factory-header" style="background:{{ $fac->gradient }};">
                                 {{-- Lucide Factory --}}
@@ -439,6 +436,32 @@
                         </svg>
                     </span>
                     Mesin Management
+                </button>
+
+                {{-- Skill Management --}}
+                <button class="drawer-item {{ request()->routeIs('admin.skills.*') ? 'active' : '' }}"
+                    onclick="window.location='{{ route('admin.skills.index') }}'">
+                    <span class="di-icon">
+                        {{-- Lucide Wrench --}}
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+                        </svg>
+                    </span>
+                    Skill Management
+                </button>
+
+                {{-- Floor Plan Manager --}}
+                <button class="drawer-item {{ request()->routeIs('admin.floor-plan-manager.*') ? 'active' : '' }}"
+                    onclick="window.location='{{ route('admin.floor-plan-manager.index') }}'">
+                    <span class="di-icon">
+                        {{-- Lucide Map --}}
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/>
+                            <line x1="9" y1="3" x2="9" y2="21"/>
+                            <line x1="15" y1="3" x2="15" y2="21"/>
+                        </svg>
+                    </span>
+                    Floor Plan Manager
                 </button>
             @endif
 
@@ -637,7 +660,7 @@
         </div>
     </div>
 
-    {{--   HEADER (DESKTOP)   --}}
+    {{-- ── HEADER (DESKTOP) ── --}}
     <div class="app-header desktop-header" style="padding:0 12px;gap:10px;">
         <button class="header-menu-btn" onclick="openDrawer()">☰</button>
 
@@ -709,7 +732,7 @@
         </div>
     </div>
 
-    {{--   HEADER (MOBILE)   --}}
+    {{-- ── HEADER (MOBILE) ── --}}
     <div class="app-header mobile-header">
         <button class="mobile-menu-btn" onclick="openDrawer()">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2"
@@ -737,12 +760,12 @@
     </div>
 
 
-    {{--   MAIN CONTENT   --}}
+    {{-- ── MAIN CONTENT ── --}}
     <div class="main-content">
         @yield('content')
     </div>
 
-    {{--   BOTTOM NAV   --}}
+    {{-- ── BOTTOM NAV ── --}}
     @php
         $currentFactory = session('factory', 'Factory 2');
         $currentShift = session('shift', 'A');
@@ -794,7 +817,7 @@
 
     </nav>
 
-    {{--   FACTORY PICKER MODAL - dynamic from DB   --}}
+    {{-- ── FACTORY PICKER MODAL - dynamic from DB ── --}}
      <div class="modal-overlay" id="factorySheet">
         <div class="modal-sheet">
             <div class="modal-sheet-handle"></div>
@@ -804,14 +827,10 @@
             </div>
             <div class="modal-sheet-body">
                 <div style="display:flex;flex-direction:column;gap:12px">
-                    {{-- RBAC: same guard as tvDropdown — admins with no restriction see all --}}
-                    @php
-                        $__fpUser = auth()->user();
-                        $__fpAllowed = \App\Services\ScContext::allowedFactories($__fpUser);
-                        $__fpIsAdmin = $__fpUser->isSuperAdmin() || $__fpUser->role === 'admin';
-                    @endphp
+                    @php $userRole = auth()->user()->role;
+                    $userFactory = auth()->user()->factory; @endphp
                     @foreach($factories as $fac)
-                        @if($__fpIsAdmin ? (empty($__fpAllowed) || in_array($fac->name, $__fpAllowed)) : in_array($fac->name, $__fpAllowed))
+                        @if($userRole === 'admin' || !$userFactory || $userFactory === $fac->name)
                             <button class="btn-primary" style="background:{{ $fac->gradient }} !important; border: none;"
                                 onclick="setFactory('{{ addslashes($fac->name) }}')">🏭 {{ $fac->name }}</button>
                         @endif
@@ -821,7 +840,7 @@
         </div>
     </div>
 
-    {{--   TV PICKER SHEET (dari bottom nav) - dynamic from DB   --}}
+    {{-- ── TV PICKER SHEET (dari bottom nav) - dynamic from DB ── --}}
     <div class="modal-overlay" id="tvPickerSheet">
         <div class="modal-sheet">
             <div class="modal-sheet-handle"></div>
@@ -886,13 +905,13 @@
         </div>
     </div>
 
-    {{--   SHARED JS   --}}
+    {{-- ── SHARED JS ── --}}
     <script>
         const CSRF_TOKEN = document.querySelector('meta[name="csrf-token"]').content;
         let CURRENT_FACTORY = @json(session('factory', 'Factory 2'));
         let CURRENT_SHIFT = @json(session('shift', 'A'));
 
-        //   Security patch 2026-05-10                       
+        // ── Security patch 2026-05-10 ────────────────────────────────────────────
         // API_NONCE: per-session nonce for authenticating browser→/api/* requests.
         // Read from <meta name="api-nonce"> injected by GenerateApiNonce middleware.
         // Sent as X-App-Secret header on every apiFetch() call.

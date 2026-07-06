@@ -193,9 +193,11 @@ class ReportController extends Controller
             ->whereIn('jenis', $jenisList)
             ->orderBy('waktu_mulai')->get();
 
+        $shifts = array_merge(\App\Services\NonShiftResolver::shiftsFor($shift, $sampai), ['AB']);
+
         $members = Member::where('sc_id', $scId)
             ->where('factory', $factory)
-            ->whereIn('shift', [$shift, 'AB'])
+            ->whereIn('shift', $shifts)
             ->where('status', 'active')
             ->orderBy('nama')
             ->get();
