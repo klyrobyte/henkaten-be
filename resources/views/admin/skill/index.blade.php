@@ -10,43 +10,76 @@
             margin: 0 auto;
         }
 
+        /* ponytail: page-header = filter-bar only, no title block (matches skillmap.png) */
         .page-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 24px;
             background: #fff;
-            padding: 16px 24px;
+            padding: 20px 24px;
             border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            flex-wrap: wrap;
+            gap: 20px;
         }
 
-        .page-title h1 {
-            margin: 0;
-            font-size: 20px;
-            color: #185E35;
-            font-family: 'Roboto Condensed', sans-serif;
-            font-weight: 700;
+        .page-title {
+            display: none;
         }
 
-        .page-title p {
-            margin: 4px 0 0;
-            color: #666;
-            font-size: 13px;
-        }
+        /* ponytail: hidden per skillmap.png ref */
 
         .filter-bar {
             display: flex;
             gap: 12px;
             align-items: center;
+            flex-wrap: wrap;
         }
 
         .filter-select {
-            padding: 8px 16px;
+            padding: 10px 16px;
             border-radius: 8px;
-            border: 1px solid #ddd;
-            background: #f8f9fa;
+            border: 1px solid #e2e8f0;
+            background: #fff;
             font-weight: 600;
+            font-size: 14px;
+            color: #334155;
+            outline: none;
+            transition: all 0.2s;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 16px;
+            padding-right: 36px;
+        }
+
+        .filter-select:focus {
+            border-color: var(--brand-primary);
+        }
+
+        .search-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            color: #94a3b8;
+            font-size: 16px;
+            pointer-events: none;
+            display: flex;
+            align-items: center;
+        }
+
+        .search-input {
+            padding-left: 36px !important;
+            background-image: none !important;
+            width: 220px;
         }
 
         .matrix-card {
@@ -69,13 +102,13 @@
         }
 
         .m-table th {
-            background: #185E35;
+            background: var(--brand-primary);
             color: #fff;
             padding: 10px 8px;
             font-weight: 600;
             text-align: center;
-            border-right: 1px solid #114526;
-            border-bottom: 1px solid #114526;
+            border-right: 1px solid rgba(0, 0, 0, .15);
+            border-bottom: 1px solid rgba(0, 0, 0, .15);
             white-space: nowrap;
             position: sticky;
             top: 0;
@@ -83,35 +116,58 @@
         }
 
         .m-table thead tr:nth-child(2) th {
-            top: 39px; /* adjust exact height */
+            top: 39px;
             z-index: 9;
         }
 
-        .m-table th.col-name, .m-table td.col-name {
-            width: 250px;
-            min-width: 250px;
-            max-width: 250px;
+        /* ponytail: No column — narrow, sticky left-0 */
+        .m-table th.col-no,
+        .m-table td.col-no {
+            width: 44px;
+            min-width: 44px;
+            max-width: 44px;
             left: 0;
             position: sticky;
+            font-weight: 900;
+            color: var(--brand-primary);
+            text-align: center;
         }
-        
-        .m-table th.col-shift, .m-table td.col-shift {
+
+        .m-table th.col-no {
+            color: #fff;
+        }
+
+        .m-table th.col-name,
+        .m-table td.col-name {
+            width: 220px;
+            min-width: 220px;
+            max-width: 220px;
+            left: 44px;
+            position: sticky;
+        }
+
+        .m-table th.col-shift,
+        .m-table td.col-shift {
             width: 80px;
             min-width: 80px;
             max-width: 80px;
-            left: 250px;
+            left: 264px;
             position: sticky;
         }
 
-        .m-table th.col-name, .m-table th.col-shift {
-            z-index: 12 !important; /* Above table body sticky columns */
-            background: #185E35; /* Opaque background so scroll doesn't show behind */
+        .m-table th.col-no,
+        .m-table th.col-name,
+        .m-table th.col-shift {
+            z-index: 12 !important;
+            background: var(--brand-primary);
         }
 
-        .m-table td.col-name, .m-table td.col-shift {
+        .m-table td.col-no,
+        .m-table td.col-name,
+        .m-table td.col-shift {
             z-index: 11;
             background: #fff;
-            box-shadow: 2px 0 5px -2px rgba(0,0,0,0.1);
+            box-shadow: 2px 0 5px -2px rgba(0, 0, 0, 0.1);
         }
 
         .m-table thead tr:first-child th:first-child {
@@ -189,9 +245,9 @@
         .chip-level {
             font-size: 11px;
             font-weight: 700;
-            color: #2E7D32;
+            color: var(--brand-primary);
             padding: 4px 8px;
-            background: #dcfce7;
+            background: rgba(var(--brand-primary-rgb), .12);
             border-radius: 12px;
             white-space: nowrap;
         }
@@ -218,7 +274,7 @@
         }
 
         .skill-input-wrap:focus-within {
-            border-color: #185E35;
+            border-color: var(--brand-primary);
         }
 
         .skill-input {
@@ -303,7 +359,7 @@
         }
 
         .modal-header {
-            background: #185E35;
+            background: var(--brand-primary);
             color: #fff;
             padding: 16px 20px;
             display: flex;
@@ -350,7 +406,7 @@
         }
 
         .btn-primary {
-            background: #185E35;
+            background: var(--brand-primary);
             color: #fff;
             border: none;
             padding: 10px 16px;
@@ -360,24 +416,38 @@
         }
 
         .btn-primary:hover {
-            background: #114526;
+            opacity: .88;
         }
 
         .btn-manage {
-            background: #0284c7;
+            background: var(--brand-primary);
             color: #fff;
             border: none;
-            padding: 8px 16px;
-            border-radius: 6px;
+            padding: 10px 20px;
+            border-radius: 8px;
             cursor: pointer;
             font-weight: 600;
+            font-size: 14px;
             display: flex;
             align-items: center;
+            justify-content: center;
             gap: 8px;
+            transition: all 0.2s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            width: 100%;
         }
 
         .btn-manage:hover {
-            background: #0369a1;
+            opacity: 0.9;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+        }
+
+        .header-actions {
+            display: flex;
+            flex-direction: row;
+            gap: 12px;
+            align-items: center;
         }
 
         .item-list {
@@ -429,20 +499,21 @@
 
 @section('content')
     <div class="skill-container">
+        {{-- ponytail: page-header = filter-bar only, no slider, matches skillmap.png --}}
         <div class="page-header">
-            <div class="page-title">
-                <h1>⚙️ Skill Management Matrix</h1>
-                <p>Manajemen persentase skill member terhadap mesin. Input 0-100% (ILUO format).</p>
-            </div>
-            <div class="filter-bar">
-                <input type="text" id="searchMember" class="filter-select" placeholder="🔍 Cari MP..." onkeyup="filterTable()">
-                <a href="{{ route('admin.skills.export', request()->query()) }}" class="btn-manage" style="background:#0ea5e9; text-decoration:none;">
-                    <span>📥</span> Export Excel
-                </a>
-                <button class="btn-manage" onclick="openManageModal()">
-                    <span>⚙️</span> Kelola Item Mesin
-                </button>
-                <form id="filterForm" method="GET" style="display:flex; gap:12px;">
+            <div class="header-filters" style="display: flex; gap: 16px; align-items: center; flex-wrap: wrap;">
+                <div class="search-container">
+                    <span class="search-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                    </span>
+                    <input type="text" id="searchMember" class="filter-select search-input" placeholder="Cari MP..."
+                        onkeyup="filterTable()">
+                </div>
+                <form id="filterForm" method="GET" style="display:flex; gap:16px; align-items:center;">
                     <select name="factory" class="filter-select" onchange="document.getElementById('filterForm').submit()">
                         @foreach($factories as $f)
                             <option value="{{ $f->name }}" {{ $factory == $f->name ? 'selected' : '' }}>
@@ -458,6 +529,28 @@
                     </select>
                 </form>
             </div>
+            <div class="header-actions">
+                <button class="btn-manage" onclick="openManageModal()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="3"></circle>
+                        <path
+                            d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
+                        </path>
+                    </svg>
+                    Mesin
+                </button>
+                <a href="{{ route('admin.skills.export', request()->query()) }}" class="btn-manage"
+                    style="text-decoration:none;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="7 10 12 15 17 10"></polyline>
+                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                    </svg>
+                    Export
+                </a>
+            </div>
         </div>
 
         <div class="info-alert" style="display:flex; justify-content:space-between; align-items:center;">
@@ -467,7 +560,7 @@
                     Semua</strong> di sebelah kanan.
             </div>
             <button class="btn-primary" onclick="saveAllSkills()"
-                style="background:#059669; font-size:14px; padding:10px 24px; box-shadow:0 4px 6px rgba(0,0,0,0.1);">
+                style="font-size:14px; padding:10px 24px; box-shadow:0 4px 6px rgba(0,0,0,0.1);">
                 💾 Simpan Semua
             </button>
         </div>
@@ -485,6 +578,7 @@
                 <table class="m-table">
                     <thead>
                         <tr>
+                            <th class="col-no" rowspan="2">No</th>
                             <th class="col-name" rowspan="2">Nama Operator</th>
                             <th class="col-shift" rowspan="2">Shift</th>
                             @foreach($machines as $mac)
@@ -515,12 +609,13 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($members as $m)
+                        @foreach($members as $loop_i => $m)
                             @php
                                 $avgScore = 0;
                                 $count = 0;
                             @endphp
                             <tr>
+                                <td class="col-no">{{ $loop_i + 1 }}.</td>
                                 <td class="col-name">
                                     <div style="display:flex;align-items:center;gap:10px;">
                                         <div
@@ -537,7 +632,7 @@
                                         </div>
                                     </div>
                                 </td>
-                                <td class="col-shift" style="color:#2E7D32;font-weight:700;">{{ $m->shift }}</td>
+                                <td class="col-shift" style="color:var(--brand-primary);font-weight:700;">{{ $m->shift }}</td>
 
                                 @foreach($machines as $mac)
                                     @php
@@ -598,7 +693,7 @@
                                     @endif
                                 @endforeach
 
-                                </tr>
+                            </tr>
                         @endforeach
                     </tbody>
                 </table>
@@ -681,11 +776,11 @@
                 items.forEach(p => {
                     const safeName = p.process_name.replace(/'/g, "\\'");
                     list.innerHTML += `
-                            <div class="item-row">
-                                <span>${p.process_name}</span>
-                                <button class="btn-danger-sm" onclick="delProc(${p.id}, '${safeName}')">Hapus</button>
-                            </div>
-                        `;
+                                        <div class="item-row">
+                                            <span>${p.process_name}</span>
+                                            <button class="btn-danger-sm" onclick="delProc(${p.id}, '${safeName}')">Hapus</button>
+                                        </div>
+                                    `;
                 });
             }
         }
@@ -827,7 +922,7 @@
                     } else {
                         tr[i].style.display = "none";
                     }
-                }       
+                }
             }
         }
     </script>

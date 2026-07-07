@@ -1535,16 +1535,23 @@ Header = app-header hijau dari admin.blade, semua komponen konten = copy 1:1 das
         #tvSlide2 .stat-lbl { font-size: 11px; color: #666; margin-top: 4px; }
         #tvSlide2 .matrix-content { flex: 1; overflow: auto; }
         
-        #tvSlide2 .m-table { width: 100%; border-collapse: separate; border-spacing: 0; font-family: 'Roboto', sans-serif; font-size: 11px; }
-        #tvSlide2 .m-table th { background: #185E35; color: #fff; padding: 8px; font-weight: 600; text-align: center; border: 1px solid #114526; white-space: nowrap; position: sticky; top: 0; z-index: 10; }
+        #tvSlide2 .m-table { width: 100%; border-collapse: collapse; font-family: 'Roboto', sans-serif; font-size: 11px; }
+        #tvSlide2 .m-table th { background: var(--brand-primary); color: #fff; padding: 8px; font-weight: 600; text-align: center; border: 1px solid rgba(0,0,0,.15); white-space: nowrap; position: sticky; top: 0; z-index: 10; }
         #tvSlide2 .m-table thead tr:nth-child(2) th { top: 31px; z-index: 9; }
         #tvSlide2 .m-table thead tr:nth-child(3) th { top: 62px; z-index: 8; }
-        #tvSlide2 .m-table th.col-name, #tvSlide2 .m-table td.col-name { width: 140px; min-width: 140px; max-width: 140px; left: 0; position: sticky; text-align: left; }
-        #tvSlide2 .m-table th.col-shift, #tvSlide2 .m-table td.col-shift { width: 50px; min-width: 50px; max-width: 50px; left: 140px; position: sticky; }
-        #tvSlide2 .m-table th.col-name, #tvSlide2 .m-table th.col-shift { z-index: 12 !important; background: #185E35; }
-        #tvSlide2 .m-table td.col-name, #tvSlide2 .m-table td.col-shift { z-index: 11; background: #fff; box-shadow: 2px 0 5px -2px rgba(0,0,0,0.1); font-weight: 600; }
+        
+        /* ponytail: No column — narrow, sticky left-0 */
+        #tvSlide2 .m-table th.col-no, #tvSlide2 .m-table td.col-no { width: 34px; min-width: 34px; max-width: 34px; left: 0; position: sticky; font-weight: 900; color: var(--brand-primary); text-align: center; }
+        #tvSlide2 .m-table th.col-no { color: #fff; }
+
+        #tvSlide2 .m-table th.col-name, #tvSlide2 .m-table td.col-name { width: 140px; min-width: 140px; max-width: 140px; left: 34px; position: sticky; text-align: left; }
+        #tvSlide2 .m-table th.col-shift, #tvSlide2 .m-table td.col-shift { width: 40px; min-width: 40px; max-width: 40px; left: 174px; position: sticky; }
+        
+        #tvSlide2 .m-table th.col-no, #tvSlide2 .m-table th.col-name, #tvSlide2 .m-table th.col-shift { z-index: 12 !important; background: var(--brand-primary); }
+        #tvSlide2 .m-table td.col-no, #tvSlide2 .m-table td.col-name, #tvSlide2 .m-table td.col-shift { z-index: 11; background: #fff; box-shadow: 2px 0 5px -2px rgba(0,0,0,0.1); font-weight: 600; }
+        
         #tvSlide2 .m-table td { padding: 6px 8px; border: 1px solid #eee; text-align: center; color: #333; background: #fff; }
-        #tvSlide2 .m-table tr:nth-child(even) td:not(.col-name):not(.col-shift) { background: #f9f9f9; }
+        #tvSlide2 .m-table tr:nth-child(even) td:not(.col-no):not(.col-name):not(.col-shift) { background: #f9f9f9; }
         
         #tvSlide2 .m-table thead tr:first-child th:first-child { border-top-left-radius: 11px; }
         #tvSlide2 .m-table thead tr:first-child th:last-child { border-top-right-radius: 11px; }
@@ -2488,8 +2495,30 @@ Header = app-header hijau dari admin.blade, semua komponen konten = copy 1:1 das
             const machineNames = (machinesData || []).map(m => m.name).sort().slice(0, 12);
             if (!machineNames.length) { box.innerHTML = '<div style="text-align:center;padding:40px;color:#777;">Belum ada data mesin di factory ini.</div>'; return; }
 
-            let totalOp = members.length, multiSkill = 0, pengembang = 0, opBaru = 0;
+            // ponytail: count ALL members for stats; displayMembers only limits table rows
             const displayMembers = members.slice(0, 20);
+            let totalOp = members.length, multiSkill = 0, pengembang = 0, opBaru = 0;
+
+            // Aggregate skill tiers across all members (not just displayed 20)
+            members.forEach(m => {
+                let avgScore = 0, count = 0;
+                machineNames.forEach(mn => {
+                    const procs = processes[mn] || [];
+                    if (procs.length === 0) {
+                        const pct = skills[m.id]?.[mn]?.['-']?.skill_pct ?? null;
+                        if (pct !== null) { avgScore += pct; count++; }
+                    } else {
+                        procs.forEach(p => {
+                            const pct = skills[m.id]?.[mn]?.[p]?.skill_pct ?? null;
+                            if (pct !== null) { avgScore += pct; count++; }
+                        });
+                    }
+                });
+                const finalAvg = count > 0 ? Math.round(avgScore / count) : 0;
+                if (finalAvg >= 75) multiSkill++;
+                else if (finalAvg >= 40) pengembang++;
+                else opBaru++;
+            });
 
             let totalCols = 0;
             machineNames.forEach(m => {
@@ -2497,7 +2526,7 @@ Header = app-header hijau dari admin.blade, semua komponen konten = copy 1:1 das
             });
 
             let html = `<table class="m-table"><thead><tr>
-                <th class="col-name" rowspan="3">Nama operator</th><th class="col-shift" rowspan="3">Shift</th>
+                <th class="col-no" rowspan="3">No</th><th class="col-name" rowspan="3">Nama operator</th><th class="col-shift" rowspan="3">Shift</th>
                 <th colspan="${totalCols}">Mesin / Proses</th>
                 </tr><tr>`;
                 
@@ -2520,9 +2549,9 @@ Header = app-header hijau dari admin.blade, semua komponen konten = copy 1:1 das
             });
             html += `</tr></thead><tbody>`;
 
-            displayMembers.forEach(m => {
+            displayMembers.forEach((m, index) => {
                 let avgScore = 0, count = 0;
-                let rowHtml = `<tr><td class="col-name">${esc(m.nama)}</td><td class="col-shift" style="color:#2E7D32;font-weight:700;">${m.shift}</td>`;
+                let rowHtml = `<tr><td class="col-no">${index + 1}.</td><td class="col-name">${esc(m.nama)}</td><td class="col-shift" style="color:var(--brand-primary);font-weight:700;">${m.shift}</td>`;
                 
                 machineNames.forEach(mn => {
                     const procs = processes[mn] || [];
@@ -2549,10 +2578,6 @@ Header = app-header hijau dari admin.blade, semua komponen konten = copy 1:1 das
                     }
                 });
 
-                let finalAvg = count > 0 ? Math.round(avgScore / count) : 0;
-                if (finalAvg >= 75) { multiSkill++; }
-                else if (finalAvg >= 40) { pengembang++; }
-                else { opBaru++; }
                 rowHtml += `</tr>`;
                 html += rowHtml;
             });

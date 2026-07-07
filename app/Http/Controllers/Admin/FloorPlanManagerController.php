@@ -81,7 +81,14 @@ class FloorPlanManagerController extends Controller
 
         // Simpan file
         $filename = 'layout_' . $scId . '_' . \Str::slug($factory) . '_' . time() . '.' . $file->getClientOriginalExtension();
-        Storage::disk('public')->putFileAs('layouts', $file, $filename);
+        // ponytail: write directly to public/storage/layouts/ so the URL resolves without storage:link
+        $destDir = public_path('storage/layouts');
+        if (!is_dir($destDir)) {
+            mkdir($destDir, 0775, true);
+        }
+        $file->move($destDir, $filename);
+        // Keep Storage record in sync
+        Storage::disk('public')->put('layouts/' . $filename, file_get_contents($destDir . '/' . $filename));
 
         $layout = FactoryLayout::updateOrCreate(
             ['sc_id' => $scId, 'factory' => $factory],

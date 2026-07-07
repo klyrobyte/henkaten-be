@@ -3,82 +3,61 @@
 
 @push('styles')
 <style>
-    .stm-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-        gap: 14px;
+    /* ponytail: table layout matching skillmap.png — uses theme tokens only */
+    .stm-table-wrap {
+        border-radius: 12px;
+        box-shadow: 0 2px 10px rgba(0,0,0,.07);
+        overflow: hidden;
         margin-top: 18px;
     }
-    .stm-card {
+    .stm-table {
+        width: 100%; border-collapse: collapse;
         background: #fff;
-        border-radius: 14px;
-        box-shadow: 0 2px 10px rgba(0,0,0,.08);
-        overflow: hidden;
-        transition: transform .15s, box-shadow .15s;
-        display: flex;
-        flex-direction: column;
-    }
-    .stm-card:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(0,0,0,.13); }
-    .stm-card-header {
-        padding: 14px 16px 12px;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-    .stm-card-icon {
-        font-size: 24px; line-height: 1;
-    }
-    .stm-card-info { flex: 1; }
-    .stm-card-label {
         font-family: 'Roboto Condensed', sans-serif;
-        font-size: 15px; font-weight: 900; color: #222;
+        font-size: 13px;
     }
-    .stm-card-key {
-        font-family: 'Roboto Condensed', sans-serif;
-        font-size: 10px; font-weight: 700; color: #888;
-        margin-top: 2px;
+    .stm-table thead tr { background: var(--brand-primary); }
+    .stm-table thead th {
+        padding: 11px 14px; text-align: left;
+        font-size: 10px; font-weight: 800; color: #fff;
+        text-transform: uppercase; letter-spacing: .6px;
+        white-space: nowrap;
     }
+    .stm-table tbody tr { border-bottom: 1px solid #f0f4f8; transition: background .12s; }
+    .stm-table tbody tr:last-child { border-bottom: none; }
+    .stm-table tbody tr:hover { background: rgba(var(--brand-primary-rgb),.04); }
+    .stm-table tbody td { padding: 10px 14px; vertical-align: middle; color: #444; }
+    .stm-no { font-weight: 900; color: var(--brand-primary); width: 44px; }
     .stm-color-dot {
-        width: 20px; height: 20px;
-        border-radius: 50%;
-        border: 2px solid rgba(0,0,0,.1);
-        flex-shrink: 0;
+        width: 18px; height: 18px; border-radius: 50%;
+        border: 2px solid rgba(0,0,0,.1); flex-shrink: 0;
     }
-    .stm-card-body {
-        padding: 8px 16px 10px;
-        flex: 1;
-    }
-    .stm-usage {
-        font-family: 'Roboto Condensed', sans-serif;
-        font-size: 11px; color: #888; font-weight: 600;
-    }
-    .stm-card-actions {
-        display: flex; gap: 6px;
-        padding: 0 16px 12px;
-    }
+    .stm-card-label { font-weight: 700; color: #222; font-size: 13px; }
+    .stm-card-key { font-size: 11px; font-weight: 600; color: #888; }
+    .stm-row-actions { display: flex; gap: 6px; }
     .stm-act-btn {
-        flex: 1; padding: 7px 0;
-        border-radius: 8px;
+        padding: 5px 11px; border-radius: 7px;
         font-family: 'Roboto Condensed', sans-serif;
         font-size: 11px; font-weight: 800;
-        cursor: pointer; border: 1.5px solid;
-        transition: all .12s; text-align: center;
+        cursor: pointer; border: 1.5px solid; transition: all .12s;
     }
-    .stm-act-edit { border-color: #1f3c88; color: #1f3c88; background: #eef1fa; }
-    .stm-act-edit:hover { background: #dde4f5; }
+    .stm-act-edit { border-color: var(--brand-primary); color: var(--brand-primary); background: rgba(var(--brand-primary-rgb),.07); }
+    .stm-act-edit:hover { background: rgba(var(--brand-primary-rgb),.15); }
     .stm-act-del  { border-color: #e74c3c; color: #e74c3c; background: #fdeaea; }
     .stm-act-del:hover  { background: #fbd0d0; }
     .stm-add-btn {
         display: flex; align-items: center; gap: 6px;
         padding: 9px 18px; border-radius: 10px; border: none;
-        background: linear-gradient(135deg, #1f3c88, #2e57d4); color: #fff;
+        background: var(--brand-primary); color: #fff;
         font-family: 'Roboto Condensed', sans-serif;
         font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .5px;
-        cursor: pointer;
-        box-shadow: 0 3px 12px rgba(31,60,136,.35);
+        cursor: pointer; box-shadow: 0 3px 12px rgba(var(--brand-primary-rgb),.35);
         transition: opacity .15s, transform .1s; white-space: nowrap;
     }
     .stm-add-btn:hover { opacity: .9; transform: translateY(-1px); }
+    .stm-empty { text-align: center; padding: 40px 20px; color: #aaa; font-size: 14px; }
+    .stm-empty-icon { font-size: 36px; margin-bottom: 8px; }
+    /* Modal form fields */
     .stm-field { display: flex; flex-direction: column; gap: 5px; margin-bottom: 12px; }
     .stm-field label { font-family: 'Roboto Condensed', sans-serif; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .4px; color: #666; }
     .stm-field input {
@@ -86,7 +65,7 @@
         font-size: 13px; font-family: inherit; transition: border-color .15s;
         box-sizing: border-box; width: 100%; background: #fff;
     }
-    .stm-field input:focus { outline: none; border-color: #1f3c88; }
+    .stm-field input:focus { outline: none; border-color: var(--brand-primary); }
     .stm-color-row { display: flex; gap: 8px; align-items: center; }
     .stm-color-row input[type=text] { flex: 1; }
     .stm-color-row input[type=color] {
@@ -95,16 +74,14 @@
     }
     .stm-save-btn {
         width: 100%; padding: 13px; border-radius: 12px; border: none;
-        background: linear-gradient(135deg, #1f3c88, #2e57d4); color: #fff;
+        background: var(--brand-primary); color: #fff;
         font-family: 'Roboto Condensed', sans-serif;
         font-size: 14px; font-weight: 900; text-transform: uppercase; letter-spacing: .5px;
         cursor: pointer; margin-top: 6px; margin-bottom: 18px;
-        box-shadow: 0 4px 14px rgba(31,60,136,.35); transition: opacity .15s;
+        box-shadow: 0 4px 14px rgba(var(--brand-primary-rgb),.35); transition: opacity .15s;
     }
     .stm-save-btn:hover { opacity: .92; }
     .stm-save-btn:disabled { opacity: .55; cursor: not-allowed; }
-    .stm-empty { text-align: center; padding: 60px 20px; color: #aaa; font-family: 'Roboto Condensed', sans-serif; font-size: 14px; display: none; }
-    .stm-empty-icon { font-size: 40px; margin-bottom: 10px; }
 </style>
 @endpush
 
@@ -120,7 +97,7 @@
     {{-- Toolbar --}}
     <div class="mm-toolbar">
         <div style="font-family:'Roboto Condensed',sans-serif;font-size:13px;color:#666;">
-            <strong style="color:#1f3c88;">{{ $statuses->count() }}</strong> status terdaftar
+            <strong style="color:var(--brand-primary);">{{ $statuses->count() }}</strong> status terdaftar
         </div>
         <button class="stm-add-btn" onclick="openStatusModal()">
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
@@ -130,37 +107,42 @@
         </button>
     </div>
 
-    {{-- Card Grid --}}
-    <div class="stm-grid" id="stmGrid">
-        @forelse($statuses as $st)
-            <div class="stm-card" id="stm-card-{{ $st->id }}">
-                <div class="stm-card-header">
-                    <div class="stm-card-icon">{{ $st->icon }}</div>
-                    <div class="stm-card-info">
-                        <div class="stm-card-label">{{ $st->label }}</div>
-                        <div class="stm-card-key">key: {{ $st->key }}</div>
-                    </div>
-                    <div class="stm-color-dot" style="background: {{ $st->color }};"></div>
-                </div>
-                <div class="stm-card-body">
-                    <div class="stm-usage">🎨 {{ $st->color }}</div>
-                </div>
-                <div class="stm-card-actions">
-                    <button class="stm-act-btn stm-act-edit"
-                        onclick="openStatusModal({{ $st->id }}, '{{ addslashes($st->key) }}', '{{ addslashes($st->label) }}', '{{ addslashes($st->icon) }}', '{{ addslashes($st->color) }}')">
-                        ✏️ Edit
-                    </button>
-                    <button class="stm-act-btn stm-act-del" onclick="deleteStatus({{ $st->id }}, '{{ addslashes($st->label) }}')">
-                        🗑️
-                    </button>
-                </div>
-            </div>
-        @empty
-            <div class="stm-empty" style="display:block;grid-column:1/-1;">
-                <div class="stm-empty-icon">🏷️</div>
-                <div>Belum ada status. Klik <strong>Tambah Status</strong> untuk mulai.</div>
-            </div>
-        @endforelse
+    {{-- ponytail: table layout matching skillmap.png reference --}}
+    <div class="stm-table-wrap">
+        <table class="stm-table">
+            <thead>
+                <tr>
+                    <th style="width:44px;">No</th>
+                    <th style="width:34px;"></th>
+                    <th style="width:36px;">Icon</th>
+                    <th>Label</th>
+                    <th>Key</th>
+                    <th>Warna</th>
+                    <th style="width:120px;"></th>
+                </tr>
+            </thead>
+            <tbody id="stmGrid">
+                @forelse($statuses as $i => $st)
+                    <tr id="stm-card-{{ $st->id }}">
+                        <td class="stm-no">{{ $i + 1 }}.</td>
+                        <td><div class="stm-color-dot" style="background:{{ $st->color }};"></div></td>
+                        <td style="font-size:20px;text-align:center;">{{ $st->icon }}</td>
+                        <td class="stm-card-label">{{ $st->label }}</td>
+                        <td class="stm-card-key">{{ $st->key }}</td>
+                        <td class="stm-card-key">{{ $st->color }}</td>
+                        <td>
+                            <div class="stm-row-actions">
+                                <button class="stm-act-btn stm-act-edit"
+                                    onclick="openStatusModal({{ $st->id }}, '{{ addslashes($st->key) }}', '{{ addslashes($st->label) }}', '{{ addslashes($st->icon) }}', '{{ addslashes($st->color) }}')">✏️ Edit</button>
+                                <button class="stm-act-btn stm-act-del" onclick="deleteStatus({{ $st->id }}, '{{ addslashes($st->label) }}')">🗑️</button>
+                            </div>
+                        </td>
+                    </tr>
+                @empty
+                    <tr><td colspan="7" class="stm-empty"><div class="stm-empty-icon">🏷️</div>Belum ada status. Klik <strong>Tambah Status</strong> untuk mulai.</td></tr>
+                @endforelse
+            </tbody>
+        </table>
     </div>
 
 </div>
