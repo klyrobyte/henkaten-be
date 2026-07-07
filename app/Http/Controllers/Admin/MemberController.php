@@ -59,7 +59,7 @@ class MemberController extends Controller
         }
 
         if ($shift !== 'all')
-            $query->where('shift', $shift);
+            $query->whereIn('shift', \App\Services\NonShiftResolver::shiftsFor($shift));
         if ($search)
             $query->where('nama', 'like', "%{$search}%");
         $members = $query->orderBy('nama')->get();
@@ -296,7 +296,7 @@ class MemberController extends Controller
 
         $members = $query
             ->when($request->factory, fn($q) => $q->where('factory', $request->factory))
-            ->when($request->shift, fn($q) => $q->where('shift', $request->shift))
+            ->when($request->shift, fn($q) => $q->whereIn('shift', \App\Services\NonShiftResolver::shiftsFor($request->shift)))
             ->where('status', 'active')
             ->orderBy('nama')
             ->get(['id', 'nama', 'jabatan', 'shift', 'factory', 'mesin', 'photo']);
@@ -442,7 +442,8 @@ class MemberController extends Controller
             'nik' => 'nullable|string|max:50',
             'jabatan' => 'required|in:Operator,SPV,TL,GL,KY',
             'factory' => 'required|string',
-            'shift' => 'required|in:A,B',
+            // @rizkydaffy: added NS (Non-Shift) validation
+            'shift' => 'required|in:A,B,NS',
             'mesin' => 'nullable|string|max:100',
             'status' => 'required|in:active,inactive',
         ]);

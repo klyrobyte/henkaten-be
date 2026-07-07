@@ -129,7 +129,7 @@
         }
 
         .matrix-header {
-            background: #185E35;
+            background: var(--brand-primary);
             /* Dark Green matching mockup */
             color: #fff;
             padding: 10px 16px;
@@ -182,7 +182,7 @@
         }
 
         .m-table th {
-            background: #185E35;
+            background: var(--brand-primary);
             color: #fff;
             padding: 8px;
             font-weight: 600;
@@ -193,25 +193,61 @@
             top: 0;
             z-index: 10;
         }
-        
-        .m-table thead tr:nth-child(2) th { top: 31px; z-index: 9; }
 
-        .m-table th.col-name, .m-table td.col-name {
-            width: 140px; min-width: 140px; max-width: 140px;
-            left: 0; position: sticky; text-align: left;
+        .m-table thead tr:nth-child(2) th {
+            top: 31px;
+            z-index: 9;
         }
 
-        .m-table th.col-shift, .m-table td.col-shift {
-            width: 50px; min-width: 50px; max-width: 50px;
-            left: 140px; position: sticky;
+        .m-table th.col-no,
+        .m-table td.col-no {
+            width: 34px;
+            min-width: 34px;
+            max-width: 34px;
+            left: 0;
+            position: sticky;
+            font-weight: 900;
+            color: var(--brand-primary);
+            text-align: center;
         }
 
-        .m-table th.col-name, .m-table th.col-shift {
-            z-index: 12 !important; background: #185E35;
+        .m-table th.col-no {
+            color: #fff;
         }
 
-        .m-table td.col-name, .m-table td.col-shift {
-            z-index: 11; background: #fff; box-shadow: 2px 0 5px -2px rgba(0,0,0,0.1); font-weight: 600;
+        .m-table th.col-name,
+        .m-table td.col-name {
+            width: 140px;
+            min-width: 140px;
+            max-width: 140px;
+            left: 34px;
+            position: sticky;
+            text-align: left;
+        }
+
+        .m-table th.col-shift,
+        .m-table td.col-shift {
+            width: 50px;
+            min-width: 50px;
+            max-width: 50px;
+            left: 140px;
+            position: sticky;
+        }
+
+        .m-table th.col-no,
+        .m-table th.col-name,
+        .m-table th.col-shift {
+            z-index: 12 !important;
+            background: var(--brand-primary);
+        }
+
+        .m-table td.col-no,
+        .m-table td.col-name,
+        .m-table td.col-shift {
+            z-index: 11;
+            background: #fff;
+            box-shadow: 2px 0 5px -2px rgba(0, 0, 0, 0.1);
+            font-weight: 600;
         }
 
         .m-table td {
@@ -329,12 +365,12 @@
 
         <!-- RIGHT: Skill Matrix -->
         <div class="right-panel">
-            <div class="matrix-header">
+            <div style="display:none;" class="matrix-header">
                 <span>Man Power Skill Map — {{ $factory }}</span>
                 <span id="headerClock">Loading...</span>
             </div>
 
-            <div class="summary-stats">
+            <div style="dispalay:none;" class="summary-stats">
                 <div class="stat-item">
                     <div class="stat-val" id="statTotal">0</div>
                     <div class="stat-lbl">Total operator</div>
@@ -435,6 +471,7 @@
                 let html = `<table class="m-table">
         <thead>
             <tr>
+                <th class="col-no" rowspan="2">No</th>
                 <th class="col-name" rowspan="2">Nama operator</th>
                 <th class="col-shift" rowspan="2">Shift</th>
                 <th colspan="${machineNames.length}">Mesin / Proses</th>
@@ -445,13 +482,14 @@
         </thead>
         <tbody>`;
 
-                displayMembers.forEach(m => {
+                displayMembers.forEach((m, index) => {
                     let avgScore = 0;
                     let count = 0;
 
                     let rowHtml = `<tr>
+            <td class="col-no">${index + 1}.</td>
             <td class="col-name">${esc(m.nama)}</td>
-            <td class="col-shift" style="color:#2E7D32;font-weight:700;">${m.shift}</td>`;
+            <td class="col-shift" style="color:var(--brand-primary);font-weight:700;">${m.shift}</td>`;
 
                     machineNames.forEach(mn => {
                         const pct = skills[m.id]?.[mn]?.skill_pct ?? null;

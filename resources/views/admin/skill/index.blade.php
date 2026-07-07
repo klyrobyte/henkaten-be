@@ -10,7 +10,7 @@
             margin: 0 auto;
         }
 
-        /* ponytail: page-header = filter-bar only, no title block (matches skillmap.png) */
+        /* @rizkydaffy: page-header = filter-bar only, no title block (matches skillmap.png) */
         .page-header {
             display: flex;
             justify-content: space-between;
@@ -28,7 +28,7 @@
             display: none;
         }
 
-        /* ponytail: hidden per skillmap.png ref */
+        /* @rizkydaffy: hidden per skillmap.png ref */
 
         .filter-bar {
             display: flex;
@@ -120,7 +120,7 @@
             z-index: 9;
         }
 
-        /* ponytail: No column — narrow, sticky left-0 */
+        /* @rizkydaffy: No column — narrow, sticky left-0 */
         .m-table th.col-no,
         .m-table td.col-no {
             width: 44px;
@@ -499,7 +499,7 @@
 
 @section('content')
     <div class="skill-container">
-        {{-- ponytail: page-header = filter-bar only, no slider, matches skillmap.png --}}
+        {{-- @rizkydaffy: page-header = filter-bar only, no slider, matches skillmap.png --}}
         <div class="page-header">
             <div class="header-filters" style="display: flex; gap: 16px; align-items: center; flex-wrap: wrap;">
                 <div class="search-container">
@@ -776,11 +776,11 @@
                 items.forEach(p => {
                     const safeName = p.process_name.replace(/'/g, "\\'");
                     list.innerHTML += `
-                                        <div class="item-row">
-                                            <span>${p.process_name}</span>
-                                            <button class="btn-danger-sm" onclick="delProc(${p.id}, '${safeName}')">Hapus</button>
-                                        </div>
-                                    `;
+                                            <div class="item-row">
+                                                <span>${p.process_name}</span>
+                                                <button class="btn-danger-sm" onclick="delProc(${p.id}, '${safeName}')">Hapus</button>
+                                            </div>
+                                        `;
                 });
             }
         }

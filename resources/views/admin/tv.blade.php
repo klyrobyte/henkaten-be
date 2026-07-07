@@ -1498,75 +1498,360 @@ Header = app-header hijau dari admin.blade, semua komponen konten = copy 1:1 das
             margin-right: 5px;
             vertical-align: middle;
         }
-        
+
         /* ── Slide Wrapper ── */
         .tv-master-slide {
-            position: absolute; top: 0; left: 0; width: 100vw; height: 100vh;
-            opacity: 0; visibility: hidden; pointer-events: none; transition: opacity 0.5s ease;
-            z-index: 1; background: transparent; overflow: hidden;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+            z-index: 1;
+            background: transparent;
+            overflow: hidden;
         }
-        .tv-master-slide.active { opacity: 1; visibility: visible; pointer-events: auto; z-index: 2; }
+
+        .tv-master-slide.active {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+            z-index: 2;
+        }
 
         /* ── Navigation Dots ── */
-        .tv-nav-dots { position: absolute; bottom: 45px; left: 50%; transform: translateX(-50%); z-index: 500; display: flex; gap: 12px; }
-        .tv-nav-dot { width: 45px; height: 6px; border-radius: 4px; background: rgba(255,255,255,0.25); cursor: pointer; transition: all 0.3s; box-shadow: 0 2px 4px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); }
-        .tv-nav-dot.active { background: #fff; box-shadow: 0 0 10px rgba(255,255,255,0.8); }
-        .tv-nav-dot:hover { background: rgba(255,255,255,0.6); }
+        .tv-nav-dots {
+            position: absolute;
+            bottom: 45px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 500;
+            display: flex;
+            gap: 12px;
+        }
+
+        .tv-nav-dot {
+            width: 45px;
+            height: 6px;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.25);
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .tv-nav-dot.active {
+            background: #fff;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+        }
+
+        .tv-nav-dot:hover {
+            background: rgba(255, 255, 255, 0.6);
+        }
 
         /* ── Slide 2 (Floor Plan + Matrix) CSS ── */
-        #tvSlide2 { background: #E5E7EB; padding: 75px 16px 75px 16px; font-family: 'Roboto', sans-serif; display: flex; flex-direction: column; }
-        #tvSlide2 .main-layout { display: flex; gap: 16px; flex: 1; min-height: 0; }
-        #tvSlide2 .left-panel { flex: 0 0 38%; background: #fff; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); display: flex; flex-direction: column; overflow: hidden; position: relative; padding: 16px; }
-        #tvSlide2 .tv-img-wrap { position: relative; display: inline-block; line-height: 0; max-width: 100%; max-height: 100%; }
-        #tvSlide2 .tv-img-wrap img { display: block; max-width: 100%; max-height: calc(100vh - 150px); object-fit: contain; }
-        #tvSlide2 .tv-pin { position: absolute; width: 24px; height: 24px; border-radius: 50%; transform: translate(-50%, -50%); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0; box-shadow: 0 2px 6px rgba(0,0,0,0.3); border: 2px solid #fff; }
-        #tvSlide2 .tv-pin-label { position: absolute; right: 100%; margin-right: 8px; background: transparent; color: #000; font-weight: 900; font-size: 14px; white-space: nowrap; font-family: 'Roboto Condensed', sans-serif; text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff; }
-        #tvSlide2 .pin-ok      { background: #2E7D32; }
-        #tvSlide2 .pin-warn    { background: #F39C12; }
-        #tvSlide2 .pin-problem { background: #E74C3C; }
-        #tvSlide2 .pin-off     { background: #9E9E9E; }
-        #tvSlide2 .fp-empty { color: #777; text-align: center; font-size: 14px; line-height: 1.6; }
-        
-        #tvSlide2 .right-panel { flex: 1; background: #fff; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); display: flex; flex-direction: column; overflow: hidden; padding: 16px; }
-        #tvSlide2 .matrix-header { background: #185E35; color: #fff; padding: 10px 16px; border-radius: 6px; font-family: 'Roboto Condensed', sans-serif; font-size: 14px; font-weight: 700; display: flex; justify-content: space-between; margin-bottom: 12px; }
-        #tvSlide2 .summary-stats { display: flex; justify-content: space-around; padding: 10px 0 20px 0; border-bottom: 1px solid #eee; margin-bottom: 16px; }
-        #tvSlide2 .stat-item { text-align: center; }
-        #tvSlide2 .stat-val { font-size: 24px; font-weight: 900; color: #333; font-family: 'Roboto Condensed', sans-serif; }
-        #tvSlide2 .stat-lbl { font-size: 11px; color: #666; margin-top: 4px; }
-        #tvSlide2 .matrix-content { flex: 1; overflow: auto; }
-        
-        #tvSlide2 .m-table { width: 100%; border-collapse: collapse; font-family: 'Roboto', sans-serif; font-size: 11px; }
-        #tvSlide2 .m-table th { background: var(--brand-primary); color: #fff; padding: 8px; font-weight: 600; text-align: center; border: 1px solid rgba(0,0,0,.15); white-space: nowrap; position: sticky; top: 0; z-index: 10; }
-        #tvSlide2 .m-table thead tr:nth-child(2) th { top: 31px; z-index: 9; }
-        #tvSlide2 .m-table thead tr:nth-child(3) th { top: 62px; z-index: 8; }
-        
-        /* ponytail: No column — narrow, sticky left-0 */
-        #tvSlide2 .m-table th.col-no, #tvSlide2 .m-table td.col-no { width: 34px; min-width: 34px; max-width: 34px; left: 0; position: sticky; font-weight: 900; color: var(--brand-primary); text-align: center; }
-        #tvSlide2 .m-table th.col-no { color: #fff; }
+        #tvSlide2 {
+            background: #E5E7EB;
+            padding: 75px 16px 75px 16px;
+            font-family: 'Roboto', sans-serif;
+            display: flex;
+            flex-direction: column;
+        }
 
-        #tvSlide2 .m-table th.col-name, #tvSlide2 .m-table td.col-name { width: 140px; min-width: 140px; max-width: 140px; left: 34px; position: sticky; text-align: left; }
-        #tvSlide2 .m-table th.col-shift, #tvSlide2 .m-table td.col-shift { width: 40px; min-width: 40px; max-width: 40px; left: 174px; position: sticky; }
-        
-        #tvSlide2 .m-table th.col-no, #tvSlide2 .m-table th.col-name, #tvSlide2 .m-table th.col-shift { z-index: 12 !important; background: var(--brand-primary); }
-        #tvSlide2 .m-table td.col-no, #tvSlide2 .m-table td.col-name, #tvSlide2 .m-table td.col-shift { z-index: 11; background: #fff; box-shadow: 2px 0 5px -2px rgba(0,0,0,0.1); font-weight: 600; }
-        
-        #tvSlide2 .m-table td { padding: 6px 8px; border: 1px solid #eee; text-align: center; color: #333; background: #fff; }
-        #tvSlide2 .m-table tr:nth-child(even) td:not(.col-no):not(.col-name):not(.col-shift) { background: #f9f9f9; }
-        
-        #tvSlide2 .m-table thead tr:first-child th:first-child { border-top-left-radius: 11px; }
-        #tvSlide2 .m-table thead tr:first-child th:last-child { border-top-right-radius: 11px; }
-        #tvSlide2 .m-table tbody tr:last-child td:first-child { border-bottom-left-radius: 11px; }
-        #tvSlide2 .m-table tbody tr:last-child td:last-child { border-bottom-right-radius: 11px; }
-        
-        #tvSlide2 .skill-circle { display: inline-block; width: 14px; height: 14px; border-radius: 50%; border: 1px solid #333; position: relative; background: #fff; vertical-align: middle; }
-        #tvSlide2 .skill-100 { background: #333; }
-        #tvSlide2 .skill-75 { background: conic-gradient(#333 0deg 270deg, #fff 270deg 360deg); }
-        #tvSlide2 .skill-50 { background: conic-gradient(#333 0deg 180deg, #fff 180deg 360deg); }
-        #tvSlide2 .skill-25 { background: conic-gradient(#333 0deg 90deg, #fff 90deg 360deg); }
-        #tvSlide2 .skill-0 { background: #fff; border-color: #ccc; }
-        
-        #tvSlide2 .chip-level { font-size: 10px; font-weight: 700; color: #2E7D32; }
-        #tvSlide2 .chip-level.training { color: #E74C3C; }
+        #tvSlide2 .main-layout {
+            display: flex;
+            gap: 16px;
+            flex: 1;
+            min-height: 0;
+        }
+
+        #tvSlide2 .left-panel {
+            flex: 0 0 38%;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+            padding: 16px;
+        }
+
+        #tvSlide2 .tv-img-wrap {
+            position: relative;
+            display: inline-block;
+            line-height: 0;
+            max-width: 100%;
+            max-height: 100%;
+        }
+
+        #tvSlide2 .tv-img-wrap img {
+            display: block;
+            max-width: 100%;
+            max-height: calc(100vh - 150px);
+            object-fit: contain;
+        }
+
+        #tvSlide2 .tv-pin {
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+            border: 2px solid #fff;
+        }
+
+        #tvSlide2 .tv-pin-label {
+            position: absolute;
+            right: 100%;
+            margin-right: 8px;
+            background: transparent;
+            color: #000;
+            font-weight: 900;
+            font-size: 14px;
+            white-space: nowrap;
+            font-family: 'Roboto Condensed', sans-serif;
+            text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff;
+        }
+
+        #tvSlide2 .pin-ok {
+            background: #2E7D32;
+        }
+
+        #tvSlide2 .pin-warn {
+            background: #F39C12;
+        }
+
+        #tvSlide2 .pin-problem {
+            background: #E74C3C;
+        }
+
+        #tvSlide2 .pin-off {
+            background: #9E9E9E;
+        }
+
+        #tvSlide2 .fp-empty {
+            color: #777;
+            text-align: center;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        #tvSlide2 .right-panel {
+            flex: 1;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            padding: 16px;
+        }
+
+        #tvSlide2 .matrix-header {
+            background: var(--brand-primary);
+            color: #fff;
+            padding: 10px 16px;
+            border-radius: 6px;
+            font-family: 'Roboto Condensed', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        #tvSlide2 .summary-stats {
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0 20px 0;
+            border-bottom: 1px solid #eee;
+            margin-bottom: 16px;
+        }
+
+        #tvSlide2 .stat-item {
+            text-align: center;
+        }
+
+        #tvSlide2 .stat-val {
+            font-size: 24px;
+            font-weight: 900;
+            color: #333;
+            font-family: 'Roboto Condensed', sans-serif;
+        }
+
+        #tvSlide2 .stat-lbl {
+            font-size: 11px;
+            color: #666;
+            margin-top: 4px;
+        }
+
+        #tvSlide2 .matrix-content {
+            flex: 1;
+            overflow: auto;
+        }
+
+        #tvSlide2 .m-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: 'Roboto', sans-serif;
+            font-size: 11px;
+        }
+
+        #tvSlide2 .m-table th {
+            background: var(--brand-primary);
+            color: #fff;
+            padding: 8px;
+            font-weight: 600;
+            text-align: center;
+            border: 1px solid rgba(0, 0, 0, .15);
+            white-space: nowrap;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        #tvSlide2 .m-table thead tr:nth-child(2) th {
+            top: 31px;
+            z-index: 9;
+        }
+
+        #tvSlide2 .m-table thead tr:nth-child(3) th {
+            top: 62px;
+            z-index: 8;
+        }
+
+        /* @rizkydaffy: No column — narrow, sticky left-0 */
+        #tvSlide2 .m-table th.col-no,
+        #tvSlide2 .m-table td.col-no {
+            width: 34px;
+            min-width: 34px;
+            max-width: 34px;
+            left: 0;
+            position: sticky;
+            font-weight: 900;
+            color: var(--brand-primary);
+            text-align: center;
+        }
+
+        #tvSlide2 .m-table th.col-no {
+            color: #fff;
+        }
+
+        #tvSlide2 .m-table th.col-name,
+        #tvSlide2 .m-table td.col-name {
+            width: 140px;
+            min-width: 140px;
+            max-width: 140px;
+            left: 34px;
+            position: sticky;
+            text-align: left;
+        }
+
+        #tvSlide2 .m-table th.col-shift,
+        #tvSlide2 .m-table td.col-shift {
+            width: 40px;
+            min-width: 40px;
+            max-width: 40px;
+            left: 174px;
+            position: sticky;
+        }
+
+        #tvSlide2 .m-table th.col-no,
+        #tvSlide2 .m-table th.col-name,
+        #tvSlide2 .m-table th.col-shift {
+            z-index: 12 !important;
+            background: var(--brand-primary);
+        }
+
+        #tvSlide2 .m-table td.col-no,
+        #tvSlide2 .m-table td.col-name,
+        #tvSlide2 .m-table td.col-shift {
+            z-index: 11;
+            background: #fff;
+            box-shadow: 2px 0 5px -2px rgba(0, 0, 0, 0.1);
+            font-weight: 600;
+        }
+
+        #tvSlide2 .m-table td {
+            padding: 6px 8px;
+            border: 1px solid #eee;
+            text-align: center;
+            color: #333;
+            background: #fff;
+        }
+
+        #tvSlide2 .m-table tr:nth-child(even) td:not(.col-no):not(.col-name):not(.col-shift) {
+            background: #f9f9f9;
+        }
+
+        #tvSlide2 .m-table thead tr:first-child th:first-child {
+            border-top-left-radius: 11px;
+        }
+
+        #tvSlide2 .m-table thead tr:first-child th:last-child {
+            border-top-right-radius: 11px;
+        }
+
+        #tvSlide2 .m-table tbody tr:last-child td:first-child {
+            border-bottom-left-radius: 11px;
+        }
+
+        #tvSlide2 .m-table tbody tr:last-child td:last-child {
+            border-bottom-right-radius: 11px;
+        }
+
+        #tvSlide2 .skill-circle {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            border: 1px solid #333;
+            position: relative;
+            background: #fff;
+            vertical-align: middle;
+        }
+
+        #tvSlide2 .skill-100 {
+            background: #333;
+        }
+
+        #tvSlide2 .skill-75 {
+            background: conic-gradient(#333 0deg 270deg, #fff 270deg 360deg);
+        }
+
+        #tvSlide2 .skill-50 {
+            background: conic-gradient(#333 0deg 180deg, #fff 180deg 360deg);
+        }
+
+        #tvSlide2 .skill-25 {
+            background: conic-gradient(#333 0deg 90deg, #fff 90deg 360deg);
+        }
+
+        #tvSlide2 .skill-0 {
+            background: #fff;
+            border-color: #ccc;
+        }
+
+        #tvSlide2 .chip-level {
+            font-size: 10px;
+            font-weight: 700;
+            color: #2E7D32;
+        }
+
+        #tvSlide2 .chip-level.training {
+            color: #E74C3C;
+        }
     </style>
 </head>
 
@@ -1575,787 +1860,802 @@ Header = app-header hijau dari admin.blade, semua komponen konten = copy 1:1 das
     <!-- SLIDE 1: Dashboard -->
     <div class="tv-master-slide active" id="tvSlide1">
 
-    {{-- ════════════════════════════════════════════════════════════════
-    HEADER - identik persis app-header dari admin.blade.php
-    ════════════════════════════════════════════════════════════════ --}}
-    <div class="app-header" style="padding:0 12px;gap:10px;position:absolute;top:0;left:0;right:0;z-index:400;">
+        {{-- ════════════════════════════════════════════════════════════════
+        HEADER - identik persis app-header dari admin.blade.php
+        ════════════════════════════════════════════════════════════════ --}}
+        <div class="app-header" style="padding:0 12px;gap:10px;position:absolute;top:0;left:0;right:0;z-index:400;">
 
-        <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0;">
-            <img src="{{ asset('/images/sugity.png') }}" alt="Sugity Creatives"
-                style="height:36px;width:auto;object-fit:contain;flex-shrink:0;" onerror="this.style.display='none'">
-            <div style="display:flex;flex-direction:column;line-height:1.2;min-width:0;">
-                <span
-                    style="font-family:'Roboto Condensed',sans-serif;font-weight:900;font-size:25px;letter-spacing:2px;color:#fff;text-shadow:0 0 14px rgba(245,166,35,.5);white-space:nowrap;-webkit-text-stroke: 1px rgba(255, 255, 255, 0.6);">HENKATEN
-                    BOARD</span>
-                <span
-                    style="font-family:'Roboto Condensed',sans-serif;font-weight:700;font-size:14px;letter-spacing:1.2px;color:rgba(255,255,255,.85);text-transform:uppercase;white-space:nowrap;">
-                    {{ $factory }} @if(!empty($factoryDetails)) - {{ $factoryDetails }} @endif
-                </span>
+            <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0;">
+                <img src="{{ asset('/images/sugity.png') }}" alt="Sugity Creatives"
+                    style="height:36px;width:auto;object-fit:contain;flex-shrink:0;"
+                    onerror="this.style.display='none'">
+                <div style="display:flex;flex-direction:column;line-height:1.2;min-width:0;">
+                    <span
+                        style="font-family:'Roboto Condensed',sans-serif;font-weight:900;font-size:25px;letter-spacing:2px;color:#fff;text-shadow:0 0 14px rgba(245,166,35,.5);white-space:nowrap;-webkit-text-stroke: 1px rgba(255, 255, 255, 0.6);">HENKATEN
+                        BOARD</span>
+                    <span
+                        style="font-family:'Roboto Condensed',sans-serif;font-weight:700;font-size:14px;letter-spacing:1.2px;color:rgba(255,255,255,.85);text-transform:uppercase;white-space:nowrap;">
+                        {{ $factory }} @if(!empty($factoryDetails)) - {{ $factoryDetails }} @endif
+                    </span>
+                </div>
             </div>
+
+            <span
+                style="background:rgba(255,255,255,.15);border:1.5px solid rgba(255,255,255,.3);border-radius:20px;padding:6px 16px;font-family:'Roboto Condensed',sans-serif;font-size:14px;font-weight:900;color:#fff;letter-spacing:.8px;flex-shrink:0;">SHIFT
+                {{ $shift }}</span>
+
+            <div class="header-clock" id="tvClock">00:00:00</div>
+
+            <a href="{{ route('admin.dashboard') }}"
+                style="background:rgba(255,255,255,.1);border:1.5px solid rgba(255,255,255,.2);border-radius:8px;padding:6px 14px;color:rgba(255,255,255,.75);font-family:'Roboto Condensed',sans-serif;font-size:14px;font-weight:700;text-decoration:none;display:flex;align-items:center;gap:5px;flex-shrink:0;"
+                onmouseover="this.style.background='rgba(255,255,255,.2)';this.style.color='#fff'"
+                onmouseout="this.style.background='rgba(255,255,255,.1)';this.style.color='rgba(255,255,255,.75)'">
+                ✕ Exit TV
+            </a>
         </div>
 
-        <span
-            style="background:rgba(255,255,255,.15);border:1.5px solid rgba(255,255,255,.3);border-radius:20px;padding:6px 16px;font-family:'Roboto Condensed',sans-serif;font-size:14px;font-weight:900;color:#fff;letter-spacing:.8px;flex-shrink:0;">SHIFT
-            {{ $shift }}</span>
+        <div class="tv-badge">📺 TV MODE</div>
+        <div class="tv-paused" id="tvPaused">⏸ PAUSED</div>
 
-        <div class="header-clock" id="tvClock">00:00:00</div>
+        {{-- ════════════════════════════════════════════════════════════════
+        BODY
+        ════════════════════════════════════════════════════════════════ --}}
+        <div class="tv-body" id="tvBody">
 
-        <a href="{{ route('admin.dashboard') }}"
-            style="background:rgba(255,255,255,.1);border:1.5px solid rgba(255,255,255,.2);border-radius:8px;padding:6px 14px;color:rgba(255,255,255,.75);font-family:'Roboto Condensed',sans-serif;font-size:14px;font-weight:700;text-decoration:none;display:flex;align-items:center;gap:5px;flex-shrink:0;"
-            onmouseover="this.style.background='rgba(255,255,255,.2)';this.style.color='#fff'"
-            onmouseout="this.style.background='rgba(255,255,255,.1)';this.style.color='rgba(255,255,255,.75)'">
-            ✕ Exit TV
-        </a>
-    </div>
+            {{-- ════ LEFT COLUMN ════ --}}
+            <div class="tv-col-left">
 
-    <div class="tv-badge">📺 TV MODE</div>
-    <div class="tv-paused" id="tvPaused">⏸ PAUSED</div>
-
-    {{-- ════════════════════════════════════════════════════════════════
-    BODY
-    ════════════════════════════════════════════════════════════════ --}}
-    <div class="tv-body" id="tvBody">
-
-        {{-- ════ LEFT COLUMN ════ --}}
-        <div class="tv-col-left">
-
-            {{-- ── date-bar ── --}}
-            <div class="date-bar">
-                <div class="date-label">📅</div>
-                <span style="flex:1;font-family:'Roboto Condensed',sans-serif;font-weight:600;font-size:16px;color:#222;letter-spacing:.5px;">
-                    {{ \Carbon\Carbon::parse($tanggal)->format('d / m / Y') }}
-                </span>
-            </div>
-
-            {{-- ── shift-toggle-bar ── --}}
-            <div class="shift-toggle-bar">
-                <button class="shift-toggle-btn {{ $shift === 'A' ? 'active' : '' }}">SHIFT A</button>
-                <button class="shift-toggle-btn {{ $shift === 'B' ? 'active' : '' }}">SHIFT B</button>
-            </div>
-
-            {{-- ── legend-4m ── --}}
-            <div class="legend-4m">
-                <div class="legend-4m-item">
-                    <div class="l4m-dot" style="background:var(--red)"></div>Man (Absen)
+                {{-- ── date-bar ── --}}
+                <div class="date-bar">
+                    <div class="date-label">📅</div>
+                    <span
+                        style="flex:1;font-family:'Roboto Condensed',sans-serif;font-weight:600;font-size:16px;color:#222;letter-spacing:.5px;">
+                        {{ \Carbon\Carbon::parse($tanggal)->format('d / m / Y') }}
+                    </span>
                 </div>
-                <div class="legend-4m-item">
-                    <div class="l4m-dot" style="background:var(--navy)"></div>Machine
-                </div>
-                <div class="legend-4m-item">
-                    <div class="l4m-dot" style="background:var(--yellow)"></div>Material
-                </div>
-                <div class="legend-4m-item">
-                    <div class="l4m-dot" style="background:var(--green-light)"></div>Method
-                </div>
-            </div>
 
-            {{-- ── status-panel ── --}}
-            @php
-                $chipMap = ['chip-green', 'chip-yellowgreen', 'chip-yellow', 'chip-red'];
-                $chipTxt = [
-                    'OKE  - Semua Normal',
-                    'LOW RISK  - Absen 1',
-                    'MID RISK  - Absen 2–3 / Ada Problem',
-                    'HIGH RISK  - Absen ≥4 / MC Problem ≥2',
-                ];
-            @endphp
-            <div class="status-panel">
-                <div class="status-panel-title">📊 Overall Status</div>
-                <div class="auto-refresh-bar">
-                    <div class="ar-left">
-                        <div class="ar-dot" id="arDot" style="display: none; background: #ffffff;"></div>
-                        <span id="arLabel">Auto Refresh</span>
+                {{-- ── shift-toggle-bar ── --}}
+                <div class="shift-toggle-bar">
+                    <button class="shift-toggle-btn {{ $shift === 'A' ? 'active' : '' }}">SHIFT A</button>
+                    <button class="shift-toggle-btn {{ $shift === 'B' ? 'active' : '' }}">SHIFT B</button>
+                </div>
+
+                {{-- ── legend-4m ── --}}
+                <div class="legend-4m">
+                    <div class="legend-4m-item">
+                        <div class="l4m-dot" style="background:var(--red)"></div>Man (Absen)
                     </div>
-                    <span class="ar-countdown" id="arCountdown">30s</span>
-                </div>
-                <div class="ar-last-updated" id="arLastUpdated">Belum diperbarui</div>
-                <div class="status-emot-row">
-                    <div class="emot-card {{ $statusLevel === 0 ? 'active-green' : '' }}" id="ec-green">
-                        <span class="emot-icon"></span>
-                        <div class="emot-label">SAFE</div>
+                    <div class="legend-4m-item">
+                        <div class="l4m-dot" style="background:var(--navy)"></div>Machine
                     </div>
-                    <div class="emot-card {{ $statusLevel === 1 ? 'active-yellowgreen' : '' }}" id="ec-yg">
-                        <span class="emot-icon"></span>
-                        <div class="emot-label">LOW RISK</div>
+                    <div class="legend-4m-item">
+                        <div class="l4m-dot" style="background:var(--yellow)"></div>Material
                     </div>
-                    <div class="emot-card {{ $statusLevel === 2 ? 'active-yellow' : '' }}" id="ec-yellow">
-                        <span class="emot-icon"></span>
-                        <div class="emot-label">MID RISK</div>
-                    </div>
-                    <div class="emot-card {{ $statusLevel === 3 ? 'active-red' : '' }}" id="ec-red">
-                        <span class="emot-icon"></span>
-                        <div class="emot-label">HIGH RISK</div>
+                    <div class="legend-4m-item">
+                        <div class="l4m-dot" style="background:var(--green-light)"></div>Method
                     </div>
                 </div>
-                <div class="status-chip {{ $chipMap[$statusLevel] }}" id="statusChip">{{ $chipTxt[$statusLevel] }}</div>
-                <div class="status-live-row">
-                    <div class="live-item">
-                        <div class="live-value" id="sMan" style="color:var(--red)">{{ $machineSummary['man'] }}</div>
-                        <div class="live-label">Man</div>
-                    </div>
-                    <div class="live-item">
-                        <div class="live-value" id="sMachine" style="color:var(--navy)">{{ $machineSummary['machine'] }}
+
+                {{-- ── status-panel ── --}}
+                @php
+                    $chipMap = ['chip-green', 'chip-yellowgreen', 'chip-yellow', 'chip-red'];
+                    $chipTxt = [
+                        'OKE  - Semua Normal',
+                        'LOW RISK  - Absen 1',
+                        'MID RISK  - Absen 2–3 / Ada Problem',
+                        'HIGH RISK  - Absen ≥4 / MC Problem ≥2',
+                    ];
+                @endphp
+                <div class="status-panel">
+                    <div class="status-panel-title">📊 Overall Status</div>
+                    <div class="auto-refresh-bar">
+                        <div class="ar-left">
+                            <div class="ar-dot" id="arDot" style="display: none; background: #ffffff;"></div>
+                            <span id="arLabel">Auto Refresh</span>
                         </div>
-                        <div class="live-label">Machine</div>
+                        <span class="ar-countdown" id="arCountdown">30s</span>
                     </div>
-                    <div class="live-item">
-                        <div class="live-value" id="sMaterial" style="color:var(--yellow)">
-                            {{ $machineSummary['material'] }}
+                    <div class="ar-last-updated" id="arLastUpdated">Belum diperbarui</div>
+                    <div class="status-emot-row">
+                        <div class="emot-card {{ $statusLevel === 0 ? 'active-green' : '' }}" id="ec-green">
+                            <span class="emot-icon"></span>
+                            <div class="emot-label">SAFE</div>
                         </div>
-                        <div class="live-label">Material</div>
+                        <div class="emot-card {{ $statusLevel === 1 ? 'active-yellowgreen' : '' }}" id="ec-yg">
+                            <span class="emot-icon"></span>
+                            <div class="emot-label">LOW RISK</div>
+                        </div>
+                        <div class="emot-card {{ $statusLevel === 2 ? 'active-yellow' : '' }}" id="ec-yellow">
+                            <span class="emot-icon"></span>
+                            <div class="emot-label">MID RISK</div>
+                        </div>
+                        <div class="emot-card {{ $statusLevel === 3 ? 'active-red' : '' }}" id="ec-red">
+                            <span class="emot-icon"></span>
+                            <div class="emot-label">HIGH RISK</div>
+                        </div>
                     </div>
-                    <div class="live-item">
-                        <div class="live-value" id="sMethod" style="color:var(--green-light)">
-                            {{ $machineSummary['method'] }}
+                    <div class="status-chip {{ $chipMap[$statusLevel] }}" id="statusChip">{{ $chipTxt[$statusLevel] }}
+                    </div>
+                    <div class="status-live-row">
+                        <div class="live-item">
+                            <div class="live-value" id="sMan" style="color:var(--red)">{{ $machineSummary['man'] }}
+                            </div>
+                            <div class="live-label">Man</div>
                         </div>
-                        <div class="live-label">Method</div>
+                        <div class="live-item">
+                            <div class="live-value" id="sMachine" style="color:var(--navy)">
+                                {{ $machineSummary['machine'] }}
+                            </div>
+                            <div class="live-label">Machine</div>
+                        </div>
+                        <div class="live-item">
+                            <div class="live-value" id="sMaterial" style="color:var(--yellow)">
+                                {{ $machineSummary['material'] }}
+                            </div>
+                            <div class="live-label">Material</div>
+                        </div>
+                        <div class="live-item">
+                            <div class="live-value" id="sMethod" style="color:var(--green-light)">
+                                {{ $machineSummary['method'] }}
+                            </div>
+                            <div class="live-label">Method</div>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            {{-- ── Diagram Attendance ── --}}
-            <div class="tv-chart-section">
-                <div class="section-title">Attendance</div>
-                <div class="attendance-chart-wrap">
-                    <div class="chart-legend-wrap">
-                        {{-- Chart Kiri --}}
-                        <div class="chart-container">
-                            <canvas id="myChart"></canvas>
-                            <div class="chart-center">
-                                <div class="cv" id="centerValue">
-                                    {{ $absenceSummary ? $absenceSummary->mp_hadir . '/' . $absenceSummary->total_member : '0/0' }}
+                {{-- ── Diagram Attendance ── --}}
+                <div class="tv-chart-section">
+                    <div class="section-title">Attendance</div>
+                    <div class="attendance-chart-wrap">
+                        <div class="chart-legend-wrap">
+                            {{-- Chart Kiri --}}
+                            <div class="chart-container">
+                                <canvas id="myChart"></canvas>
+                                <div class="chart-center">
+                                    <div class="cv" id="centerValue">
+                                        {{ $absenceSummary ? $absenceSummary->mp_hadir . '/' . $absenceSummary->total_member : '0/0' }}
+                                    </div>
+                                    <div class="cl">MP</div>
                                 </div>
-                                <div class="cl">MP</div>
+                            </div>
+
+                            {{-- Legend Kanan --}}
+                            <div class="legend-content">
+                                <div class="legend-item"><span class="leg-dot" style="background:#729E3F"></span>MP
+                                </div>
+                                <div class="legend-item"><span class="leg-dot"
+                                        style="background:#5dade2"></span>PENGAWAS
+                                    SAKIT
+                                </div>
+                                <div class="legend-item"><span class="leg-dot"
+                                        style="background:#FF8F1F"></span>PENGAWAS
+                                    IZIN
+                                </div>
+                                <div class="legend-item"><span class="leg-dot"
+                                        style="background:#1F3C88"></span>PENGAWAS
+                                    CUTI
+                                </div>
+                                <div class="legend-item"><span class="leg-dot"
+                                        style="background:#8e44ad"></span>OPERATOR
+                                    SAKIT
+                                </div>
+                                <div class="legend-item"><span class="leg-dot"
+                                        style="background:#f1c40f"></span>OPERATOR
+                                    IZIN
+                                </div>
+                                <div class="legend-item"><span class="leg-dot"
+                                        style="background:#ff69b4"></span>OPERATOR
+                                    CUTI
+                                </div>
                             </div>
                         </div>
-
-                        {{-- Legend Kanan --}}
-                        <div class="legend-content">
-                            <div class="legend-item"><span class="leg-dot" style="background:#729E3F"></span>MP</div>
-                            <div class="legend-item"><span class="leg-dot" style="background:#5dade2"></span>PENGAWAS
-                                SAKIT
+                        {{-- Progress bar --}}
+                        <div class="absen-bar-wrap">
+                            @php
+                                $pct = ($absenceSummary && $absenceSummary->total_member > 0)
+                                    ? round($absenceSummary->mp_hadir / $absenceSummary->total_member * 100, 1)
+                                    : 0;
+                            @endphp
+                            <div class="absen-bar">
+                                <div class="absen-fill" id="absenFill" style="width:{{ $pct }}%">{{ $pct }}%</div>
                             </div>
-                            <div class="legend-item"><span class="leg-dot" style="background:#FF8F1F"></span>PENGAWAS
-                                IZIN
-                            </div>
-                            <div class="legend-item"><span class="leg-dot" style="background:#1F3C88"></span>PENGAWAS
-                                CUTI
-                            </div>
-                            <div class="legend-item"><span class="leg-dot" style="background:#8e44ad"></span>OPERATOR
-                                SAKIT
-                            </div>
-                            <div class="legend-item"><span class="leg-dot" style="background:#f1c40f"></span>OPERATOR
-                                IZIN
-                            </div>
-                            <div class="legend-item"><span class="leg-dot" style="background:#ff69b4"></span>OPERATOR
-                                CUTI
-                            </div>
-                        </div>
-                    </div>
-                    {{-- Progress bar --}}
-                    <div class="absen-bar-wrap">
-                        @php
-                            $pct = ($absenceSummary && $absenceSummary->total_member > 0)
-                                ? round($absenceSummary->mp_hadir / $absenceSummary->total_member * 100, 1)
-                                : 0;
-                        @endphp
-                        <div class="absen-bar">
-                            <div class="absen-fill" id="absenFill" style="width:{{ $pct }}%">{{ $pct }}%</div>
-                        </div>
-                    </div>{{-- /absen-bar-wrap --}}
+                        </div>{{-- /absen-bar-wrap --}}
 
-                </div>{{-- /attendance-chart-wrap --}}
-            </div>{{-- /tv-chart-section --}}
+                    </div>{{-- /attendance-chart-wrap --}}
+                </div>{{-- /tv-chart-section --}}
 
-        </div>{{-- /tv-col-left --}}
+            </div>{{-- /tv-col-left --}}
 
-        {{-- ════ RIGHT COLUMN ════ --}}
-        <div class="tv-col-right">
+            {{-- ════ RIGHT COLUMN ════ --}}
+            <div class="tv-col-right">
 
-            @php
-                use App\Models\Machine;
-                use App\Models\Member;
+                @php
+                    use App\Models\Machine;
+                    use App\Models\Member;
 
-                $scId = \App\Services\ScContext::id();
+                    $scId = \App\Services\ScContext::id();
 
-                if ($factory === 'Factory 2') {
-                    $totMcF2 = Machine::where('sc_id', $scId)->where('factory', 'Factory 2')->where('status', 'mesin')->count();
-                    $totRobotF2 = Machine::where('sc_id', $scId)->where('factory', 'Factory 2')->where('status', 'line')->count();
-                } else {
-                    $totMcF3 = Machine::where('sc_id', $scId)->where('factory', 'Factory 3 & 4')->where('section', 'f3-resin')->where('status', 'mesin')->count();
-                    $totMcF4 = Machine::where('sc_id', $scId)->where('factory', 'Factory 3 & 4')->where('section', 'f4-resin')->where('status', 'mesin')->count();
-                    $totRobotF34 = Machine::where('sc_id', $scId)->where('factory', 'Factory 3 & 4')->where('status', 'robot')->count();
-                    $totVibF34 = Machine::where('sc_id', $scId)->where('factory', 'Factory 3 & 4')->where('status', 'mc_vibration')->count();
-                }
-            @endphp
+                    if ($factory === 'Factory 2') {
+                        $totMcF2 = Machine::where('sc_id', $scId)->where('factory', 'Factory 2')->where('status', 'mesin')->count();
+                        $totRobotF2 = Machine::where('sc_id', $scId)->where('factory', 'Factory 2')->where('status', 'line')->count();
+                    } else {
+                        $totMcF3 = Machine::where('sc_id', $scId)->where('factory', 'Factory 3 & 4')->where('section', 'f3-resin')->where('status', 'mesin')->count();
+                        $totMcF4 = Machine::where('sc_id', $scId)->where('factory', 'Factory 3 & 4')->where('section', 'f4-resin')->where('status', 'mesin')->count();
+                        $totRobotF34 = Machine::where('sc_id', $scId)->where('factory', 'Factory 3 & 4')->where('status', 'robot')->count();
+                        $totVibF34 = Machine::where('sc_id', $scId)->where('factory', 'Factory 3 & 4')->where('status', 'mc_vibration')->count();
+                    }
+                @endphp
 
-            <style>
-                .tv-report-summary {
-                    display: flex;
-                    gap: 8px;
-                    margin-bottom: 14px;
-                    width: 100%;
-                }
-
-                .tv-rs-card {
-                    flex: 1 1 0;
-                    background: #fff;
-                    border: 2px solid #e0ecd4;
-                    border-radius: 8px;
-                    box-shadow: 0 2px 10px rgba(0, 0, 0, .05);
-                    display: flex;
-                    flex-direction: column;
-                    align-items: center;
-                    justify-content: center;
-                    padding: 10px 4px;
-                    min-width: 0;
-                }
-
-                .tv-rs-val {
-                    font-family: 'Roboto Condensed', sans-serif;
-                    font-size: 20px;
-                    font-weight: 900;
-                    color: #222;
-                    line-height: 1.1;
-                    margin-bottom: 3px;
-                }
-
-                .tv-rs-lbl {
-                    font-family: 'Roboto Condensed', sans-serif;
-                    font-size: 9px;
-                    font-weight: 700;
-                    color: #555;
-                    text-transform: uppercase;
-                    text-align: center;
-                    letter-spacing: 0.5px;
-                    line-height: 1.2;
-                    white-space: pre-wrap;
-                }
-            </style>
-
-            <div class="section-title">FACTORY OVERVIEW</div>
-            <div class="tv-report-summary">
-                @if($factory === 'Factory 2')
-                    <div class="tv-rs-card">
-                        <div class="tv-rs-val" id="rsMpF2">{{ $total_mp }}</div>
-                        <div class="tv-rs-lbl">TOTAL MP</div>
-                    </div>
-                    <div class="tv-rs-card">
-                        <div class="tv-rs-val">{{ $totMcF2 }}</div>
-                        <div class="tv-rs-lbl">TOTAL MC</div>
-                    </div>
-                    <div class="tv-rs-card">
-                        <div class="tv-rs-val">{{ $totRobotF2 }}</div>
-                        <div class="tv-rs-lbl">TOTAL ROBOT</div>
-                    </div>
-                @else
-                    <div class="tv-rs-card">
-                        <div class="tv-rs-val" id="rsMpF34">{{ $total_mp }}</div>
-                        <div class="tv-rs-lbl">TOTAL MP<br>FAC 3&4</div>
-                    </div>
-                    <div class="tv-rs-card">
-                        <div class="tv-rs-val">{{ $totMcF3 }}</div>
-                        <div class="tv-rs-lbl">TOTAL MC<br>FAC 3</div>
-                    </div>
-                    <div class="tv-rs-card">
-                        <div class="tv-rs-val">{{ $totRobotF34 }}</div>
-                        <div class="tv-rs-lbl">TOTAL ROBOT</div>
-                    </div>
-                    <div class="tv-rs-card">
-                        <div class="tv-rs-val">{{ $totVibF34 }}</div>
-                        <div class="tv-rs-lbl">TOTAL<br>MC VIBRATION</div>
-                    </div>
-                    <div class="tv-rs-card">
-                        <div class="tv-rs-val">{{ $totMcF4 }}</div>
-                        <div class="tv-rs-lbl">TOTAL MC<br>FAC 4</div>
-                    </div>
-                @endif
-            </div>
-
-            <style>
-                .tv-announcement-box {
-                    background: #fff8e1;
-                    border: 1.5px solid #f39c12;
-                    border-radius: 8px;
-                    padding: 8px 12px;
-                    margin-bottom: 15px;
-                    display: flex;
-                    align-items: center;
-                    gap: 12px;
-                    overflow: hidden;
-                    box-shadow: 0 2px 8px rgba(243, 156, 18, .15);
-                }
-
-                .tv-announce-badge {
-                    background: #f39c12;
-                    color: #fff;
-                    font-family: 'Roboto Condensed', sans-serif;
-                    font-size: 11px;
-                    font-weight: 900;
-                    padding: 4px 10px;
-                    border-radius: 20px;
-                    flex-shrink: 0;
-                    letter-spacing: 0.5px;
-                    box-shadow: 0 2px 4px rgba(243, 156, 18, .4);
-                }
-
-                .tv-announce-badge.ok {
-                    background: var(--green);
-                    border-color: var(--green);
-                    box-shadow: 0 2px 4px rgba(46, 125, 50, .4);
-                }
-
-                .tv-announce-track {
-                    flex: 1;
-                    overflow: hidden;
-                    position: relative;
-                    height: 18px;
-                    display: flex;
-                    align-items: center;
-                }
-
-                .tv-announce-marquee {
-                    display: flex;
-                    white-space: nowrap;
-                    font-family: 'Roboto Condensed', sans-serif;
-                    font-size: 13px;
-                    font-weight: 600;
-                    color: #444;
-                    position: absolute;
-                    animation: marqueeScroll 25s linear infinite;
-                }
-
-                .tv-announce-marquee:hover {
-                    animation-play-state: paused;
-                }
-
-                .tv-announce-item {
-                    display: flex;
-                    align-items: center;
-                    margin-right: 40px;
-                }
-
-                .tv-announce-item b {
-                    color: #c0392b;
-                    margin: 0 4px;
-                    font-weight: 800;
-                }
-
-                @keyframes marqueeScroll {
-                    0% {
-                        transform: translateX(100%);
+                <style>
+                    .tv-report-summary {
+                        display: flex;
+                        gap: 8px;
+                        margin-bottom: 14px;
+                        width: 100%;
                     }
 
-                    100% {
-                        transform: translateX(-100%);
+                    .tv-rs-card {
+                        flex: 1 1 0;
+                        background: #fff;
+                        border: 2px solid #e0ecd4;
+                        border-radius: 8px;
+                        box-shadow: 0 2px 10px rgba(0, 0, 0, .05);
+                        display: flex;
+                        flex-direction: column;
+                        align-items: center;
+                        justify-content: center;
+                        padding: 10px 4px;
+                        min-width: 0;
                     }
-                }
 
-                .tv-announce-safe {
-                    font-family: 'Roboto Condensed', sans-serif;
-                    font-size: 13px;
-                    font-weight: 700;
-                    color: var(--green);
-                }
-            </style>
-
-            @php
-                $absenRecords = \App\Models\AbsenceRecord::where([
-                    'tanggal' => $tanggal,
-                    'factory' => $factory,
-                    'shift' => $shift,
-                    'status' => 'absen',
-                ])->get()->keyBy('member_id');
-                $absenIds = $absenRecords->keys()->toArray();
-                $absenReasons = $absenRecords->map(fn($r) => $r->reason ?? '')->toArray();
-
-                $openLogsData = \App\Models\ProblemLog::where([
-                    'tanggal' => $tanggal,
-                    'factory' => $factory,
-                    'shift' => $shift,
-                    'status' => 'open',
-                ])->whereIn('jenis', ['Machine', 'Material', 'Method'])->get();
-
-                $announcements = [];
-                foreach ($absenRecords as $memberId => $record) {
-                    $memberObj = \App\Models\Member::find($memberId);
-                    if ($memberObj) {
-                        $memberMesin = $memberObj->mesin ?? 'Tidak diketahui';
-                        $reason = strtolower($record->reason ?? '');
-                        $absenLabel = 'Absen';
-                        if (str_contains($reason, 'sakit'))
-                            $absenLabel = 'SAKIT';
-                        elseif (str_contains($reason, 'izin') || str_contains($reason, 'ijin'))
-                            $absenLabel = 'IZIN';
-                        elseif (str_contains($reason, 'cuti'))
-                            $absenLabel = 'CUTI';
-                        $announcements[] = "👷 <b>{$memberObj->nama}</b> ({$memberMesin}) tidak masuk karena <b>{$absenLabel}</b>";
+                    .tv-rs-val {
+                        font-family: 'Roboto Condensed', sans-serif;
+                        font-size: 20px;
+                        font-weight: 900;
+                        color: #222;
+                        line-height: 1.1;
+                        margin-bottom: 3px;
                     }
-                }
-                $openLogsByJenis = $openLogsData->groupBy('jenis');
-                foreach ($openLogsByJenis as $jenis => $logs) {
-                    $jenisUpper = strtoupper($jenis);
-                    $lokasiList = $logs->pluck('lokasi')->filter()->implode(', ');
-                    $announcements[] = "⚠️ Open Logs ({$logs->count()}) <b>{$jenisUpper}</b>" . ($lokasiList ? "  - {$lokasiList}" : '');
-                }
-            @endphp
 
-            {{-- PROBLEM DETAIL TABLE - Stacked --}}
-            <div class="tv-problem-detail" id="tvProblemDetail">
-                <div style="display:flex; align-items:center; justify-content:space-between; flex-shrink:0;">
-                    <div class="section-title" style="margin:0;">📋 4M Henkaten</div>
-                    <span id="tvProbLastSync"
-                        style="font-size:18px;color:#aaa;font-family:'Roboto Condensed',sans-serif;"> -</span>
-                </div>
+                    .tv-rs-lbl {
+                        font-family: 'Roboto Condensed', sans-serif;
+                        font-size: 9px;
+                        font-weight: 700;
+                        color: #555;
+                        text-transform: uppercase;
+                        text-align: center;
+                        letter-spacing: 0.5px;
+                        line-height: 1.2;
+                        white-space: pre-wrap;
+                    }
+                </style>
 
-                {{-- Active Table (Top) --}}
-                <div class="tv-prob-panel">
-                    <div class="tv-prob-panel-header"
-                        style="background: #ffe8e8; border-color: #f5c6c6; color: #c0392b;">
-                        <div>🔴 DETAIL PROBLEM</div>
-                        <span class="tv-prob-badge blink" id="tvProbBadgeActive"
-                            style="background:#e74c3c; color:#fff;">0</span>
-                    </div>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th style="width:3%; text-align:center;">NO</th>
-                                <th style="width:6%">4M</th>
-                                <th style="width:12%">Area Problem</th>
-                                <th style="width:25%">Problem</th>
-                                <th style="width:22%">Countermeasure</th>
-                                <th style="width:8%">PIC</th>
-                                <th style="width:6%; text-align:center;">Start</th>
-                                <th style="width:6%; text-align:center;">Finish</th>
-                                <th style="width:6%; text-align:center;">Durasi</th>
-                                <th style="width:6%; text-align:center;">Progres</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tvProbTbodyActive">
-                            <tr>
-                                <td colspan="10" class="tv-prob-empty">Memuat data…</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                {{-- History Table (Bottom) --}}
-                <div class="tv-prob-panel">
-                    <div class="tv-prob-panel-header"
-                        style="background: #e8f5e9; border-color: #c8e6c9; color: #2e7d32;">
-                        <div>📋 HISTORY</div>
-                        <span class="tv-prob-badge" id="tvProbBadgeHistory"
-                            style="background:#2e7d32; color:#fff;">0</span>
-                    </div>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th style="width:3%; text-align:center;">No</th>
-                                <th style="width:8%">Tanggal</th>
-                                <th style="width:6%">4M</th>
-                                <th style="width:12%">Area Problem</th>
-                                <th style="width:20%">Problem</th>
-                                <th style="width:18%">Countermeasure</th>
-                                <th style="width:7%">PIC</th>
-                                <th style="width:6%; text-align:center;">Start</th>
-                                <th style="width:6%; text-align:center;">Finish</th>
-                                <th style="width:6%; text-align:center;">Durasi</th>
-                                <th style="width:8%; text-align:center;">Progres</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tvProbTbodyHistory">
-                            <tr>
-                                <td colspan="11" class="tv-prob-empty">Memuat data…</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            {{-- BOTTOM SECTION --}}
-            @php $tvDetailMode = request()->get('mode') === 'detail'; @endphp
-            <div class="tv-bottom-section" @if(!$tvDetailMode) style="display:none;" @endif>
-                @if($tvDetailMode)
-                    {{-- DETAIL MODE: full card list --}}
-                    <div style="flex:1 1 0;display:flex;flex-direction:column;min-height:0;overflow:hidden;">
-                        <div class="tv-detail-mode-bar">
-                            <span>📋 Detail Semua Mesin - {{ $factory }} Shift {{ $shift }}</span>
-                            <button class="tv-detail-btn" style="background:#e74c3c" onclick="window.close()">✕
-                                Tutup</button>
+                <div class="section-title">FACTORY OVERVIEW</div>
+                <div class="tv-report-summary">
+                    @if($factory === 'Factory 2')
+                        <div class="tv-rs-card">
+                            <div class="tv-rs-val" id="rsMpF2">{{ $total_mp }}</div>
+                            <div class="tv-rs-lbl">TOTAL MP</div>
                         </div>
-                        <div
-                            style="flex:1 1 0;min-height:0;overflow:auto;border:1.5px solid #c8e6c9;border-top:none;border-radius:0 0 8px 8px;background:#f9fdf9;">
-                @endif
+                        <div class="tv-rs-card">
+                            <div class="tv-rs-val">{{ $totMcF2 }}</div>
+                            <div class="tv-rs-lbl">TOTAL MC</div>
+                        </div>
+                        <div class="tv-rs-card">
+                            <div class="tv-rs-val">{{ $totRobotF2 }}</div>
+                            <div class="tv-rs-lbl">TOTAL ROBOT</div>
+                        </div>
+                    @else
+                        <div class="tv-rs-card">
+                            <div class="tv-rs-val" id="rsMpF34">{{ $total_mp }}</div>
+                            <div class="tv-rs-lbl">TOTAL MP<br>FAC 3&4</div>
+                        </div>
+                        <div class="tv-rs-card">
+                            <div class="tv-rs-val">{{ $totMcF3 }}</div>
+                            <div class="tv-rs-lbl">TOTAL MC<br>FAC 3</div>
+                        </div>
+                        <div class="tv-rs-card">
+                            <div class="tv-rs-val">{{ $totRobotF34 }}</div>
+                            <div class="tv-rs-lbl">TOTAL ROBOT</div>
+                        </div>
+                        <div class="tv-rs-card">
+                            <div class="tv-rs-val">{{ $totVibF34 }}</div>
+                            <div class="tv-rs-lbl">TOTAL<br>MC VIBRATION</div>
+                        </div>
+                        <div class="tv-rs-card">
+                            <div class="tv-rs-val">{{ $totMcF4 }}</div>
+                            <div class="tv-rs-lbl">TOTAL MC<br>FAC 4</div>
+                        </div>
+                    @endif
+                </div>
 
-                        {{-- Machine Cards (hidden on TV / visible on detail) --}}
-                        <div class="tv-machine-cards-col" id="tvMachineCardsCol" @if(!$tvDetailMode)
-                        style="display:none" @endif>
-                            <div class="status-mesin-scroll" style="height: 100%; overflow: auto;">
-                                <div class="machines-wrap">
-                                    @php
-                                        try {
-                                            $replacements = \App\Models\AssignmentReplacement::where([
-                                                'tanggal' => $tanggal,
-                                                'factory' => $factory,
-                                                'shift' => $shift,
-                                            ])->get()->keyBy('member_id');
-                                        } catch (\Throwable $e) {
-                                            $replacements = collect();
-                                        }
+                <style>
+                    .tv-announcement-box {
+                        background: #fff8e1;
+                        border: 1.5px solid #f39c12;
+                        border-radius: 8px;
+                        padding: 8px 12px;
+                        margin-bottom: 15px;
+                        display: flex;
+                        align-items: center;
+                        gap: 12px;
+                        overflow: hidden;
+                        box-shadow: 0 2px 8px rgba(243, 156, 18, .15);
+                    }
 
-                                        $replacedMachines = \App\Models\AssignmentReplacement::where([
-                                            'tanggal' => $tanggal,
-                                            'factory' => $factory,
-                                            'shift' => $shift,
-                                        ])->pluck('target_machine')->toArray();
+                    .tv-announce-badge {
+                        background: #f39c12;
+                        color: #fff;
+                        font-family: 'Roboto Condensed', sans-serif;
+                        font-size: 11px;
+                        font-weight: 900;
+                        padding: 4px 10px;
+                        border-radius: 20px;
+                        flex-shrink: 0;
+                        letter-spacing: 0.5px;
+                        box-shadow: 0 2px 4px rgba(243, 156, 18, .4);
+                    }
 
-                                        try {
-                                            $replacementsAll = \App\Models\AssignmentReplacement::where([
-                                                'tanggal' => $tanggal,
-                                                'factory' => $factory,
-                                                'shift' => $shift,
-                                            ])->get();
-                                        } catch (\Throwable $e) {
-                                            $replacementsAll = collect();
-                                        }
+                    .tv-announce-badge.ok {
+                        background: var(--green);
+                        border-color: var(--green);
+                        box-shadow: 0 2px 4px rgba(46, 125, 50, .4);
+                    }
 
-                                        $pipColors = ['man' => '#e74c3c', 'machine' => '#1f3c88', 'material' => '#f39c12', 'method' => '#2e7d32'];
-                                        $pillDefs = [
-                                            'normal' => ['dot' => null, 'label' => 'Normal'],
-                                            'man' => ['dot' => 'dm', 'label' => 'Man'],
-                                            'material' => ['dot' => 'dt', 'label' => 'Matl'],
-                                            'machine' => ['dot' => 'dc', 'label' => 'Mc'],
-                                            'method' => ['dot' => 'dme', 'label' => 'Method'],
-                                        ];
-                                    @endphp
+                    .tv-announce-track {
+                        flex: 1;
+                        overflow: hidden;
+                        position: relative;
+                        height: 18px;
+                        display: flex;
+                        align-items: center;
+                    }
 
-                                    @foreach($groups as $group)
+                    .tv-announce-marquee {
+                        display: flex;
+                        white-space: nowrap;
+                        font-family: 'Roboto Condensed', sans-serif;
+                        font-size: 13px;
+                        font-weight: 600;
+                        color: #444;
+                        position: absolute;
+                        animation: marqueeScroll 25s linear infinite;
+                    }
+
+                    .tv-announce-marquee:hover {
+                        animation-play-state: paused;
+                    }
+
+                    .tv-announce-item {
+                        display: flex;
+                        align-items: center;
+                        margin-right: 40px;
+                    }
+
+                    .tv-announce-item b {
+                        color: #c0392b;
+                        margin: 0 4px;
+                        font-weight: 800;
+                    }
+
+                    @keyframes marqueeScroll {
+                        0% {
+                            transform: translateX(100%);
+                        }
+
+                        100% {
+                            transform: translateX(-100%);
+                        }
+                    }
+
+                    .tv-announce-safe {
+                        font-family: 'Roboto Condensed', sans-serif;
+                        font-size: 13px;
+                        font-weight: 700;
+                        color: var(--green);
+                    }
+                </style>
+
+                @php
+                    $absenRecords = \App\Models\AbsenceRecord::where([
+                        'tanggal' => $tanggal,
+                        'factory' => $factory,
+                        'shift' => $shift,
+                        'status' => 'absen',
+                    ])->get()->keyBy('member_id');
+                    $absenIds = $absenRecords->keys()->toArray();
+                    $absenReasons = $absenRecords->map(fn($r) => $r->reason ?? '')->toArray();
+
+                    $openLogsData = \App\Models\ProblemLog::where([
+                        'tanggal' => $tanggal,
+                        'factory' => $factory,
+                        'shift' => $shift,
+                        'status' => 'open',
+                    ])->whereIn('jenis', ['Machine', 'Material', 'Method'])->get();
+
+                    $announcements = [];
+                    foreach ($absenRecords as $memberId => $record) {
+                        $memberObj = \App\Models\Member::find($memberId);
+                        if ($memberObj) {
+                            $memberMesin = $memberObj->mesin ?? 'Tidak diketahui';
+                            $reason = strtolower($record->reason ?? '');
+                            $absenLabel = 'Absen';
+                            if (str_contains($reason, 'sakit'))
+                                $absenLabel = 'SAKIT';
+                            elseif (str_contains($reason, 'izin') || str_contains($reason, 'ijin'))
+                                $absenLabel = 'IZIN';
+                            elseif (str_contains($reason, 'cuti'))
+                                $absenLabel = 'CUTI';
+                            $announcements[] = "👷 <b>{$memberObj->nama}</b> ({$memberMesin}) tidak masuk karena <b>{$absenLabel}</b>";
+                        }
+                    }
+                    $openLogsByJenis = $openLogsData->groupBy('jenis');
+                    foreach ($openLogsByJenis as $jenis => $logs) {
+                        $jenisUpper = strtoupper($jenis);
+                        $lokasiList = $logs->pluck('lokasi')->filter()->implode(', ');
+                        $announcements[] = "⚠️ Open Logs ({$logs->count()}) <b>{$jenisUpper}</b>" . ($lokasiList ? "  - {$lokasiList}" : '');
+                    }
+                @endphp
+
+                {{-- PROBLEM DETAIL TABLE - Stacked --}}
+                <div class="tv-problem-detail" id="tvProblemDetail">
+                    <div style="display:flex; align-items:center; justify-content:space-between; flex-shrink:0;">
+                        <div class="section-title" style="margin:0;">📋 4M Henkaten</div>
+                        <span id="tvProbLastSync"
+                            style="font-size:18px;color:#aaa;font-family:'Roboto Condensed',sans-serif;"> -</span>
+                    </div>
+
+                    {{-- Active Table (Top) --}}
+                    <div class="tv-prob-panel">
+                        <div class="tv-prob-panel-header"
+                            style="background: #ffe8e8; border-color: #f5c6c6; color: #c0392b;">
+                            <div>🔴 DETAIL PROBLEM</div>
+                            <span class="tv-prob-badge blink" id="tvProbBadgeActive"
+                                style="background:#e74c3c; color:#fff;">0</span>
+                        </div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th style="width:3%; text-align:center;">NO</th>
+                                    <th style="width:6%">4M</th>
+                                    <th style="width:12%">Area Problem</th>
+                                    <th style="width:25%">Problem</th>
+                                    <th style="width:22%">Countermeasure</th>
+                                    <th style="width:8%">PIC</th>
+                                    <th style="width:6%; text-align:center;">Start</th>
+                                    <th style="width:6%; text-align:center;">Finish</th>
+                                    <th style="width:6%; text-align:center;">Durasi</th>
+                                    <th style="width:6%; text-align:center;">Progres</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tvProbTbodyActive">
+                                <tr>
+                                    <td colspan="10" class="tv-prob-empty">Memuat data…</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    {{-- History Table (Bottom) --}}
+                    <div class="tv-prob-panel">
+                        <div class="tv-prob-panel-header"
+                            style="background: #e8f5e9; border-color: #c8e6c9; color: #2e7d32;">
+                            <div>📋 HISTORY</div>
+                            <span class="tv-prob-badge" id="tvProbBadgeHistory"
+                                style="background:#2e7d32; color:#fff;">0</span>
+                        </div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th style="width:3%; text-align:center;">No</th>
+                                    <th style="width:8%">Tanggal</th>
+                                    <th style="width:6%">4M</th>
+                                    <th style="width:12%">Area Problem</th>
+                                    <th style="width:20%">Problem</th>
+                                    <th style="width:18%">Countermeasure</th>
+                                    <th style="width:7%">PIC</th>
+                                    <th style="width:6%; text-align:center;">Start</th>
+                                    <th style="width:6%; text-align:center;">Finish</th>
+                                    <th style="width:6%; text-align:center;">Durasi</th>
+                                    <th style="width:8%; text-align:center;">Progres</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tvProbTbodyHistory">
+                                <tr>
+                                    <td colspan="11" class="tv-prob-empty">Memuat data…</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                {{-- BOTTOM SECTION --}}
+                @php $tvDetailMode = request()->get('mode') === 'detail'; @endphp
+                <div class="tv-bottom-section" @if(!$tvDetailMode) style="display:none;" @endif>
+                    @if($tvDetailMode)
+                        {{-- DETAIL MODE: full card list --}}
+                        <div style="flex:1 1 0;display:flex;flex-direction:column;min-height:0;overflow:hidden;">
+                            <div class="tv-detail-mode-bar">
+                                <span>📋 Detail Semua Mesin - {{ $factory }} Shift {{ $shift }}</span>
+                                <button class="tv-detail-btn" style="background:#e74c3c" onclick="window.close()">✕
+                                    Tutup</button>
+                            </div>
+                            <div
+                                style="flex:1 1 0;min-height:0;overflow:auto;border:1.5px solid #c8e6c9;border-top:none;border-radius:0 0 8px 8px;background:#f9fdf9;">
+                    @endif
+
+                            {{-- Machine Cards (hidden on TV / visible on detail) --}}
+                            <div class="tv-machine-cards-col" id="tvMachineCardsCol" @if(!$tvDetailMode)
+                            style="display:none" @endif>
+                                <div class="status-mesin-scroll" style="height: 100%; overflow: auto;">
+                                    <div class="machines-wrap">
                                         @php
-                                            $absenMesinCount = 0;
-                                            foreach ($group['machines'] as $mac) {
-                                                $asgn = $members->filter(fn($m) => $m->mesin === $mac || $m->mesin_secondary === $mac);
-                                                if ($asgn->whereIn('id', $absenIds)->isNotEmpty() && !in_array($mac, $replacedMachines))
-                                                    $absenMesinCount++;
+                                            try {
+                                                $replacements = \App\Models\AssignmentReplacement::where([
+                                                    'tanggal' => $tanggal,
+                                                    'factory' => $factory,
+                                                    'shift' => $shift,
+                                                ])->get()->keyBy('member_id');
+                                            } catch (\Throwable $e) {
+                                                $replacements = collect();
                                             }
+
+                                            $replacedMachines = \App\Models\AssignmentReplacement::where([
+                                                'tanggal' => $tanggal,
+                                                'factory' => $factory,
+                                                'shift' => $shift,
+                                            ])->pluck('target_machine')->toArray();
+
+                                            try {
+                                                $replacementsAll = \App\Models\AssignmentReplacement::where([
+                                                    'tanggal' => $tanggal,
+                                                    'factory' => $factory,
+                                                    'shift' => $shift,
+                                                ])->get();
+                                            } catch (\Throwable $e) {
+                                                $replacementsAll = collect();
+                                            }
+
+                                            $pipColors = ['man' => '#e74c3c', 'machine' => '#1f3c88', 'material' => '#f39c12', 'method' => '#2e7d32'];
+                                            $pillDefs = [
+                                                'normal' => ['dot' => null, 'label' => 'Normal'],
+                                                'man' => ['dot' => 'dm', 'label' => 'Man'],
+                                                'material' => ['dot' => 'dt', 'label' => 'Matl'],
+                                                'machine' => ['dot' => 'dc', 'label' => 'Mc'],
+                                                'method' => ['dot' => 'dme', 'label' => 'Method'],
+                                            ];
                                         @endphp
 
-                                        <div class="machine-group-section">
-                                            <div class="machine-group-title">
-                                                @php
-                                                    $sectionKey = $group['section_key'] ?? '';
-                                                    $isKeyPersons = $group['is_key_persons'] ?? false;
+                                        @foreach($groups as $group)
+                                            @php
+                                                $absenMesinCount = 0;
+                                                foreach ($group['machines'] as $mac) {
+                                                    $asgn = $members->filter(fn($m) => $m->mesin === $mac || $m->mesin_secondary === $mac);
+                                                    if ($asgn->whereIn('id', $absenIds)->isNotEmpty() && !in_array($mac, $replacedMachines))
+                                                        $absenMesinCount++;
+                                                }
+                                            @endphp
 
-                                                    $statusCount = collect($group['machines'])->filter(function ($machine) {
-                                                        $machineObj = \App\Models\Machine::where('name', $machine)->first();
-                                                        if (!$machineObj)
-                                                            return false;
-                                                        if ($machineObj->status === 'lainya' || $machineObj->status === 'mc_vibration')
-                                                            return false;
-                                                        return true;
-                                                    })->count();
-
-                                                    $gType = $group['type'] ?? 'mesin';
-                                                    $unitLabel = match ($gType) {
-                                                        'persons' => 'person',
-                                                        'robot' => 'robot',
-                                                        'line' => 'line',
-                                                        'pos' => 'pos',
-                                                        'lainya' => 'support',
-                                                        'mc_vibration' => 'vibration',
-                                                        default => 'machine',
-                                                    };
-                                                @endphp
-                                                🔧 {{ $group['title'] }}
-                                                @if($absenMesinCount > 0)
-                                                    <span class="mg-badge warn">⚠ {{ $absenMesinCount }} absen</span>
-                                                @else
-                                                    <span class="mg-badge"
-                                                        data-default="{{ $statusCount }} {{ $unitLabel }}">{{ $statusCount }}
-                                                        {{ $unitLabel }}</span>
-                                                @endif
-                                            </div>
-
-                                            <div class="machine-cards-row">
-                                                @foreach($group['machines'] as $machine)
+                                            <div class="machine-group-section">
+                                                <div class="machine-group-title">
                                                     @php
-                                                        $st = $statuses[$machine] ?? null;
-                                                        $stVal = $st?->status ?? 'normal';
-                                                        $stAll = $st?->statuses ?? [];
+                                                        $sectionKey = $group['section_key'] ?? '';
+                                                        $isKeyPersons = $group['is_key_persons'] ?? false;
 
-                                                        $assigned = $members->filter(fn($m) => $m->mesin === $machine || $m->mesin_secondary === $machine);
-                                                        $absenMemberIds = $assigned->whereIn('id', $absenIds)->pluck('id');
-                                                        $machineHasRepl = in_array($machine, $replacedMachines);
-                                                        $hasAbsen = $absenMemberIds->isNotEmpty();
-                                                        $needsFinder = $hasAbsen && !$machineHasRepl;
+                                                        $statusCount = collect($group['machines'])->filter(function ($machine) {
+                                                            $machineObj = \App\Models\Machine::where('name', $machine)->first();
+                                                            if (!$machineObj)
+                                                                return false;
+                                                            if ($machineObj->status === 'lainya' || $machineObj->status === 'mc_vibration')
+                                                                return false;
+                                                            return true;
+                                                        })->count();
 
-                                                        $cardCls = $needsFinder
-                                                            ? 'mc-has-absen'
-                                                            : (!$hasAbsen && $stVal !== 'normal' ? 'mc-status-' . $stVal : '');
-
-                                                        $machineRecord = $machinePhotos[$machine] ?? null;
-                                                        $machinePhoto = $machineRecord?->photo_url ?? null;
-                                                        $factorySlug = Str::slug($factory);
-                                                        $machineSlug = $factorySlug . '-' . Str::slug($machine);
-
-                                                        $initPips = [];
-                                                        if ($hasAbsen)
-                                                            $initPips[] = 'man';
-                                                        foreach ($stAll as $s) {
-                                                            if ($s !== 'man' && !in_array($s, $initPips))
-                                                                $initPips[] = $s;
-                                                        }
-
-                                                        $dotInitClass = $hasAbsen ? 'd-absen' : ($stVal !== 'normal' ? 'd-visible' : '');
-                                                        $dotInitBg = (!$hasAbsen && $stVal !== 'normal') ? ($pipColors[$stVal] ?? '') : '';
-
-                                                        $activePills = [];
-                                                        if ($hasAbsen)
-                                                            $activePills[] = 'man';
-                                                        foreach ($stAll as $s) {
-                                                            if (!in_array($s, $activePills))
-                                                                $activePills[] = $s;
-                                                        }
-                                                        if (empty($activePills))
-                                                            $activePills[] = 'normal';
+                                                        $gType = $group['type'] ?? 'mesin';
+                                                        $unitLabel = match ($gType) {
+                                                            'persons' => 'person',
+                                                            'robot' => 'robot',
+                                                            'line' => 'line',
+                                                            'pos' => 'pos',
+                                                            'lainya' => 'support',
+                                                            'mc_vibration' => 'vibration',
+                                                            default => 'machine',
+                                                        };
                                                     @endphp
+                                                    🔧 {{ $group['title'] }}
+                                                    @if($absenMesinCount > 0)
+                                                        <span class="mg-badge warn">⚠ {{ $absenMesinCount }} absen</span>
+                                                    @else
+                                                        <span class="mg-badge"
+                                                            data-default="{{ $statusCount }} {{ $unitLabel }}">{{ $statusCount }}
+                                                            {{ $unitLabel }}</span>
+                                                    @endif
+                                                </div>
 
-                                                    <div class="mc-card {{ $cardCls }}" data-machine="{{ $machine }}"
-                                                        data-status="{{ $stVal }}">
+                                                <div class="machine-cards-row">
+                                                    @foreach($group['machines'] as $machine)
+                                                        @php
+                                                            $st = $statuses[$machine] ?? null;
+                                                            $stVal = $st?->status ?? 'normal';
+                                                            $stAll = $st?->statuses ?? [];
 
-                                                        <div class="mc-photo-wrap" id="photo-wrap-{{ $machineSlug }}">
-                                                            @if($machinePhoto)
-                                                                <img src="{{ $machinePhoto }}" alt="{{ $machine }}" loading="lazy"
-                                                                    id="photo-img-{{ $machineSlug }}">
-                                                            @else
-                                                                <div class="mc-photo-placeholder" id="photo-img-{{ $machineSlug }}">
-                                                                    <div class="ph-ico">📷</div>
-                                                                    <div class="ph-txt">Foto Mesin</div>
-                                                                </div>
-                                                            @endif
-                                                            <div class="mc-name-badge">
-                                                                <span class="mc-name-txt">{{ $machine }}</span>
-                                                                <div style="display:flex;align-items:center;gap:4px">
-                                                                    <div class="mc-4m-row" id="lights-{{ $machineSlug }}">
-                                                                        @foreach($initPips as $pip)
-                                                                            <div class="mc-4m-pip"
-                                                                                style="background:{{ $pipColors[$pip] ?? '#ccc' }}"
-                                                                                title="{{ $pip }}"></div>
-                                                                        @endforeach
+                                                            $assigned = $members->filter(fn($m) => $m->mesin === $machine || $m->mesin_secondary === $machine);
+                                                            $absenMemberIds = $assigned->whereIn('id', $absenIds)->pluck('id');
+                                                            $machineHasRepl = in_array($machine, $replacedMachines);
+                                                            $hasAbsen = $absenMemberIds->isNotEmpty();
+                                                            $needsFinder = $hasAbsen && !$machineHasRepl;
+
+                                                            $cardCls = $needsFinder
+                                                                ? 'mc-has-absen'
+                                                                : (!$hasAbsen && $stVal !== 'normal' ? 'mc-status-' . $stVal : '');
+
+                                                            $machineRecord = $machinePhotos[$machine] ?? null;
+                                                            $machinePhoto = $machineRecord?->photo_url ?? null;
+                                                            $factorySlug = Str::slug($factory);
+                                                            $machineSlug = $factorySlug . '-' . Str::slug($machine);
+
+                                                            $initPips = [];
+                                                            if ($hasAbsen)
+                                                                $initPips[] = 'man';
+                                                            foreach ($stAll as $s) {
+                                                                if ($s !== 'man' && !in_array($s, $initPips))
+                                                                    $initPips[] = $s;
+                                                            }
+
+                                                            $dotInitClass = $hasAbsen ? 'd-absen' : ($stVal !== 'normal' ? 'd-visible' : '');
+                                                            $dotInitBg = (!$hasAbsen && $stVal !== 'normal') ? ($pipColors[$stVal] ?? '') : '';
+
+                                                            $activePills = [];
+                                                            if ($hasAbsen)
+                                                                $activePills[] = 'man';
+                                                            foreach ($stAll as $s) {
+                                                                if (!in_array($s, $activePills))
+                                                                    $activePills[] = $s;
+                                                            }
+                                                            if (empty($activePills))
+                                                                $activePills[] = 'normal';
+                                                        @endphp
+
+                                                        <div class="mc-card {{ $cardCls }}" data-machine="{{ $machine }}"
+                                                            data-status="{{ $stVal }}">
+
+                                                            <div class="mc-photo-wrap" id="photo-wrap-{{ $machineSlug }}">
+                                                                @if($machinePhoto)
+                                                                    <img src="{{ $machinePhoto }}" alt="{{ $machine }}"
+                                                                        loading="lazy" id="photo-img-{{ $machineSlug }}">
+                                                                @else
+                                                                    <div class="mc-photo-placeholder"
+                                                                        id="photo-img-{{ $machineSlug }}">
+                                                                        <div class="ph-ico">📷</div>
+                                                                        <div class="ph-txt">Foto Mesin</div>
                                                                     </div>
-                                                                    <div class="mc-dot {{ $dotInitClass }}"
-                                                                        id="dot-{{ $machineSlug }}" @if($dotInitBg)
-                                                                        style="background:{{ $dotInitBg }}" @endif></div>
+                                                                @endif
+                                                                <div class="mc-name-badge">
+                                                                    <span class="mc-name-txt">{{ $machine }}</span>
+                                                                    <div style="display:flex;align-items:center;gap:4px">
+                                                                        <div class="mc-4m-row" id="lights-{{ $machineSlug }}">
+                                                                            @foreach($initPips as $pip)
+                                                                                <div class="mc-4m-pip"
+                                                                                    style="background:{{ $pipColors[$pip] ?? '#ccc' }}"
+                                                                                    title="{{ $pip }}"></div>
+                                                                            @endforeach
+                                                                        </div>
+                                                                        <div class="mc-dot {{ $dotInitClass }}"
+                                                                            id="dot-{{ $machineSlug }}" @if($dotInitBg)
+                                                                            style="background:{{ $dotInitBg }}" @endif></div>
+                                                                    </div>
                                                                 </div>
                                                             </div>
-                                                        </div>
 
-                                                        <div class="mc-card-body">
-                                                            <div class="mc-members-row">
-                                                                @if($assigned->isEmpty())
-                                                                    <div class="mc-empty-slot">+</div>
-                                                                @else
-                                                                    @foreach($assigned as $m)
-                                                                        @php
-                                                                            $isAbsen = in_array($m->id, $absenIds);
-                                                                            $isDipinjam = !$isAbsen && isset($replacements[$m->id]);
-                                                                            $destMachine = $isDipinjam ? ($replacements[$m->id]->target_machine ?? '?') : null;
-                                                                            $itemCls = $isAbsen ? 'mi-absen' : ($isDipinjam ? 'mi-dipinjam' : '');
-                                                                            $avCls = $isAbsen ? 'av-absen' : 'av-ok';
-                                                                        @endphp
-                                                                        <div class="mc-member-item {{ $itemCls }}"
-                                                                            data-member-id="{{ $m->id }}">
-                                                                            <div class="mc-av {{ $avCls }}">
-                                                                                @if($m->photo_url)
-                                                                                    <img src="{{ $m->photo_url }}" alt="{{ $m->nama }}"
-                                                                                        @if($isAbsen)
-                                                                                            style="filter:grayscale(.5) brightness(.8)"
-                                                                                        @elseif($isDipinjam)
-                                                                                            style="filter:grayscale(.55) brightness(.72)"
-                                                                                        @endif>
-                                                                                @else
-                                                                                    {{ mb_strtoupper(mb_substr($m->nama, 0, 1)) . (str_contains($m->nama, ' ') ? mb_strtoupper(mb_substr(explode(' ', $m->nama)[1], 0, 1)) : '') }}
-                                                                                @endif
-                                                                            </div>
-                                                                            <div class="mc-member-name" title="{{ $m->nama }}">
-                                                                                {{ $m->nama }}
-                                                                            </div>
-                                                                            @if($isAbsen)
-                                                                                @php
-                                                                                    $absenReason = strtolower($absenReasons[$m->id] ?? '');
-                                                                                    $absenLabel = match (true) {
-                                                                                        str_contains($absenReason, 'sakit') => 'SAKIT',
-                                                                                        str_contains($absenReason, 'izin') || str_contains($absenReason, 'ijin') => 'IZIN',
-                                                                                        str_contains($absenReason, 'cuti') => 'CUTI',
-                                                                                        default => 'Absen',
-                                                                                    };
-                                                                                @endphp
-                                                                                <span
-                                                                                    class="mc-member-tag tag-absen">{{ $absenLabel }}</span>
-                                                                            @elseif($isDipinjam)
-                                                                                <span class="mc-member-tag tag-dipinjam">Backup to</span>
-                                                                                <div class="mi-dipinjam-dest"
-                                                                                    title="Bertugas di: {{ $destMachine }}">↗
-                                                                                    {{ Str::limit($destMachine, 8) }}
-                                                                                </div>
-                                                                            @else
-                                                                                <span class="mc-member-tag tag-hadir">Hadir</span>
-                                                                            @endif
-                                                                        </div>
-                                                                    @endforeach
-
-                                                                    @foreach($replacementsAll->where('target_machine', $machine) as $repl)
-                                                                        @php $replM = $members->firstWhere('id', $repl->member_id); @endphp
-                                                                        @if($replM)
-                                                                            @php $rpP = explode(' ', $replM->nama); @endphp
-                                                                            <div class="mc-member-item" data-member-id="{{ $replM->id }}"
-                                                                                data-replacement="1">
-                                                                                <div class="mc-av av-repl">
-                                                                                    @if($replM->photo_url)
-                                                                                        <img src="{{ $replM->photo_url }}"
-                                                                                            alt="{{ $replM->nama }}">
+                                                            <div class="mc-card-body">
+                                                                <div class="mc-members-row">
+                                                                    @if($assigned->isEmpty())
+                                                                        <div class="mc-empty-slot">+</div>
+                                                                    @else
+                                                                        @foreach($assigned as $m)
+                                                                            @php
+                                                                                $isAbsen = in_array($m->id, $absenIds);
+                                                                                $isDipinjam = !$isAbsen && isset($replacements[$m->id]);
+                                                                                $destMachine = $isDipinjam ? ($replacements[$m->id]->target_machine ?? '?') : null;
+                                                                                $itemCls = $isAbsen ? 'mi-absen' : ($isDipinjam ? 'mi-dipinjam' : '');
+                                                                                $avCls = $isAbsen ? 'av-absen' : 'av-ok';
+                                                                            @endphp
+                                                                            <div class="mc-member-item {{ $itemCls }}"
+                                                                                data-member-id="{{ $m->id }}">
+                                                                                <div class="mc-av {{ $avCls }}">
+                                                                                    @if($m->photo_url)
+                                                                                        <img src="{{ $m->photo_url }}" alt="{{ $m->nama }}"
+                                                                                            @if($isAbsen)
+                                                                                                style="filter:grayscale(.5) brightness(.8)"
+                                                                                            @elseif($isDipinjam)
+                                                                                                style="filter:grayscale(.55) brightness(.72)"
+                                                                                            @endif>
                                                                                     @else
-                                                                                        {{ mb_strtoupper(mb_substr($rpP[0], 0, 1)) . (isset($rpP[1]) ? mb_strtoupper(mb_substr($rpP[1], 0, 1)) : '') }}
+                                                                                        {{ mb_strtoupper(mb_substr($m->nama, 0, 1)) . (str_contains($m->nama, ' ') ? mb_strtoupper(mb_substr(explode(' ', $m->nama)[1], 0, 1)) : '') }}
                                                                                     @endif
                                                                                 </div>
-                                                                                <div class="mc-member-name">{{ implode(' ', $rpP) }}</div>
-                                                                                <span class="mc-member-tag tag-repl">Backup</span>
+                                                                                <div class="mc-member-name" title="{{ $m->nama }}">
+                                                                                    {{ $m->nama }}
+                                                                                </div>
+                                                                                @if($isAbsen)
+                                                                                    @php
+                                                                                        $absenReason = strtolower($absenReasons[$m->id] ?? '');
+                                                                                        $absenLabel = match (true) {
+                                                                                            str_contains($absenReason, 'sakit') => 'SAKIT',
+                                                                                            str_contains($absenReason, 'izin') || str_contains($absenReason, 'ijin') => 'IZIN',
+                                                                                            str_contains($absenReason, 'cuti') => 'CUTI',
+                                                                                            default => 'Absen',
+                                                                                        };
+                                                                                    @endphp
+                                                                                    <span
+                                                                                        class="mc-member-tag tag-absen">{{ $absenLabel }}</span>
+                                                                                @elseif($isDipinjam)
+                                                                                    <span class="mc-member-tag tag-dipinjam">Backup
+                                                                                        to</span>
+                                                                                    <div class="mi-dipinjam-dest"
+                                                                                        title="Bertugas di: {{ $destMachine }}">↗
+                                                                                        {{ Str::limit($destMachine, 8) }}
+                                                                                    </div>
+                                                                                @else
+                                                                                    <span class="mc-member-tag tag-hadir">Hadir</span>
+                                                                                @endif
                                                                             </div>
-                                                                        @endif
-                                                                    @endforeach
-                                                                @endif
-                                                            </div>
+                                                                        @endforeach
 
-                                                            <div class="mc-status-row">
-                                                                @foreach($pillDefs as $pKey => $pDef)
-                                                                    <span
-                                                                        class="mc-status-pill p-{{ $pKey }} {{ in_array($pKey, $activePills) ? 'active' : '' }}"
-                                                                        data-status="{{ $pKey }}">
-                                                                        @if($pDef['dot'])<span
-                                                                        class="pill-dot {{ $pDef['dot'] }}"></span>@endif
-                                                                        {{ $pDef['label'] }}
-                                                                    </span>
-                                                                @endforeach
+                                                                        @foreach($replacementsAll->where('target_machine', $machine) as $repl)
+                                                                            @php $replM = $members->firstWhere('id', $repl->member_id); @endphp
+                                                                            @if($replM)
+                                                                                @php $rpP = explode(' ', $replM->nama); @endphp
+                                                                                <div class="mc-member-item"
+                                                                                    data-member-id="{{ $replM->id }}" data-replacement="1">
+                                                                                    <div class="mc-av av-repl">
+                                                                                        @if($replM->photo_url)
+                                                                                            <img src="{{ $replM->photo_url }}"
+                                                                                                alt="{{ $replM->nama }}">
+                                                                                        @else
+                                                                                            {{ mb_strtoupper(mb_substr($rpP[0], 0, 1)) . (isset($rpP[1]) ? mb_strtoupper(mb_substr($rpP[1], 0, 1)) : '') }}
+                                                                                        @endif
+                                                                                    </div>
+                                                                                    <div class="mc-member-name">{{ implode(' ', $rpP) }}
+                                                                                    </div>
+                                                                                    <span class="mc-member-tag tag-repl">Backup</span>
+                                                                                </div>
+                                                                            @endif
+                                                                        @endforeach
+                                                                    @endif
+                                                                </div>
+
+                                                                <div class="mc-status-row">
+                                                                    @foreach($pillDefs as $pKey => $pDef)
+                                                                        <span
+                                                                            class="mc-status-pill p-{{ $pKey }} {{ in_array($pKey, $activePills) ? 'active' : '' }}"
+                                                                            data-status="{{ $pKey }}">
+                                                                            @if($pDef['dot'])<span
+                                                                            class="pill-dot {{ $pDef['dot'] }}"></span>@endif
+                                                                            {{ $pDef['label'] }}
+                                                                        </span>
+                                                                    @endforeach
+                                                                </div>
                                                             </div>
                                                         </div>
-                                                    </div>
-                                                @endforeach
+                                                    @endforeach
+                                                </div>
                                             </div>
-                                        </div>
-                                    @endforeach
-                                </div>{{-- /machines-wrap --}}
-                            </div>{{-- /status-mesin-scroll --}}
-                        </div>{{-- /tv-machine-cards-col --}}
+                                        @endforeach
+                                    </div>{{-- /machines-wrap --}}
+                                </div>{{-- /status-mesin-scroll --}}
+                            </div>{{-- /tv-machine-cards-col --}}
 
-                        @if($tvDetailMode)
-                                </div>{{-- /inner scroll --}}
-                            </div>{{-- /detail col --}}
-                        @endif
+                            @if($tvDetailMode)
+                                    </div>{{-- /inner scroll --}}
+                                </div>{{-- /detail col --}}
+                            @endif
 
-            </div>{{-- /tv-bottom-section --}}
+                </div>{{-- /tv-bottom-section --}}
 
-        </div>{{-- /tv-col-right --}}
+            </div>{{-- /tv-col-right --}}
 
-    </div>{{-- /tv-body --}}
+        </div>{{-- /tv-body --}}
 
     </div><!-- /tvSlide1 -->
 
@@ -2363,53 +2663,74 @@ Header = app-header hijau dari admin.blade, semua komponen konten = copy 1:1 das
     <div class="tv-master-slide" id="tvSlide2">
         <div class="app-header" style="padding:0 12px;gap:10px;position:absolute;top:0;left:0;right:0;z-index:400;">
             <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0;">
-                <img src="{{ asset('/images/sugity.png') }}" alt="Sugity Creatives" style="height:36px;width:auto;object-fit:contain;flex-shrink:0;" onerror="this.style.display='none'">
+                <img src="{{ asset('/images/sugity.png') }}" alt="Sugity Creatives"
+                    style="height:36px;width:auto;object-fit:contain;flex-shrink:0;"
+                    onerror="this.style.display='none'">
                 <div style="display:flex;flex-direction:column;line-height:1.2;min-width:0;">
-                    <span style="font-family:'Roboto Condensed',sans-serif;font-weight:900;font-size:25px;letter-spacing:2px;color:#fff;text-shadow:0 0 14px rgba(245,166,35,.5);white-space:nowrap;-webkit-text-stroke: 1px rgba(255, 255, 255, 0.6);">HENKATEN BOARD</span>
-                    <span style="font-family:'Roboto Condensed',sans-serif;font-weight:700;font-size:14px;letter-spacing:1.2px;color:rgba(255,255,255,.85);text-transform:uppercase;white-space:nowrap;">{{ $factory }}</span>
+                    <span
+                        style="font-family:'Roboto Condensed',sans-serif;font-weight:900;font-size:25px;letter-spacing:2px;color:#fff;text-shadow:0 0 14px rgba(245,166,35,.5);white-space:nowrap;-webkit-text-stroke: 1px rgba(255, 255, 255, 0.6);">HENKATEN
+                        BOARD</span>
+                    <span
+                        style="font-family:'Roboto Condensed',sans-serif;font-weight:700;font-size:14px;letter-spacing:1.2px;color:rgba(255,255,255,.85);text-transform:uppercase;white-space:nowrap;">{{ $factory }}</span>
                 </div>
             </div>
-            <a href="{{ route('admin.dashboard') }}" style="background:rgba(255,255,255,.1);border:1.5px solid rgba(255,255,255,.2);border-radius:8px;padding:6px 14px;color:rgba(255,255,255,.75);font-family:'Roboto Condensed',sans-serif;font-size:14px;font-weight:700;text-decoration:none;display:flex;align-items:center;gap:5px;flex-shrink:0;">✕ Exit TV</a>
+            <a href="{{ route('admin.dashboard') }}"
+                style="background:rgba(255,255,255,.1);border:1.5px solid rgba(255,255,255,.2);border-radius:8px;padding:6px 14px;color:rgba(255,255,255,.75);font-family:'Roboto Condensed',sans-serif;font-size:14px;font-weight:700;text-decoration:none;display:flex;align-items:center;gap:5px;flex-shrink:0;">✕
+                Exit TV</a>
         </div>
-        
+
         <div class="main-layout">
             <!-- LEFT: Floor Plan -->
             <div class="left-panel">
                 <div class="section-title" style="margin-bottom:16px;">LAYOUT FACTORY</div>
                 <div style="flex:1; display:flex; align-items:center; justify-content:center; width:100%;">
-                    @php $layout = \App\Models\FactoryLayout::where('factory', $factory)->where('sc_id', session('current_sc_id', 1))->first(); @endphp
+                    @php $layout = \App\Models\FactoryLayout::where('factory', $factory)->where('sc_id', \App\Services\ScContext::id())->first(); @endphp
                     @if($layout && $layout->image_url)
                         <div class="tv-img-wrap">
                             <img src="{{ $layout->image_url }}" alt="Layout">
                             <div id="tvPinsLayer"></div>
                         </div>
                     @else
-                        <div class="fp-empty">📷 Layout belum dikonfigurasi.<br>Gunakan <strong>Floor Plan Manager</strong>.</div>
+                        <div class="fp-empty">📷 Layout belum dikonfigurasi.<br>Gunakan <strong>Floor Plan Manager</strong>.
+                        </div>
                     @endif
                 </div>
             </div>
 
             <!-- RIGHT: Skill Matrix -->
             <div class="right-panel">
-                <div class="matrix-header">
+                <div style="display:none;" class="matrix-header">
                     <span>Man Power Skill Map — {{ $factory }}</span>
                     <span id="headerClock">Loading...</span>
                 </div>
-                
-                <div class="summary-stats">
-                    <div class="stat-item"><div class="stat-val" id="statTotal">0</div><div class="stat-lbl">Total operator</div></div>
-                    <div class="stat-item"><div class="stat-val" id="statMulti">0</div><div class="stat-lbl">Multi-skill ≥75%</div></div>
-                    <div class="stat-item"><div class="stat-val" id="statPengembangan">0</div><div class="stat-lbl">Pada pengembangan</div></div>
-                    <div class="stat-item"><div class="stat-val" id="statBaru">0</div><div class="stat-lbl">Operator baru (&lt;40%)</div></div>
+
+                <div style="display:none;" class="summary-stats">
+                    <div class="stat-item">
+                        <div class="stat-val" id="statTotal">0</div>
+                        <div class="stat-lbl">Total operator</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-val" id="statMulti">0</div>
+                        <div class="stat-lbl">Multi-skill ≥75%</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-val" id="statPengembangan">0</div>
+                        <div class="stat-lbl">Pada pengembangan</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-val" id="statBaru">0</div>
+                        <div class="stat-lbl">Operator baru (&lt;40%)</div>
+                    </div>
                 </div>
 
                 <div class="matrix-content" id="matrixBox">
-                    <div style="display:flex;height:100%;align-items:center;justify-content:center;color:#777;">⏳ Memuat data skill...</div>
+                    <div style="display:flex;height:100%;align-items:center;justify-content:center;color:#777;">⏳ Memuat
+                        data skill...</div>
                 </div>
             </div>
         </div>
     </div>
-    
+
     <!-- NAVIGATION DOTS (PPT Style) -->
     <div class="tv-nav-dots">
         <div class="tv-nav-dot active" onclick="manualSlide(0)" title="Slide 1: Dashboard"></div>
@@ -2436,10 +2757,10 @@ Header = app-header hijau dari admin.blade, semua komponen konten = copy 1:1 das
             tvStep = n;
             document.getElementById('tvSlide1').classList.toggle('active', tvStep === 0);
             document.getElementById('tvSlide2').classList.toggle('active', tvStep === 1);
-            
+
             const dots = document.querySelectorAll('.tv-nav-dot');
             dots.forEach((d, i) => d.classList.toggle('active', i === tvStep));
-            
+
             if (tvStep === 1) {
                 fetchSlide2Data();
             }
@@ -2456,7 +2777,7 @@ Header = app-header hijau dari admin.blade, semua komponen konten = copy 1:1 das
             goSlide(n);
             startSlideTimer(); // reset timer on manual click
         }
-        
+
         startSlideTimer();
 
         /* ── API Data for Slide 2 ── */
@@ -2472,7 +2793,7 @@ Header = app-header hijau dari admin.blade, semua komponen konten = copy 1:1 das
                 const skillData = await resS.json();
                 renderPins(machines);
                 renderMatrix(skillData.members || [], skillData.skills || {}, skillData.processes || {}, machines);
-            } catch(e) { console.error('Error fetching slide 2 data', e); }
+            } catch (e) { console.error('Error fetching slide 2 data', e); }
         }
 
         function renderPins(machines) {
@@ -2495,7 +2816,7 @@ Header = app-header hijau dari admin.blade, semua komponen konten = copy 1:1 das
             const machineNames = (machinesData || []).map(m => m.name).sort().slice(0, 12);
             if (!machineNames.length) { box.innerHTML = '<div style="text-align:center;padding:40px;color:#777;">Belum ada data mesin di factory ini.</div>'; return; }
 
-            // ponytail: count ALL members for stats; displayMembers only limits table rows
+            // @rizkydaffy: count ALL members for stats; displayMembers only limits table rows
             const displayMembers = members.slice(0, 20);
             let totalOp = members.length, multiSkill = 0, pengembang = 0, opBaru = 0;
 
@@ -2519,40 +2840,45 @@ Header = app-header hijau dari admin.blade, semua komponen konten = copy 1:1 das
                 else if (finalAvg >= 40) pengembang++;
                 else opBaru++;
             });
+            
+            document.getElementById('statTotal').innerText = totalOp;
+            document.getElementById('statMulti').innerText = multiSkill;
+            document.getElementById('statPengembangan').innerText = pengembang;
+            document.getElementById('statBaru').innerText = opBaru;
 
             let totalCols = 0;
             machineNames.forEach(m => {
-                 totalCols += Math.max(1, (processes[m] || []).length);
+                totalCols += Math.max(1, (processes[m] || []).length);
             });
 
             let html = `<table class="m-table"><thead><tr>
                 <th class="col-no" rowspan="3">No</th><th class="col-name" rowspan="3">Nama operator</th><th class="col-shift" rowspan="3">Shift</th>
                 <th colspan="${totalCols}">Mesin / Proses</th>
                 </tr><tr>`;
-                
+
             machineNames.forEach(m => {
-                 const procs = processes[m] || [];
-                 const colspan = Math.max(1, procs.length);
-                 html += `<th colspan="${colspan}">${esc(m)}</th>`;
+                const procs = processes[m] || [];
+                const colspan = Math.max(1, procs.length);
+                html += `<th colspan="${colspan}">${esc(m)}</th>`;
             });
             html += `</tr><tr>`;
-            
+
             machineNames.forEach(m => {
-                 const procs = processes[m] || [];
-                 if (procs.length === 0) {
-                     html += `<th style="color:#cfdfd4;font-size:9px;">ALL</th>`;
-                 } else {
-                     procs.forEach(p => {
-                         html += `<th style="font-size:9px;font-weight:normal;">${esc(p)}</th>`;
-                     });
-                 }
+                const procs = processes[m] || [];
+                if (procs.length === 0) {
+                    html += `<th style="color:#cfdfd4;font-size:9px;">ALL</th>`;
+                } else {
+                    procs.forEach(p => {
+                        html += `<th style="font-size:9px;font-weight:normal;">${esc(p)}</th>`;
+                    });
+                }
             });
             html += `</tr></thead><tbody>`;
 
             displayMembers.forEach((m, index) => {
                 let avgScore = 0, count = 0;
                 let rowHtml = `<tr><td class="col-no">${index + 1}.</td><td class="col-name">${esc(m.nama)}</td><td class="col-shift" style="color:var(--brand-primary);font-weight:700;">${m.shift}</td>`;
-                
+
                 machineNames.forEach(mn => {
                     const procs = processes[mn] || [];
                     if (procs.length === 0) {
@@ -2583,22 +2909,22 @@ Header = app-header hijau dari admin.blade, semua komponen konten = copy 1:1 das
             });
             html += `</tbody></table>`;
             box.innerHTML = html;
-            
+
             document.getElementById('statTotal').textContent = totalOp;
             document.getElementById('statMulti').textContent = multiSkill;
             document.getElementById('statPengembangan').textContent = pengembang;
             document.getElementById('statBaru').textContent = opBaru;
         }
 
-        function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-        
+        function esc(s) { return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+
         setInterval(() => {
             const d = new Date();
-            const months = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agt','Sep','Okt','Nov','Des'];
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agt', 'Sep', 'Okt', 'Nov', 'Des'];
             const hc = document.getElementById('headerClock');
-            if(hc) hc.textContent = `Bulan ${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()} | PT. Sugity Creatives`;
+            if (hc) hc.textContent = `Bulan ${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()} | PT. Sugity Creatives`;
         }, 1000);
-        
+
     </script>
 
     <script>

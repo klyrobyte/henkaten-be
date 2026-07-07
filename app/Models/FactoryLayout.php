@@ -33,6 +33,6 @@ class FactoryLayout extends Model
         if (!$this->layout_image) {
             return null;
         }
-        return '/storage/layouts/' . basename($this->layout_image);
+        return asset('storage/layouts/' . basename($this->layout_image));
     }
 }

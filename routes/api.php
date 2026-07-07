@@ -90,7 +90,7 @@ Route::middleware(['auth', 'app.secret', 'sc.guard'])->group(function () {
     Route::get('members/{member}', [MemberController::class, 'show']);
 
     // Member CRUD  - admin & gl only
-    Route::middleware('role:admin,gl')->prefix('members')->group(function () {
+    Route::middleware('role:admin,gl,tl')->prefix('members')->group(function () {
         Route::post('/', [MemberController::class, 'store']);
         Route::put('/{member}', [MemberController::class, 'update']);
         Route::delete('/clear-all', [MemberController::class, 'clearAll']);
@@ -149,28 +149,28 @@ Route::middleware(['auth', 'app.secret', 'sc.guard'])->group(function () {
             Route::put('/{user}', [UserController::class, 'update']);
             Route::delete('/{user}', [UserController::class, 'destroy']);
         });
+    });
         
-        // Sections & Factories read access (available to gl role for dropdowns)
-        Route::get('factories', [FactoryController::class, 'apiList']);
-        Route::get('sections', [SectionController::class, 'apiList']);
-        Route::get('statuses', [StatusController::class, 'apiList']);
+    // Sections & Factories read access (available to gl role for dropdowns)
+    Route::get('factories', [FactoryController::class, 'apiList']);
+    Route::get('sections', [SectionController::class, 'apiList']);
+    Route::get('statuses', [StatusController::class, 'apiList']);
 
-        // ── Skill API
-        Route::middleware('role:admin,gl')->prefix('skills')->group(function () {
-            Route::get('/', [\App\Http\Controllers\Admin\SkillController::class, 'apiList']);
-            Route::post('/save', [\App\Http\Controllers\Admin\SkillController::class, 'save']);
-            Route::post('/save-batch', [\App\Http\Controllers\Admin\SkillController::class, 'saveBatch']);
-            
-            // Machine Processes Management
-            Route::post('/processes/add', [\App\Http\Controllers\Admin\SkillController::class, 'addProcess']);
-            Route::post('/processes/delete', [\App\Http\Controllers\Admin\SkillController::class, 'deleteProcess']);
-        });
+    // ── Skill API
+    Route::middleware('role:admin,gl,tl')->prefix('skills')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\SkillController::class, 'apiList']);
+        Route::post('/save', [\App\Http\Controllers\Admin\SkillController::class, 'save']);
+        Route::post('/save-batch', [\App\Http\Controllers\Admin\SkillController::class, 'saveBatch']);
+        
+        // Machine Processes Management
+        Route::post('/processes/add', [\App\Http\Controllers\Admin\SkillController::class, 'addProcess']);
+        Route::post('/processes/delete', [\App\Http\Controllers\Admin\SkillController::class, 'deleteProcess']);
+    });
 
-        // ── Floor Plan Manager API
-        Route::middleware('role:admin,gl')->prefix('floor-plan-manager')->group(function () {
-            Route::get('/machines', [\App\Http\Controllers\Admin\FloorPlanManagerController::class, 'machineList']);
-            Route::patch('/pin/{machine}', [\App\Http\Controllers\Admin\FloorPlanManagerController::class, 'updatePin']);
-        });
+    // ── Floor Plan Manager API
+    Route::middleware('role:admin')->prefix('floor-plan-manager')->group(function () {
+        Route::get('/machines', [\App\Http\Controllers\Admin\FloorPlanManagerController::class, 'machineList']);
+        Route::patch('/pin/{machine}', [\App\Http\Controllers\Admin\FloorPlanManagerController::class, 'updatePin']);
     });
 
     // ── Task 6: Client-side Activity Beacon ────────────────────────────────

@@ -355,24 +355,24 @@
                     : '<div style="text-align:center;padding:16px;color:#bbb;font-size:12px">Belum ada riwayat absen</div>';
 
                 document.getElementById('memberSheetBody').innerHTML = `
-                <div class="member-detail-hero">
-                    <div class="member-detail-photo">${photoHTML}</div>
-                    <div class="member-detail-info">
-                        <h4>${m.nama}</h4>
-                        <div style="font-size:12px;color:#888;margin-bottom:6px">
-                            ${m.factory} | Shift ${m.shift}${m.mesin ? ' | ' + m.mesin : ''}
+                    <div class="member-detail-hero">
+                        <div class="member-detail-photo">${photoHTML}</div>
+                        <div class="member-detail-info">
+                            <h4>${m.nama}</h4>
+                            <div style="font-size:12px;color:#888;margin-bottom:6px">
+                                ${m.factory} | Shift ${m.shift}${m.mesin ? ' | ' + m.mesin : ''}
+                            </div>
+                            <span class="mc-badge ${badgeClass}">${m.jabatan}</span>
+                            ${m.nik ? `<span style="font-size:11px;color:#aaa;margin-left:8px">NIK: ${m.nik}</span>` : ''}
                         </div>
-                        <span class="mc-badge ${badgeClass}">${m.jabatan}</span>
-                        ${m.nik ? `<span style="font-size:11px;color:#aaa;margin-left:8px">NIK: ${m.nik}</span>` : ''}
                     </div>
-                </div>
-                <div style="display:flex;gap:8px;margin-bottom:16px">
-                    <button class="btn btn-sm btn-orange" style="flex:1"
-                        onclick="closeSheet('memberSheet');loadEditMember(${m.id})">✏️ Edit</button>
-                    <button class="btn btn-sm btn-danger" onclick="deleteMember(${m.id})">🗑️</button>
-                </div>
-                <div class="section-title">Riwayat Absen (10 Terakhir)</div>
-                <div class="history-list">${histHTML}</div>`;
+                    <div style="display:flex;gap:8px;margin-bottom:16px">
+                        <button class="btn btn-sm btn-orange" style="flex:1"
+                            onclick="closeSheet('memberSheet');loadEditMember(${m.id})">✏️ Edit</button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteMember(${m.id})">🗑️</button>
+                    </div>
+                    <div class="section-title">Riwayat Absen (10 Terakhir)</div>
+                    <div class="history-list">${histHTML}</div>`;
             } catch (e) {
                 document.getElementById('memberSheetBody').innerHTML =
                     `<div style="text-align:center;padding:24px;color:var(--red)">Gagal memuat: ${e.message}</div>`;
@@ -502,8 +502,17 @@
         async function clearAllMembers() {
             if (!confirm('Hapus SEMUA member?\nData absen tidak ikut terhapus.')) return;
             try {
-                await apiCall('/admin/members/clear-all', 'DELETE');
-                showToast('Suara member dihapus', 'info');
+                // @rizkydaffy: using native fetch to pass the explicit confirmation header
+                let res = await fetch('/admin/members/clear-all', {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'X-Confirm-Action': 'DELETE_ALL_MEMBERS',
+                        'Accept': 'application/json'
+                    }
+                });
+                if (!res.ok) throw new Error(await res.text());
+                showToast('Semua member dihapus', 'info');
                 setTimeout(() => window.location.reload(), 700);
             } catch (e) { showToast('Gagal: ' + e.message, 'error'); }
         }

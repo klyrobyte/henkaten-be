@@ -61,7 +61,7 @@ class NonShiftResolver
             ? (is_string($tanggal) ? Carbon::parse($tanggal) : $tanggal)
             : Carbon::today();
 
-        $epoch     = static::epoch();
+        $epoch = static::epoch();
         $weekStart = $date->copy()->startOfWeek(Carbon::MONDAY);
 
         // Jumlah minggu dari epoch ke minggu tanggal target
@@ -92,10 +92,7 @@ class NonShiftResolver
      */
     public static function shiftsFor(string $shift, ?string $tanggal = null): array
     {
-        $shifts = [$shift];
-        if (static::activeShiftFor($tanggal) === $shift) {
-            $shifts[] = 'NS';
-        }
-        return $shifts;
+        // @rizkydaffy: user requested NS members to unconditionally exist on both shifts (bypassing rotation)
+        return [$shift, 'NS'];
     }
 }

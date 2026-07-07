@@ -394,7 +394,7 @@
             <div class="drawer-divider"></div>
             <div class="drawer-section-label">Halaman</div>
 
-            @if(auth()->user()->isSuperAdmin() || auth()->user()->role === 'admin')
+            @if(auth()->user()->isSuperAdmin() || in_array(auth()->user()->role, ['admin', 'gl', 'tl']))
                 {{-- Member Management --}}
                 <button class="drawer-item {{ request()->routeIs('admin.members.*') ? 'active' : '' }}"
                     onclick="window.location='{{ route('admin.members.index') }}'">
@@ -450,6 +450,9 @@
                     Skill Management
                 </button>
 
+            @endif
+
+            @if(auth()->user()->isSuperAdmin() || auth()->user()->role === 'admin')
                 {{-- Floor Plan Manager --}}
                 <button class="drawer-item {{ request()->routeIs('admin.floor-plan-manager.*') ? 'active' : '' }}"
                     onclick="window.location='{{ route('admin.floor-plan-manager.index') }}'">

@@ -25,9 +25,9 @@ class FloorPlanManagerController extends Controller
     // GET /admin/floor-plan-manager
     public function index(Request $request)
     {
-        $user    = Auth::user();
-        $scId    = ScContext::id();
-        $isSA    = $user->isSuperAdmin();
+        $user = Auth::user();
+        $scId = ScContext::id();
+        $isSA = $user->isSuperAdmin();
         $allowed = (array) $user->factory;
 
         $factoriesQ = Factory::where('sc_id', $scId)->orderBy('order_index');
@@ -53,7 +53,10 @@ class FloorPlanManagerController extends Controller
             ->get(['id', 'name', 'status', 'section', 'floor_cx', 'floor_cy']);
 
         return view('admin.floor_plan_manager', compact(
-            'factories', 'factory', 'layout', 'machines'
+            'factories',
+            'factory',
+            'layout',
+            'machines'
         ));
     }
 
@@ -62,26 +65,27 @@ class FloorPlanManagerController extends Controller
     {
         $request->validate([
             'factory' => 'required|string',
-            'layout'  => 'required|image|max:5120', // max 5MB
+            'layout' => 'required|image|max:5120', // max 5MB
         ]);
 
-        $user    = Auth::user();
-        $scId    = ScContext::id();
+        $user = Auth::user();
+        $scId = ScContext::id();
         $factory = $request->factory;
 
         if (!$user->isSuperAdmin() && !in_array($factory, (array) $user->factory)) {
             abort(403);
         }
 
-        $file   = $request->file('layout');
-        $img    = imagecreatefromstring(file_get_contents($file->getRealPath()));
-        $width  = $img ? imagesx($img) : null;
+        $file = $request->file('layout');
+        $img = imagecreatefromstring(file_get_contents($file->getRealPath()));
+        $width = $img ? imagesx($img) : null;
         $height = $img ? imagesy($img) : null;
-        if ($img) imagedestroy($img);
+        if ($img)
+            imagedestroy($img);
 
         // Simpan file
         $filename = 'layout_' . $scId . '_' . \Str::slug($factory) . '_' . time() . '.' . $file->getClientOriginalExtension();
-        // ponytail: write directly to public/storage/layouts/ so the URL resolves without storage:link
+        // @rizkydaffy: write directly to public/storage/layouts/ so the URL resolves without storage:link
         $destDir = public_path('storage/layouts');
         if (!is_dir($destDir)) {
             mkdir($destDir, 0775, true);
@@ -93,17 +97,17 @@ class FloorPlanManagerController extends Controller
         $layout = FactoryLayout::updateOrCreate(
             ['sc_id' => $scId, 'factory' => $factory],
             [
-                'layout_image'  => $filename,
-                'layout_width'  => $width,
+                'layout_image' => $filename,
+                'layout_width' => $width,
                 'layout_height' => $height,
             ]
         );
 
         return response()->json([
-            'ok'       => true,
-            'url'      => $layout->image_url,
-            'width'    => $layout->layout_width,
-            'height'   => $layout->layout_height,
+            'ok' => true,
+            'url' => $layout->image_url,
+            'width' => $layout->layout_width,
+            'height' => $layout->layout_height,
         ]);
     }
 
@@ -111,8 +115,8 @@ class FloorPlanManagerController extends Controller
     public function updatePin(Request $request, Machine $machine)
     {
         $request->validate([
-            'floor_cx'   => 'nullable|numeric',
-            'floor_cy'   => 'nullable|numeric',
+            'floor_cx' => 'nullable|numeric',
+            'floor_cy' => 'nullable|numeric',
             'floor_plan' => 'nullable|string|max:50',
         ]);
 
@@ -128,24 +132,24 @@ class FloorPlanManagerController extends Controller
         }
 
         $machine->update([
-            'floor_cx'   => $request->floor_cx,
-            'floor_cy'   => $request->floor_cy,
+            'floor_cx' => $request->floor_cx,
+            'floor_cy' => $request->floor_cy,
             'floor_plan' => $request->floor_plan,
         ]);
 
         return response()->json([
-            'ok'          => true,
-            'machine_id'  => $machine->id,
-            'machine_name'=> $machine->name,
-            'floor_cx'    => $machine->floor_cx,
-            'floor_cy'    => $machine->floor_cy,
+            'ok' => true,
+            'machine_id' => $machine->id,
+            'machine_name' => $machine->name,
+            'floor_cx' => $machine->floor_cx,
+            'floor_cy' => $machine->floor_cy,
         ]);
     }
 
     // GET /admin/floor-plan-manager/machines  — JSON daftar mesin + koordinat
     public function machineList(Request $request)
     {
-        $scId    = ScContext::id();
+        $scId = ScContext::id();
         $factory = $request->get('factory', ScContext::firstFactory());
 
         $machines = Machine::where('sc_id', $scId)

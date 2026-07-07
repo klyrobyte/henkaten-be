@@ -314,9 +314,11 @@ class AssignmentController extends Controller
             }
 
             // Ambil skills kandidat
-            $query->with(['skills' => function($q) use ($machineName) {
-                $q->where('machine_name', $machineName);
-            }]);
+            $query->with([
+                'skills' => function ($q) use ($machineName) {
+                    $q->where('machine_name', $machineName);
+                }
+            ]);
 
             $allCandidates = $query->orderBy('nama')->get();
 
@@ -329,22 +331,22 @@ class AssignmentController extends Controller
                         ->where('machine_name', $machineName)
                         ->where('skill_pct', '>', 0)
                         ->get()
-                        ->keyBy(function($s) {
+                        ->keyBy(function ($s) {
                             return empty($s->process_name) ? '-' : $s->process_name;
                         });
                 }
             }
 
-            $members = $allCandidates->map(function($m) use ($workingNames, $absentSkills, $absentName) {
+            $members = $allCandidates->map(function ($m) use ($workingNames, $absentSkills, $absentName) {
                 $isWorking = in_array($m->nama, $workingNames);
                 $isEligible = true;
-                
+
                 if (!empty($absentName) && $absentSkills->isNotEmpty()) {
                     // Check if candidate fulfills ALL absent member's skills on this machine
-                    $candSkills = $m->skills->keyBy(function($s) {
+                    $candSkills = $m->skills->keyBy(function ($s) {
                         return empty($s->process_name) ? '-' : $s->process_name;
                     });
-                    
+
                     foreach ($absentSkills as $proc => $aSkill) {
                         $cSkillPct = isset($candSkills[$proc]) ? $candSkills[$proc]->skill_pct : 0;
                         if ($cSkillPct < 75) {
@@ -369,10 +371,10 @@ class AssignmentController extends Controller
                 ];
             });
 
-            // Ponytail: inline filter+sort
+            // @rizkydaffy: inline filter+sort
             $members = $members->filter(fn($m) => $m['eligible'])
-                               ->sortBy(fn($m) => $m['isWorking'] ? 1 : 0)
-                               ->values();
+                ->sortBy(fn($m) => $m['isWorking'] ? 1 : 0)
+                ->values();
 
             return response()->json($members);
 
@@ -452,7 +454,7 @@ class AssignmentController extends Controller
         foreach ($groups as $group) {
             foreach ($group['machines'] as $machine) {
                 $key = "{$group['title']}::{$machine}";
-                
+
                 $machineMembers = $membersByMachine->get($machine, collect())->values();
                 $count = max(1, count($machineMembers));
 

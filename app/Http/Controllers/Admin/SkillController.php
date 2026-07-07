@@ -60,7 +60,7 @@ class SkillController extends Controller
             ->orderBy('nama');
 
         if ($shift !== 'all') {
-            $memberQ->where('shift', $shift);
+            $memberQ->whereIn('shift', \App\Services\NonShiftResolver::shiftsFor($shift));
         }
 
         $members = $memberQ->get();
@@ -114,7 +114,7 @@ class SkillController extends Controller
 
         $memberQ = Member::where('sc_id', $scId)
             ->where('factory', $factory)->where('status', 'active')->orderBy('nama');
-        if ($shift !== 'all') $memberQ->where('shift', $shift);
+        if ($shift !== 'all') $memberQ->whereIn('shift', \App\Services\NonShiftResolver::shiftsFor($shift));
         $members = $memberQ->get();
 
         $machineProcesses = MachineProcess::where('sc_id', $scId)
@@ -493,7 +493,7 @@ class SkillController extends Controller
             ->orderBy('nama');
 
         if ($shift !== 'all') {
-            $memberQ->where('shift', $shift);
+            $memberQ->whereIn('shift', \App\Services\NonShiftResolver::shiftsFor($shift));
         }
 
         $members = $memberQ->get(['id','nama','jabatan','shift']);
