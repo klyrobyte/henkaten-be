@@ -61,7 +61,7 @@ class UserController extends Controller
         $currentUser = Auth::user();
         $scId = ScContext::id();
         
-        $allowedRoles = ['admin', 'tl', 'gl', 'pengawas', 'tv'];
+        $allowedRoles = ['admin', 'cl', 'tl', 'gl', 'pengawas', 'tv']; // ponytail: cl above gl/tl
         if ($currentUser->isSuperAdmin()) {
             $allowedRoles[] = 'superadmin';
         }
@@ -111,7 +111,7 @@ class UserController extends Controller
             }
         }
 
-        $allowedRoles = ['admin', 'tl', 'gl', 'pengawas', 'tv'];
+        $allowedRoles = ['admin', 'cl', 'tl', 'gl', 'pengawas', 'tv']; // ponytail: cl above gl/tl
         if ($currentUser->isSuperAdmin()) {
             $allowedRoles[] = 'superadmin';
         }

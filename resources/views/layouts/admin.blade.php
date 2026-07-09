@@ -639,6 +639,19 @@
                     </span>
                     Global Logs
                 </button>
+
+                {{-- SC PIN Protection --}}
+                <button class="drawer-item {{ request()->routeIs('admin.scpin.*') ? 'active' : '' }}"
+                    onclick="window.location='{{ route('admin.scpin.index') }}'">
+                    <span class="di-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                        </svg>
+                    </span>
+                    SC PIN Config
+                </button>
             @endif
 
             <div class="drawer-divider"></div>
@@ -659,6 +672,21 @@
                     Keluar dari aplikasi
                 </button>
             </form>
+
+            {{-- SC PIN Challenge Modal (ponytail: position:fixed, outside form) --}}
+            <div id="scPinModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.55);align-items:center;justify-content:center;">
+                <div style="background:#fff;border-radius:16px;padding:28px 24px;width:300px;box-shadow:0 8px 32px rgba(0,0,0,.2);">
+                    <div style="font-size:18px;font-weight:700;margin-bottom:6px;color:var(--text-primary,#1a1a2e)">🔐 PIN Diperlukan</div>
+                    <div style="font-size:12px;color:#888;margin-bottom:16px" id="scPinModalSub">SC ini dilindungi PIN. Masukkan PIN untuk melanjutkan.</div>
+                    <input type="password" id="scPinInput" placeholder="Masukkan PIN…" maxlength="12"
+                        style="width:100%;border:1.5px solid #e0e0e0;border-radius:10px;padding:10px 12px;font-size:15px;box-sizing:border-box;outline:none;letter-spacing:4px;margin-bottom:12px;"
+                        onfocus="this.style.borderColor='var(--brand-primary,#1f3c88)'" onblur="this.style.borderColor='#e0e0e0'">
+                    <div style="display:flex;gap:8px;">
+                        <button onclick="_scPinCancel()" style="flex:1;padding:9px;border-radius:8px;border:1.5px solid #e0e0e0;background:#fff;cursor:pointer;font-size:13px;">Batal</button>
+                        <button onclick="_scPinSubmit()" id="scPinSubmitBtn" style="flex:2;padding:9px;border-radius:8px;border:none;background:var(--brand-primary,#1f3c88);color:#fff;cursor:pointer;font-size:13px;font-weight:600;">Verifikasi</button>
+                    </div>
+                </div>
+            </div>
 
         </div>
     </div>
@@ -1024,7 +1052,72 @@
             }
         }
 
+        // ponytail: SC PIN intercept — fetch protected SC list once, challenge if needed
+        let _scPinProtectedMap = null; // {scId: bool}
+        let _scPinPendingId = null;
+        let _scPinResolve = null;
+
+        async function _loadScPinStatus() {
+            if (_scPinProtectedMap !== null) return;
+            try {
+                const res = await fetch('{{ route("admin.scpin.status") }}', { headers: { Accept: 'application/json' } });
+                if (res.ok) _scPinProtectedMap = await res.json();
+                else _scPinProtectedMap = {};
+            } catch (_) { _scPinProtectedMap = {}; }
+        }
+
+        function _scPinCancel() {
+            document.getElementById('scPinModal').style.display = 'none';
+            document.getElementById('scPinInput').value = '';
+            hideLoading();
+            _scPinPendingId = null;
+        }
+
+        async function _scPinSubmit() {
+            const pin = document.getElementById('scPinInput').value.trim();
+            if (!pin) { showToast('Masukkan PIN', 'error'); return; }
+            const btn = document.getElementById('scPinSubmitBtn');
+            if (btn) { btn.disabled = true; btn.textContent = '⏳…'; }
+            try {
+                const res = await fetch('{{ route("admin.scpin.verify") }}', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Accept': 'application/json' },
+                    body: JSON.stringify({ sc_id: _scPinPendingId, pin })
+                });
+                const data = await res.json();
+                if (data.ok) {
+                    document.getElementById('scPinModal').style.display = 'none';
+                    document.getElementById('scPinInput').value = '';
+                    _doSwitchSc(_scPinPendingId);
+                } else {
+                    showToast(data.message || 'PIN salah', 'error');
+                    document.getElementById('scPinInput').value = '';
+                    document.getElementById('scPinInput').focus();
+                }
+            } finally {
+                if (btn) { btn.disabled = false; btn.textContent = 'Verifikasi'; }
+            }
+        }
+
+        document.getElementById('scPinInput')?.addEventListener('keydown', e => {
+            if (e.key === 'Enter') _scPinSubmit();
+        });
+
         async function switchSc(scId) {
+            await _loadScPinStatus();
+            const needsPin = _scPinProtectedMap?.[scId] === true || _scPinProtectedMap?.[String(scId)] === true;
+            const currentScId = {{ auth()->user()->getActiveScId() }};
+            if (needsPin && scId !== currentScId) {
+                // ponytail: challenge with PIN before switching
+                _scPinPendingId = scId;
+                const modal = document.getElementById('scPinModal');
+                if (modal) { modal.style.display = 'flex'; setTimeout(() => document.getElementById('scPinInput')?.focus(), 50); }
+                return;
+            }
+            _doSwitchSc(scId);
+        }
+
+        async function _doSwitchSc(scId) {
             // 1. Force close and unmount all open sheets immediately to prevent interactions
             document.querySelectorAll('.modal-overlay').forEach(el => {
                 el.classList.remove('show');

@@ -890,7 +890,7 @@
                       text-decoration:none;font-size:12px;font-weight:700;font-family:'Roboto Condensed',sans-serif">
                 📤 CSV
             </a>
-            <a href="{{ route('admin.reports.backup', $exportParams) }}" style="padding:8px 14px;border-radius:8px;background:var(--navy);color:#fff;
+            <a style="display:none;" href="{{ route('admin.reports.backup', $exportParams) }}" style="padding:8px 14px;border-radius:8px;background:var(--navy);color:#fff;
                       text-decoration:none;font-size:12px;font-weight:700;font-family:'Roboto Condensed',sans-serif">
                 💾 JSON
             </a>

@@ -38,6 +38,7 @@ class Member extends Model
             'spv' => 'spv',
             'tl' => 'tl',
             'gl' => 'gl',
+            'cl' => 'cl', // ponytail: CL sits above GL/TL
             'ky' => 'ky',
             default => 'op',
         };

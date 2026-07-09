@@ -491,7 +491,7 @@
 
         {{-- Toolbar --}}
         <div class="mm-toolbar">
-            <input class="mm-search" type="text" id="mmSearch" placeholder="🔍 Cari nama mesin..." oninput="filterCards()">
+            <input class="mm-search" type="text" id="mmSearch" placeholder="🔍 Cari nama prosess..." oninput="filterCards()">
             <button class="mm-add-btn" id="mmAddBtn" onclick="openMesinModal()">
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
@@ -580,7 +580,7 @@
 
                 {{-- Nama Mesin --}}
                 <div class="mm-field">
-                    <label>Nama Mesin *</label>
+                    <label>Nama Prosess *</label>
                     <input type="text" id="mmName" placeholder="Contoh: #01-2500T" autocomplete="off">
                 </div>
 
@@ -812,7 +812,7 @@
             const section = document.getElementById('mmSection').value;
             const photoBase64 = document.getElementById('mmPhotoBase64').value;
 
-            if (!name) { showToast('Nama mesin tidak boleh kosong.', 'error'); return; }
+            if (!name) { showToast('Nama prosess tidak boleh kosong.', 'error'); return; }
             if (!status) { showToast('Pilih status mesin.', 'error'); return; }
             if (factory && status && !section) {
                 showToast('Pilih section untuk mesin ini.', 'error'); return;

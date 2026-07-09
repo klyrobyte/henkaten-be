@@ -19,6 +19,7 @@ use App\Http\Controllers\Admin\StatusController;
 use App\Http\Controllers\Admin\RepairDepartmentController;
 use App\Http\Controllers\Admin\SiteConfigController;
 use App\Http\Controllers\Admin\ScController;
+use App\Http\Controllers\Admin\ScPinController;
 use Illuminate\Support\Facades\Route;
 
 // â”€â”€â”€ Auth â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -40,6 +41,16 @@ Route::middleware(['auth', 'sc.guard'])->prefix('admin')->name('admin.')->group(
      Route::post('/context', [DashboardController::class, 'setContext'])->name('context')
           ->middleware('log.deprecated');
      Route::post('/set-sc', [DashboardController::class, 'setScContext'])->name('set-sc');
+
+     // ── SC PIN Protection ───────────────────────────────────────────────────
+     // ponytail: verify is open to all auth'd users (needed during SC switch)
+     Route::post('/scpin/verify', [ScPinController::class, 'verify'])->name('scpin.verify');
+     Route::get('/scpin/status', [ScPinController::class, 'status'])->name('scpin.status');
+     Route::middleware('role:superadmin')->group(function () {
+          Route::get('/scpin', [ScPinController::class, 'index'])->name('scpin.index');
+          Route::post('/scpin/{sc}/toggle', [ScPinController::class, 'toggle'])->name('scpin.toggle');
+     });
+
 
      // â”€â”€ TV MODE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
      // Picker halaman pilih factory+shift (untuk role tv)

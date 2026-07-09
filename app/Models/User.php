@@ -76,7 +76,7 @@ class User extends Authenticatable
 
     public function isSupervisor(): bool
     {
-        return in_array($this->role, ['superadmin', 'admin', 'tl', 'gl', 'pengawas']);
+        return in_array($this->role, ['superadmin', 'admin', 'cl', 'gl', 'tl', 'pengawas']); // ponytail: cl above gl/tl
     }
 
     public function isTvOnly(): bool
@@ -92,6 +92,7 @@ class User extends Authenticatable
         return match ($this->role) {
             'superadmin' => 'Super Admin',
             'admin' => 'Administrator',
+            'cl' => 'Chief Leader', // ponytail: cl above gl/tl
             'tl' => 'Team Leader',
             'gl' => 'Group Leader',
             'pengawas' => 'Pengawas',
@@ -107,6 +108,7 @@ class User extends Authenticatable
         return match ($this->role) {
             'superadmin' => '#000000',
             'admin' => '#e74c3c',
+            'cl' => '#6a0dad', // ponytail: cl purple, above gl/tl
             'tl' => '#1f3c88',
             'gl' => '#2e7d32',
             'pengawas' => '#f39c12',

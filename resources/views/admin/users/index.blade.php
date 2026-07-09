@@ -546,6 +546,7 @@
                                 <option value="superadmin">⚫ Super Admin (Full Access)</option>
                             @endif
                             <option value="admin">🔴 Admin (Scoped Access)</option>
+                            <option value="cl">🟣 Chief Leader (CL)</option>
                             <option value="tl">🔵 Team Leader (TL)</option>
                             <option value="gl">🟢 Group Leader (GL)</option>
                             <option value="pengawas">🟡 Pengawas</option>

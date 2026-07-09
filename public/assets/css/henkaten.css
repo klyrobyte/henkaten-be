@@ -2184,6 +2184,12 @@ body {
    color: var(--yellow)
 }
 
+/* ponytail: CL badge — Chief Leader, sits above GL/TL */
+.mc-badge.cl {
+   background: rgba(231, 76, 60, .12);
+   color: var(--red)
+}
+
 .absent-badge {
    position: absolute;
    top: 6px;

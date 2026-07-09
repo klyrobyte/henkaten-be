@@ -1594,15 +1594,8 @@
                                         </div>
                                     @endif
 
-                                    <div class="mc-photo-upload-overlay"
-                                        onclick="event.stopPropagation(); triggerPhotoUpload('{{ addslashes($machine) }}','{{ $machineSlug }}','{{ addslashes($factory) }}')"
-                                        title="Ganti foto mesin">
-                                        <span class="upload-ico">📷</span>
-                                        <span class="upload-txt">{{ $machinePhoto ? 'Ganti Foto' : 'Upload Foto' }}</span>
-                                    </div>
+                                    {{-- ponytail: upload vector deprecated — use /admin/mesinmg --}}
 
-                                    <input type="file" accept="image/*" id="file-{{ $machineSlug }}" style="display:none"
-                                        onchange="uploadMachinePhoto(event,'{{ addslashes($machine) }}','{{ $machineSlug }}','{{ addslashes($factory) }}')">
 
                                     <div class="mc-name-badge">
                                         <span class="mc-name-txt">{{ $machine }}</span>
@@ -2120,6 +2113,7 @@
             $id('qlLokasi').value = machine;
             $id('qlMesinLabel').textContent = machine;
             ['machine', 'material', 'method'].forEach(j => { $id(`ql-btn-${j}`).className = 'jenis-btn'; });
+            _qlLockJenisButtons([]); // ponytail: reset locks; renderLogList will re-apply
             document.querySelectorAll('.ql-form-section').forEach(s => s.classList.remove('visible'));
             $id('qlSaveBtnWrap').style.display = 'none';
             const now = new Date().toTimeString().slice(0, 5);
@@ -2152,6 +2146,19 @@
             if (val === 'closed') { const el = $id(`ql-${prefix}-selesai`); if (el) el.value = new Date().toTimeString().slice(0, 5); }
         }
 
+        // ponytail: disable jenis buttons that already have an open problem
+        function _qlLockJenisButtons(openJenisList) {
+            ['Machine', 'Material', 'Method'].forEach(j => {
+                const btn = $id(`ql-btn-${j.toLowerCase()}`);
+                if (!btn) return;
+                const isLocked = openJenisList.includes(j.toLowerCase());
+                btn.disabled = isLocked;
+                btn.title = isLocked ? `Problem ${j} sudah aktif — selesaikan dulu` : '';
+                btn.style.opacity = isLocked ? '0.4' : '';
+                btn.style.cursor = isLocked ? 'not-allowed' : '';
+            });
+        }
+
         async function renderLogList(machine) {
             const wrap = $id('qlLogList'); if (!wrap) return;
             wrap.innerHTML = '<div style="text-align:center;padding:10px;color:#aaa;font-size:11px">⏳ Memuat…</div>';
@@ -2161,7 +2168,7 @@
                 const res = await fetch(`/api/logs/list?${qs}`, { headers: { Accept: 'application/json' } });
                 const all = res.ok ? await res.json() : [];
                 const logs = all.filter(l => l.lokasi === machine);
-                if (!logs.length) { wrap.innerHTML = '<div style="text-align:center;padding:12px;color:#ccc;font-size:11px">Belum ada log untuk mesin ini hari ini.</div>'; return; }
+                if (!logs.length) { wrap.innerHTML = '<div style="text-align:center;padding:12px;color:#ccc;font-size:11px">Belum ada log untuk mesin ini hari ini.</div>'; _qlLockJenisButtons([]); return; }
                 const jc = { machine: '#1f3c88', material: '#f39c12', method: '#2e7d32' };
                 wrap.innerHTML = logs.map(l => {
                     const isOpen = l.status === 'open', jClr = jc[(l.jenis || '').toLowerCase()] || '#888';
@@ -2192,6 +2199,9 @@
                             </div>` : ''}
                         </div>`;
                 }).join('');
+                // ponytail: lock jenis buttons for any category with an open log
+                const openJenis = logs.filter(l => l.status === 'open').map(l => (l.jenis || '').toLowerCase());
+                _qlLockJenisButtons(openJenis);
             } catch (e) { wrap.innerHTML = '<div style="text-align:center;padding:10px;color:#f99;font-size:11px">Gagal memuat log.</div>'; }
         }
 
@@ -2210,6 +2220,25 @@
             const waktuSel = (status === 'closed' && selesaiR) ? selesaiR : null;
             if (!mulai) { showToast('Isi waktu mulai', 'error'); return; }
             if (!desk) { showToast('Isi deskripsi masalah', 'error'); return; }
+
+            // ponytail: 3M concurrency guard — block duplicate open category per machine
+            try {
+                const qs = `tanggal=${TANGGAL}&factory=${encodeURIComponent(FACTORY)}&shift=${SHIFT}`;
+                const chkRes = await fetch(`/api/logs/list?${qs}`, { headers: { Accept: 'application/json' } });
+                if (chkRes.ok) {
+                    const existing = await chkRes.json();
+                    const alreadyOpen = existing.some(l =>
+                        l.lokasi === lokasi &&
+                        (l.jenis || '').toLowerCase() === jenis.toLowerCase() &&
+                        l.status === 'open'
+                    );
+                    if (alreadyOpen) {
+                        showToast(`⚠️ Sudah ada problem ${jenis} yang aktif di mesin ini. Selesaikan dulu sebelum membuat yang baru.`, 'error');
+                        return;
+                    }
+                }
+            } catch (_) { /* non-blocking: if check fails, allow submit */ }
+
             const btn = $id('qlSubmitBtn'); if (btn) { btn.disabled = true; btn.textContent = '⏳ Menyimpan…'; }
             try {
                 const res = await fetch('/api/logs', {
@@ -2666,30 +2695,10 @@
         }
         function onDateChange(val) { const url = new URL(window.location); url.searchParams.set('tanggal', val); window.location = url; }
 
-        /* ── 8. FOTO MESIN ── */
-        function triggerPhotoUpload(machine, slug, factory) { document.getElementById('file-' + slug)?.click(); }
-        async function uploadMachinePhoto(event, machine, slug, factory) {
-            const file = event.target.files?.[0]; if (!file) return;
-            const wrap = document.getElementById('photo-wrap-' + slug);
-            if (file.size > 3 * 1024 * 1024) { showToast('Foto terlalu besar (maks 3MB)', 'error'); event.target.value = ''; return; }
-            wrap?.classList.add('uploading');
-            const ot = wrap?.querySelector('.upload-txt'); if (ot) ot.textContent = '⏳ Mengupload...';
-            try {
-                // Gunakan factory spesifik yang dikirim, bukan FACTORY global
-                const factoryToUse = factory || FACTORY;
-                const fd = new FormData(); fd.append('factory', factoryToUse); fd.append('machine_name', machine); fd.append('photo', file); fd.append('_token', CSRF);
-                const res = await fetch('/api/machines/photo', { method: 'POST', body: fd }); const data = await res.json();
-                if (!res.ok || !data.ok) { showToast(data.message || 'Gagal upload foto', 'error'); return; }
-                const imgEl = document.getElementById('photo-img-' + slug);
-                if (imgEl) {
-                    if (imgEl.tagName === 'IMG') { imgEl.src = data.photo_url + '?t=' + Date.now(); }
-                    else { const ni = document.createElement('img'); ni.id = `photo-img-${slug}`; ni.src = data.photo_url; ni.alt = machine; ni.loading = 'lazy'; ni.style.cssText = 'width:100%;height:100%;object-fit:cover;transition:transform .3s'; imgEl.replaceWith(ni); }
-                }
-                if (ot) ot.textContent = 'Ganti Foto';
-                showToast(`✅ Foto ${machine} berhasil diupload`, 'success');
-            } catch (e) { showToast('Gagal upload foto', 'error'); if (ot) ot.textContent = 'Upload Foto'; }
-            finally { wrap?.classList.remove('uploading'); event.target.value = ''; }
-        }
+        /* ── 8. FOTO MESIN — DEPRECATED (upload moved to /admin/mesinmg) ── */
+        // ponytail: triggerPhotoUpload and uploadMachinePhoto removed from dashboard
+        // function triggerPhotoUpload() {} // no-op kept for safety
+
 
         /* ── 9. INIT ── */
         document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeFinderModal(); closeQuickLog(); } });

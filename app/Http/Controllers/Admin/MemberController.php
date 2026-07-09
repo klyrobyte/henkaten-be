@@ -440,7 +440,7 @@ class MemberController extends Controller
         return $request->validate([
             'nama' => 'required|string|max:100',
             'nik' => 'nullable|string|max:50',
-            'jabatan' => 'required|in:Operator,SPV,TL,GL,KY',
+            'jabatan' => 'required|in:Operator,SPV,TL,GL,CL,KY', // ponytail: CL added above GL/TL
             'factory' => 'required|string',
             // @rizkydaffy: added NS (Non-Shift) validation
             'shift' => 'required|in:A,B,NS',

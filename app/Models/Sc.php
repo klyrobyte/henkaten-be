@@ -16,6 +16,12 @@ class Sc extends Model
         'gradient',
         'order_index',
         'detail_departemen',
+        'require_pin',  // ponytail: SC PIN protection
+        'pin_hash',
+    ];
+
+    protected $casts = [
+        'require_pin' => 'boolean',
     ];
 
     public function factories()
