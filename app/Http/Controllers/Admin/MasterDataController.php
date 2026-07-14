@@ -7,6 +7,8 @@ use App\Models\ProblemLog;
 use App\Models\AbsenceRecord;
 use App\Models\AbsenceSummary;
 use App\Models\AbsenceReason;
+use App\Models\Factory;
+use App\Models\Machine;
 use App\Models\AssignmentReplacement;
 use App\Models\DailyAssignment;
 use App\Models\MachineStatus;
