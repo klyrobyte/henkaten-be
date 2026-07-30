@@ -47,6 +47,8 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->prependToGroup('api', \Illuminate\Session\Middleware\StartSession::class);
         $middleware->prependToGroup('api', \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class);
         $middleware->prependToGroup('api', \Illuminate\Cookie\Middleware\EncryptCookies::class);
+        
+        $middleware->trustProxies(at: '*');
 
         $middleware->appendToGroup('api', \App\Http\Middleware\VerifyAppSecret::class);
         // Task 6: Log all authenticated API actions (append-only, encrypted PII)
